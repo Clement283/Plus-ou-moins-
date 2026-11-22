@@ -92,7 +92,7 @@ e2e/*.spec.ts
 
 ## Phase B : infrastructure
 
-### Tâche 3 : Monorepo et maths exactes
+### Task 3 (Tâche 3) : Monorepo et maths exactes
 
 **Files :**
 - Create: `package.json`, `tsconfig.base.json`, `packages/engine/{package.json,tsconfig.json,vitest.config.ts}`, `packages/engine/src/math/rational.ts`, `packages/engine/src/math/expr.ts`, `packages/engine/src/rng.ts`, `packages/engine/src/index.ts`
@@ -129,7 +129,7 @@ expect(seededRng(42)()).toBe(seededRng(42)());
 - [ ] **Étape 4 :** lancer `npm test -w @pom/engine`. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 4 : Journal d'événements et jour de Paris
+### Task 4 (Tâche 4) : Journal d'événements et jour de Paris
 
 **Files :**
 - Create: `packages/engine/src/time.ts`, `packages/engine/src/events.ts`
@@ -175,7 +175,7 @@ expect(isAppEvent({ kind: 'answer' })).toBe(false);
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS, aussi avec `TZ=America/New_York`.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 5 : Serveur (Worker, D1, connexion, journal)
+### Task 5 (Tâche 5) : Serveur (Worker, D1, connexion, journal)
 
 **Files :**
 - Create: `apps/api/{package.json,wrangler.toml,vitest.config.ts}`, `apps/api/migrations/0001_init.sql`, `apps/api/src/{index,auth}.ts`, `apps/api/src/routes/{events,students}.ts`, `scripts/create-user.ts`
@@ -208,7 +208,7 @@ expect(isAppEvent({ kind: 'answer' })).toBe(false);
 - [ ] **Étape 4 :** lancer `npm test -w api`. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 6 : Appli web, connexion, stockage local, synchronisation
+### Task 6 (Tâche 6) : Appli web, connexion, stockage local, synchronisation
 
 **Files :**
 - Create: `apps/web/` (Vite + React + TS, vite-plugin-pwa `autoUpdate`, manifeste en français, `display: standalone`), `apps/web/src/{theme.css,api.ts,App.tsx}`, `apps/web/src/store/{db,sync}.ts`, `apps/web/src/screens/Login.tsx`
@@ -237,7 +237,7 @@ expect(isAppEvent({ kind: 'answer' })).toBe(false);
 
 ## Phase C : logique validée, écrans, déploiement
 
-### Tâche 7 : Saisie brute et clavier maths (réf. doc 03)
+### Task 7 (Tâche 7) : Saisie brute et clavier maths (réf. doc 03)
 
 **Files :**
 - Create: `packages/engine/src/input/raw.ts`, `apps/web/src/components/Keypad.tsx`, `apps/web/src/components/RawInputView.tsx`
@@ -271,7 +271,7 @@ canSubmit(input): boolean                            // vrai dès qu'il y a au m
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 8 : Module « Calculs » et ses 8 cours (réf. doc 06)
+### Task 8 (Tâche 8) : Module « Calculs » et ses 8 cours (réf. doc 06)
 
 **Files :**
 - Create: `packages/engine/src/courses/types.ts`, `packages/engine/src/courses/index.ts`, `packages/engine/src/courses/calculs/index.ts`, `packages/engine/src/courses/calculs/c00-bien-ecrire.ts` … `c07-multiplier-plusieurs.ts`
@@ -321,7 +321,7 @@ Le Cours 0 n'a pas de résultat numérique. Son `Exercise` porte une écriture (
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 9 : Fabrication et correction des 8 types d'exercices (réf. doc 04)
+### Task 9 (Tâche 9) : Fabrication et correction des 8 types d'exercices (réf. doc 04)
 
 **Files :**
 - Create: `packages/engine/src/exercises/types.ts`, `packages/engine/src/exercises/build/{saisie,trou,ordre,erreur,paires,classer,qcm,vraifaux}.ts`, `packages/engine/src/exercises/check.ts`
@@ -363,7 +363,7 @@ checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 10 : Composants d'affichage des 8 types (réf. doc 03 §5, doc 04)
+### Task 10 (Tâche 10) : Composants d'affichage des 8 types (réf. doc 03 §5, doc 04)
 
 **Files :**
 - Create: `apps/web/src/components/Math.tsx`, `apps/web/src/components/questions/{Saisie,Trou,Ordre,Erreur,Paires,Classer,Qcm,VraiFaux,QuestionView}.tsx`, `apps/web/src/components/LessonPart.tsx`
@@ -385,7 +385,7 @@ checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome
 - [ ] **Étape 4 :** lancer `npm test -w web`. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 11 : Répétition espacée et progression (réf. doc 01)
+### Task 11 (Tâche 11) : Répétition espacée et progression (réf. doc 01)
 
 **Files :**
 - Create: `packages/engine/src/srs.ts`
@@ -422,7 +422,7 @@ applyEvent(state: ProgressState, e: AppEvent): ProgressState     // mise à jour
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 12 : Liste des révisions, séances et temps du jour (réf. doc 02, doc 01 §3 et §5, doc 04 §9)
+### Task 12 (Tâche 12) : Liste des révisions, séances et temps du jour (réf. doc 02, doc 01 §3 et §5, doc 04 §9)
 
 **Files :**
 - Create: `packages/engine/src/reviews.ts`, `packages/engine/src/daily.ts`
@@ -452,7 +452,7 @@ dailyTime(events: AppEvent[], day: string): { totalMs: number; reviewMs: number;
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 13 : Activités et écrans de l'élève (réf. doc 01 §2 et §6, doc 02 §6, doc 03 §5, doc 06)
+### Task 13 (Tâche 13) : Activités et écrans de l'élève (réf. doc 01 §2 et §6, doc 02 §6, doc 03 §5, doc 06)
 
 **Files :**
 - Create: `packages/engine/src/activity.ts`, `apps/web/src/store/state.ts`, `apps/web/src/screens/{Home,Modules,Course,Review,Practice}.tsx`, `apps/web/src/components/Feedback.tsx`
@@ -493,7 +493,7 @@ dailyTime(events: AppEvent[], day: string): { totalMs: number; reviewMs: number;
 - [ ] **Étape 5 : test E2E hors ligne.** `setOffline(true)`, 3 réponses, `setOffline(false)` : la file d'attente se vide, et chaque événement est une seule fois sur le serveur local. Attendu : SUCCÈS.
 - [ ] **Étape 6 : commit.**
 
-### Tâche 14 : Page de suivi (réf. doc 05)
+### Task 14 (Tâche 14) : Page de suivi (réf. doc 05)
 
 **Files :**
 - Create: `packages/engine/src/dashboard.ts`, `apps/web/src/screens/{Dashboard,DashModule,DashCourse}.tsx`
@@ -518,7 +518,7 @@ dailyTime(events: AppEvent[], day: string): { totalMs: number; reviewMs: number;
 - [ ] **Étape 4 :** lancer les tests. Attendu : SUCCÈS.
 - [ ] **Étape 5 : commit.**
 
-### Tâche 15 : Déploiement Cloudflare et comptes réels
+### Task 15 (Tâche 15) : Déploiement Cloudflare et comptes réels
 
 **Files :**
 - Modify: `apps/api/wrangler.toml` (`database_id`), `package.json` (script `deploy`)
