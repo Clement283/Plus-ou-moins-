@@ -75,21 +75,23 @@ Exemple (cours « additionner plusieurs relatifs ») — N1 : 3 + (−3) + 3 ; N
 | Mode | Rythme | Forme de réponse |
 |---|---|---|
 | **Cours** | lent, détaillé, elle fait elle-même | réponse tapée exacte, clavier dédié |
-| **Entraînement** | plus rapide | QCM |
+| **Entraînement** | libre, quand elle veut, sur les cours déjà faits (« tout mélangé » ou un cours choisi), par séries de 10 ; ne change pas le calendrier des révisions | tous les types, pour la variété |
 | **Révisions quotidiennes** | très rapide : a-t-elle compris ou pas | réponse finale seulement (QCM) |
 
 - Entraînement et révisions ne portent que sur des cours **déjà faits**.
 - **Types de questions variés** (validé), pour ne pas toujours refaire la même chose et rendre l'appli plus ludique. L'architecture traite le type de question comme un bloc interchangeable : en ajouter un ne demande pas de tout refaire. V1 :
   - **réponse écrite** (tapée avec le clavier dédié) ;
   - **QCM** ;
-  - **étiquettes à remettre dans l'ordre** (à la Babbel) — ex. ordonner les étapes de 3 − 2 × (−4), reconstruire l'écriture équivalente de 3 − (−8) ; plus tard, reconstruire une formule comme Δ = b² − 4ac.
-- Où on les utilise : **leçons** (toutes les variantes, en parties successives), **exemples guidés et entraînement** (QCM, étiquettes, réponse écrite) ; **révisions** : QCM uniquement, pour rester très rapides ; **exercices de cours** : réponse écrite.
+  - **étiquettes à remettre dans l'ordre** (à la Babbel) — ex. ordonner les étapes de 3 − 2 × (−4), reconstruire l'écriture équivalente de 3 − (−8) ; plus tard, reconstruire une formule comme Δ = b² − 4ac ;
+  - **compléter le trou**, **trouver l'erreur**, **relier les paires**, **classer**, **vrai ou faux** (ajoutés après relecture ; valables pour tous les modules).
+- Où on les utilise (détail : `docs/validation/03-clavier-et-reponses.md` §5) : **leçons** et **entraînement** : variété ; **exercices de fin de cours** : réponse écrite et trou à compléter ; **révisions** : formats rapides (QCM, vrai ou faux, classer).
+- **Une séance de révision mélange tous les cours dus** (3 questions par cours, entremêlées).
 - **QCM** : au début (niveau 1 / premières fois), les distracteurs sont surtout les **erreurs typiques** (pour (−3) × (−3) : 9, −9, 6, 0). Ensuite, **mélange** d'erreurs typiques et de valeurs plausibles « non typiques », pour qu'on ne puisse pas se dire « c'est 9 ou −9 ». La réponse choisie renseigne quelle erreur elle fait.
 
 ### 4.3 Progression
 
-- **Chemin unique** de cours. Le cours suivant se débloque quand le **niveau 1** du cours courant est maîtrisé (critère de maîtrise : décidé pendant la construction, ex. N réussites sur les M derniers exercices).
-- **Les niveaux montent automatiquement via la répétition espacée** (décidé, option « C ») : réussite en révision → l'item revient **plus tard et plus dur** (N1 → N2 → N3) ; erreur → il revient **plus tôt et plus simple**. Elle ne choisit jamais de niveau, ne refait jamais de cours.
+- **Chemin unique** de cours. Le cours suivant se débloque quand le **niveau 1** du cours courant est maîtrisé (critère détaillé et validé dans `docs/validation/01-repetition-espacee.md`).
+- **Les niveaux montent automatiquement via la répétition espacée** (décidé, option « C » ; échelle de temps détaillée dans `docs/validation/01-repetition-espacee.md`) : réussite en révision → l'item revient **plus tard et plus dur** (N1 → N2 → N3) ; erreur → il revient **plus tôt et plus simple**. Elle ne choisit jamais de niveau, ne refait jamais de cours.
 - Chaque cours affiche **1, 2 ou 3 étoiles** selon le niveau atteint (repère de progression pour elle).
 - Le suivi se fait **par type d'erreur / par cours**, pas globalement : si elle rate souvent « moins par moins », c'est ce cas précis qui revient.
 

@@ -349,6 +349,8 @@ type QuestionResult = { given: string; correct: boolean; errorType: string | nul
 
 ## Phase C : logique validée, écrans, déploiement
 
+> ⚠ **Révision après la relecture de la phase A :** les documents validés font foi sur ce plan. Changements connus : plus de « paliers » mais une échelle de temps A–H (doc 01) ; 5 exercices de fin (doc 06) ; 8 types de questions au lieu de 3 (doc 03 §5) — le type `Question` de la tâche 7 et `buildQuestion` de la tâche 10 doivent couvrir `saisie | trou | ordre | erreur | paires | classer | qcm | vraifaux`. Les interfaces des tâches 7, 8, 10, 12 et 13 seront ajustées en conséquence avant de lancer la phase C.
+>
 > ⛔ Avant chaque tâche, vérifier que le document cité porte `Statut : Validé`. Les tests de la tâche sont **les lignes du tableau « Exemples » de ce document**, recopiées telles quelles, une ligne = un cas `it.each`.
 
 ### Tâche 8 : Répétition espacée et progression (réf. `01-repetition-espacee.md`)
