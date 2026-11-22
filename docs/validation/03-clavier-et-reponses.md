@@ -1,6 +1,6 @@
 # 03 — Clavier maths, réponses acceptées et types d'exercices
 
-*Statut : à valider (version 3)*
+*Statut : Validé (2026-11-22) — version 3*
 
 ## 1. Le principe : tout est manuel, rien n'est corrigé automatiquement
 
