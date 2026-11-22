@@ -55,7 +55,9 @@ L'appli doit être simple, intuitive, adaptée aux jeunes, et peut s'étendre ra
 ```
 Module (V1 : « Calculs »)
  └─ Cours 1, 2, 3… — un chemin unique, dans l'ordre
-     ├─ Mini-leçon : la règle, courte et visuelle
+     ├─ Mini-leçon, en plusieurs parties variées :
+     │    explication de la règle (visuelle), étiquettes à remettre
+     │    dans l'ordre, réponse à écrire, exemples à compléter…
      ├─ Exemples à compléter : guidés, elle remplit les trous
      └─ Exercices : réponse tapée exacte
      Chaque cours a des niveaux 1, 2, 3 (difficulté croissante)
@@ -76,6 +78,11 @@ Exemple (cours « additionner plusieurs relatifs ») — N1 : 3 + (−3) + 3 ; N
 | **Révisions quotidiennes** | très rapide : a-t-elle compris ou pas | réponse finale seulement (QCM) |
 
 - Entraînement et révisions ne portent que sur des cours **déjà faits**.
+- **Types de questions variés** (validé), pour ne pas toujours refaire la même chose et rendre l'appli plus ludique. L'architecture traite le type de question comme un bloc interchangeable : en ajouter un ne demande pas de tout refaire. V1 :
+  - **réponse écrite** (tapée avec le clavier dédié) ;
+  - **QCM** ;
+  - **étiquettes à remettre dans l'ordre** (à la Babbel) — ex. ordonner les étapes de 3 − 2 × (−4), reconstruire l'écriture équivalente de 3 − (−8) ; plus tard, reconstruire une formule comme Δ = b² − 4ac.
+- Où on les utilise : **leçons** (toutes les variantes, en parties successives), **exemples guidés et entraînement** (QCM, étiquettes, réponse écrite) ; **révisions** : QCM uniquement, pour rester très rapides ; **exercices de cours** : réponse écrite.
 - **QCM** : au début (niveau 1 / premières fois), les distracteurs sont surtout les **erreurs typiques** (pour (−3) × (−3) : 9, −9, 6, 0). Ensuite, **mélange** d'erreurs typiques et de valeurs plausibles « non typiques », pour qu'on ne puisse pas se dire « c'est 9 ou −9 ». La réponse choisie renseigne quelle erreur elle fait.
 
 ### 4.3 Progression
@@ -191,7 +198,21 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 - **Par étapes.** Étape 1 : une version complète de bout en bout (moteur, répétition espacée, hors-ligne + synchro, comptes, page de suivi) avec **uniquement les cours « Relatifs »** (cours 1–7), son problème principal, pour qu'elle commence à s'entraîner au plus tôt. Étapes suivantes : Priorités, puis Fractions, puis Carrés, par lots ; chaque lot = écriture des cours par Claude → relecture par le porteur du projet → mise en ligne.
 - **Écrans sobres qui fonctionnent.** Tous les écrans (leçons, exemples, clavier dédié, QCM, révisions, page de suivi) sont construits et utilisables dès l'étape 1, avec un style neutre et lisible. Les calculs y sont écrits comme sur une copie (voir §3) ; les aides visuelles (couleurs, repères) sont réservées aux leçons, exemples guidés et explications d'erreur. Pas d'identité graphique : l'appli sera « habillée » à l'étape design visuel, sans changer le fonctionnement. Les styles sont donc centralisés pour faciliter ce rhabillage.
 
-## 11. Choix faits par Claude (à vérifier par le porteur du projet)
+## 11. Règle de validation (décidée)
+
+Le porteur du projet **valide toute la logique de l'application** avant qu'elle soit codée : tout ce qui change ce que l'élève voit, fait ou comment elle progresse. Seuls les choix **purement techniques** (qu'il ne pourrait pas juger) sont décidés par Claude, et même ceux-là lui sont **annoncés** (« j'ai fait ça »). En cas de doute, on demande.
+
+**À présenter et faire valider avant implémentation** (documents courts, avec exemples concrets) :
+- **Algorithme de répétition espacée** : quand un calcul revient, quand le niveau monte ou descend, combien d'erreurs font redescendre, critère de maîtrise d'un niveau et de déblocage du cours suivant.
+- **Dosage des révisions** : formule de proportion, plafond, ordre de priorité des révisions reportées (dans le cadre du §4.4).
+- **Clavier dédié** : touches, disposition, saisie des nombres négatifs et des fractions.
+- **Distracteurs QCM** : comment on choisit les erreurs typiques et les valeurs « non typiques », et comment le mélange évolue.
+- **Format des réponses** : forme irréductible exigée ou non pour les fractions, écritures acceptées (−2/3, 2/(−3)…).
+- **Détection et explication des erreurs** : liste des erreurs typiques reconnues par cours et texte d'explication associé (inclus dans les documents de contenu de chaque cours).
+- **Contenu de chaque cours** (§5) et aides visuelles des leçons.
+- **Contenu de la page de suivi** et calcul des indicateurs (dont la tendance « erreurs de signes »).
+
+## 12. Choix faits par Claude (à vérifier par le porteur du projet)
 
 - Front en **TypeScript + React**.
 - **Unité de répétition espacée = le cours** (chaque cours a son niveau et sa prochaine date de révision). Les **types d'erreur** sont enregistrés pour chaque réponse et servent au choix des exercices (faire revenir le cas raté) et à la page de suivi.
@@ -200,15 +221,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 - **Connexion par code personnel**, comptes créés par un script d'admin (pas d'interface en V1).
 - Pas de notifications en V1.
 
-## 12. Détails techniques décidés pendant la construction
+## 13. Choix purement techniques (décidés par Claude, annoncés au porteur du projet)
 
-Points qui ne changent pas ce que l'appli fait pour l'élève ou le suiveur ; ils seront tranchés au moment de coder, et signalés au porteur du projet s'ils ont un effet visible.
-
-- Algorithme exact de répétition espacée (intervalles, montée/descente de niveau) et critère de maîtrise d'un niveau.
-- Formule exacte du dosage des révisions (proportion, plafond, priorités de report), dans le respect de la règle du §4.4.
-- Clavier dédié : disposition des touches (chiffres, « − » bien visible, fraction).
-- Format attendu pour les fractions (forme irréductible exigée ou non selon le cours).
-- Génération des distracteurs QCM « non typiques ».
 - Schéma de base de données, API, format du code de connexion, outil de création de comptes.
 - Outillage (bundler, tests, déploiement), dans le cadre TypeScript + React + Cloudflare.
-- Aides visuelles des mini-leçons (couleurs, repères) : affinées à l'écriture des cours et à l'étape design visuel.
