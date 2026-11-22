@@ -1,6 +1,6 @@
 # Plus ou moins — V1 : document de conception
 
-*Date : 2026-11-22 — Statut : en attente de validation*
+*Date : 2026-11-22 — Statut : en attente de validation finale*
 
 ## 1. Intention et pourquoi
 
@@ -176,7 +176,22 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 - **Hors ligne** : stockage local (IndexedDB) = cache de l'état + file d'attente des réponses non envoyées ; envoi au retour du réseau, sans doublon (identifiant unique par réponse).
 - **Contenu** (leçons, exemples, textes d'explication) : fichiers dans le projet, relus par le porteur du projet.
 
-## 10. Laissé au constructeur
+## 10. Livraison par étapes et écrans (décidé)
+
+- **Par étapes.** Étape 1 : une version complète de bout en bout (moteur, répétition espacée, hors-ligne + synchro, comptes, page de suivi) avec **uniquement les cours « Relatifs »** (cours 1–7), son problème principal, pour qu'elle commence à s'entraîner au plus tôt. Étapes suivantes : Priorités, puis Fractions, puis Carrés, par lots ; chaque lot = écriture des cours par Claude → relecture par le porteur du projet → mise en ligne.
+- **Écrans sobres qui fonctionnent.** Tous les écrans (leçons, exemples, clavier dédié, QCM, révisions, page de suivi) sont construits et utilisables dès l'étape 1, avec un style neutre adapté à la dyslexie (grande police aérée, signes très visibles). Pas d'identité graphique : l'appli sera « habillée » à l'étape design visuel, sans changer le fonctionnement. Les styles sont donc centralisés pour faciliter ce rhabillage.
+
+## 11. Appels de Claude (à vérifier par le porteur du projet)
+
+- Front en **TypeScript + React**.
+- **Unité de répétition espacée = le cours** (chaque cours a son niveau et sa prochaine date de révision). Les **types d'erreur** sont enregistrés pour chaque réponse et servent au choix des exercices (faire revenir le cas raté) et à la page de suivi.
+- **Le « jour »** (sessions, série de jours) suit l'heure de Paris.
+- **Tendance « erreurs de signes »** sur la page de suivi : calculée à partir des erreurs détectées comme erreurs de signe (signe inversé, règle des signes mal appliquée).
+- **Session ≈ 10 min, 15–20 calculs** : révisions dues d'abord, puis la suite du parcours.
+- **Connexion par code personnel**, comptes créés par un script d'admin (pas d'interface en V1).
+- Pas de notifications en V1.
+
+## 12. Laissé au constructeur
 
 - Algorithme exact de répétition espacée (intervalles, montée/descente de niveau) et critère de maîtrise d'un niveau.
 - Composition précise d'une session, durée exacte.
