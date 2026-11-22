@@ -1,6 +1,26 @@
-# 06 — Contenu des 7 cours « Relatifs »
+# 06 — Module 1 « Calculs » : contenu des cours de l'étape 1
 
-*Statut : à valider (version 3 — tu peux valider cours par cours)*
+*Statut : à valider (version 4 — tu peux valider cours par cours)*
+
+## Les modules
+
+- **Les cours sont regroupés en modules.** Chaque module a :
+  - **un thème** (sa thématique) ;
+  - **ses couleurs** (définies à l'étape design visuel) ;
+  - **sa liste de cours, dans l'ordre**.
+- **Un module se complète** : quand tous ses cours sont validés, il est **terminé**. Elle voit sa progression (par exemple « 5 / 8 cours ») et un badge à la fin.
+- **Plus tard**, elle pourra **choisir ses modules** selon ce qu'elle fait en classe avec son prof : un module débloque son premier cours dès qu'elle le choisit. **Pour l'instant, un seul module est disponible : « Calculs ».**
+- Les révisions mélangent les cours de **tous** les modules commencés.
+
+## Module 1 « Calculs »
+
+- **Thème :** les bases du calcul, sans lesquelles on perd des points partout (second degré, fractions, équations…).
+- **Couleurs :** à définir à l'étape design visuel.
+- **Cours de l'étape 1** (ce document) :
+  - Cours 0 : Bien écrire un calcul (introduction du module) ;
+  - Cours 1 à 7 : les relatifs.
+- **Étapes suivantes** (même module) : priorités, fractions, carrés (spec §5).
+
 
 ## Règles communes à tous les cours (tous les modules)
 
@@ -25,6 +45,61 @@
 - **Exemples guidés à compléter :** chaque case vide (▢) est une petite réponse tapée, et elles s'enchaînent dans l'ordre. Une case « signe du résultat » se remplit avec deux gros boutons « + » et « − ».
 - **Calcul-piège :** pour chaque erreur reconnue, la colonne « Calcul-piège » dit quel calcul tend ce piège, **sans sortir des nombres du niveau** (doc 01 §5).
 - **Classer :** pour ces 7 cours, les cases sont **résultat + / − / 0**.
+
+---
+
+## Cours 0 — Bien écrire un calcul (introduction du module)
+
+**La règle :** *Un calcul s'écrit d'une seule façon correcte : il faut savoir le lire et l'écrire sans ambiguïté.*
+
+**Les règles d'écriture enseignées**
+1. **Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met **entre parenthèses** : 4 × (−3), 5 + (−2), 7 − (−1). ✗ 4 × −3 · ✗ 5 + −2
+2. **En tête d'un calcul, pas de parenthèses** pour un négatif : −3 + 5.
+3. **Le signe − s'écrit avant le nombre** : −3, jamais 3−.
+4. **Une parenthèse ouverte se ferme** : (−3), jamais (−3 tout seul.
+
+**Mini-leçon**
+1. **Explication animée :** « 4 × −3 » apparaît. Le × et le − se « cognent » (petit choc animé, croix rouge), puis des parenthèses viennent entourer −3 : 4 × (−3) ✓.
+2. **Explication des 4 règles**, une par écran, chacune avec un exemple ✓ en vert et un contre-exemple ✗ en rouge.
+3. **Classer** (bien écrit / mal écrit) : 4 × (−3) → bien · 5 + −2 → mal · −3 + 5 → bien · 3− + 4 → mal
+4. **Trouver l'erreur d'écriture :** « 7 − −1 = 8 ». Elle touche « − − ». Correction : 7 − (−1).
+
+**Exemples guidés**
+- Réécrire 6 × −2 : elle complète « 6 × ( ▢ ) » → −2
+- Réécrire 9 + −4 : elle complète « 9 + ( ▢ ) » → −4
+
+**Exercices de fin (exception à la règle des 5 réponses écrites)**
+Ce cours ne porte pas sur un résultat, mais sur l'écriture. Ses **5 exercices de fin** sont donc des « **Trouver l'erreur d'écriture** » : un calcul s'affiche, elle touche l'endroit mal écrit, ou « **Tout est bien écrit** » (1 fois sur 5, tout est bien écrit). La validation suit le doc 01 (80 % sur l'ensemble, et au moins 4 exercices de fin sur 5).
+
+**En révision :** des QCM du type « **Lequel est bien écrit ?** » (4 écritures du même calcul, une seule correcte) et des « Classer » bien écrit / mal écrit.
+
+**Générateur**
+| Niveau | Calculs affichés |
+|---|---|
+| 1 | une seule opération, de 1 à 9 : 4 × (−3) |
+| 2 | deux opérations : 5 + (−2) × 3 |
+| 3 | trois opérations ou plus, avec parenthèses : −6 − (−2) × (4 + (−1)) |
+
+Les écritures fausses sont fabriquées en appliquant l'une des fautes ci-dessous à un calcul bien écrit.
+
+**Erreurs reconnues**
+| Identifiant | La faute non repérée | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `signes-colles` | deux signes qui se suivent (4 × −3) | « Deux signes ne se suivent jamais : 4 × (−3). » | un négatif après × ou ÷ |
+| `moins-apres` | le − après le nombre (3−) | « Le signe moins s'écrit avant le nombre : −3. » | un négatif en tête |
+| `parenthese` | parenthèse non fermée ou en trop | « Une parenthèse ouverte doit être fermée. » | niveau 3, avec parenthèses |
+
+*Note :* (−3) + 5 en tête n'est pas faux, juste inutile. On ne le présente jamais comme une erreur.
+
+**Résolution type** (pour Trouver l'erreur) : le calcul lui-même, découpé en morceaux touchables (nombres, signes, parenthèses).
+
+**Exemples**
+| Calcul affiché | Bonne réponse | Elle touche | Erreur enregistrée |
+|---|---|---|---|
+| 4 × −3 | « × − » | « × − » | — |
+| 4 × (−3) | « Tout est bien écrit » | « × » | `relecture` |
+| 5 + (−2) × 3− | « 3− » | « Tout est bien écrit » | `moins-apres` |
+| −6 − (−2 × 4 | « (−2 × 4 » | « (−2 × 4 » | — |
 
 ---
 

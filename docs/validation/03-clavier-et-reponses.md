@@ -1,6 +1,6 @@
 # 03 — Clavier maths, réponses acceptées et types d'exercices
 
-*Statut : Validé (2026-11-22), sauf la fraction empilée (§2, version 4) à revalider*
+*Statut : Validé (2026-11-22) — version 4 (fraction empilée comprise)*
 
 ## 1. Le principe : tout est manuel, rien n'est corrigé automatiquement
 

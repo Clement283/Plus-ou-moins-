@@ -64,6 +64,8 @@ Module (V1 : « Calculs »)
      Chaque cours a des niveaux 1, 2, 3 (difficulté croissante)
 ```
 
+**Modules** (précision du porteur du projet) : un module a un **thème**, des **couleurs** et une liste ordonnée de cours ; il est **terminé** quand tous ses cours sont validés. Plus tard, l'élève **choisira ses modules** selon ce qu'elle fait en classe (hors V1) ; en V1, un seul module disponible, « Calculs ». Chaque module commence par un cours d'introduction si besoin ; pour « Calculs » : **Cours 0 « Bien écrire un calcul »** (parenthèses autour d'un négatif après un signe, − avant le nombre…).
+
 **Le déroulé et les niveaux sont propres à chaque cours** (précision du porteur du projet) : un cours peut alterner explications, exemples guidés et exercices dans l'ordre qui lui convient, et se termine par des exercices de fin ; ce qui rend un niveau plus difficile dépend du cours (taille des nombres pour les relatifs ; inconnues, puissances, Δ… pour d'autres). Règle commune à tous les cours : **intuitif, lisible, compréhensible, avec couleurs et animations dans les leçons et explications**.
 
 **Règle de découpage (décidée) :**

@@ -40,6 +40,8 @@ Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture
 
 ## 2. Ce que montre chaque partie, et comment c'est calculé
 
+**Progression du module.** Pour chaque module commencé : le nombre de cours validés sur le total (par exemple « Calculs : 5 / 8 cours »), et « terminé » quand tous le sont.
+
 **Choix de l'élève.** Si tu suis plusieurs élèves, une liste en haut permet de changer d'élève. L'appli se souvient du dernier élève consulté.
 
 **Aujourd'hui.** Le temps de la journée (même calcul que sa jauge, doc 02), réparti en révisions, cours et entraînement, avec une coche quand les 15 minutes sont atteintes.
