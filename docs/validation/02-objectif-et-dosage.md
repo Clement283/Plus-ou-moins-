@@ -1,6 +1,6 @@
 # 02 — Objectif du jour et liste des révisions
 
-*Statut : à valider (version 3)*
+*Statut : à valider (version 4)*
 
 Ce document décrit comment on compte les 15 minutes, comment les révisions dues sont proposées, et ce que montre l'écran d'accueil. Ce sont des propositions de Claude, avec leur raison.
 
@@ -23,23 +23,25 @@ Ce document décrit comment on compte les 15 minutes, comment les révisions due
 
 *Décision du porteur du projet : pas de formule liée au temps de cours. Le temps de cours n'est jamais limité, et chaque cours dû donne simplement 3 questions de révision.*
 
-**La liste des révisions.** Chaque cours terminé a **sa date de prochaine révision**, enregistrée une fois pour toutes. Elle n'est modifiée qu'à deux moments : quand le cours est validé, et quand une révision de ce cours est faite (doc 01). **On ne recalcule rien chaque jour** : pour savoir ce qui est dû, l'appli lit simplement la liste et prend les cours dont la date est arrivée ou passée.
+**La liste des révisions.** *(Un « cours dû » = une révision à faire aujourd'hui.)* Chaque cours terminé a **sa date de prochaine révision**, enregistrée une fois pour toutes. Elle n'est modifiée qu'à deux moments : quand le cours est validé, et quand une révision de ce cours est faite (doc 01). **On ne recalcule rien chaque jour** : pour savoir ce qui est dû, l'appli lit simplement la liste et prend les cours dont la date est arrivée ou passée.
 
 **Un cours dû = 3 questions.** C'est tout.
 
 **Les séances de révision.** Les cours dus sont proposés par **séances courtes de 5 cours au maximum**, soit 15 questions et environ 5 minutes.
 - Dans une séance, les questions des différents cours sont **entremêlées** au hasard, et non regroupées par cours. Elle doit reconnaître seule quelle règle appliquer, comme en contrôle.
 - Après une séance, s'il reste des cours dus, le bouton **« Encore des révisions »** lance la séance suivante. Elle peut enchaîner autant de séances qu'elle veut.
-- Elle peut aussi s'arrêter : les cours dus restants le restent, et ils passent en priorité les jours suivants.
+- Elle peut aussi s'arrêter : les révisions non faites restent dans la liste à leur date, donc avant celles des jours suivants.
 - *Pourquoi 5 cours par séance (ma proposition) :* une séance reste courte et motivante, même après une absence. Ça correspond aux « 5 minutes de révisions » de la répartition de référence.
 
-## 4. Dans quel ordre on prend les cours dus
+## 4. Dans quel ordre arrivent les révisions
 
-Quand il y a plus de 5 cours dus, chaque séance prend en premier :
+*Règle du porteur du projet :* les révisions arrivent **dans l'ordre de leur date**, comme une seule liste.
 
-1. les cours dont la **dernière révision a été ratée** ;
-2. puis ceux qui ont **le plus de retard** (date prévue la plus ancienne : « premier arrivé, premier servi ») ;
-3. à égalité, ceux à l'**étape la plus basse** de l'échelle (les moins solides).
+- Elles sont toujours prises **de la plus ancienne date à la plus récente**.
+- Une révision qui n'a pas été faite **reste dans la liste à sa date**. Comme elle est plus ancienne, elle passe naturellement **avant** les révisions des jours suivants.
+- Exemple : elle ne révise pas du lundi au jeudi. Le vendredi, les révisions arrivent dans l'ordre : celles de lundi, puis de mardi, de mercredi, de jeudi, et enfin de vendredi. Rien n'est affiché comme « en retard » : elles arrivent simplement dans l'ordre normal.
+- Plusieurs révisions à la même date : elles sont prises dans l'ordre où les cours ont été faits.
+- **Il n'y a pas d'autre priorité** : une révision ratée la veille revient à sa nouvelle date (le lendemain, doc 01) et prend sa place dans la liste comme les autres.
 
 ## 5. Ce qu'on ne peut pas faire
 
@@ -81,8 +83,8 @@ Quand il ne reste plus aucun cours dû, la carte « Révisions » affiche « Ré
 | 5 | 1 séance | 5 cours, 15 questions |
 | 7 | 2 séances | 5 cours (15 questions), puis 2 cours (6 questions) via « Encore des révisions » |
 | 12 (retour après une absence) | 3 séances | 5 + 5 + 2 cours |
-| 12, elle s'arrête après la 1re séance | — | les 7 restants sont toujours dus demain, et passent avant les nouveaux |
-| 7 dus dont 1 raté hier | 2 séances | le cours raté est dans la 1re séance |
+| 12, elle s'arrête après la 1re séance | — | les 7 restants gardent leur date : demain, ils passent avant les révisions du jour |
+| Pas de révision du lundi au jeudi ; vendredi : 2 révisions par jour en attente (10) | 2 séances | 1re séance : les 2 de lundi, de mardi, puis 1 de mercredi ; 2e séance : la 2e de mercredi, puis jeudi, puis vendredi |
 | Cours révisé ce matin (raté) | — | pas de nouvelle révision de ce cours aujourd'hui ; dû demain |
 | 2 h de cours aujourd'hui | — | le temps de cours n'est jamais limité ; chaque cours validé entre dans la liste, avec sa 1re révision dans 48 h |
 

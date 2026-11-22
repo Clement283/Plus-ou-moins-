@@ -1,6 +1,6 @@
 # 01 — Répétition espacée : quand un cours revient, et à quel niveau
 
-*Statut : à valider (version 2, après la relecture du porteur du projet)*
+*Statut : Validé (2026-11-22) — version 2*
 
 Ce document décrit comment l'appli décide **quels cours faire revenir en révision, quand, et à quel niveau**. Le tableau « Exemples » à la fin deviendra les tests automatiques.
 
