@@ -1,6 +1,6 @@
 # Plus ou moins — V1 : document de conception
 
-*Date : 2026-11-22 — Statut : en attente de validation finale*
+*Date : 2026-11-22 — Statut : validé par le porteur du projet*
 
 ## 1. Intention et pourquoi
 
