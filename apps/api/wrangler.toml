@@ -1,0 +1,17 @@
+name = "plus-ou-moins"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+
+# Fichiers statiques de la PWA (apps/web, tâche ultérieure) + routage SPA.
+# Le Worker ne s'exécute en premier que pour /api/* ; le reste est servi directement.
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "plus-ou-moins"
+database_id = "00000000-0000-0000-0000-000000000000" # placeholder : rempli à la tâche 15
+migrations_dir = "migrations"
