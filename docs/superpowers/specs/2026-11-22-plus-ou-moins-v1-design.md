@@ -64,9 +64,11 @@ Module (V1 : « Calculs »)
      Chaque cours a des niveaux 1, 2, 3 (difficulté croissante)
 ```
 
+**Le déroulé et les niveaux sont propres à chaque cours** (précision du porteur du projet) : un cours peut alterner explications, exemples guidés et exercices dans l'ordre qui lui convient, et se termine par des exercices de fin ; ce qui rend un niveau plus difficile dépend du cours (taille des nombres pour les relatifs ; inconnues, puissances, Δ… pour d'autres). Règle commune à tous les cours : **intuitif, lisible, compréhensible, avec couleurs et animations dans les leçons et explications**.
+
 **Règle de découpage (décidée) :**
 - **Nouvelle méthode = nouveau cours.** Un cours = une seule règle, très court, faisable à n'importe quel moment en quelques minutes.
-- **Même méthode, plus difficile = niveau.** Niveau 1 : petits nombres, une opération. Niveau 2 : plus de termes / plus grands nombres. Niveau 3 : grands nombres, pièges combinés. Jamais de nouvelle méthode entre deux niveaux.
+- **Même méthode, plus difficile = niveau.** Ce qui rend plus difficile est défini par chaque cours. Jamais de nouvelle méthode entre deux niveaux.
 
 Exemple (cours « additionner plusieurs relatifs ») — N1 : 3 + (−3) + 3 ; N2 : 12 + (−7) + 5 + (−9) + 4 ; N3 : 248 + (−27) + 15 + (−132).
 

@@ -1,31 +1,30 @@
 # 06 — Contenu des 7 cours « Relatifs »
 
-*Statut : à valider (version 2 — tu peux valider cours par cours)*
+*Statut : à valider (version 3 — tu peux valider cours par cours)*
 
-## Règles communes à tous les cours
+## Règles communes à tous les cours (tous les modules)
 
-- **Déroulé d'un cours :** la mini-leçon (en 4 ou 5 parties variées), puis 2 exemples guidés à compléter, puis **5 exercices de fin** au niveau 1, avec une réponse tapée. Les questions de la leçon et des exemples comptent dans la note (doc 01 : validé avec 80 % sur l'ensemble et au moins 4 exercices de fin sur 5).
-- **Écriture des calculs, comme sur une copie :** un nombre négatif est entre parenthèses, sauf s'il est le premier terme : −3 + (−5), 4 × (−7). Aucune couleur sur les calculs des exercices, des révisions et de l'entraînement.
-- **Dans les leçons, les exemples guidés et les explications d'erreur** (et seulement là), il y a des aides visuelles :
-  - les nombres **négatifs en rouge** et les **positifs en bleu** ;
-  - une **droite graduée** avec des bonds ;
-  - une **étape par ligne**.
-- **Niveaux :**
-  - niveau 1 : petits nombres, de 1 à 9 ;
-  - niveau 2 : des dizaines (10 à 99) ou plus de termes ;
-  - niveau 3 : des centaines (100 à 999).
+**Ce qui vaut pour tous les cours :**
+- **Intuitif, lisible et compréhensible.** Des phrases courtes, une idée par écran, une étape par ligne.
+- **Des couleurs et des animations dans les leçons et les explications**, pour faire comprendre : nombres colorés, bonds qui s'animent sur une droite graduée, étapes qui apparaissent l'une après l'autre, flèches… Les **exercices, révisions et l'entraînement** restent écrits **comme sur une copie**, sans couleur (spec §3).
+- **Le déroulé est propre à chaque cours.** Un cours est une suite de parties : explications, questions de leçon, exemples guidés, exercices. Il peut alterner, par exemple « explication → exemple guidé → 2e explication → exemple guidé → exercices ». Ce qui ne change pas : un cours se **termine par 5 exercices de fin**, sans aide, qui servent à le valider (doc 01 §2).
+- **Les niveaux sont propres à chaque cours.** Chaque cours dit ce qui rend son niveau 2 et son niveau 3 plus difficiles : des nombres plus grands, plus de termes, des fractions, des puissances, une inconnue… Le seul principe commun : **même méthode, plus difficile**. Une nouvelle méthode = un nouveau cours.
+- **Chaque cours fournit :**
+  - son générateur par niveau ;
+  - ses erreurs reconnues, avec leur détection, leur explication et leur calcul-piège ;
+  - sa **résolution type**, c'est-à-dire les lignes d'une résolution correcte, utilisées par « Trouver l'erreur » et les étiquettes d'entraînement (doc 04).
 
-  Toujours **la même méthode** d'un niveau à l'autre.
-- **Erreurs reconnues :** chaque cours a sa liste. Une réponse fausse qui ne correspond à aucune erreur de la liste est classée **« autre »**, avec l'explication générale du cours.
+**Ce qui vaut pour les 7 cours « Relatifs » :**
+- **Déroulé :** mini-leçon en 4 ou 5 parties, puis 2 exemples guidés, puis les 5 exercices de fin.
+- **Niveaux :** pour ces cours, la difficulté vient de la taille des nombres. Niveau 1 : de 1 à 9 ; niveau 2 : des dizaines (ou plus de termes) ; niveau 3 : des centaines. *Ce choix est propre à ces cours, pas une règle générale.*
+- **Écriture des calculs :** un nombre négatif est entre parenthèses, sauf s'il est le premier terme : −3 + (−5), 4 × (−7).
+- **Aides visuelles des leçons :** négatifs en rouge, positifs en bleu, droite graduée animée.
+- **Erreurs reconnues :** chaque cours a sa liste. Une réponse fausse qui n'y correspond pas est classée **« autre »**, avec l'explication générale du cours. Quand une réponse pourrait correspondre à deux erreurs, on retient la première de la liste.
 - **Famille signe** 🔴 : ces erreurs comptent dans l'indicateur « erreurs de signe » de ta page de suivi (doc 05).
-- **Erreurs d'écriture** (moins après le nombre, double signe, parenthèse, écriture invalide) : communes à tous les cours, décrites dans le doc 03 §3. Elles sont vérifiées **avant** les erreurs de calcul ci-dessous.
-- **Ordre de détection :** quand une réponse pourrait correspondre à deux erreurs, on retient la première de la liste du cours.
-- **Exemples guidés à compléter :** chaque case vide (▢) est une petite réponse tapée. Elles s'enchaînent dans l'ordre.
-- **Calcul-piège :** pour chaque erreur reconnue, la colonne « Calcul-piège » dit quel calcul tend ce piège. Le générateur l'utilise quand c'est l'erreur la plus fréquente (doc 01 §5), **sans sortir des nombres du niveau**.
-- **Pour l'entraînement et les révisions, tous les cours fournissent aussi :**
-  - « **Classer** » : le classement est toujours **résultat positif / négatif / nul** ;
-  - « **Trouver l'erreur** » : la résolution affichée reprend les étapes de la partie « étiquettes » de la leçon, et l'une d'elles est remplacée par une erreur reconnue du cours ;
-  - « **Vrai ou faux** », « **Relier les paires** », « **Compléter le trou** » et « **QCM** » : fabriqués automatiquement à partir du générateur et des erreurs reconnues (doc 04).
+- **Erreurs d'écriture** (moins après le nombre, double signe, parenthèse, écriture invalide) : communes à tous les cours (doc 03 §3), vérifiées **avant** les erreurs de calcul.
+- **Exemples guidés à compléter :** chaque case vide (▢) est une petite réponse tapée, et elles s'enchaînent dans l'ordre. Une case « signe du résultat » se remplit avec deux gros boutons « + » et « − ».
+- **Calcul-piège :** pour chaque erreur reconnue, la colonne « Calcul-piège » dit quel calcul tend ce piège, **sans sortir des nombres du niveau** (doc 01 §5).
+- **Classer :** pour ces 7 cours, les cases sont **résultat + / − / 0**.
 
 ---
 
@@ -51,6 +50,8 @@
 | 1 | a + b, de même signe (négatifs 7 fois sur 10) | de 1 à 9 |
 | 2 | même chose | de 10 à 99 |
 | 3 | même chose | de 100 à 999 |
+
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 + (−5) · = −(3 + 5) · = −8
 
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |
@@ -100,6 +101,8 @@
 | 2 | même chose | de 10 à 99 |
 | 3 | même chose | de 100 à 999 |
 
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 + 5 · = +(5 − 3) · = 2
+
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |
 |---|---|---|---|
@@ -146,6 +149,8 @@
 | 1 | 3 termes, au moins un positif et un négatif | de 1 à 9 |
 | 2 | 4 ou 5 termes, au moins un positif et un négatif | de 1 à 20 |
 | 3 | 4 termes, au moins un positif et un négatif | de 10 à 999 |
+
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −2 + 5 + (−4) · = 5 + (−2) + (−4) · = 5 + (−6) · = −1
 
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |
@@ -195,6 +200,8 @@
 | 1 | a − b ; a et b positifs ou négatifs ; b négatif au moins 1 fois sur 2 | de 1 à 9 |
 | 2 | même chose | de 10 à 99 |
 | 3 | même chose | de 100 à 999 |
+
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : 5 − (−3) · = 5 + 3 · = 8
 
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |
@@ -255,6 +262,8 @@
 | 2 | même chose | un nombre de 10 à 99 et l'autre de 2 à 9 |
 | 3 | même chose | les deux de 10 à 99 |
 
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 × (−4) · = +(3 × 4) · = 12
+
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |
 |---|---|---|---|
@@ -304,6 +313,8 @@
 
 Les signes de a et de b sont tirés au hasard, avec au moins un négatif 3 fois sur 4.
 
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −12 ÷ 4 · = −(12 ÷ 4) · = −3
+
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |
 |---|---|---|---|
@@ -349,6 +360,8 @@ Les signes de a et de b sont tirés au hasard, avec au moins un négatif 3 fois 
 | 1 | 3 facteurs, au moins un négatif | de 1 à 5 |
 | 2 | 4 facteurs, au moins un négatif | de 1 à 5 |
 | 3 | 5 facteurs, au moins un négatif | de 1 à 6 |
+
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −2 × 3 × (−4) · = +(2 × 3 × 4) · = 24 (2 signes −, pair)
 
 **Erreurs reconnues**
 | Identifiant | Détection | Explication affichée | Calcul-piège |

@@ -1,13 +1,13 @@
 # 03 — Clavier maths, réponses acceptées et types d'exercices
 
-*Statut : Validé (2026-11-22) — version 3*
+*Statut : Validé (2026-11-22), sauf la fraction empilée (§2, version 4) à revalider*
 
 ## 1. Le principe : tout est manuel, rien n'est corrigé automatiquement
 
 *Règle du porteur du projet :* l'appli **ne modifie jamais ce qu'elle tape**. Une faute corrigée automatiquement sur le téléphone est une faute qu'elle ne voit pas, et qu'elle refera sur sa copie. Donc :
 
-- chaque touche ajoute **exactement un caractère, à la fin**, dans l'ordre tapé ;
-- **aucun déplacement de signe**, aucun zéro retiré, aucune parenthèse ajoutée ou fermée, aucune mise en forme ;
+- chaque touche ajoute **exactement un caractère, là où se trouve le curseur**, dans l'ordre tapé ;
+- **aucun déplacement de signe**, aucun zéro retiré, aucune parenthèse ajoutée ou fermée, aucune mise en forme automatique. La seule mise en forme est la **fraction empilée**, qu'elle pose elle-même avec la touche fraction (§2) ;
 - c'est **le texte brut** qui est corrigé. Les fautes d'écriture (moins après le nombre, parenthèse oubliée…) sont des **erreurs reconnues**, avec leur explication (§3).
 
 Même règle pour les touches des modules suivants (carré, racine…) : elles s'ajouteront comme de simples caractères.
@@ -22,16 +22,26 @@ Le clavier du téléphone ne s'ouvre jamais. À sa place, l'appli affiche son pr
 ├───────┼───────┼───────┼───────┤
 │   4   │   5   │   6   │   −   │
 ├───────┼───────┼───────┼───────┤
-│   1   │   2   │   3   │   /   │
+│   1   │   2   │   3   │  ▭/▭  │
 ├───────┼───────┼───────┼───────┤
-│   (   │   0   │   )   │Valider│
-└───────┴───────┴───────┴───────┘
+│   (   │   0   │   )   │   →   │
+├───────┴───────┴───────┴───────┤
+│            Valider            │
+└───────────────────────────────┘
 ```
 
-- **0 à 9, −, /, ( et )** : chaque touche écrit son caractère à la fin de la réponse.
-- **⌫** : efface le dernier caractère.
+- **0 à 9, − , ( et )** : chaque touche écrit son caractère **là où se trouve le curseur**, c'est-à-dire à la fin de ce qu'elle a déjà écrit.
+- **▭/▭ (fraction)** : pose une **fraction empilée vide**, comme sur une copie :
+  ```
+    ▭      ← le curseur est ici (numérateur)
+   ───
+    ▭
+  ```
+  Elle écrit le numérateur, puis touche **→** pour passer au dénominateur, puis de nouveau **→** pour sortir de la fraction et continuer à écrire après. **Rien n'est déplacé automatiquement** : le signe « − » se trouve exactement là où elle l'a tapé (devant la fraction, dans le numérateur ou dans le dénominateur).
+- **→** : passe à la case suivante (numérateur → dénominateur → après la fraction). En dehors d'une fraction, il ne fait rien.
+- **⌫** : efface le dernier caractère. Dans une case vide de la fraction, il revient à la case précédente. Dans un numérateur vide, il efface la fraction.
 - **Valider** : envoie la réponse telle quelle. Il est actif dès qu'il y a **au moins un caractère**. On ne grise pas une réponse « mal écrite » : ce serait une aide qu'elle n'a pas sur sa copie.
-- La réponse s'affiche **exactement comme tapée**, sur une ligne, dans l'écriture normale d'une copie, sans couleur ni signe agrandi. Une fraction s'écrit donc en ligne : −2/3.
+- La réponse s'affiche **exactement comme tapée**, dans l'écriture normale d'une copie (fractions empilées), sans couleur ni signe agrandi.
 - **Pas de virgule** : il n'y a pas de nombres décimaux dans le module 1.
 - Au plus **12 caractères**, pour que la réponse tienne à l'écran. Les touches suivantes sont sans effet.
 
@@ -50,10 +60,10 @@ Dans les cours « Relatifs », toutes les réponses attendues sont des **nombres
 **Calcul pas fini** (pas compté faux, elle peut corriger et revalider) :
 | Tapé | Bonne réponse | Message |
 |---|---|---|
-| −12/4 | −3 | « Le calcul n'est pas fini : simplifie. » |
-| 6/2 | 3 | « Simplifie. » |
+| −12 sur 4 (fraction empilée) | −3 | « Le calcul n'est pas fini : simplifie. » |
+| 6 sur 2 (fraction empilée) | 3 | « Simplifie. » |
 
-*Pourquoi :* dans le cours « diviser », écrire −12/4, c'est ne pas faire la division. En contrôle, on attend −3.
+*Pourquoi :* dans le cours « diviser », écrire la fraction −12 sur 4, c'est ne pas faire la division. En contrôle, on attend −3.
 
 **Erreurs d'écriture** (comptées fausses, avec leur explication, valables dans **tous les cours**) :
 | Identifiant | Exemple tapé | Explication affichée |
@@ -61,13 +71,13 @@ Dans les cours « Relatifs », toutes les réponses attendues sont des **nombres
 | `moins-apres` | 3− | « Le signe moins s'écrit **avant** le nombre : −3. » |
 | `double-signe` | −−3 | « Il y a deux signes moins à la suite. Un nombre n'a qu'un signe : −3 ou 3. » |
 | `parenthese` | (−3 ou −3) | « Une parenthèse ouverte doit être fermée, et une parenthèse fermée doit avoir été ouverte. » |
-| `ecriture-invalide` | 5/0, /, −, 3(4 | « Cette réponse n'est pas un nombre bien écrit. » (pour 5/0 : « On ne divise jamais par 0. ») |
+| `ecriture-invalide` | fraction avec 0 ou une case vide au dénominateur, numérateur vide, − seul, 3(4 | « Cette réponse n'est pas un nombre bien écrit. » (dénominateur 0 : « On ne divise jamais par 0. ») |
 
 - **L'ordre de vérification :** d'abord l'écriture. Si la réponse est mal écrite, c'est une erreur d'écriture, et on ne cherche pas d'erreur de calcul. Sinon, on compare la valeur à la bonne réponse, puis on cherche l'erreur de calcul du cours (doc 06).
 - Exemple : la bonne réponse est −3 et elle tape « 3− ». C'est `moins-apres`, pas une erreur de signe de calcul : elle avait le bon résultat, mais mal écrit.
 - **Sur ta page de suivi**, ces erreurs forment une famille **« écriture »**, séparée de la famille « signe ».
 
-**Pour les cours de fractions** (étapes suivantes), il faudra choisir si la forme simplifiée est exigée, et comment traiter 2/(−3). Je ferai une proposition avec ces cours.
+**Pour les cours de fractions** (étapes suivantes), il faudra choisir si la forme simplifiée est exigée, et comment traiter un signe « − » placé au dénominateur. Je ferai une proposition avec ces cours.
 
 ## 4. Les étiquettes à remettre dans l'ordre
 
@@ -117,8 +127,11 @@ Ces 8 types servent **pour tous les modules**, pas seulement pour les relatifs.
 | `(` `−` `8` | (−8 | −8 | ❌ `parenthese` |
 | `0` `7` | 07 | 7 | ✅ juste, avec « On écrit simplement 7. » |
 | `−` `0` | −0 | 0 | ✅ juste, avec « On écrit simplement 0. » |
-| `−` `1` `2` `/` `4` | −12/4 | −3 | « Simplifie. » (pas compté faux) |
-| `5` `/` `0` | 5/0 | 5 | ❌ `ecriture-invalide` (« On ne divise jamais par 0. ») |
+| `▭/▭` `−` `1` `2` `→` `4` | fraction −12 sur 4 | −3 | « Simplifie. » (pas compté faux) |
+| `−` `▭/▭` `1` `2` `→` `4` | − devant la fraction 12 sur 4 | −3 | « Simplifie. » (pas compté faux) |
+| `▭/▭` `3` `→` | fraction 3 sur ▭ | 3 | ❌ `ecriture-invalide` (dénominateur vide) |
+| `▭/▭` `3` `→` `4` `→` `⌫` | fraction 3 sur ▭ (le 4 est effacé) | — | le curseur est revenu dans le dénominateur |
+| `▭/▭` `5` `→` `0` | fraction 5 sur 0 | 5 | ❌ `ecriture-invalide` (« On ne divise jamais par 0. ») |
 | `−` | − | −3 | ❌ `ecriture-invalide` |
 | `3` `⌫` `4` | 4 | 4 | ✅ juste |
 | (rien) | | — | Valider grisé |
