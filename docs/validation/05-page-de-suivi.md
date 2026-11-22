@@ -1,6 +1,6 @@
 # 05 — Ta page de suivi
 
-*Statut : à valider (version 4)*
+*Statut : Validé (2026-11-22) — version 4*
 
 Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture seule**. Elle a trois niveaux :
 1. l'**accueil** : simple, l'essentiel d'un coup d'œil ;
