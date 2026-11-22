@@ -95,7 +95,7 @@ Exemple (cours « additionner plusieurs relatifs ») — N1 : 3 + (−3) + 3 ; N
 - Chaque cours affiche **1, 2 ou 3 étoiles** selon le niveau atteint (repère de progression pour elle).
 - Le suivi se fait **par type d'erreur / par cours**, pas globalement : si elle rate souvent « moins par moins », c'est ce cas précis qui revient.
 
-### 4.4 Objectif du jour et dosage des révisions (validé)
+### 4.4 Objectif du jour et révisions (validé)
 
 Il n'y a pas de « session » au sens d'un bloc fixe : **un cours n'est pas une session.**
 
@@ -105,10 +105,11 @@ Il n'y a pas de « session » au sens d'un bloc fixe : **un cours n'est pas une 
 - **Cours** : durée variable selon le cours (pas de durée imposée) ; elle peut en enchaîner autant qu'elle veut dans la journée.
 - **Entraînement** (QCM sur les cours déjà faits) : libre, à tout moment.
 
-**Dosage des révisions** (règle validée) :
-- La quantité de révisions proposée un jour est **proportionnelle à ce qu'elle a appris** : si elle fait 15 min par jour, environ **5 min de révisions** le lendemain ; si elle a fait 1 ou 2 heures de cours, les révisions associées augmentent en proportion.
-- Les révisions ne doivent **jamais s'accumuler** au point de devenir une corvée (pas de « 45 minutes pour finir mes révisions » pour un rythme normal). Le lot du jour est donc **plafonné** selon cette règle ; les révisions en trop sont **reportées** (jamais perdues), en faisant passer d'abord les plus urgentes et celles qu'elle rate le plus.
-- Si elle veut réviser au-delà du lot du jour, elle peut (« tant mieux pour elle »).
+**Révisions** (règle revue par le porteur du projet, détail dans `docs/validation/02-objectif-et-dosage.md`) :
+- **Pas de formule de dosage liée au temps de cours**, et le temps de cours n'est jamais limité.
+- Chaque cours terminé a sa date de prochaine révision dans une liste. Un cours dû = 3 questions.
+- Les cours dus sont proposés par séances courtes (5 cours au maximum) ; « Encore des révisions » enchaîne la suivante ; ce qui n'est pas fait reste dû et passe en priorité.
+- L'espacement de l'échelle de temps (doc 01) suffit à éviter l'accumulation.
 
 ### 4.5 Retour sur erreur
 
@@ -207,7 +208,7 @@ Le porteur du projet **valide toute la logique de l'application** avant qu'elle 
 
 **À présenter et faire valider avant implémentation** (documents courts, avec exemples concrets) :
 - **Algorithme de répétition espacée** : quand un calcul revient, quand le niveau monte ou descend, combien d'erreurs font redescendre, critère de maîtrise d'un niveau et de déblocage du cours suivant.
-- **Dosage des révisions** : formule de proportion, plafond, ordre de priorité des révisions reportées (dans le cadre du §4.4).
+- **Liste des révisions** : séances, ordre de priorité des cours dus (dans le cadre du §4.4).
 - **Clavier dédié** : touches, disposition, saisie des nombres négatifs et des fractions.
 - **Distracteurs QCM** : comment on choisit les erreurs typiques et les valeurs « non typiques », et comment le mélange évolue.
 - **Format des réponses** : forme irréductible exigée ou non pour les fractions, écritures acceptées (−2/3, 2/(−3)…).
