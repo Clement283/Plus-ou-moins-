@@ -17,7 +17,7 @@ Un cours est **« dû »** le jour où sa date de prochaine révision est arriv�
 
 ## 2. Finir un cours
 
-Un cours se déroule ainsi : mini-leçon (avec des questions) → exemples guidés à compléter → **5 exercices de fin**, avec une réponse tapée, au niveau 1.
+Le déroulé d'un cours est propre à chaque cours (doc 06) : explications et questions de leçon, exemples guidés à compléter, et il se termine toujours par **5 exercices de fin**, avec une réponse tapée, au niveau 1.
 
 Le cours est **validé** quand ces deux conditions sont réunies :
 - **au moins 80 % de bonnes réponses sur l'ensemble du cours** (questions de la leçon, exemples guidés et exercices de fin, soit environ 12 réponses) ;
