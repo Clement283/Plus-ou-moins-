@@ -10,7 +10,7 @@ Ce dont elle a besoin : **beaucoup de pratique, courte et régulière** (10–15
 
 L'appli doit être simple, intuitive, adaptée aux jeunes, et peut s'étendre rapidement à d'autres personnes de l'entourage et à d'autres chapitres du programme de première.
 
-**Critère de réussite :** ses erreurs de signes et de calcul de base diminuent au fil des semaines, visible sur la page de suivi, et elle fait ses sessions régulièrement.
+**Critère de réussite :** ses erreurs de signes et de calcul de base diminuent au fil des semaines, visible sur la page de suivi, et elle atteint régulièrement son objectif de 15 minutes par jour.
 
 ## 2. Objectifs, non-objectifs, anti-objectifs
 
@@ -26,7 +26,7 @@ L'appli doit être simple, intuitive, adaptée aux jeunes, et peut s'étendre ra
 - Autres modules (second degré, etc.) : on ne les anticipe pas en contenu, seulement en structure.
 - Version ordinateur dédiée (la page web marchera sur ordinateur, mais n'est pas optimisée pour).
 - Page d'admin / éditeur de contenu.
-- Notifications (« elle n'a pas fait sa session »).
+- Notifications (« elle n'a pas fait ses 15 minutes »).
 - Inscription publique.
 - Maquettes / identité visuelle détaillée : le design visuel sera traité dans une étape séparée, après validation des fonctionnalités et de l'architecture.
 
@@ -85,18 +85,27 @@ Exemple (cours « additionner plusieurs relatifs ») — N1 : 3 + (−3) + 3 ; N
 - Chaque cours affiche **1, 2 ou 3 étoiles** selon le niveau atteint (repère de progression pour elle).
 - Le suivi se fait **par type d'erreur / par cours**, pas globalement : si elle rate souvent « moins par moins », c'est ce cas précis qui revient.
 
-### 4.4 Session quotidienne (validé)
+### 4.4 Objectif du jour et dosage des révisions (validé)
 
-- Environ 10 minutes, 15–20 calculs.
-- D'abord les révisions dues ce jour-là, puis la suite du parcours (cours suivant) ou de l'entraînement.
-- **Autant de sessions par jour qu'elle le souhaite.**
+Il n'y a pas de « session » au sens d'un bloc fixe : **un cours n'est pas une session.**
+
+- **Objectif du jour : 15 minutes de maths** (objectif de temps, pas un nombre de cours). Une jauge se remplit au fil des minutes ; elle peut s'arrêter avant ou continuer après autant qu'elle veut.
+- **Répartition de référence : ~5 min de révisions + ~10 min de nouveau cours.**
+- **Révisions mises en avant** sur l'écran d'accueil quand il y en a de dues, mais **pas obligatoires** : elle peut aller directement au prochain cours.
+- **Cours** : durée variable selon le cours (pas de durée imposée) ; elle peut en enchaîner autant qu'elle veut dans la journée.
+- **Entraînement** (QCM sur les cours déjà faits) : libre, à tout moment.
+
+**Dosage des révisions** (règle validée) :
+- La quantité de révisions proposée un jour est **proportionnelle à ce qu'elle a appris** : si elle fait 15 min par jour, environ **5 min de révisions** le lendemain ; si elle a fait 1 ou 2 heures de cours, les révisions associées augmentent en proportion.
+- Les révisions ne doivent **jamais s'accumuler** au point de devenir une corvée (pas de « 45 minutes pour finir mes révisions » pour un rythme normal). Le lot du jour est donc **plafonné** selon cette règle ; les révisions en trop sont **reportées** (jamais perdues), en faisant passer d'abord les plus urgentes et celles qu'elle rate le plus.
+- Si elle veut réviser au-delà du lot du jour, elle peut (« tant mieux pour elle »).
 
 ### 4.5 Retour sur erreur
 
 À chaque erreur, immédiatement et localement :
 1. la bonne réponse ;
 2. **pourquoi** : la règle concernée, en version visuelle et courte (« − × − = + »), adaptée à l'erreur détectée quand elle est reconnue (signe inversé, mauvaise opération, oubli de priorité…) ;
-3. un calcul du même type revient un peu plus loin dans la session, pour repartir sur une réussite.
+3. un calcul du même type revient un peu plus loin dans le cours ou les révisions en cours, pour repartir sur une réussite.
 
 ## 5. Contenu du module 1 « Calculs » (liste provisoire)
 
@@ -142,7 +151,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 
 ## 7. Page de suivi (suiveur)
 
-- **Régularité** : session faite aujourd'hui ? série de jours, calendrier des jours faits / manqués.
+- **Régularité** : objectif de 15 min atteint aujourd'hui ? temps passé par jour (révisions / cours / entraînement), série de jours, calendrier des jours faits / manqués.
 - **Points faibles** : taux de réussite par cours / type de calcul.
 - **Évolution** : les erreurs de signes diminuent-elles au fil des semaines ?
 - **Détail des erreurs** : derniers calculs ratés avec la réponse donnée (pour voir *comment* elle se trompe).
@@ -155,7 +164,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 - A. Tout sur le téléphone — simple, mais risque de perte (Safari iOS, changement de téléphone), pas de suivi possible. Écarté.
 - B. Tout sur Cloudflare — rien ne se perd, mais pas de hors-ligne.
 - C. Hybride complet avec synchronisation bidirectionnelle — trop complexe.
-- **Retenu (choix du porteur du projet) : hybride simplifié.** Cloudflare est la source de vérité. Le téléphone a de quoi faire les prochaines sessions quotidiennes hors ligne ; les réponses faites hors ligne sont mises en file d'attente et envoyées au retour du réseau ; en ligne, envoi immédiat. Simple parce que les réponses forment un **journal en ajout seul** (aucune modification après coup → pas de conflit).
+- **Retenu (choix du porteur du projet) : hybride simplifié.** Cloudflare est la source de vérité. Le téléphone a de quoi travailler les prochains jours hors ligne (révisions à venir + cours suivants) ; les réponses faites hors ligne sont mises en file d'attente et envoyées au retour du réseau ; en ligne, envoi immédiat. Simple parce que les réponses forment un **journal en ajout seul** (aucune modification après coup → pas de conflit).
 
 **Où vit le « cerveau » (génération, correction, détection d'erreurs, répétition espacée) ?**
 - **A. Sur le téléphone, en code partagé — retenu.** Correction et explication instantanées sans appel serveur (exigence du porteur du projet : « il ne faut pas qu'à chaque erreur il y ait un appel serveur »). Le hors-ligne en découle naturellement.
@@ -169,7 +178,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 ## 9. Architecture (décidée dans ses grandes lignes)
 
 - **Front** : PWA en TypeScript + React (choix de Claude), servie par **Cloudflare Pages**. Service worker pour l'installation et le hors-ligne.
-- **Cerveau partagé** : bibliothèque TypeScript indépendante de l'interface, utilisée par le front (sessions, correction) et par le serveur (calcul des statistiques de suivi). Contient :
+- **Cerveau partagé** : bibliothèque TypeScript indépendante de l'interface, utilisée par le front (révisions, cours, correction) et par le serveur (calcul des statistiques de suivi). Contient :
   - les **modules** ; chaque type d'exercice est un module/bloc avec : générateur paramétré par niveau, correction, erreurs typiques, explications, éventuellement étapes ;
   - le **planificateur de répétition espacée** (quand revient un item, à quel niveau).
   - Ajouter un module (ex. second degré) = ajouter un bloc, sans toucher au reste.
@@ -186,7 +195,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 
 - Front en **TypeScript + React**.
 - **Unité de répétition espacée = le cours** (chaque cours a son niveau et sa prochaine date de révision). Les **types d'erreur** sont enregistrés pour chaque réponse et servent au choix des exercices (faire revenir le cas raté) et à la page de suivi.
-- **Le « jour »** (sessions, série de jours) suit l'heure de Paris.
+- **Le « jour »** (objectif de 15 min, série de jours, révisions dues) suit l'heure de Paris.
 - **Tendance « erreurs de signes »** sur la page de suivi : calculée à partir des erreurs détectées comme erreurs de signe (signe inversé, règle des signes mal appliquée).
 - **Connexion par code personnel**, comptes créés par un script d'admin (pas d'interface en V1).
 - Pas de notifications en V1.
@@ -196,7 +205,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 Points qui ne changent pas ce que l'appli fait pour l'élève ou le suiveur ; ils seront tranchés au moment de coder, et signalés au porteur du projet s'ils ont un effet visible.
 
 - Algorithme exact de répétition espacée (intervalles, montée/descente de niveau) et critère de maîtrise d'un niveau.
-- Composition précise d'une session, durée exacte.
+- Formule exacte du dosage des révisions (proportion, plafond, priorités de report), dans le respect de la règle du §4.4.
 - Clavier dédié : disposition des touches (chiffres, « − » bien visible, fraction).
 - Format attendu pour les fractions (forme irréductible exigée ou non selon le cours).
 - Génération des distracteurs QCM « non typiques ».
