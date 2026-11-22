@@ -1,6 +1,6 @@
 # 06 — Module 1 « Calculs » : contenu des cours de l'étape 1
 
-*Statut : à valider (version 4 — tu peux valider cours par cours)*
+*Statut : Validé (2026-11-22) — version 4*
 
 ## Les modules
 

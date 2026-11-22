@@ -1,6 +1,6 @@
 # 04 — Fabrication des exercices : les règles de tous les types d'exercices
 
-*Statut : à valider (version 3 — un chapitre par type d'exercice)*
+*Statut : Validé (2026-11-22) — version 3*
 
 Ce document est **la règle de référence pour tous les types d'exercices**, dans tous les modules. Chaque chapitre décrit un type : à quoi il sert, ce qu'elle voit, comment l'appli le fabrique, ce qui est interdit, comment on décide si c'est juste et quelle erreur on enregistre. Chaque chapitre se termine par des exemples qui deviendront les tests automatiques.
 
