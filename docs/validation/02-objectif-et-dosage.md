@@ -1,6 +1,6 @@
 # 02 — Objectif du jour et liste des révisions
 
-*Statut : à valider (version 4)*
+*Statut : Validé (2026-11-22) — version 4*
 
 Ce document décrit comment on compte les 15 minutes, comment les révisions dues sont proposées, et ce que montre l'écran d'accueil. Ce sont des propositions de Claude, avec leur raison.
 

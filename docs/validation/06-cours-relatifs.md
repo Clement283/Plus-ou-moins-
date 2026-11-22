@@ -18,6 +18,7 @@
   Toujours **la même méthode** d'un niveau à l'autre.
 - **Erreurs reconnues :** chaque cours a sa liste. Une réponse fausse qui ne correspond à aucune erreur de la liste est classée **« autre »**, avec l'explication générale du cours.
 - **Famille signe** 🔴 : ces erreurs comptent dans l'indicateur « erreurs de signe » de ta page de suivi (doc 05).
+- **Erreurs d'écriture** (moins après le nombre, double signe, parenthèse, écriture invalide) : communes à tous les cours, décrites dans le doc 03 §3. Elles sont vérifiées **avant** les erreurs de calcul ci-dessous.
 - **Ordre de détection :** quand une réponse pourrait correspondre à deux erreurs, on retient la première de la liste du cours.
 - **Exemples guidés à compléter :** chaque case vide (▢) est une petite réponse tapée. Elles s'enchaînent dans l'ordre.
 - **Calcul-piège :** pour chaque erreur reconnue, la colonne « Calcul-piège » dit quel calcul tend ce piège. Le générateur l'utilise quand c'est l'erreur la plus fréquente (doc 01 §5), **sans sortir des nombres du niveau**.

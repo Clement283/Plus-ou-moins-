@@ -57,6 +57,8 @@ En touchant un jour, tu vois le détail (temps par catégorie).
 
 *C'est l'indicateur de réussite du projet* : la courbe doit baisser.
 
+Les **erreurs d'écriture** (moins après le nombre, parenthèse oubliée… doc 03) ne sont pas mélangées aux erreurs de signe : elles apparaissent dans « Erreurs les plus fréquentes » et « Dernières erreurs », sous la famille « écriture ».
+
 **Par cours.** Pour chaque cours commencé :
 - les étoiles (meilleur niveau atteint) ;
 - le **niveau actuel** et la date de la prochaine révision ;
