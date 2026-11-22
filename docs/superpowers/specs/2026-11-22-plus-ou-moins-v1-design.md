@@ -35,14 +35,15 @@ L'appli doit être simple, intuitive, adaptée aux jeunes, et peut s'étendre ra
 - Un QCM qu'on peut résoudre par élimination sans comprendre.
 - Lui présenter un calcul dont la méthode ne lui a jamais été expliquée.
 - Un parcours compliqué (plusieurs chemins, niveaux à choisir à gauche et à droite).
-- Beaucoup de texte, des consignes longues : contraire à la dyslexie.
+- Des exercices « adaptés » qui ne ressemblent pas à un contrôle (signes agrandis, calculs colorés…) : en contrôle il n'y aura aucune adaptation, l'entraînement doit donc se faire dans les conditions réelles.
+- Des consignes inutilement longues.
 - Un « faux » sec sans explication.
 
 ## 3. Contraintes
 
 - **Mobile d'abord**, iPhone (Safari) et Android (Chrome). Pas de stores : une page web installable sur l'écran d'accueil (PWA).
 - **Hébergement Cloudflare** (le porteur du projet le connaît déjà) ; rester dans l'offre gratuite si possible.
-- **Dyslexie** : peu de texte, consignes courtes, police lisible et aérée, signes + et − très visibles, explications visuelles.
+- **Dyslexie — prise en compte, pas compensée.** Les **exercices, l'entraînement et les révisions** sont présentés **comme sur une copie de contrôle** : écriture mathématique normale, signes de taille normale, pas de couleurs ni d'aides visuelles sur les calculs. La dyslexie est prise en compte **dans les mini-leçons, les exemples guidés et les explications d'erreur** : couleurs, repères visuels, schémas, découpage en petites étapes. Elle peut aussi guider le choix des exercices (ce qui est plus difficile pour elle revient plus souvent).
 - Safari iOS peut effacer le stockage d'un site non utilisé depuis 7 jours s'il n'est pas installé sur l'écran d'accueil → le serveur est la source de vérité, le stockage local n'est qu'un cache + une file d'attente.
 - Données de mineurs : ne stocker que le strict nécessaire (prénom ou pseudo, pas d'email obligatoire pour l'élève).
 - Le contenu (leçons, exemples) est écrit par Claude et relu par le porteur du projet ; il vit dans le code.
@@ -79,16 +80,16 @@ Exemple (cours « additionner plusieurs relatifs ») — N1 : 3 + (−3) + 3 ; N
 
 ### 4.3 Progression
 
-- **Chemin unique** de cours. Le cours suivant se débloque quand le **niveau 1** du cours courant est maîtrisé (critère de maîtrise : à fixer par le constructeur, ex. N réussites sur les M derniers exercices).
+- **Chemin unique** de cours. Le cours suivant se débloque quand le **niveau 1** du cours courant est maîtrisé (critère de maîtrise : décidé pendant la construction, ex. N réussites sur les M derniers exercices).
 - **Les niveaux montent automatiquement via la répétition espacée** (décidé, option « C ») : réussite en révision → l'item revient **plus tard et plus dur** (N1 → N2 → N3) ; erreur → il revient **plus tôt et plus simple**. Elle ne choisit jamais de niveau, ne refait jamais de cours.
 - Chaque cours affiche **1, 2 ou 3 étoiles** selon le niveau atteint (repère de progression pour elle).
 - Le suivi se fait **par type d'erreur / par cours**, pas globalement : si elle rate souvent « moins par moins », c'est ce cas précis qui revient.
 
-### 4.4 Session quotidienne (proposition — appel de Claude)
+### 4.4 Session quotidienne (validé)
 
 - Environ 10 minutes, 15–20 calculs.
 - D'abord les révisions dues ce jour-là, puis la suite du parcours (cours suivant) ou de l'entraînement.
-- Une ou deux sessions par jour possibles.
+- **Autant de sessions par jour qu'elle le souhaite.**
 
 ### 4.5 Retour sur erreur
 
@@ -167,7 +168,7 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 
 ## 9. Architecture (décidée dans ses grandes lignes)
 
-- **Front** : PWA en TypeScript + React (appel de Claude), servie par **Cloudflare Pages**. Service worker pour l'installation et le hors-ligne.
+- **Front** : PWA en TypeScript + React (choix de Claude), servie par **Cloudflare Pages**. Service worker pour l'installation et le hors-ligne.
 - **Cerveau partagé** : bibliothèque TypeScript indépendante de l'interface, utilisée par le front (sessions, correction) et par le serveur (calcul des statistiques de suivi). Contient :
   - les **modules** ; chaque type d'exercice est un module/bloc avec : générateur paramétré par niveau, correction, erreurs typiques, explications, éventuellement étapes ;
   - le **planificateur de répétition espacée** (quand revient un item, à quel niveau).
@@ -179,19 +180,20 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 ## 10. Livraison par étapes et écrans (décidé)
 
 - **Par étapes.** Étape 1 : une version complète de bout en bout (moteur, répétition espacée, hors-ligne + synchro, comptes, page de suivi) avec **uniquement les cours « Relatifs »** (cours 1–7), son problème principal, pour qu'elle commence à s'entraîner au plus tôt. Étapes suivantes : Priorités, puis Fractions, puis Carrés, par lots ; chaque lot = écriture des cours par Claude → relecture par le porteur du projet → mise en ligne.
-- **Écrans sobres qui fonctionnent.** Tous les écrans (leçons, exemples, clavier dédié, QCM, révisions, page de suivi) sont construits et utilisables dès l'étape 1, avec un style neutre adapté à la dyslexie (grande police aérée, signes très visibles). Pas d'identité graphique : l'appli sera « habillée » à l'étape design visuel, sans changer le fonctionnement. Les styles sont donc centralisés pour faciliter ce rhabillage.
+- **Écrans sobres qui fonctionnent.** Tous les écrans (leçons, exemples, clavier dédié, QCM, révisions, page de suivi) sont construits et utilisables dès l'étape 1, avec un style neutre et lisible. Les calculs y sont écrits comme sur une copie (voir §3) ; les aides visuelles (couleurs, repères) sont réservées aux leçons, exemples guidés et explications d'erreur. Pas d'identité graphique : l'appli sera « habillée » à l'étape design visuel, sans changer le fonctionnement. Les styles sont donc centralisés pour faciliter ce rhabillage.
 
-## 11. Appels de Claude (à vérifier par le porteur du projet)
+## 11. Choix faits par Claude (à vérifier par le porteur du projet)
 
 - Front en **TypeScript + React**.
 - **Unité de répétition espacée = le cours** (chaque cours a son niveau et sa prochaine date de révision). Les **types d'erreur** sont enregistrés pour chaque réponse et servent au choix des exercices (faire revenir le cas raté) et à la page de suivi.
 - **Le « jour »** (sessions, série de jours) suit l'heure de Paris.
 - **Tendance « erreurs de signes »** sur la page de suivi : calculée à partir des erreurs détectées comme erreurs de signe (signe inversé, règle des signes mal appliquée).
-- **Session ≈ 10 min, 15–20 calculs** : révisions dues d'abord, puis la suite du parcours.
 - **Connexion par code personnel**, comptes créés par un script d'admin (pas d'interface en V1).
 - Pas de notifications en V1.
 
-## 12. Laissé au constructeur
+## 12. Détails techniques décidés pendant la construction
+
+Points qui ne changent pas ce que l'appli fait pour l'élève ou le suiveur ; ils seront tranchés au moment de coder, et signalés au porteur du projet s'ils ont un effet visible.
 
 - Algorithme exact de répétition espacée (intervalles, montée/descente de niveau) et critère de maîtrise d'un niveau.
 - Composition précise d'une session, durée exacte.
@@ -200,4 +202,4 @@ Pour chaque cours, un document de contenu séparé (relu par le porteur du proje
 - Génération des distracteurs QCM « non typiques ».
 - Schéma de base de données, API, format du code de connexion, outil de création de comptes.
 - Outillage (bundler, tests, déploiement), dans le cadre TypeScript + React + Cloudflare.
-- Format des mini-leçons adapté à la dyslexie (sera affiné à l'étape design visuel et à l'écriture des cours).
+- Aides visuelles des mini-leçons (couleurs, repères) : affinées à l'écriture des cours et à l'étape design visuel.
