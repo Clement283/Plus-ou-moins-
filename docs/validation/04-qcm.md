@@ -1,6 +1,6 @@
-# 04 — Les QCM : comment on choisit les réponses proposées
+# 04 — QCM et formats rapides : comment on fabrique les questions
 
-*Statut : à valider*
+*Statut : à valider (version 2)*
 
 Les QCM servent dans les révisions et dans l'entraînement. Ce document décrit comment on choisit les mauvaises réponses proposées, qu'on appelle les **pièges**.
 
@@ -42,6 +42,30 @@ Si un cours n'a pas assez de pièges typiques pour la formule demandée, on comp
 - **Si la réponse est entière, les pièges sont entiers.**
 - **Pas de 0 comme piège**, sauf si la bonne réponse est entre −3 et 3.
 
+## 4. Les autres formats fabriqués automatiquement
+
+**Vrai ou faux.** On affiche « calcul = résultat ».
+- Une fois sur deux, le résultat est le bon (réponse « Vrai »).
+- Sinon, c'est un piège, choisi avec la même règle que pour le QCM (typique au début, puis mélange).
+- Si elle répond « Vrai » à un résultat faux, on enregistre l'erreur reliée à ce piège.
+
+**Classer.** On affiche **4 calculs** à ranger dans « résultat + », « résultat − » et, s'il y en a, « 0 ».
+- Les calculs sont tirés au niveau demandé.
+- Il y a au moins un calcul dans la case « + » et un dans la case « − ».
+
+**Relier les paires.** 4 calculs du même cours et leurs 4 résultats, avec **4 résultats tous différents**.
+
+**Compléter le trou.** On prend un calcul du générateur et on cache **un des nombres** au lieu du résultat. Par exemple, −3 + ▢ = 5. On vérifie que la réponse est **unique** et qu'elle reste dans les nombres du niveau.
+
+## 5. Comment une séance de révision choisit les formats
+
+Pour chaque cours dû, ses 3 questions sont :
+- surtout des **QCM** ;
+- au plus **1 « Vrai ou faux »** par cours ;
+- au plus **1 « Classer »** par cours. Une question « Classer » (4 calculs) compte pour **une** des 3 questions.
+
+*Pourquoi limiter le « Vrai ou faux » :* on peut tomber juste une fois sur deux au hasard. Une seule question de ce type par cours ne fausse pas le 3 sur 3.
+
 ## Exemples
 
 | Calcul | Bonne réponse | QCM déjà vus sur ce cours | Formule | Choix proposés (avant mélange), avec l'erreur reliée |
@@ -64,3 +88,8 @@ Règles toujours vraies, vérifiées sur 1 000 QCM tirés au hasard :
 | Doublons | aucun |
 | Réponse entière | tous les choix sont entiers |
 | Formule « paires de signes » | chaque choix a son opposé parmi les choix (sauf 0) |
+| Vrai ou faux, sur 1 000 tirages | environ la moitié « Vrai » (entre 45 % et 55 %) |
+| Classer | 4 calculs, au moins un « + » et un « − » |
+| Relier les paires | 4 résultats tous différents |
+| Compléter le trou | une seule réponse possible, dans les nombres du niveau |
+| Séance de révision, un cours | 3 questions : au plus 1 vrai ou faux, au plus 1 classer, le reste en QCM |

@@ -1,6 +1,6 @@
 # 05 — Ta page de suivi
 
-*Statut : à valider*
+*Statut : à valider (version 2)*
 
 Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture seule**.
 
@@ -59,13 +59,13 @@ En touchant un jour, tu vois le détail (temps par catégorie).
 
 **Par cours.** Pour chaque cours commencé :
 - les étoiles (meilleur niveau atteint) ;
-- le **niveau actuel** ;
+- le **niveau actuel** et la date de la prochaine révision ;
 - le **taux de réussite des 30 derniers jours** (exercices, révisions et entraînement ; les questions de leçon et les exemples guidés ne comptent pas) ;
-- un ⚠ si ce taux est sous **70 %**, pour repérer d'un coup d'œil quoi retravailler en cours.
+- un ⚠ si ce taux est sous **70 %**, **ou** si le cours vient de rater deux révisions d'affilée (doc 01). Ça permet de repérer d'un coup d'œil quoi retravailler en cours.
 
 **Erreurs les plus fréquentes.** Les 3 types d'erreur les plus fréquents sur les 30 derniers jours, tous cours confondus.
 
-**Dernières erreurs.** Les 10 dernières erreurs, avec la date, le calcul, **ce qu'elle a répondu**, la bonne réponse et le type d'erreur reconnu (ou « autre »). C'est ce qui te montre *comment* elle se trompe.
+**Dernières erreurs.** Les 10 dernières erreurs, avec la date, le calcul, **ce qu'elle a répondu**, la bonne réponse et le type d'erreur reconnu (ou « autre »). C'est ce qui te montre *comment* elle se trompe. Un calcul abandonné avec le bouton « Passer » y apparaît avec la mention **« passé »**. Les erreurs « autre » qui reviennent souvent sont à signaler : on pourra les ajouter aux erreurs reconnues du cours.
 
 ## Exemples
 

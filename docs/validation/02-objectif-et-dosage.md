@@ -1,6 +1,6 @@
 # 02 — Objectif du jour et dosage des révisions
 
-*Statut : à valider*
+*Statut : à valider (version 2)*
 
 Ce document décrit comment on compte les 15 minutes, combien de révisions on lui propose chaque jour, et ce que montre l'écran d'accueil. Ce sont des propositions de Claude, avec leur raison.
 
@@ -21,29 +21,34 @@ Ce document décrit comment on compte les 15 minutes, combien de révisions on l
 
 ## 3. Combien de révisions chaque jour : le lot du jour
 
-Une révision = un cours révisé = 3 calculs en QCM. Elle prend **environ 1 minute**.
+**Une séance de révision mélange tous les cours du lot du jour.** Chaque cours y a 3 calculs (doc 01), et les calculs des différents cours sont **entremêlés** au hasard : pas les 3 du cours 1, puis les 3 du cours 2. Elle doit reconnaître seule quelle règle appliquer, comme en contrôle. Par exemple, 5 cours dans le lot = 15 questions ≈ 5 minutes.
+
+On compte **environ 1 minute par cours révisé** (3 questions rapides).
 
 **Formule proposée :**
 
 > **Temps de révisions du jour = la moitié du temps de cours de son dernier jour d'activité**, avec **au moins 5 minutes** et **au plus 20 minutes**.
-> **Lot du jour** = autant de révisions que ce temps (1 révision ≈ 1 minute), sans dépasser le nombre de révisions dues.
+> **Lot du jour** = autant de cours que ce temps en minutes (1 cours ≈ 1 minute), sans dépasser le nombre de cours dus.
 
-- Avec 10 minutes de cours la veille, le lot fait **5 révisions** (5 min). C'est la règle validée : « 15 min par jour → 5 min de révisions le lendemain ».
-- Avec 1 heure de cours la veille, le lot fait 30 révisions, ramenées à **20** par le plafond.
+- Avec 10 minutes de cours la veille, le lot fait **5 cours** (15 questions, 5 min). C'est la règle validée : « 15 min par jour → 5 min de révisions le lendemain ».
+- Avec 1 heure de cours la veille, le lot ferait 30 cours, ramenés à **20** par le plafond.
 - Le **« dernier jour d'activité »** est le dernier jour où elle a fait des cours, avant aujourd'hui. *Pourquoi :* si elle ne fait rien le week-end, le lundi est dosé sur son vendredi, pas sur zéro.
 - **Plafond de 20 minutes.** *Pourquoi :* même après une grosse journée, les révisions ne doivent pas devenir une corvée. Celles qui dépassent sont reportées.
 
-## 4. Les révisions reportées
+## 4. Les cours dus et les cours reportés
 
-Quand plus de révisions sont dues que le lot du jour, celles en trop sont **reportées au lendemain**, jamais perdues. Le lot du jour prend en premier :
+Ce n'est pas une simple file d'attente : c'est un **calendrier**. Chaque cours a sa date de prochaine révision (doc 01). Un cours est **« dû »** quand cette date est arrivée ou dépassée.
+
+- **S'il y a moins de cours dus que le lot** (le cas normal) : on les prend tous.
+- **S'il y en a plus** (après une absence, ou après une très grosse journée de cours) : ceux en trop sont **reportés au lendemain**, jamais perdus. Le choix ressemble à « premier arrivé, premier servi », sauf que **les cours fragiles passent devant**. Le lot du jour prend en premier :
 
 1. les cours dont la **dernière révision a été ratée** ;
-2. puis ceux qui ont **le plus de retard** (date prévue la plus ancienne) ;
-3. à égalité, ceux au **palier le plus bas** (les moins solides).
+2. puis ceux qui ont **le plus de retard** (date prévue la plus ancienne : c'est le « premier arrivé, premier servi ») ;
+3. à égalité, ceux à l'**étape la plus basse** de l'échelle (les moins solides).
 
 ## 5. Les révisions en plus
 
-Une fois le lot du jour terminé, un bouton **« Encore des révisions »** apparaît s'il reste des révisions reportées. Elles comptent normalement : palier, dates, statistiques. S'il n'en reste aucune, l'appli propose plutôt l'**entraînement**.
+Une fois le lot du jour terminé, un bouton **« Encore des révisions »** apparaît s'il reste des cours dus reportés. Ils forment une nouvelle séance et comptent normalement : étapes, dates, statistiques. S'il n'en reste aucun, l'appli propose plutôt l'**entraînement**.
 
 *On ne peut pas réviser en avance un cours qui n'est pas encore dû.* *Pourquoi :* ça casserait l'espacement. Pour pratiquer quand même, il y a l'entraînement.
 
@@ -55,7 +60,7 @@ Une fois le lot du jour terminé, un bouton **« Encore des révisions »** appa
 │                              │
 │  ┌────────────────────────┐  │
 │  │ Révisions du jour       │  │  ← mise en avant quand il y en a
-│  │ 5 révisions · ~5 min    │  │
+│  │ 5 cours · 15 questions  │  │
 │  │        [ Réviser ]      │  │
 │  └────────────────────────┘  │
 │                              │
@@ -73,7 +78,7 @@ Une fois le lot du jour terminé, un bouton **« Encore des révisions »** appa
 
 ## Exemples
 
-| Dernier jour d'activité : minutes de cours | Révisions dues aujourd'hui | Temps de révisions | Lot du jour | Reportées |
+| Dernier jour d'activité : minutes de cours | Cours dus aujourd'hui | Temps de révisions | Lot du jour (cours) | Reportés |
 |---|---|---|---|---|
 | 10 min (rythme de 15 min par jour) | 4 | 5 min | 4 | 0 |
 | 10 min | 8 | 5 min | 5 | 3 |

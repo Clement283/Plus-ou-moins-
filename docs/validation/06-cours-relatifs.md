@@ -1,10 +1,10 @@
 # 06 — Contenu des 7 cours « Relatifs »
 
-*Statut : à valider (tu peux valider cours par cours)*
+*Statut : à valider (version 2 — tu peux valider cours par cours)*
 
 ## Règles communes à tous les cours
 
-- **Déroulé d'un cours :** la mini-leçon (en 4 parties variées), puis 2 exemples guidés à compléter, puis **10 exercices de fin** au niveau 1, avec une réponse tapée (doc 01 : maîtrise à 8 sur 10).
+- **Déroulé d'un cours :** la mini-leçon (en 4 ou 5 parties variées), puis 2 exemples guidés à compléter, puis **5 exercices de fin** au niveau 1, avec une réponse tapée. Les questions de la leçon et des exemples comptent dans la note (doc 01 : validé avec 80 % sur l'ensemble et au moins 4 exercices de fin sur 5).
 - **Écriture des calculs, comme sur une copie :** un nombre négatif est entre parenthèses, sauf s'il est le premier terme : −3 + (−5), 4 × (−7). Aucune couleur sur les calculs des exercices, des révisions et de l'entraînement.
 - **Dans les leçons, les exemples guidés et les explications d'erreur** (et seulement là), il y a des aides visuelles :
   - les nombres **négatifs en rouge** et les **positifs en bleu** ;
@@ -20,6 +20,11 @@
 - **Famille signe** 🔴 : ces erreurs comptent dans l'indicateur « erreurs de signe » de ta page de suivi (doc 05).
 - **Ordre de détection :** quand une réponse pourrait correspondre à deux erreurs, on retient la première de la liste du cours.
 - **Exemples guidés à compléter :** chaque case vide (▢) est une petite réponse tapée. Elles s'enchaînent dans l'ordre.
+- **Calcul-piège :** pour chaque erreur reconnue, la colonne « Calcul-piège » dit quel calcul tend ce piège. Le générateur l'utilise quand c'est l'erreur la plus fréquente (doc 01 §5), **sans sortir des nombres du niveau**.
+- **Pour l'entraînement et les révisions, tous les cours fournissent aussi :**
+  - « **Classer** » : le classement est toujours **résultat positif / négatif / nul** ;
+  - « **Trouver l'erreur** » : la résolution affichée reprend les étapes de la partie « étiquettes » de la leçon, et l'une d'elles est remplacée par une erreur reconnue du cours ;
+  - « **Vrai ou faux** », « **Relier les paires** », « **Compléter le trou** » et « **QCM** » : fabriqués automatiquement à partir du générateur et des erreurs reconnues (doc 04).
 
 ---
 
@@ -47,10 +52,10 @@
 | 3 | même chose | de 100 à 999 |
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `signe-oublie` 🔴 | la réponse est l'opposé de la bonne réponse | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
-| `soustraction-au-lieu-addition` | la réponse vaut ±(grand − petit) | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 3 + 5 = 8, donc −8. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `signe-oublie` 🔴 | la réponse est l'opposé de la bonne réponse | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » | deux négatifs |
+| `soustraction-au-lieu-addition` | la réponse vaut ±(grand − petit) | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 3 + 5 = 8, donc −8. » | deux nombres d'écart important, ex. −2 + (−9) |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -81,6 +86,7 @@
    - −6 + 6 → **0** (deux opposés s'annulent)
 3. **Étiquettes à ordonner** pour 4 + (−9) : `Signes contraires` · `9 − 4 = 5` · `9 est le plus grand : signe −` · `Résultat : −5`
 4. **Réponse à écrire :** −7 + 2 = ? (réponse : −5)
+5. **Relier les paires :** −3 + 5 ↔ 2 · 4 + (−9) ↔ −5 · −6 + 6 ↔ 0 · 7 + (−2) ↔ 5
 
 **Exemples guidés**
 - −8 + 3 : 8 − 3 = ▢, le plus grand est 8, donc le résultat est ▢ → 5, puis −5
@@ -94,10 +100,10 @@
 | 3 | même chose | de 100 à 999 |
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `signe-du-mauvais-nombre` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). » |
-| `addition-au-lieu-soustraction` | la réponse vaut ±(a + b sans les signes) | « Signes contraires : on **soustrait**. 5 − 3 = 2. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `signe-du-mauvais-nombre` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). » | le plus grand (sans signe) est négatif, ex. 3 + (−8) |
+| `addition-au-lieu-soustraction` | la réponse vaut ±(a + b sans les signes) | « Signes contraires : on **soustrait**. 5 − 3 = 2. » | le négatif en premier, ex. −7 + 4 |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -141,11 +147,11 @@
 | 3 | 4 termes, au moins un positif et un négatif | de 10 à 999 |
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `signe-inverse` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe. » |
-| `tout-additionne` | la réponse vaut ±(la somme de tous les nombres sans leur signe) | « Les négatifs ne s'ajoutent pas aux positifs : ils se **retranchent**. Regroupe-les d'abord. » |
-| `terme-oublie` | la réponse est le résultat du calcul avec un terme en moins | « Il manque un nombre : coche chaque terme quand tu l'as utilisé. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `signe-inverse` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe. » | totaux des positifs et des négatifs proches |
+| `tout-additionne` | la réponse vaut ±(la somme de tous les nombres sans leur signe) | « Les négatifs ne s'ajoutent pas aux positifs : ils se **retranchent**. Regroupe-les d'abord. » | au moins deux négatifs |
+| `terme-oublie` | la réponse est le résultat du calcul avec un terme en moins | « Il manque un nombre : coche chaque terme quand tu l'as utilisé. » | un terme 1 ou −1, facile à oublier |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -176,6 +182,7 @@
    - −4 − 6 = −4 + (−6) = **−10**
 3. **Étiquettes à ordonner** : réécrire 5 − (−3) comme une addition. Étiquettes `5` · `+` · `3` · `−` (la dernière est un piège). Réponse : `5` `+` `3`.
 4. **Réponse à écrire :** −2 − (−9) = ? (réponse : 7)
+5. **Trouver l'erreur :** « 6 − (−2) = 6 − 2 = 4 ». La 2e étape est fausse : 6 − (−2) = 6 + 2 = 8.
 
 **Exemples guidés**
 - 6 − (−4) = 6 + ▢ = ▢ → 4, puis 10
@@ -189,10 +196,10 @@
 | 3 | même chose | de 100 à 999 |
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `signe-inverse` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Transforme d'abord en addition, puis applique la règle : même signe ou signes contraires ? » |
-| `oppose-oublie` 🔴 | la réponse vaut a + b (le signe de b n'a pas été changé) | « Soustraire, c'est **ajouter l'opposé** : 5 − (−3) devient 5 + 3. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `signe-inverse` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Transforme d'abord en addition, puis applique la règle : même signe ou signes contraires ? » | a plus petit que b, ex. 3 − 8 |
+| `oppose-oublie` 🔴 | la réponse vaut a + b (le signe de b n'a pas été changé) | « Soustraire, c'est **ajouter l'opposé** : 5 − (−3) devient 5 + 3. » | b négatif, ex. 6 − (−4) |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -232,6 +239,7 @@
    - 6 × (−7) → signes contraires → − → 6 × 7 = 42 → **−42**
 3. **Étiquettes à ordonner** pour −4 × (−3) : `Même signe → +` · `4 × 3 = 12` · `Résultat : 12`
 4. **Réponse à écrire :** −8 × 5 = ? (réponse : −40)
+5. **Classer** (résultat + ou −, sans calculer) : −2 × 3 → − · −4 × (−5) → + · 7 × (−1) → − · 2 × 8 → +
 
 **Exemples guidés**
 - −5 × (−6) : signe du résultat ▢ (+), puis 5 × 6 = ▢ → 30, résultat ▢ → 30
@@ -247,11 +255,11 @@
 | 3 | même chose | les deux de 10 à 99 |
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `regle-signes` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « − × − = + et + × − = −. Deux signes pareils → + ; différents → −. » |
-| `addition-au-lieu-multiplication` | la réponse vaut a + b, ou ±(a + b sans les signes) | « Ici, c'est une **multiplication** : × et pas +. » |
-| `erreur-table` | même signe que la bonne réponse, mais elle est décalée d'un des deux nombres (ex. 3 × 4 → 9, 15, 8 ou 16) | « Le signe est bon ! Vérifie la multiplication : 3 × 4 = 12. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `regle-signes` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « − × − = + et + × − = −. Deux signes pareils → + ; différents → −. » | deux négatifs |
+| `addition-au-lieu-multiplication` | la réponse vaut a + b, ou ±(a + b sans les signes) | « Ici, c'est une **multiplication** : × et pas +. » | petits nombres, ex. −2 × 3 |
+| `erreur-table` | même signe que la bonne réponse, mais elle est décalée d'un des deux nombres (ex. 3 × 4 → 9, 15, 8 ou 16) | « Le signe est bon ! Vérifie la multiplication : 3 × 4 = 12. » | les tables qu'elle a ratées |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -296,10 +304,10 @@
 Les signes de a et de b sont tirés au hasard, avec au moins un négatif 3 fois sur 4.
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `regle-signes` 🔴 | la réponse est l'opposé de la bonne réponse | « Même règle que pour × : signes pareils → + ; différents → −. » |
-| `multiplication-au-lieu-division` | la réponse vaut ±(a × b) | « Ici, c'est une **division** : ÷ et pas ×. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `regle-signes` 🔴 | la réponse est l'opposé de la bonne réponse | « Même règle que pour × : signes pareils → + ; différents → −. » | deux négatifs |
+| `multiplication-au-lieu-division` | la réponse vaut ±(a × b) | « Ici, c'est une **division** : ÷ et pas ×. » | petit quotient, ex. −8 ÷ (−4) |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -342,10 +350,10 @@ Les signes de a et de b sont tirés au hasard, avec au moins un négatif 3 fois 
 | 3 | 5 facteurs, au moins un négatif | de 1 à 6 |
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée |
-|---|---|---|
-| `parite-signes` 🔴 | la réponse est l'opposé de la bonne réponse | « Compte les signes − : pair → + ; impair → −. » |
-| `addition-au-lieu-multiplication` | la réponse vaut la somme des facteurs, ou ±(leur somme sans les signes) | « Ici, on **multiplie** tous les nombres. » |
+| Identifiant | Détection | Explication affichée | Calcul-piège |
+|---|---|---|---|
+| `parite-signes` 🔴 | la réponse est l'opposé de la bonne réponse | « Compte les signes − : pair → + ; impair → −. » | nombre pair de négatifs (2 ou 4) |
+| `addition-au-lieu-multiplication` | la réponse vaut la somme des facteurs, ou ±(leur somme sans les signes) | « Ici, on **multiplie** tous les nombres. » | facteurs petits (1 à 3) |
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |

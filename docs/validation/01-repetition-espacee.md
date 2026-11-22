@@ -1,101 +1,121 @@
-# 01 — Répétition espacée : quand un calcul revient, quand le niveau monte ou descend
+# 01 — Répétition espacée : quand un cours revient, et à quel niveau
 
-*Statut : à valider*
+*Statut : à valider (version 2, après la relecture du porteur du projet)*
 
-Ce document décrit comment l'appli décide **quoi faire revenir, quand, et à quel niveau**. Tout ce qui est écrit ici est une proposition de Claude, avec sa raison. Le tableau « Exemples » à la fin deviendra les tests automatiques.
+Ce document décrit comment l'appli décide **quels cours faire revenir en révision, quand, et à quel niveau**. Le tableau « Exemples » à la fin deviendra les tests automatiques.
 
 ## 1. Ce qu'on suit
 
 On suit **chaque cours séparément**. Pour chaque cours terminé, l'appli retient :
 
-- son **palier**, de 1 à 8 : plus le palier est haut, plus le cours revient rarement ;
-- le **niveau** (1, 2 ou 3), qui découle du palier (voir le tableau ci-dessous) ;
-- la **prochaine date de révision** ;
-- les **erreurs récentes** de ce cours (lesquelles, combien de fois).
+- son **étape** sur l'échelle de temps (A à H, voir §3), qui donne son **niveau** (1, 2 ou 3) ;
+- la **date de sa prochaine révision** ;
+- s'il vient de **rater** sa dernière révision (pour savoir si c'est un 1er ou un 2e raté d'affilée) ;
+- ses **erreurs récentes** (lesquelles, et combien de fois).
 
-*Pourquoi par cours :* un cours = une règle. Si elle rate « moins par moins », c'est le cours « multiplier deux relatifs » qui revient, et on vise ce cas précis à l'intérieur du cours (voir §5).
+Un cours est **« dû »** le jour où sa date de prochaine révision est arrivée ou dépassée.
 
-## 2. Les paliers
+## 2. Finir un cours
 
-| Palier | Niveau des calculs | Revient dans… |
-|---|---|---|
-| 1 | Niveau 1 | 1 jour |
-| 2 | Niveau 1 | 2 jours |
-| 3 | Niveau 2 | 4 jours |
-| 4 | Niveau 2 | 7 jours |
-| 5 | Niveau 3 | 10 jours |
-| 6 | Niveau 3 | 15 jours |
-| 7 | Niveau 3 | 21 jours |
-| 8 | Niveau 3 | 30 jours (on reste à 8) |
+Un cours se déroule ainsi : mini-leçon (avec des questions) → exemples guidés à compléter → **5 exercices de fin**, avec une réponse tapée, au niveau 1.
 
-C'est le principe validé : **plus elle réussit, plus le palier monte**, donc le cours revient **plus tard et plus dur**. Quand elle se trompe, le palier descend : il revient **plus tôt et plus simple**.
+Le cours est **validé** quand ces deux conditions sont réunies :
+- **au moins 80 % de bonnes réponses sur l'ensemble du cours** (questions de la leçon, exemples guidés et exercices de fin, soit environ 12 réponses) ;
+- **et au moins 4 exercices de fin justes sur 5**.
 
-*Pourquoi ces chiffres :* avec deux réussites, elle passe au niveau 2 environ 3 jours après avoir fini le cours. C'est ce que tu imaginais (« le niveau 2 arrive 2-3 sessions après »).
+*Pourquoi les deux conditions :* les questions de la leçon sont guidées, donc plus faciles. Sans la 2e condition, elle pourrait valider un cours sans savoir faire le calcul seule.
 
-## 3. Finir un cours (et débloquer le suivant)
+- **Cours validé** : le cours suivant se débloque, et ce cours gagne sa **1re étoile**. Il entre en révision à l'**étape A** : 1re révision dans 48 heures.
+- **Cours non validé** : elle ne refait pas la leçon. On lui propose une **série de rattrapage de 5 exercices** (réponse tapée), validée à **4 sur 5**. Elle peut la recommencer autant de fois que nécessaire, et relire la leçon quand elle veut.
 
-Un cours se déroule ainsi : mini-leçon → exemples guidés → **10 exercices de fin**, au niveau 1, avec une réponse tapée.
+Seule la **première réponse** à chaque question compte dans la note (voir §6).
 
-- **8 bonnes réponses sur 10 ou plus** : le niveau 1 est **maîtrisé**. Le cours suivant se débloque et le cours gagne sa **1re étoile**. Il entre en révision au **palier 1**, donc il revient le lendemain.
-- **Moins de 8 sur 10** : elle ne refait pas la leçon. On lui propose une **série de rattrapage de 5 calculs**, et elle valide avec **4 sur 5**. Elle peut recommencer le rattrapage autant de fois que nécessaire, ou relire la leçon si elle veut.
+## 3. L'échelle de temps
 
-*Pourquoi 8 sur 10 :* une ou deux étourderies ne doivent pas la bloquer, mais en dessous, la règle n'est pas acquise.
+| Étape | Niveau | Si la révision est réussie, la suivante vient dans… | Les 3 calculs de ce cours dans une séance |
+|---|---|---|---|
+| A | 1 | 48 h | 3 au niveau 1 |
+| B | 2 | 48 h | 2 au niveau 2 + 1 au niveau 1 |
+| C | 2 | 1 semaine | 2 au niveau 2 + 1 au niveau 1 |
+| D | 3 | 48 h | 2 au niveau 3 + 1 au niveau 1 ou 2 |
+| E | 3 | 1 semaine | idem |
+| F | 3 | 1 mois | idem |
+| G | 3 | 3 mois | idem |
+| H | 3 | 6 mois (on reste à H) | idem |
 
-## 4. Une révision : réussie, moyenne ou ratée
+- **Chaque nouveau niveau commence par 48 h**, parce que la première fois à un nouveau niveau est aussi difficile qu'un nouveau cours.
+- **Étoiles :** ★★ en arrivant à l'étape B, ★★★ à l'étape D. Les étoiles affichent le **meilleur niveau atteint** et **ne se perdent jamais**. Sur ta page de suivi, tu vois en plus le **niveau actuel**, qui peut redescendre.
+- « 1 mois » = 30 jours, « 3 mois » = 90 jours, « 6 mois » = 180 jours.
 
-Réviser un cours, c'est faire **3 calculs en QCM** de ce cours, au niveau de son palier actuel.
+## 4. Révision réussie ou ratée
 
-| Résultat | Effet |
+Dans une séance de révision, chaque cours dû a **3 calculs**, mélangés avec ceux des autres cours.
+
+- **Réussie = 3 sur 3** pour ce cours. Sinon, elle est ratée.
+
+| Ce qui se passe | Effet |
 |---|---|
-| **3 sur 3 : réussie** | palier + 1 (le cours revient plus tard, et peut changer de niveau) |
-| **2 sur 3 : moyenne** | même palier ; il revient après l'intervalle de ce palier |
-| **0 ou 1 sur 3 : ratée** | palier − 2 (jamais en dessous de 1) ; il revient plus tôt, et le niveau peut redescendre |
+| **Réussie** | monte d'une étape ; la révision suivante suit le délai de la nouvelle étape |
+| **1er raté** | **même étape** ; la révision revient **le lendemain** |
+| **Réussie juste après un 1er raté** | on reprend le rythme normal **à la même étape** (ça « stagne ») ; le prochain succès fera monter |
+| **2e raté d'affilée** (et chaque raté suivant) | **descend d'une étape** (jamais sous A) et suit **le délai de cette étape** (48 h au minimum, plus jamais « le lendemain ») |
 
-- La prochaine date se calcule toujours **à partir du jour où elle fait la révision**. Une révision faite en retard compte normalement.
-- **Étoiles :** elles affichent le **meilleur niveau atteint** (2e étoile en arrivant au palier 3, 3e au palier 5), et **ne se perdent jamais**. Sur ta page de suivi, tu vois en plus le niveau **actuel**, qui peut redescendre.
-  *Pourquoi :* perdre une étoile serait démotivant pour elle, et toi tu as l'information exacte.
-- **L'entraînement ne change pas les paliers.** C'est de la pratique libre. Ses erreurs comptent quand même dans les « erreurs récentes » et sur ta page de suivi.
-  *Pourquoi :* sinon, s'entraîner beaucoup un jour ferait sauter des paliers sans espacement réel.
+*Pourquoi :* un cours difficile ne peut revenir **qu'un seul jour de suite** au maximum. Les révisions ne s'accumulent donc pas sur un cours qui coince. Ce cours apparaît avec un ⚠ sur ta page de suivi, et elle peut le retravailler en entraînement.
+
+**La baisse de niveau vient toute seule de l'échelle :** à l'étape D (début du niveau 3), deux ratés d'affilée la font redescendre à C, donc au niveau 2.
+
+- La date suivante se calcule toujours **à partir du jour où elle fait la révision**. Une révision faite en retard compte normalement.
+- **L'entraînement ne change jamais les étapes ni les dates.** C'est de la pratique libre. Ses erreurs comptent quand même dans les « erreurs récentes » et sur ta page de suivi.
+- **On ne peut pas réviser en avance** un cours qui n'est pas encore dû. Pour pratiquer, il y a l'entraînement.
 
 ## 5. Viser l'erreur qu'elle fait
 
-- Les **erreurs récentes** d'un cours sont les erreurs reconnues parmi ses **10 dernières réponses** à ce cours (révisions, exercices et entraînement).
-- Quand le cours revient en révision, **au moins 1 des 3 calculs** est choisi pour tendre le piège de l'erreur la plus fréquente. Exemple : si elle rate souvent « − × − », un calcul comme (−6) × (−4).
+- Les **erreurs récentes** d'un cours sont les erreurs reconnues parmi ses **10 dernières réponses** à ce cours (cours, révisions et entraînement).
+- Pour chaque erreur reconnue, le document 06 indique **quel calcul tend ce piège**. Par exemple, pour « règle des signes » : deux nombres négatifs.
+- Quand le cours revient en révision et qu'il a des erreurs récentes, **au moins 1 de ses 3 calculs** est un calcul-piège de l'erreur la plus fréquente.
 
-## 6. Après une erreur, dans l'activité en cours
+## 6. Après une erreur, pendant une activité
 
 Pendant un cours, une révision ou un entraînement, quand elle se trompe :
 
-1. elle voit la bonne réponse et l'explication ;
+1. elle voit la **bonne réponse et l'explication** ;
 2. **un calcul du même type** (même cours, même niveau, même piège) est remis **3 questions plus loin**, ou à la fin s'il en reste moins de 3 ;
-3. ce calcul de rattrapage ne compte **pas** dans le 3 sur 3 de la révision. Il sert à repartir sur une réussite. On ne le remet qu'**une fois** par erreur.
+3. **exactement le même calcul revient à la fin** de l'activité. S'il est encore raté, il revient de nouveau à la fin ;
+4. **à partir du 2e échec sur le même calcul**, un petit bouton discret **« Passer »** apparaît. Si elle passe, la correction s'affiche étape par étape. Le calcul est compté comme raté et apparaît comme **« passé »** sur ta page de suivi.
+
+**Seule la première réponse compte** dans la note du cours et dans le 3 sur 3 de la révision. Les repassages et les calculs du même type servent à apprendre.
 
 ## Exemples
 
-Cours 5, « multiplier deux relatifs ». Elle le termine le **lundi 2 mars 2026** avec 9 sur 10.
+Cours 5, « multiplier deux relatifs ». Elle le valide le **lundi 2 mars 2026**.
 
-| Jour | Ce qu'elle fait | Résultat | Palier → | Niveau | Étoiles | Revient le |
+| Jour | Ce qu'elle fait | Résultat | Étape → | Niveau | Étoiles | Prochaine révision |
 |---|---|---|---|---|---|---|
-| lun. 2 mars | exercices de fin | 9 sur 10 | 1 | 1 | ★ | mar. 3 mars |
-| mar. 3 mars | révision | 3 sur 3 | 2 | 1 | ★ | jeu. 5 mars |
-| jeu. 5 mars | révision | 3 sur 3 | 3 | 2 | ★★ | lun. 9 mars |
-| lun. 9 mars | révision (niveau 2) | 1 sur 3 | 1 | 1 | ★★ | mar. 10 mars |
-| mar. 10 mars | révision | 2 sur 3 | 1 | 1 | ★★ | mer. 11 mars |
-| mer. 11 mars | révision | 3 sur 3 | 2 | 1 | ★★ | ven. 13 mars |
-| sam. 14 mars | révision, 1 jour de retard | 3 sur 3 | 3 | 2 | ★★ | mer. 18 mars |
-| mer. 18 mars | révision | 3 sur 3 | 4 | 2 | ★★ | mer. 25 mars |
-| mer. 25 mars | révision | 3 sur 3 | 5 | 3 | ★★★ | sam. 4 avril |
-| sam. 4 avril | révision | 0 sur 3 | 3 | 2 | ★★★ | mer. 8 avril |
+| lun. 2 mars | cours validé | — | A | 1 | ★ | mer. 4 mars |
+| mer. 4 mars | révision | 3 sur 3 | B | 2 | ★★ | ven. 6 mars |
+| ven. 6 mars | révision | 2 sur 3 (1er raté) | B | 2 | ★★ | sam. 7 mars |
+| sam. 7 mars | révision | 3 sur 3 | B (stagne) | 2 | ★★ | lun. 9 mars |
+| lun. 9 mars | révision | 3 sur 3 | C | 2 | ★★ | lun. 16 mars |
+| lun. 16 mars | révision | 3 sur 3 | D | 3 | ★★★ | mer. 18 mars |
+| mer. 18 mars | révision | 1 sur 3 (1er raté) | D | 3 | ★★★ | jeu. 19 mars |
+| jeu. 19 mars | révision | 2 sur 3 (2e raté) | C | 2 | ★★★ | jeu. 26 mars |
+| jeu. 26 mars | révision | 3 sur 3 | D | 3 | ★★★ | sam. 28 mars |
+| lun. 30 mars | révision, 2 jours de retard | 3 sur 3 | E | 3 | ★★★ | lun. 6 avril |
+| lun. 6 avril | révision | 3 sur 3 | F | 3 | ★★★ | mer. 6 mai |
 
 Autres cas :
 
 | Situation | Résultat attendu |
 |---|---|
 | Aucun cours commencé | cours 1 débloqué, tous les autres verrouillés |
-| Cours 1 terminé avec 7 sur 10 | pas d'étoile, cours 2 toujours verrouillé, rattrapage proposé |
-| Cours 1 : 7 sur 10, puis rattrapage 4 sur 5 | ★, cours 2 débloqué, cours 1 au palier 1, revient le lendemain |
-| Cours 1 : 7 sur 10, puis rattrapage 3 sur 5 | toujours verrouillé, nouveau rattrapage proposé |
-| Palier 8, révision 3 sur 3 | reste au palier 8, revient dans 30 jours |
-| Palier 2, révision 0 sur 3 | palier 1 (pas en dessous), revient le lendemain |
-| Entraînement : 10 calculs du cours 5, tous faux | palier inchangé ; erreurs comptées dans les erreurs récentes et sur la page de suivi |
-| Erreurs récentes du cours 5 : 3 fois « règle des signes », 1 fois « table » | dans la prochaine révision, au moins 1 calcul vise la règle des signes |
+| Cours 1 : 11 sur 12 en tout, dont 5 sur 5 aux exercices de fin | validé ★, cours 2 débloqué, étape A, révision dans 48 h |
+| Cours 1 : 10 sur 12 en tout (83 %), mais 3 sur 5 aux exercices de fin | non validé, rattrapage proposé, cours 2 verrouillé |
+| Cours 1 : 9 sur 12 en tout (75 %), dont 4 sur 5 aux exercices de fin | non validé (moins de 80 %), rattrapage proposé |
+| Non validé, puis rattrapage 4 sur 5 | validé ★, cours 2 débloqué, étape A |
+| Non validé, puis rattrapage 3 sur 5 | toujours non validé, nouveau rattrapage proposé |
+| Étape A, 1er raté puis 2e raté | reste à A (on ne descend pas sous A) ; 1er raté : revient le lendemain ; 2e raté : revient dans 48 h |
+| Étape H, révision réussie | reste à H, revient dans 6 mois |
+| Étape F (1 mois), 1er raté puis 2e raté | 1er raté : F, revient le lendemain ; 2e raté : E, revient dans 1 semaine |
+| Entraînement : 10 calculs du cours 5, tous faux | étape et date inchangées ; erreurs comptées dans les erreurs récentes et sur la page de suivi |
+| Erreurs récentes du cours 5 : 3 fois « règle des signes », 1 fois « table » | à la prochaine révision, au moins 1 des 3 calculs vise la règle des signes |
+| Même calcul raté 2 fois dans une activité | le bouton « Passer » apparaît |

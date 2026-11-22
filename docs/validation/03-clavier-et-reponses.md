@@ -1,6 +1,6 @@
-# 03 — Clavier maths et réponses acceptées
+# 03 — Clavier maths, réponses acceptées et types d'exercices
 
-*Statut : à valider*
+*Statut : à valider (version 2)*
 
 ## 1. Le clavier
 
@@ -75,6 +75,27 @@ Dans les cours « Relatifs », toutes les réponses attendues sont des **nombres
 - Il peut y avoir des **étiquettes en trop**, qui servent de pièges. Il faut alors en placer exactement le bon nombre.
 
 *Pourquoi toucher plutôt que glisser :* glisser des petits éléments sur un téléphone est imprécis et frustrant. Toucher est rapide et fiable, et c'est aussi le fonctionnement de Babbel et Duolingo.
+
+## 5. Les types d'exercices et où on les utilise
+
+Ces 8 types servent **pour tous les modules**, pas seulement pour les relatifs.
+
+| Type | Comment on répond | Leçon | Exercices de fin | Révisions | Entraînement |
+|---|---|---|---|---|---|
+| **Réponse écrite** | clavier maths (§1) | ✓ | ✓ | | ✓ |
+| **Compléter le trou** (−3 + ▢ = 5) | clavier maths, dans la case | ✓ | ✓ | | ✓ |
+| **Étiquettes à ordonner** | toucher pour placer (§4) | ✓ | | | ✓ |
+| **Trouver l'erreur** | une résolution en plusieurs lignes ; toucher la ligne fausse | ✓ | | | ✓ |
+| **Relier les paires** | 4 calculs à gauche, 4 résultats à droite (dans le désordre) ; toucher un calcul puis son résultat ; une paire juste se grise | ✓ | | | ✓ |
+| **Classer** | des éléments à ranger dans 2 ou 3 cases (ex. résultat + / − / 0) ; toucher l'élément puis la case | ✓ | | ✓ | ✓ |
+| **QCM** | toucher un des 4 choix (doc 04) | | | ✓ | ✓ |
+| **Vrai ou faux** | deux gros boutons « Vrai » et « Faux » | | | ✓ | ✓ |
+
+- **Les exercices de fin de cours** n'utilisent que la réponse écrite et le trou à compléter : sans aide, comme en contrôle.
+- **Les révisions** n'utilisent que des formats rapides.
+- **La leçon et l'entraînement** utilisent la variété, pour apprendre et pour le plaisir.
+- **Juste ou faux, pour les exercices à plusieurs éléments :** « Relier les paires » et « Classer » sont justes seulement si **tout** est juste. Un élément mal placé est montré, et c'est l'erreur reconnue de ce calcul qui est enregistrée.
+- **La droite graduée** n'est pas un type d'exercice. C'est une image d'explication dans certaines leçons.
 
 ## Exemples
 
