@@ -27,6 +27,7 @@ L'appli doit être simple, intuitive, adaptée aux jeunes, et peut s'étendre ra
 - Version ordinateur dédiée (la page web marchera sur ordinateur, mais n'est pas optimisée pour).
 - Page d'admin / éditeur de contenu.
 - Notifications (« elle n'a pas fait ses 15 minutes »).
+- Écriture au doigt avec reconnaissance d'écriture (trop complexe) : on répond toujours en tapant sur le clavier maths dédié.
 - Inscription publique.
 - Maquettes / identité visuelle détaillée : le design visuel sera traité dans une étape séparée, après validation des fonctionnalités et de l'architecture.
 
