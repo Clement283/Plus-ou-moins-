@@ -21,10 +21,11 @@ Tests : `npm test` (moteur 510, web 9, api 9, scripts 7).
 - Design system « Cahier au propre » validé : `docs/design/design-system/` (tokens, catalogue, `concept.html`).
 - Écrans validés : accueil de l'élève (4 situations) et question de cours.
 - Décisions du porteur du projet : série affichée sur l'accueil ; prénom affiché (à ajouter aux comptes) ; fenêtre de 4 cours + barre du module à la place de la bande complète.
-- Autres écrans en maquette dans `docs/design/ecrans/` (consignes : `BRIEF.md`), à valider un par un.
+- Tous les écrans de `docs/design/ecrans/` validés (consignes : `BRIEF.md`). Seule modification demandée : retirer « Erreurs de signe, 7 derniers jours » de l'accueil du suivi (fait ; doc 05 annoté). Le moteur (`packages/engine/src/dashboard.ts`) calcule encore ce taux : à retirer ou ignorer lors du codage des écrans.
+- Composants créés dans les pages d'écrans, à intégrer au design system au moment du codage (voir les comptes rendus : ligne de cours repliable, calendrier de points, cases à remplir, étiquettes à classer, écran de résultat, etc.).
 
 ## Reste à faire
-1. **Étape design, avec validation du porteur du projet avant tout code d'écran** (directive du porteur du projet). Première maquette : `docs/design/maquette-accueil-eleve.html` (+ captures). Écrans à concevoir : connexion, accueil élève, mes cours / module, cours (leçon, exemples, exercices de fin, résultat, rattrapage), révisions, entraînement, retour sur erreur, clavier maths, les 8 types d'exercices, page de suivi (accueil, module, cours). Icônes de l'appli (PWA).
+1. **Étape design** : écrans validés (voir ci-dessus). Reste : icônes de l'appli (PWA), et répondre aux « Questions pour toi » en bas de chaque page d'écran avant de coder l'écran concerné.
 2. Écrans (parties UI des tâches 6, 7, 10, 13, 14) une fois le design validé.
 3. Tâche 15 : déploiement Cloudflare (accès au compte du porteur du projet requis) et comptes réels.
 4. Relecture finale de toute la branche.

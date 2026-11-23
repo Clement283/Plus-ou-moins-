@@ -1,5 +1,7 @@
 # 05 — Ta page de suivi
 
+> **Décision du porteur du projet (2026-11-23), à l'étape design :** la ligne « Erreurs de signe, 7 derniers jours » est **retirée** du bloc « État ». Les erreurs se lisent uniquement dans « Erreurs les plus communes » (28 jours). Le reste du document est inchangé.
+
 *Statut : Validé (2026-11-22) — version 4*
 
 Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture seule**. Elle a trois niveaux :

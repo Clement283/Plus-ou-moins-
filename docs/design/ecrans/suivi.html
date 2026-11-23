@@ -229,7 +229,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
   </div>
 </div>
 
-<p class="legend">Une seule couleur par idée. <b>Vert</b> pour l'objectif atteint et les calculs justes, <b>rouge du prof</b> pour ce qui coince (⚠, erreurs, cours à rattraper), <b>corail</b> pour le module Calculs, <b>indigo</b> pour la sélection. Le suivi n'a pas la barre du bas de l'élève : on avance en touchant une ligne, on revient avec la flèche en haut à gauche. Les périodes sont de <b>28 jours</b> (doc 07 n° 18), la tendance compare les 7 derniers jours avec les 7 jours d'il y a 4 semaines. Touche un point du calendrier pour voir le détail du jour, une révision ou une erreur pour déplier sa liste. Les boutons du haut changent la situation de Léa.</p>
+<p class="legend">Une seule couleur par idée. <b>Vert</b> pour l'objectif atteint et les calculs justes, <b>rouge du prof</b> pour ce qui coince (⚠, erreurs, cours à rattraper), <b>corail</b> pour le module Calculs, <b>indigo</b> pour la sélection. Le suivi n'a pas la barre du bas de l'élève : on avance en touchant une ligne, on revient avec la flèche en haut à gauche. Les périodes sont de <b>28 jours</b> (doc 07 n° 18). Touche un point du calendrier pour voir le détail du jour, une révision ou une erreur pour déplier sa liste. Les boutons du haut changent la situation de Léa.</p>
 
 <div class="questions">
   <h2 class="t-h5">Questions pour toi</h2>
@@ -430,7 +430,6 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
     h += '<div class="fact"><span class="fact__label">Aujourd\'hui</span><span class="fact__value">'+tm+' / 15 min'+(tm>=15?ico('i-check-circle','ico--sm" style="color:var(--success)'):'')+'</span></div>';
     h += '<div class="fact"><span class="fact__label">Série</span><span class="fact__value">'+sr+' jours</span></div>';
     h += '<button type="button" class="fact" data-goto="s2"><span class="fact__label">Calculs</span><span class="fact__value">'+validated(st)+' / 8 cours'+ico('i-chevron-right','ico--sm chev')+'</span></button>';
-    h += '<div class="fact"><span class="fact__label">Erreurs de signe<br><span class="fact__sub">7 derniers jours</span></span><span class="fact__value"><span class="fact__stack"><span>11 %</span><span class="fact__sub">32 % il y a 4 semaines</span></span><span class="trend">'+ico('i-trend-down','ico--sm')+'en baisse</span></span></div>';
     h += '</div></section>';
 
     /* bloc 3 : révisions */
