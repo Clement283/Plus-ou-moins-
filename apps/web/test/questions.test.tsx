@@ -392,6 +392,15 @@ describe('QCM', () => {
     expect(t.$$('.choice')[2]!.classList.contains('is-correct')).toBe(true);
     expect((t.$$('.choice')[1] as HTMLButtonElement).disabled).toBe(true);
   });
+  it('corrigé : ✓ sur la bonne réponse, ✗ sur le choix faux, rien ailleurs', () => {
+    const t = setup(qcm);
+    fireEvent.click(t.$$('.choice')[0]!);
+    expect(t.$$('.choice svg')).toHaveLength(0);
+    t.rerender(true);
+    expect(t.$$('.choice')[2]!.querySelector('use')!.getAttribute('href')).toBe('#i-check-circle');
+    expect(t.$$('.choice')[0]!.querySelector('use')!.getAttribute('href')).toBe('#i-x-circle');
+    expect(t.$$('.choice svg')).toHaveLength(2);
+  });
   it('un seul envoi, même en retouchant', () => {
     const t = setup(qcm);
     fireEvent.click(t.$$('.choice')[0]!);

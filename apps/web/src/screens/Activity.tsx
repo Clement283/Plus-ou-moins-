@@ -1,4 +1,4 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 import {
   WRITING_TITLE, answer, createActivity, current, endEvent, explanationDone, feedbackFor, getCourse, isDone, skip, toLatex,
   type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type Question, type Rng,
@@ -61,6 +61,13 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const [shown, setShown] = useState(0); // une valeur par étape affichée : fait repartir le chronomètre
   const [asking, setAsking] = useState(false);
   const timer = useStepTimer(shown);
+  /** Un seul traitement par étape affichée : un double toucher ne compte pas deux fois. */
+  const handled = useRef(-1);
+  const once = (): boolean => {
+    if (handled.current === shown) return false;
+    handled.current = shown;
+    return true;
+  };
 
   const save = useCallback(
     (e: NewEvent) => {
@@ -85,6 +92,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const onAnswer = (a: Answer, o: Outcome) => {
     if (view.phase !== 'ask' || view.step.type !== 'question') return;
     const step = view.step;
+    if (!o.unfinished && !once()) return;
     const ms = timer.read();
     const feedback = feedbackFor(getCourse(step.item.courseId), step.question, a, o);
     const before = results.length + state.queue.length;
@@ -106,6 +114,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
 
   const onSkip = () => {
     if (view.phase !== 'ask' || view.step.type !== 'question') return;
+    if (!once()) return;
     const before = results.length + state.queue.length;
     const r = skip(state, timer.read());
     save(r.event);
@@ -115,6 +124,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   };
 
   const onLessonNext = () => {
+    if (!once()) return;
     const r = explanationDone(state, timer.read());
     save(r.event);
     setResults((x) => [...x, 'ok']);

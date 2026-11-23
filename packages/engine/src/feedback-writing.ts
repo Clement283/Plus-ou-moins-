@@ -19,12 +19,22 @@ export const WRITING_MESSAGES = {
 const chars = (tokens: readonly RawToken[]): string => tokens.map((t) => (t.t === 'c' ? t.c : 'F')).join('');
 const boxes = (tokens: readonly RawToken[]): string[] => tokens.flatMap((t) => (t.t === 'frac' ? [chars(t.num), chars(t.den)] : []));
 
+/** The digits she typed at the root (« 8− » gives « 8 »), or null when the answer has no plain digits to quote. */
+function typedDigits(raw: RawInput): string | null {
+  const root = chars(raw.tokens);
+  return /^[\d-]+$/.test(root) && /\d/.test(root) ? root.replace(/-/g, '') : null;
+}
+
 export function diagnoseWriting(raw: RawInput, expectInteger: boolean, errorType: string | null): string {
   switch (errorType) {
-    case 'moins-apres':
-      return WRITING_MESSAGES['moins-apres'];
-    case 'double-signe':
-      return WRITING_MESSAGES['double-signe'];
+    case 'moins-apres': {
+      const n = typedDigits(raw);
+      return n ? WRITING_MESSAGES['moins-apres'].replace('−3', `−${n}`) : WRITING_MESSAGES['moins-apres'];
+    }
+    case 'double-signe': {
+      const n = typedDigits(raw);
+      return n ? WRITING_MESSAGES['double-signe'].replace('−3 ou 3', `−${n} ou ${n}`) : WRITING_MESSAGES['double-signe'];
+    }
     case 'parenthese': {
       const root = chars(raw.tokens);
       const noOpen = !root.includes('(') && !boxes(raw.tokens).some((b) => b.includes('('));

@@ -49,6 +49,13 @@ describe('feedbackFor : réponse tapée', () => {
   it('moins après le nombre', () => {
     expect(raw(keys(d(3), 'minus'))).toMatchObject({ tone: 'faux', title: 'Réponse mal écrite', message: "Le signe moins s'écrit avant le nombre : −3.", explanation: null, steps: [] });
   });
+  it('moins après : le nombre tapé est repris', () => {
+    expect(raw(keys(d(8), 'minus'))).toMatchObject({ message: "Le signe moins s'écrit avant le nombre : −8." });
+    expect(raw(keys(d(1), d(2), 'minus'))).toMatchObject({ message: "Le signe moins s'écrit avant le nombre : −12." });
+  });
+  it('double signe : le nombre tapé est repris', () => {
+    expect(raw(keys('minus', 'minus', d(8)))).toMatchObject({ message: "Il y a deux signes moins à la suite. Un nombre n'a qu'un signe : −8 ou 8." });
+  });
   it('3−4 : un seul nombre', () => {
     expect(raw(keys(d(3), 'minus', d(4)))).toMatchObject({ tone: 'faux', title: 'Réponse mal écrite', message: 'Ta réponse doit être un seul nombre.' });
   });

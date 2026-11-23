@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { checkAnswer, toLatex } from '@pom/engine';
+import { Icon } from '../../ui/Icon';
 import { Math } from '../../ui/Math';
 import { WRITING_COURSE } from './calc';
 import { QFrame, type QProps } from './Frame';
@@ -39,6 +40,8 @@ export function Qcm({ q, course, locked, onAnswer, header, footer }: QProps<'qcm
       <div className="choice-grid" data-copie>
         {q.choices.map((c, i) => (
           <button key={i} className={`choice${sign ? ' choice--sign' : ''}${mark(i)}`} type="button" disabled={locked || picked !== null} onClick={() => pick(i)}>
+            {locked && !sign && i === q.correctIndex && <Icon name="check-circle" />}
+            {locked && !sign && i === picked && i !== q.correctIndex && <Icon name="x-circle" />}
             {sign ? (c.latex === '+' ? '+' : '−') : <Math latex={c.latex} />}
           </button>
         ))}
