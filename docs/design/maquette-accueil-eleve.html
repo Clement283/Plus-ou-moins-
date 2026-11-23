@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins — Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F4EE;
+    --surface: #FFFFFF;
+    --surface-2: #F0ECE4;
+    --ink: #1D2230;
+    --ink-2: #5A6070;
+    --line: #E6E0D5;
+    --primary: #3D3BD9;
+    --primary-ink: #FFFFFF;
+    --primary-soft: #E8E7FF;
+    --calculs: #FF6B4A;
+    --calculs-soft: #FFE6DF;
+    --success: #1F9D6B;
+    --star: #F5B700;
+    --shadow: 0 1px 2px rgba(29,34,48,.06), 0 8px 24px rgba(29,34,48,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12141B; --surface: #1C1F29; --surface-2: #252935; --ink: #F2F3F7; --ink-2: #A8ADBD;
+      --line: #2E3240; --primary: #8F8DFF; --primary-ink: #12141B; --primary-soft: #2A2A55;
+      --calculs: #FF8A6E; --calculs-soft: #3A2620; --success: #3FCB93; --star: #FFCB3D;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12141B; --surface: #1C1F29; --surface-2: #252935; --ink: #F2F3F7; --ink-2: #A8ADBD;
+    --line: #2E3240; --primary: #8F8DFF; --primary-ink: #12141B; --primary-soft: #2A2A55;
+    --calculs: #FF8A6E; --calculs-soft: #3A2620; --success: #3FCB93; --star: #FFCB3D;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body {
+    font-family: "Lexend", system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.5;
+    letter-spacing: .01em;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    padding: 20px 16px 104px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  /* En-tête */
+  .top { display: flex; align-items: center; justify-content: space-between; }
+  .hello { font-size: 15px; color: var(--ink-2); }
+  .hello strong { display: block; font-size: 22px; color: var(--ink); font-weight: 700; line-height: 1.2; }
+  .streak {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 8px 12px; border-radius: 999px; font-weight: 600; font-size: 15px;
+    white-space: nowrap; flex: none;
+  }
+  .streak svg { width: 18px; height: 18px; }
+
+  /* Jauge du jour */
+  .goal {
+    background: var(--surface); border-radius: 24px; padding: 18px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 18px;
+  }
+  .ring { position: relative; width: 96px; height: 96px; flex: none; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring .track { stroke: var(--surface-2); }
+  .ring .bar { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset .8s ease; }
+  .ring .label {
+    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    font-weight: 700; font-size: 22px; line-height: 1;
+  }
+  .ring .label small { display: block; font-size: 11px; font-weight: 500; color: var(--ink-2); margin-top: 4px; }
+  .goal h2 { font-size: 18px; font-weight: 600; line-height: 1.3; }
+  .goal p { font-size: 15px; color: var(--ink-2); margin-top: 4px; }
+
+  /* Carte révisions */
+  .review {
+    background: var(--primary); color: var(--primary-ink);
+    border-radius: 24px; padding: 20px; position: relative; overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .review::after {
+    content: "+ −"; position: absolute; right: -4px; bottom: -34px;
+    font-size: 120px; font-weight: 700; opacity: .10; letter-spacing: -6px; line-height: 1;
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+    opacity: .9;
+  }
+  .review h2 { font-size: 24px; position: relative; z-index: 1; font-weight: 700; margin-top: 6px; line-height: 1.2; }
+  .review .meta { font-size: 15px; opacity: .9; margin-top: 4px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; min-height: 56px; margin-top: 16px;
+    border: 0; border-radius: 16px; font: inherit; font-weight: 600; font-size: 18px;
+    cursor: pointer;
+  }
+  .btn-light { background: var(--surface); color: var(--primary); }
+  .btn svg { width: 20px; height: 20px; }
+
+  /* Prochain cours */
+  .section-title { font-size: 15px; font-weight: 600; color: var(--ink-2); margin: 4px 4px -6px; }
+  .course {
+    background: var(--surface); border-radius: 24px; padding: 18px;
+    box-shadow: var(--shadow); display: flex; gap: 16px; align-items: center;
+  }
+  .badge {
+    width: 56px; height: 56px; border-radius: 16px; flex: none;
+    background: var(--calculs-soft); color: var(--calculs);
+    display: grid; place-items: center; font-weight: 700; font-size: 22px;
+  }
+  .course .info { flex: 1; min-width: 0; }
+  .course .module { font-size: 13px; font-weight: 600; color: var(--calculs); text-transform: uppercase; letter-spacing: .06em; }
+  .course h3 { font-size: 18px; font-weight: 600; line-height: 1.3; margin-top: 2px; }
+  .course .rule { font-size: 15px; color: var(--ink-2); margin-top: 2px; }
+  .go {
+    width: 48px; height: 48px; border-radius: 14px; flex: none;
+    background: var(--ink); color: var(--bg); display: grid; place-items: center; border: 0;
+  }
+  .go svg { width: 22px; height: 22px; }
+
+  /* Module */
+  .module-card {
+    background: var(--surface); border-radius: 24px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .module-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .module-head h3 { font-size: 18px; font-weight: 600; }
+  .module-head span { font-size: 15px; color: var(--ink-2); }
+  .progress { height: 10px; background: var(--surface-2); border-radius: 99px; margin: 12px 0 14px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; width: 50%; background: var(--calculs); border-radius: 99px; }
+  .lessons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .lesson {
+    border-radius: 14px; padding: 10px 6px 8px; text-align: center; background: var(--surface-2);
+    font-size: 13px; color: var(--ink-2);
+  }
+  .lesson b { display: block; font-size: 17px; color: var(--ink); font-weight: 600; }
+  .lesson .stars { color: var(--star); letter-spacing: 1px; font-size: 12px; }
+  .lesson.current { background: var(--calculs-soft); outline: 2px solid var(--calculs); }
+  .lesson.locked b { color: var(--ink-2); }
+
+  /* Barre du bas */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  }
+  .tabbar nav { max-width: 430px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .tab {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 13px; color: var(--ink-2); text-decoration: none; padding: 6px 0; min-height: 52px;
+  }
+  .tab svg { width: 24px; height: 24px; }
+  .tab.active { color: var(--primary); font-weight: 600; }
+
+  .note {
+    font-size: 13px; color: var(--ink-2); text-align: center; margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+  <main class="app">
+
+    <header class="top">
+      <div class="hello">Bonjour<strong>Prête pour tes maths&#8239;?</strong></div>
+      <div class="streak" aria-label="Série de 6 jours">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2Z" fill="#FF6B4A"/></svg>
+        6 jours
+      </div>
+    </header>
+
+    <section class="goal" aria-label="Objectif du jour">
+      <div class="ring">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="track" cx="50" cy="50" r="42" fill="none" stroke-width="10"/>
+          <circle class="bar" cx="50" cy="50" r="42" fill="none" stroke-width="10"
+                  stroke-dasharray="263.9" stroke-dashoffset="123.2"/>
+        </svg>
+        <div class="label">8<small>min</small></div>
+      </div>
+      <div>
+        <h2>8 min sur 15</h2>
+        <p>Encore 7 minutes pour ton objectif du jour.</p>
+      </div>
+    </section>
+
+    <section class="review" aria-label="Révisions du jour">
+      <span class="tag">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Révisions du jour
+      </span>
+      <h2>5 révisions à faire</h2>
+      <p class="meta">15 questions · environ 5 min</p>
+      <button class="btn btn-light">
+        Réviser
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </section>
+
+    <h2 class="section-title">Prochain cours</h2>
+    <section class="course">
+      <div class="badge" aria-hidden="true">4</div>
+      <div class="info">
+        <div class="module">Calculs</div>
+        <h3>Soustraire, c'est ajouter l'opposé</h3>
+        <p class="rule">5 − (−3) = 5 + 3</p>
+      </div>
+      <button class="go" aria-label="Commencer le cours 4">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </section>
+
+    <section class="module-card" aria-label="Module Calculs">
+      <div class="module-head">
+        <h3>Module Calculs</h3>
+        <span>4 / 8 cours</span>
+      </div>
+      <div class="progress"><i></i></div>
+      <div class="lessons">
+        <div class="lesson"><b>0</b><span class="stars">★★★</span></div>
+        <div class="lesson"><b>1</b><span class="stars">★★☆</span></div>
+        <div class="lesson"><b>2</b><span class="stars">★★☆</span></div>
+        <div class="lesson"><b>3</b><span class="stars">★☆☆</span></div>
+        <div class="lesson current"><b>4</b>à faire</div>
+        <div class="lesson locked"><b>5</b>🔒</div>
+        <div class="lesson locked"><b>6</b>🔒</div>
+        <div class="lesson locked"><b>7</b>🔒</div>
+      </div>
+    </section>
+
+    <p class="note">Maquette statique — proposition de design, rien n'est cliquable.</p>
+  </main>
+
+  <div class="tabbar">
+    <nav>
+      <a class="tab active" href="#">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1v-8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        Accueil
+      </a>
+      <a class="tab" href="#">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4V4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 9h6M9 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Mes cours
+      </a>
+      <a class="tab" href="#">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 12h10M12 7v10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="2"/></svg>
+        Entraînement
+      </a>
+    </nav>
+  </div>
+</body>
+</html>
