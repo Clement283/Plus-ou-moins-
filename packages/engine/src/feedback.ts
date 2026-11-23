@@ -37,6 +37,25 @@ export const WRITING_TITLE = 'Réponse mal écrite';
 const MINUS = '−';
 
 const plain = (s: string): string => s.replace(/-/g, MINUS);
+/** LaTeX d'un choix vers texte simple : times, div, frac, accolades retirées, « − » U+2212. */
+export function latexToText(latex: string): string {
+  let s = latex;
+  for (let prev = ''; prev !== s; ) {
+    prev = s;
+    s = s.replace(/\\d?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, '$1/$2');
+  }
+  s = s
+    .replace(/\\times/g, '×')
+    .replace(/\\div/g, '÷')
+    .replace(/\\(?:left|right)/g, '')
+    .replace(/\\[,;:! ]|\\quad|\\qquad/g, ' ')
+    .replace(/\\text\{([^{}]*)\}/g, '$1')
+    .replace(/[{}]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return plain(s);
+}
+
 const ratText = (r: Rational): string => plain(r.d === 1 ? `${r.n}` : `${r.n}/${r.d}`);
 const ratLatex = (r: Rational): string => (r.d === 1 ? `${r.n}` : `${r.n < 0 ? '-' : ''}\\frac{${Math.abs(r.n)}}{${r.d}}`);
 const exText = (ex: Exercise): string => plain(toLatex(ex.expr)).replace(/\\times/g, '×').replace(/\\div/g, '÷');
@@ -56,7 +75,7 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
     }
     case 'qcm': {
       const right = q.choices[q.correctIndex]!;
-      return { title: `La bonne réponse est ${plain(right.latex)}.`, rightLatex: right.latex };
+      return { title: `La bonne réponse est ${latexToText(right.latex)}.`, rightLatex: right.latex };
     }
     case 'vraifaux':
       return { title: q.isTrue ? "C'était vrai." : "C'était faux.", rightLatex: text(q.isTrue ? 'Vrai' : 'Faux') };

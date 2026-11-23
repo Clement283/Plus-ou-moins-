@@ -111,6 +111,27 @@ describe('feedbackFor : réponse touchée', () => {
     expect(r).toMatchObject({ tone: 'faux', rightLatex: q.choices[q.correctIndex]!.latex });
     expect(fb(C5, q, { choice: q.correctIndex })).toMatchObject({ tone: 'juste', note: null });
   });
+  it('qcm raté : jamais de LaTeX brut dans le titre, sur tous les cours (c00 compris)', () => {
+    let n = 0;
+    for (const course of [getCourse('c00-bien-ecrire'), C5, C6]) {
+      for (let seed = 1; seed <= 60; seed++) {
+        for (const level of [1, 2, 3] as const) {
+          let q: Question;
+          try {
+            q = buildQuestion(course, 'qcm', { rng: seededRng(seed), level, timesSeen: 0 });
+          } catch {
+            continue;
+          }
+          if (q.kind !== 'qcm') continue;
+          const wrongIdx = q.choices.findIndex((_, i) => i !== q.correctIndex);
+          const r = feedbackFor(course, q, { choice: wrongIdx }, checkAnswer(course, q, { choice: wrongIdx }));
+          expect(r.title, r.title).not.toMatch(/[\\{}]/);
+          n++;
+        }
+      }
+    }
+    expect(n).toBeGreaterThan(0);
+  });
   it('vrai ou faux raté', () => {
     const q = buildQuestion(C5, 'vraifaux', { rng: seededRng(2), level: 1, timesSeen: 0 }) as Extract<Question, { kind: 'vraifaux' }>;
     const r = fb(C5, q, { bool: !q.isTrue });
