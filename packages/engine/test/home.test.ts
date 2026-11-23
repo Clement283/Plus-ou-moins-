@@ -33,7 +33,6 @@ describe('studentHome', () => {
     expect(h.module.window.map((w) => w.courseId)).toEqual(IDS.slice(0, 4));
     expect(h.module.window.filter((w) => w.current).map((w) => w.courseId)).toEqual([IDS[0]]);
     expect(h.reviews).toBeNull();
-    expect(h.nextSession).toBeNull();
     expect(h.streak).toBe(0);
     expect(h.module).toMatchObject({ moduleId: 'calculs', validated: 0, total: 8, done: false });
   });
@@ -69,26 +68,23 @@ describe('studentHome', () => {
     expect(h.module.window.find((w) => w.current)!.courseId).toBe(IDS[6]);
   });
 
-  it('7 cours dus : séance de 5 cours (15 questions, 5 min), puis 2 cours (6 questions, 2 min)', () => {
+  it('7 cours dus : une séance de 5 cours (15 questions, 5 min)', () => {
     const events = validated(7);
     const h = studentHome(foldProgress(events), events, addDays(DAY, 2));
     expect(h.reviews).toEqual({ courses: 5, questions: 15, minutes: 5 });
-    expect(h.nextSession).toEqual({ courses: 2, questions: 6, minutes: 2 });
   });
 
-  it('3 cours dus : une séance de 9 questions, 3 min, pas de séance suivante', () => {
+  it('3 cours dus : une séance de 9 questions, 3 min', () => {
     const events = validated(3);
     const h = studentHome(foldProgress(events), events, addDays(DAY, 2));
     expect(h.reviews).toEqual({ courses: 3, questions: 9, minutes: 3 });
-    expect(h.nextSession).toBeNull();
   });
 
-  it('12 cours dus (simulés) : séance suivante limitée à 5 cours', () => {
+  it('12 cours dus (simulés) : séance limitée à 5 cours', () => {
     const base = foldProgress(validated(8));
     const state: ProgressState = base;
     const h = studentHome(state, [], addDays(DAY, 2));
     expect(h.reviews!.courses).toBe(5);
-    expect(h.nextSession).toEqual({ courses: 3, questions: 9, minutes: 3 });
   });
 
   it('série et temps du jour : même règle que le suivi', () => {
@@ -116,10 +112,10 @@ describe('runResult (doc 01, « Autres cas »)', () => {
     const r = runResult(foldProgress(events), `run-${IDS[1]}`, IDS[1]!);
     expect(r).toEqual({ validated: true, ok: 11, first: 12, finOk: 5, fin: 5, percent: 92, nextCourseId: IDS[2], firstReviewInHours: 48 });
   });
-  it('10 sur 12 dont 3 sur 5 : non validé, 83 %, pas de cours suivant', () => {
+  it('10 sur 12 dont 3 sur 5 : non validé, 83 %, le cours suivant reste annoncé', () => {
     const events = run(IDS[1]!, 10, 3);
     const r = runResult(foldProgress(events), `run-${IDS[1]}`, IDS[1]!);
-    expect(r).toMatchObject({ validated: false, ok: 10, first: 12, finOk: 3, percent: 83, nextCourseId: null });
+    expect(r).toMatchObject({ validated: false, ok: 10, first: 12, finOk: 3, percent: 83, nextCourseId: IDS[2] });
   });
   it('9 sur 12 dont 4 sur 5 : non validé (moins de 80 %)', () => {
     const r = runResult(foldProgress(run(IDS[1]!, 9, 4)), `run-${IDS[1]}`, IDS[1]!);

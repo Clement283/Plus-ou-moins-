@@ -33,7 +33,6 @@ export interface StudentHome {
   today: DailyTime;
   streak: number;
   reviews: SessionSize | null;
-  nextSession: SessionSize | null;
   next: { courseId: string; status: 'disponible' | 'en-cours' | 'a-rattraper' } | null;
   module: {
     moduleId: string;
@@ -63,7 +62,6 @@ export function studentHome(state: ProgressState, events: AppEvent[], today: str
   const all = dedupe(events);
   const pending = pendingReviews(state, today).length;
   const first = Math.min(pending, REVIEW_SESSION_COURSES);
-  const rest = Math.min(pending - first, REVIEW_SESSION_COURSES);
 
   const m = shownModule(state);
   const progress = state.modules[m.id]!;
@@ -77,7 +75,6 @@ export function studentHome(state: ProgressState, events: AppEvent[], today: str
     today: dailyTime(all, today),
     streak: streakOf(all, today),
     reviews: first > 0 ? sessionSize(first) : null,
-    nextSession: rest > 0 ? sessionSize(rest) : null,
     next: nextId === null ? null : { courseId: nextId, status: state.courses[nextId]!.status as 'disponible' | 'en-cours' | 'a-rattraper' },
     module: {
       moduleId: m.id,
@@ -102,6 +99,7 @@ export interface RunResult {
   finOk: number;
   fin: number;
   percent: number;
+  /** Le cours suivant du module (débloqué si validé, sinon annoncé « se débloque quand… ») ; null pour le dernier. */
   nextCourseId: string | null;
   firstReviewInHours: 48;
 }
@@ -118,7 +116,7 @@ export function resultOfTally(t: { first: number; ok: number; fin: number; finOk
     finOk: t.finOk,
     fin: t.fin,
     percent: t.first === 0 ? 0 : Math.round((t.ok / t.first) * 100),
-    nextCourseId: validated ? next : null,
+    nextCourseId: next,
     firstReviewInHours: 48,
   };
 }

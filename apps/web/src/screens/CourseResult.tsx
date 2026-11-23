@@ -1,4 +1,4 @@
-import { MODULES, getCourse, validationOf, type RunResult } from '@pom/engine';
+import { getCourse, validationOf, type RunResult } from '@pom/engine';
 import { go } from '../router';
 import { AppBar } from '../ui/AppBar';
 import { Icon } from '../ui/Icon';
@@ -18,15 +18,9 @@ export interface RunResultViewProps {
   onRetry?: () => void;
 }
 
-const nextOf = (courseId: string): string | null => {
-  const m = MODULES.find((x) => x.courseIds.includes(courseId));
-  return m ? (m.courseIds[m.courseIds.indexOf(courseId) + 1] ?? null) : null;
-};
-
 export function RunResultView({ variant, courseId, result, results, onRetry }: RunResultViewProps) {
   const course = getCourse(courseId);
-  const next = nextOf(courseId);
-  const nextCourse = next ? getCourse(next) : null;
+  const nextCourse = result.nextCourseId ? getCourse(result.nextCourseId) : null;
   const close = result.validated ? '#/' : '#/cours';
   const bar = <AppBar onClose={() => go(close)} closeLabel="Fermer" stepper={{ total: results.length, done: results, current: -1, label: `${results.length} étapes terminées` }} />;
   const relire = (
