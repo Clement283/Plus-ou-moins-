@@ -46,7 +46,7 @@ describe('router', () => {
   it('analyse toutes les routes', () => {
     expect(parseRoute('')).toEqual({ name: 'accueil' });
     expect(parseRoute('#/')).toEqual({ name: 'accueil' });
-    expect(parseRoute('#/nimporte/quoi')).toEqual({ name: 'accueil' });
+    expect(parseRoute('#/nimporte/quoi')).toEqual({ name: 'inconnu' });
     expect(parseRoute('#/cours/c3')).toEqual({ name: 'cours-detail', id: 'c3' });
     expect(parseRoute('#/cours/c3/relire')).toEqual({ name: 'relire', id: 'c3' });
     expect(parseRoute('#/rattrapage/c3')).toEqual({ name: 'rattrapage', id: 'c3' });

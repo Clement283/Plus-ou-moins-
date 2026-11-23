@@ -12,7 +12,9 @@ export type Route =
   | { name: 'suivi' }
   | { name: 'suivi-module'; eleve: string; id: string }
   | { name: 'suivi-cours'; eleve: string; id: string }
-  | { name: 'essai'; what: string };
+  | { name: 'essai'; what: string }
+  /** Adresse qui ne correspond à aucun écran : l'appli renvoie à l'accueil de la personne. */
+  | { name: 'inconnu' };
 
 const ACCUEIL: Route = { name: 'accueil' };
 
@@ -44,7 +46,7 @@ export function parseRoute(hash: string): Route {
     if (n === 4 && c === 'cours') return { name: 'suivi-cours', eleve: b!, id: d! };
   }
   if (a === 'essai' && n === 2) return { name: 'essai', what: b! };
-  return ACCUEIL;
+  return { name: 'inconnu' };
 }
 
 export function toHash(r: Route): string {
@@ -62,6 +64,7 @@ export function toHash(r: Route): string {
     case 'suivi-module': return `#/suivi/${e(r.eleve)}/module/${e(r.id)}`;
     case 'suivi-cours': return `#/suivi/${e(r.eleve)}/cours/${e(r.id)}`;
     case 'essai': return `#/essai/${e(r.what)}`;
+    case 'inconnu': return '#/';
   }
 }
 

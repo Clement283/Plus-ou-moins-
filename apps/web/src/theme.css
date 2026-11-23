@@ -828,3 +828,8 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .who-list{display:grid}
 .who-list .ico{color:var(--primary-ink)}
 .ico-success{color:var(--success)}
+/* lien de texte avec une vraie cible tactile (48 px), sans changer son aspect */
+.link--target{display:inline-flex;align-items:center;min-height:var(--target-min);padding:0 var(--sp-4);margin:0 calc(-1 * var(--sp-4))}
+/* la bulle de la jauge reste dans la marge de 16 px de l'écran : --nudge est posé par DayGauge */
+.number-line__cursor{transform:translateX(calc(-50% + var(--nudge,0px)))}
+.number-line__cursor::after{margin-left:calc(-5px - var(--nudge,0px))}

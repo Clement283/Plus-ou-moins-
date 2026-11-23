@@ -5,6 +5,17 @@ import { Math as Tex } from '../ui/Math';
 
 /** Textes et petits composants communs aux trois écrans de la page de suivi. */
 
+/** Message hors ligne de la page de suivi : rien n'est encore en cache et le serveur n'a pas répondu. */
+export function OfflineAlert() {
+  return (
+    <div className="alert alert--neutral" role="status">
+      <Icon name="wifi-off" />
+      <div className="alert__title">Pas de connexion</div>
+      <div>Le suivi n'a pas encore pu être chargé. Réessaie quand ton téléphone est connecté.</div>
+    </div>
+  );
+}
+
 export const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 const noon = (day: string) => new Date(`${day}T12:00:00Z`);
 const fmt = (day: string, o: Intl.DateTimeFormatOptions) => noon(day).toLocaleDateString('fr-FR', { ...o, timeZone: 'UTC' });

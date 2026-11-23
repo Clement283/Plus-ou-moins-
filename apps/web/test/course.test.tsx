@@ -230,11 +230,12 @@ describe('rattrapage', () => {
     expect(window.location.hash).toBe('#/cours/' + encodeURIComponent(C04.id) + '/relire');
   });
 
-  it('croix du rattrapage : « Quitter le cours ? »', () => {
+  it('croix de la série de validation : « Quitter la série de validation ? », comme « Relire la leçon »', () => {
     h.items = series('rattrapage');
     const t = mount(<RattrapageScreen courseId={C04.id} rng={seededRng(1)} />);
     fireEvent.click(t.btn('Quitter')!);
-    expect(t.$('[role=dialog]')!.textContent).toContain('Quitter le cours ?');
+    expect(t.$('[role=dialog]')!.textContent).toContain('Quitter la série de validation ?');
+    expect(t.$('[role=dialog]')!.textContent).toContain('Tu recommenceras une nouvelle série de 5.');
   });
 });
 

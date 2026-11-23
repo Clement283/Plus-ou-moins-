@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { IconSprite } from './ui/icons';
-import { useRoute } from './router';
+import { go, useRoute } from './router';
 import { useSession } from './store/progress';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
@@ -27,10 +27,17 @@ function Empty({ name }: { name: string }) {
   return <main className="app-body" data-screen={name} />;
 }
 
+/** Adresse inconnue ou interdite à cette personne : retour à son accueil. */
+function Redirect({ to }: { to: string }) {
+  useEffect(() => go(to), [to]);
+  return null;
+}
+
 function StudentRoutes() {
   const route = useRoute();
+  if (route.name === 'suivi' || route.name === 'suivi-module' || route.name === 'suivi-cours') return <Redirect to="#/" />;
   if (route.name === 'essai') {
-    if (!ESSAI) return <Empty name="accueil" />;
+    if (!ESSAI) return <Redirect to="#/" />;
     if (route.what === 'clavier') return <EssaiClavier />;
     if (EssaiQuestions && route.what.split('?')[0] === 'questions') return <Suspense fallback={null}><EssaiQuestions /></Suspense>;
     if (EssaiRetour && route.what.split('?')[0] === 'retour') return <Suspense fallback={null}><EssaiRetour /></Suspense>;
@@ -49,13 +56,14 @@ function StudentRoutes() {
   if (route.name === 'entrainement') return <Training />;
   if (route.name === 'revisions') return <Review key="revisions" />;
   if (route.name === 'entrainement-serie') return <TrainingSeries key="serie" />;
-  return <Empty name={route.name} />;
+  return <Redirect to="#/" />;
 }
 
 function FollowerRoutes() {
   const route = useRoute();
   if (route.name === 'suivi-module') return <DashModule key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
   if (route.name === 'suivi-cours') return <DashCourse key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
+  if (route.name !== 'suivi') return <Redirect to="#/suivi" />;
   return <Dashboard />;
 }
 

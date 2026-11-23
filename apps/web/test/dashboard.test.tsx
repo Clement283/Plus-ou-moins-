@@ -24,7 +24,7 @@ import * as sync from '../src/store/sync';
 import Dashboard from '../src/screens/Dashboard';
 import DashModule from '../src/screens/DashModule';
 import DashCourse from '../src/screens/DashCourse';
-import { loadLastStudent, useStudentEvents } from '../src/store/follow';
+import { loadEventsCache, loadLastStudent, useStudentEvents } from '../src/store/follow';
 
 const MOD = MODULES[0]!;
 const C = (n: number) => MOD.courseIds[n]!;
@@ -122,7 +122,7 @@ describe('Suivi, accueil', () => {
     fireEvent.click([...sheet.querySelectorAll('button')][1]!);
     await waitFor(() => expect(v.$('.who')?.textContent).toBe('Hugo'));
     expect(document.querySelector('[role=dialog]')).toBeNull();
-    await waitFor(async () => expect(await loadLastStudent()).toBe(HUGO.id));
+    await waitFor(async () => expect(await loadLastStudent('u-claire')).toBe(HUGO.id));
     cleanup();
     const again = await mount(<Dashboard />);
     await waitFor(() => expect(again.$('.who')?.textContent).toBe('Hugo'));
@@ -243,5 +243,29 @@ describe('useStudentEvents', () => {
     h.offline = true;
     const b = renderHook(() => useStudentEvents(LEA.id));
     await waitFor(() => expect(b.result.current.data?.length).toBeGreaterThan(0));
+  });
+
+  it('le cache est propre à la personne connectée : un autre suiveur sur ce téléphone ne le voit pas', async () => {
+    load('elle-bloque');
+    const { renderHook } = await import('@testing-library/react');
+    const a = renderHook(() => useStudentEvents(LEA.id));
+    await waitFor(() => expect(a.result.current.data?.length).toBeGreaterThan(0));
+    await waitFor(async () => expect(await loadEventsCache('u-claire', LEA.id)).toBeDefined());
+    expect(await loadEventsCache('u-autre-suiveur', LEA.id)).toBeUndefined();
+  });
+});
+
+describe('Suivi, hors ligne sans cache', () => {
+  it('le module affiche le message hors ligne, pas un écran vide', async () => {
+    load('elle-bloque');
+    h.offline = true;
+    const v = await mount(<DashModule eleve={LEA.id} id={MOD.id} />, '.alert');
+    expect(v.text()).toContain('Pas de connexion');
+  });
+  it('le cours affiche le message hors ligne, pas un écran vide', async () => {
+    load('elle-bloque');
+    h.offline = true;
+    const v = await mount(<DashCourse eleve={LEA.id} id={C(4)} />, '.alert');
+    expect(v.text()).toContain('Pas de connexion');
   });
 });

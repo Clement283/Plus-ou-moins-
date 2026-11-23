@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { courseRunItems, getCourse, rattrapageItems, resultOfTally, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
 import { go } from '../router';
+import { FOLD_WAIT_MS } from '../store/foldcache';
 import { useProgress } from '../store/progress';
 import type { StepResult } from '../ui/Stepper';
 import { AppBar } from '../ui/AppBar';
@@ -29,9 +30,6 @@ function courseChip(courseId: string) {
     return `Cours ${course.order}, leçon`;
   };
 }
-
-/** Délai (ms) après lequel on affiche le résultat calculé en mémoire si le repli des événements n'a pas suivi. */
-export const FOLD_WAIT_MS = 3000;
 
 interface Ended {
   results: StepResult[];
@@ -106,7 +104,7 @@ export function RattrapageScreen({ courseId, rng }: { courseId: string; rng?: Rn
       items={items}
       chip={(_, pos) => `Validation, ${pos.n} sur ${pos.total}`}
       record
-      confirmQuit={QUIT_COURSE}
+      confirmQuit={QUIT_RATTRAPAGE}
       chipAction={{ label: 'Relire la leçon', onSelect: () => go({ name: 'relire', id: courseId }), confirm: QUIT_RATTRAPAGE }}
       activityId={activityId}
       {...(rng ? { rng } : {})}

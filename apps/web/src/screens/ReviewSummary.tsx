@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { reviewSummary, studentHome, type ReviewLine, type SessionSize } from '@pom/engine';
+import { DAILY_GOAL_MS, reviewSummary, studentHome, type ReviewLine, type SessionSize } from '@pom/engine';
 import { go } from '../router';
+import { FOLD_WAIT_MS } from '../store/foldcache';
 import { useProgress, useToday } from '../store/progress';
 import { useEvents } from '../store/sync';
 import { AppBar } from '../ui/AppBar';
@@ -13,7 +14,7 @@ import type { FirstAnswer } from './Activity';
  * le total des premières réponses justes, le temps du jour, une ligne par cours, puis « Encore des révisions »
  * ou la carte « Révisions faites ». Les chiffres viennent de `reviewSummary` et de `studentHome` (moteur).
  */
-const GOAL = 15;
+const GOAL = DAILY_GOAL_MS / 60_000;
 const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
 
 export interface BilanSummary {
@@ -98,9 +99,6 @@ export function ReviewSummaryView({ summary, minutes, remaining, onMore, onHome,
     </main>
   );
 }
-
-/** Délai (ms) après lequel on montre l'en-tête calculé en mémoire si le repli des événements n'a pas suivi. */
-export const FOLD_WAIT_MS = 3000;
 
 /**
  * Attend que le repli contienne les réponses de la séance, puis affiche le bilan (pas de flash).

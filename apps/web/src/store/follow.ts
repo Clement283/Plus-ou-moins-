@@ -12,9 +12,10 @@ import { dropSessionIf401 } from './sync';
 
 export type Student = { id: string; name: string };
 
-const STUDENTS_KEY = 'students';
-const LAST_KEY = 'last';
-const eventsKey = (id: string) => `events:${id}`;
+/** Chaque entrée du cache porte l'id de la personne connectée : deux suiveurs sur un même téléphone ne partagent rien. */
+const studentsKey = (uid: string) => `${uid}|students`;
+const lastKey = (uid: string) => `${uid}|last`;
+const eventsKey = (uid: string, id: string) => `${uid}|events:${id}`;
 
 async function readCache<T>(key: string): Promise<T | undefined> {
   try {
@@ -33,18 +34,30 @@ async function writeCache(key: string, value: unknown): Promise<void> {
 }
 
 /** Dernier élève consulté (« l'appli se souvient du dernier élève consulté », doc 05). */
-export const loadLastStudent = (): Promise<string | undefined> => readCache<string>(LAST_KEY);
-export const saveLastStudent = (id: string): Promise<void> => writeCache(LAST_KEY, id);
-export const loadStudentsCache = (): Promise<Student[] | undefined> => readCache<Student[]>(STUDENTS_KEY);
-export const loadEventsCache = (id: string): Promise<AppEvent[] | undefined> => readCache<AppEvent[]>(eventsKey(id));
+export const loadLastStudent = (uid: string): Promise<string | undefined> => readCache<string>(lastKey(uid));
+export const saveLastStudent = (uid: string, id: string): Promise<void> => writeCache(lastKey(uid), id);
+export const loadStudentsCache = (uid: string): Promise<Student[] | undefined> => readCache<Student[]>(studentsKey(uid));
+export const loadEventsCache = (uid: string, id: string): Promise<AppEvent[] | undefined> => readCache<AppEvent[]>(eventsKey(uid, id));
+
+/** Mémorise le dernier élève consulté pour la personne connectée. */
+export function useRememberStudent(eleve: string): void {
+  const uid = useSession()?.user.id;
+  useEffect(() => {
+    if (uid) void saveLastStudent(uid, eleve);
+  }, [uid, eleve]);
+}
 
 export type Loaded<T> = { data: T | null; /** Le serveur n'a pas répondu (ou refusé) : `data` vient du cache, ou manque. */ failed: boolean };
 
 /** Charge depuis le cache, puis depuis le serveur ; un 401 (jeton révoqué) efface la session. */
-function useCachedFetch<T>(key: string | null, fetcher: (token: string) => Promise<T>): Loaded<T> {
-  const token = useSession()?.token;
+function useCachedFetch<T>(key: ((uid: string) => string) | null, fetcher: (token: string) => Promise<T>): Loaded<T> {
+  const session = useSession();
+  const token = session?.token;
+  const uid = session?.user.id;
+  const k = key && uid ? key(uid) : null;
   const [state, setState] = useState<{ key: string | null; data: T | null; failed: boolean }>({ key: null, data: null, failed: false });
   useEffect(() => {
+    const key = k;
     if (!key || !token) return;
     let alive = true;
     setState((s) => (s.key === key ? s : { key, data: null, failed: false }));
@@ -66,18 +79,18 @@ function useCachedFetch<T>(key: string | null, fetcher: (token: string) => Promi
     };
     // `fetcher` change à chaque rendu : la clé identifie la requête.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, token]);
-  return state.key === key ? { data: state.data, failed: state.failed } : { data: null, failed: false };
+  }, [k, token]);
+  return state.key === k ? { data: state.data, failed: state.failed } : { data: null, failed: false };
 }
 
 /** Élèves suivis par la personne connectée. */
 export function useStudents(): Loaded<Student[]> {
-  return useCachedFetch<Student[]>(STUDENTS_KEY, getStudents);
+  return useCachedFetch<Student[]>(studentsKey, getStudents);
 }
 
 /** Événements d'un élève (le cache IndexedDB sert d'abord, puis le serveur). */
 export function useStudentEvents(id: string | undefined): Loaded<AppEvent[]> {
-  return useCachedFetch<AppEvent[]>(id ? eventsKey(id) : null, (token) => getStudentEvents(token, id!));
+  return useCachedFetch<AppEvent[]>(id ? (uid) => eventsKey(uid, id) : null, (token) => getStudentEvents(token, id!));
 }
 
 /**
@@ -85,18 +98,23 @@ export function useStudentEvents(id: string | undefined): Loaded<AppEvent[]> {
  * `choose` le change et le mémorise.
  */
 export function useCurrentStudent(students: Student[] | null): { student: Student | null; choose: (id: string) => void } {
+  const uid = useSession()?.user.id;
   const [last, setLast] = useState<string | undefined | null>(null); // null : pas encore lu
   useEffect(() => {
+    if (!uid) return;
     let alive = true;
-    void loadLastStudent().then((id) => alive && setLast((prev) => prev ?? id));
+    void loadLastStudent(uid).then((id) => alive && setLast((prev) => prev ?? id));
     return () => {
       alive = false;
     };
-  }, []);
-  const choose = useCallback((id: string) => {
-    setLast(id);
-    void saveLastStudent(id);
-  }, []);
+  }, [uid]);
+  const choose = useCallback(
+    (id: string) => {
+      setLast(id);
+      if (uid) void saveLastStudent(uid, id);
+    },
+    [uid],
+  );
   if (!students || students.length === 0 || last === null) return { student: null, choose };
   return { student: students.find((s) => s.id === last) ?? students[0]!, choose };
 }

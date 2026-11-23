@@ -1,21 +1,28 @@
-import { useEffect } from 'react';
 import { Stars } from '../components/CourseBits';
 import { FollowBar } from '../components/FollowBar';
-import { ErrItem, ddmm, errorLabel, nextReviewLong, shortDate, when } from '../components/FollowBits';
+import { ErrItem, OfflineAlert, ddmm, errorLabel, nextReviewLong, shortDate, when } from '../components/FollowBits';
 import { toHash } from '../router';
-import { saveLastStudent, useStudentDashboard } from '../store/follow';
+import { useRememberStudent, useStudentDashboard } from '../store/follow';
 import { Icon } from '../ui/Icon';
 
 /** Page de suivi, un cours (maquette `suivi.html` écran 3, doc 05 §3). */
 
 export default function DashCourse({ eleve, id }: { eleve: string; id: string }) {
-  const { dash, today } = useStudentDashboard(eleve);
-  useEffect(() => void saveLastStudent(eleve), [eleve]);
+  const { dash, failed, today } = useStudentDashboard(eleve);
+  useRememberStudent(eleve);
   const c = dash?.courses[id];
   const mc = dash?.modules.flatMap((m) => m.courses).find((x) => x.courseId === id);
   const mod = dash?.modules.find((m) => m.moduleId === c?.moduleId);
   const back = mod ? toHash({ name: 'suivi-module', eleve, id: mod.moduleId }) : '#/suivi';
-  if (!dash || !c || !mc || !mod) return <FollowBar back="#/suivi" backLabel="Retour à l'accueil" title="" />;
+  if (!dash || !c || !mc || !mod)
+    return (
+      <>
+        <FollowBar back="#/suivi" backLabel="Retour à l'accueil" title="" />
+        <main className="app-body" data-screen="suivi-cours">
+          {!dash && failed && <OfflineAlert />}
+        </main>
+      </>
+    );
 
   const valid = c.status === 'valide';
   const rate = mc.success28.rate === null ? null : Math.round(mc.success28.rate * 100);

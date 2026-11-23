@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
 import type { ModuleCourse } from '@pom/engine';
 import { FollowBar } from '../components/FollowBar';
-import { nextReviewShort, when } from '../components/FollowBits';
+import { OfflineAlert, nextReviewShort, when } from '../components/FollowBits';
 import { Stars } from '../components/CourseBits';
 import { toHash } from '../router';
-import { saveLastStudent, useStudentDashboard } from '../store/follow';
+import { useRememberStudent, useStudentDashboard } from '../store/follow';
 import { Icon } from '../ui/Icon';
 
 /** Page de suivi, un module (maquette `suivi.html` écran 2, doc 05 §2) : une ligne par cours. */
@@ -77,8 +76,8 @@ function Row({ c, eleve, today }: { c: ModuleCourse; eleve: string; today: strin
 }
 
 export default function DashModule({ eleve, id }: { eleve: string; id: string }) {
-  const { dash, today } = useStudentDashboard(eleve);
-  useEffect(() => void saveLastStudent(eleve), [eleve]);
+  const { dash, failed, today } = useStudentDashboard(eleve);
+  useRememberStudent(eleve);
   const mod = dash?.modules.find((m) => m.moduleId === id);
   return (
     <>
@@ -96,6 +95,7 @@ export default function DashModule({ eleve, id }: { eleve: string; id: string })
         }
       />
       <main className="app-body" data-screen="suivi-module">
+        {!dash && failed && <OfflineAlert />}
         {mod && (
           <>
             <div className="block">

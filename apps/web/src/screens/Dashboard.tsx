@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DAILY_GOAL_MS, getCourse, type Dashboard as Dash, type DayPoint } from '@pom/engine';
-import { Acc, ErrItem, errorLabel, listOrders, lowerFirst, plural, upperFirst, longDate, weekdayLetter, when } from '../components/FollowBits';
+import { Acc, ErrItem, OfflineAlert, errorLabel, listOrders, lowerFirst, plural, upperFirst, longDate, weekdayLetter, when } from '../components/FollowBits';
 import { toHash } from '../router';
 import { useCurrentStudent, useStudentDashboard, useStudents, type Student } from '../store/follow';
 import { Icon } from '../ui/Icon';
@@ -284,13 +284,7 @@ export default function Dashboard() {
   if (!student || !dash)
     return (
       <main className="app-body" data-screen="suivi">
-        {students.failed && !students.data && (
-          <div className="alert alert--neutral" role="status">
-            <Icon name="wifi-off" />
-            <div className="alert__title">Pas de connexion</div>
-            <div>Le suivi n'a pas encore pu être chargé. Réessaie quand ton téléphone est connecté.</div>
-          </div>
-        )}
+        {students.failed && !students.data && <OfflineAlert />}
       </main>
     );
   const t = dash.home.state.today;
