@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { parisDay, type AppEvent } from '@pom/engine';
 import { getEvents, postEvents } from '../api';
-import { getDb, type Session } from './db';
+import { getDb, SESSION_KEY, type Session } from './db';
 
 const BATCH = 500;
-const SESSION_KEY = 'current';
 
 type Generated = 'id' | 'userId' | 'at' | 'day';
 /** Omit distribué sur chaque variante de AppEvent (un Omit simple écraserait l'union). */

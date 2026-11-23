@@ -16,7 +16,7 @@ import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DB_NAME, DB_SCHEMA, DB_VERSION } from '../apps/web/src/store/db';
+import { DB_NAME, DB_SCHEMA, DB_VERSION, SESSION_KEY, SESSION_STORE, type Session } from '../apps/web/src/store/db';
 import { CLAIRE, LEA, NOW, scenario, type Fixture, type ScenarioName } from './fixtures';
 
 // Playwright est installé globalement (NODE_PATH) : on passe par require, pas par import ESM.
@@ -112,7 +112,7 @@ async function mockApi(page: Page, data: Fixture | null): Promise<void> {
 }
 
 /** Écrit la session dans IndexedDB avant de charger l'appli ; le schéma vient de apps/web/src/store/db.ts. */
-const SEED_HTML = (user: unknown) => `<!doctype html><title>seed</title><script>
+const SEED_HTML = (session: Session) => `<!doctype html><title>seed</title><script>
 const schema = ${JSON.stringify(DB_SCHEMA)};
 const req = indexedDB.open(${JSON.stringify(DB_NAME)}, ${DB_VERSION});
 req.onupgradeneeded = () => {
@@ -124,8 +124,8 @@ req.onupgradeneeded = () => {
 };
 req.onsuccess = () => {
   const db = req.result;
-  const tx = db.transaction('session', 'readwrite');
-  tx.objectStore('session').put({ token: 'tok', user: ${JSON.stringify(user)} }, 'current');
+  const tx = db.transaction(${JSON.stringify(SESSION_STORE)}, 'readwrite');
+  tx.objectStore(${JSON.stringify(SESSION_STORE)}).put(${JSON.stringify(session)}, ${JSON.stringify(SESSION_KEY)});
   tx.oncomplete = () => { db.close(); document.title = 'seeded'; };
 };
 req.onerror = () => { document.title = 'seed-error'; };
@@ -171,7 +171,7 @@ async function main(): Promise<number> {
             await page.clock.setFixedTime(NOW);
             await mockApi(page, data);
             if (data) {
-              await page.route(`${preview.url}/__seed`, (r: any) => r.fulfill({ contentType: 'text/html', body: SEED_HTML(data.user) }));
+              await page.route(`${preview.url}/__seed`, (r: any) => r.fulfill({ contentType: 'text/html', body: SEED_HTML({ token: 'tok', user: data.user }) }));
               await page.goto(`${preview.url}/__seed`);
               await page.waitForFunction(() => document.title.startsWith('seed') && document.title !== 'seed');
               if ((await page.title()) !== 'seeded') throw new Error('session non écrite');

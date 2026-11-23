@@ -2,7 +2,8 @@ import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { foldProgress, MODULES, type AppEvent } from '@pom/engine';
-import { DB_NAME, DB_SCHEMA, DB_VERSION, getDb, resetDb } from '../src/store/db';
+import { DB_NAME, DB_SCHEMA, DB_VERSION, SESSION_KEY, SESSION_STORE, getDb, resetDb } from '../src/store/db';
+import { getSession } from '../src/store/sync';
 import { advanceProgress, loadProgressCache, msUntilParisMidnight, saveProgressCache, useToday } from '../src/store/progress';
 
 const courseId = MODULES[0]!.courseIds[0]!;
@@ -72,10 +73,14 @@ describe('schéma IndexedDB', () => {
     expect([...db.objectStoreNames].sort()).toEqual(DB_SCHEMA.map((s) => s.name).sort());
     const tx = db.transaction([...db.objectStoreNames], 'readonly');
     for (const s of DB_SCHEMA) {
-      const st: any = tx.objectStore(s.name);
+      const st: any = tx.objectStore(s.name as 'events');
       expect(st.keyPath ?? undefined).toBe(s.keyPath);
       expect([...st.indexNames].sort()).toEqual(s.indexes.map((i) => i.name).sort());
       for (const i of s.indexes) expect(st.index(i.name).keyPath).toBe(i.keyPath);
     }
+    // la session est lue et écrite sous SESSION_STORE / SESSION_KEY (e2e/shots.ts y dépose la sienne)
+    const session = { token: 't', user: { id: 'u', name: 'Léa', role: 'eleve' as const } };
+    await db.put(SESSION_STORE, session, SESSION_KEY);
+    expect(await getSession()).toEqual(session);
   });
 });

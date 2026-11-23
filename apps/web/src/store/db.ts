@@ -19,11 +19,14 @@ export type ProgressCache = { build: string; state: ProgressState };
 
 export const DB_NAME = 'pom';
 export const DB_VERSION = 3;
+/** Magasin de la session et clé de son unique entrée. */
+export const SESSION_STORE = 'session';
+export const SESSION_KEY = 'current';
 /** Forme de la base à la dernière version (utilisée par e2e/shots.ts pour la préparer ; test de cohérence dans test/progress.test.tsx). */
-export const DB_SCHEMA: { name: 'events' | 'outbox' | 'session' | 'progress'; keyPath?: string; indexes: { name: string; keyPath: string }[] }[] = [
+export const DB_SCHEMA: { name: keyof PomDB & string; keyPath?: string; indexes: { name: string; keyPath: string }[] }[] = [
   { name: 'events', keyPath: 'id', indexes: [{ name: 'byUser', keyPath: 'userId' }] },
   { name: 'outbox', keyPath: 'id', indexes: [{ name: 'byUser', keyPath: 'userId' }] },
-  { name: 'session', indexes: [] },
+  { name: SESSION_STORE, indexes: [] },
   { name: 'progress', indexes: [] },
 ];
 let dbPromise: Promise<IDBPDatabase<PomDB>> | null = null;
@@ -35,7 +38,7 @@ export function getDb(): Promise<IDBPDatabase<PomDB>> {
         if (oldVersion < 1) {
           db.createObjectStore('events', { keyPath: 'id' });
           db.createObjectStore('outbox', { keyPath: 'id' });
-          db.createObjectStore('session');
+          db.createObjectStore(SESSION_STORE);
         }
         if (oldVersion < 2) {
           tx.objectStore('events').createIndex('byUser', 'userId');
