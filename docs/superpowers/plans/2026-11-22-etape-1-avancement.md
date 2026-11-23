@@ -1,6 +1,6 @@
 # Étape 1 — Avancement (pour reprendre dans une autre session)
 
-*Mis à jour le 2026-11-23.* Plan : `docs/superpowers/plans/2026-11-22-etape-1-relatifs.md`. Documents validés : `docs/validation/01` à `07` (le 07 complète et prime sur 01–06).
+*Mis à jour le 2026-11-24.* Plan : `docs/superpowers/plans/2026-11-22-etape-1-relatifs.md`. Documents validés : `docs/validation/01` à `07` (le 07 complète et prime sur 01–06).
 
 ## Fait (construit, testé, relu tâche par tâche)
 - Tâche 3 : monorepo, maths exactes.
@@ -44,6 +44,28 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Plan mis à jour (version 3) : phase D, tâches 17 à 28, qui remplace les parties UI des tâches 6, 7, 10, 13, 14.
 - Décisions 16 à 19 ajoutées au doc 08 (cours quitté, relire, pas de déconnexion, module terminé).
 - Exécution : superpowers:subagent-driven-development, revue téléphone avec ui-design-review:ui-review.
+
+## Écrans terminés (2026-11-24)
+- Phase D (tâches 17 à 28) faite, relue tâche par tâche (relecture du code + comparaison sur téléphone avec les maquettes + UI Design Review), puis relecture finale de toute la phase et une vague de corrections (entraînement qui ne démarrait pas, chargement local d'abord, LaTeX brut dans un QCM du Cours 0).
+- Lots de décisions du porteur du projet : D1 (erreur serveur à la connexion, « Quel est le signe du résultat ? », « 3−(4) »), D2 (doc 09 : titres et « Fais attention » ; « série de validation » à la place de « rattrapage »).
+- Tests : moteur 577, web 224, api 9, scripts 7 ; E2E Playwright (iPhone 13, serveur local) 3 parcours. Captures : `npm run shots -- <écran>`.
+
+### Choix faits sans document (à revoir si besoin)
+- Travail directement sur `main` (consigne de la session).
+- « Entrer » grisé tant que le champ du code est vide (la maquette le dessine actif).
+- Polices : les calculs KaTeX sont rendus en Lexend (design system « police unique »).
+- Après une erreur : « Pas tout à fait. » au 1er échec, « Pas encore. » ensuite (maquette des révisions) ; phrases « reviendra… » dans toutes les activités ; pastilles « Même genre… » / « Le calcul raté… » seulement en révision.
+- Après « Passer » : la règle du cours et la résolution ligne par ligne.
+- « Passer » sous le clavier pour les réponses tapées.
+- « → » et « · » gardés dans les textes validés des cours (doc 06, doc 09).
+- Entraînement : retour à l'écran Entraînement à la fin d'une série (pas d'écran de résultat dessiné) ; pas de confirmation pour quitter ; aucun cours coché au départ ; série masquée à 0 jour ; minutes arrondies vers le bas.
+- Révisions : on quitte une séance sans confirmation ; noms courts des cours dans le bilan (maquette).
+- Relire la leçon pendant une série de validation : la série est abandonnée après « Quitter la série de validation ? Tu recommenceras une nouvelle série de 5. » ; même boîte pour la croix.
+- Navigation : relire finit sur Mes cours ; la croix d'un résultat mène à l'accueil si validé, sinon à Mes cours.
+
+### Questions encore ouvertes pour le porteur du projet
+- Page de suivi : noms des erreurs (16 inventés), raison « sous 70 % », messages de cas rares, ligne « Calculs, terminé » pour un module fini.
+- Cours 4, écran 1 : texte du doc 06 gardé (la maquette avait une autre phrase).
 
 ## Reprendre : développement des écrans (nouvelle session)
 1. Lire ce fichier, le plan, `docs/validation/01` à `08` (08 et 07 priment), `docs/design/design-system/README.md` et `docs/design/ecrans/BRIEF.md` + les pages d'écrans.
