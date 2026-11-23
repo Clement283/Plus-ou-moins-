@@ -108,6 +108,49 @@ describe('synchronisation', () => {
   });
 });
 
+describe('plusieurs comptes sur un téléphone', () => {
+  const OTHER = { id: 'u2', name: 'Sam', role: 'eleve' as const };
+  const mk = (id: string, userId: string, at: number) =>
+    ({ id, userId, at, day: '2026-01-01', ...partDone(0) }) as AppEvent;
+
+  it('loadAll ne renvoie que les événements du compte connecté', async () => {
+    const srv = fakeServer();
+    srv.state.online = false;
+    await recordEvent(partDone(0)); // u1
+    await setSession({ token: 't2', user: OTHER });
+    await recordEvent(partDone(1)); // u2
+    srv.state.online = true;
+    const all = await loadAll();
+    expect(all).toHaveLength(1);
+    expect(all[0]!.userId).toBe('u2');
+  });
+
+  it("des restes d'un autre compte (> 500) ne bloquent pas l'envoi du compte connecté", async () => {
+    const srv = fakeServer();
+    const db = await getDb();
+    const tx = db.transaction('outbox', 'readwrite');
+    // ids 'a…' : triés avant 'z…', ils occuperaient les 500 premières clés
+    await Promise.all([...Array.from({ length: 600 }, (_, i) => tx.store.put(mk(`a${i}`, 'u2', i))), tx.done]);
+    await db.put('outbox', mk('z1', 'u1', 1));
+    await flush();
+    expect(srv.store.has('z1')).toBe(true);
+    expect(srv.store.size).toBe(1);
+    expect(await db.countFromIndex('outbox', 'byUser', 'u2')).toBe(600);
+    expect(await db.countFromIndex('outbox', 'byUser', 'u1')).toBe(0);
+  });
+});
+
+describe('sans session', () => {
+  it('flush est sans effet et loadAll renvoie []', async () => {
+    const srv = fakeServer();
+    const { clearSession } = await import('../src/store/sync');
+    await clearSession();
+    await flush();
+    expect(srv.fetchMock).not.toHaveBeenCalled();
+    expect(await loadAll()).toEqual([]);
+  });
+});
+
 describe('startSync', () => {
   it('démarrage, online et visibilitychange déclenchent un flush ; arrêt débranche', async () => {
     const srv = fakeServer();

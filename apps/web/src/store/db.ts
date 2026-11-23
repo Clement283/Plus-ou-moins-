@@ -5,10 +5,10 @@ import type { User } from '../api';
 export type Session = { token: string; user: User };
 
 interface PomDB extends DBSchema {
-  /** Cache local de tous les événements connus (les miens + ceux reçus du serveur). */
-  events: { key: string; value: AppEvent };
+  /** Cache local des événements connus (index byUser : plusieurs comptes peuvent partager un téléphone). */
+  events: { key: string; value: AppEvent; indexes: { byUser: string } };
   /** Événements pas encore acceptés par le serveur. */
-  outbox: { key: string; value: AppEvent };
+  outbox: { key: string; value: AppEvent; indexes: { byUser: string } };
   /** Une seule entrée, clé 'current'. */
   session: { key: string; value: Session };
 }
@@ -17,13 +17,26 @@ const NAME = 'pom';
 let dbPromise: Promise<IDBPDatabase<PomDB>> | null = null;
 
 export function getDb(): Promise<IDBPDatabase<PomDB>> {
-  dbPromise ??= openDB<PomDB>(NAME, 1, {
-    upgrade(db) {
-      db.createObjectStore('events', { keyPath: 'id' });
-      db.createObjectStore('outbox', { keyPath: 'id' });
-      db.createObjectStore('session');
-    },
-  });
+  if (!dbPromise) {
+    const p = openDB<PomDB>(NAME, 2, {
+      upgrade(db, oldVersion, _newVersion, tx) {
+        if (oldVersion < 1) {
+          db.createObjectStore('events', { keyPath: 'id' });
+          db.createObjectStore('outbox', { keyPath: 'id' });
+          db.createObjectStore('session');
+        }
+        if (oldVersion < 2) {
+          tx.objectStore('events').createIndex('byUser', 'userId');
+          tx.objectStore('outbox').createIndex('byUser', 'userId');
+        }
+      },
+    });
+    // Une ouverture refusée ne doit pas rester en cache : le prochain appel réessaie.
+    p.catch(() => {
+      if (dbPromise === p) dbPromise = null;
+    });
+    dbPromise = p;
+  }
   return dbPromise;
 }
 

@@ -84,7 +84,7 @@ async function drainOutbox(): Promise<void> {
     if (!session) return;
     const db = await getDb();
     for (;;) {
-      const batch = (await db.getAll('outbox', undefined, BATCH)).filter((e) => e.userId === session.user.id);
+      const batch = await db.getAllFromIndex('outbox', 'byUser', session.user.id, BATCH);
       if (batch.length === 0) return;
       const accepted = new Set(await postEvents(session.token, batch));
       const sent = batch.filter((e) => accepted.has(e.id));
@@ -107,21 +107,21 @@ function byTime(a: AppEvent, b: AppEvent): number {
 
 /**
  * Cache local fusionné avec le serveur, dédoublonné par `id`, trié par date puis id.
- * Hors ligne (ou sans session), renvoie le cache local seul.
+ * Hors ligne, renvoie le cache local seul ; sans session, renvoie [].
  */
 export async function loadAll(): Promise<AppEvent[]> {
   const db = await getDb();
   const session = await getSession();
-  if (session) {
-    try {
-      const remote = await getEvents(session.token);
-      const tx = db.transaction('events', 'readwrite');
-      await Promise.all([...remote.map((e) => tx.store.put(e)), tx.done]);
-    } catch {
-      // Hors ligne : on se contente du cache local.
-    }
+  if (!session) return [];
+  try {
+    const remote = await getEvents(session.token);
+    const tx = db.transaction('events', 'readwrite');
+    await Promise.all([...remote.map((e) => tx.store.put(e)), tx.done]);
+  } catch {
+    // Hors ligne : on se contente du cache local.
   }
-  const all = await db.getAll('events');
+  // Le cache garde les événements de tous les comptes du téléphone : on ne lit que ceux du compte connecté.
+  const all = await db.getAllFromIndex('events', 'byUser', session.user.id);
   const byId = new Map(all.map((e) => [e.id, e]));
   return [...byId.values()].sort(byTime);
 }
