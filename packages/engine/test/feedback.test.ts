@@ -52,6 +52,9 @@ describe('feedbackFor : réponse tapée', () => {
   it('3−4 : un seul nombre', () => {
     expect(raw(keys(d(3), 'minus', d(4)))).toMatchObject({ tone: 'faux', title: 'Réponse mal écrite', message: 'Ta réponse doit être un seul nombre.' });
   });
+  it('3−(4) : un seul nombre', () => {
+    expect(raw(keys(d(3), 'minus', 'lpar', d(4), 'rpar'))).toMatchObject({ tone: 'faux', title: 'Réponse mal écrite', message: 'Ta réponse doit être un seul nombre.' });
+  });
   it(')−3 : parenthèse fermée sans ouverte', () => {
     expect(raw(keys('rpar', 'minus', d(3)))).toMatchObject({ message: 'Une parenthèse fermée doit avoir été ouverte.' });
   });

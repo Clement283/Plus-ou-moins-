@@ -4,7 +4,7 @@ import { setSession } from '../store/sync';
 import { go } from '../router';
 import { Icon } from '../ui/Icon';
 
-type Status = 'repos' | 'envoi' | 'inconnu' | 'hors';
+type Status = 'repos' | 'envoi' | 'inconnu' | 'hors' | 'serveur';
 
 const HELP = 'Les majuscules et les espaces n\'ont pas d\'importance.';
 
@@ -61,7 +61,9 @@ export default function Login() {
       go(user.role === 'suiveur' ? { name: 'suivi' } : { name: 'accueil' });
       await setSession({ token, user });
     } catch (err) {
-      setStatus(err instanceof ApiError && err.status === 0 ? 'hors' : 'inconnu');
+      // 0 : pas de réseau ; 401 : code inconnu ; toute autre réponse : le serveur est en panne.
+      const code = err instanceof ApiError ? err.status : 401;
+      setStatus(code === 0 ? 'hors' : code === 401 ? 'inconnu' : 'serveur');
     }
   }
 
@@ -77,6 +79,12 @@ export default function Login() {
           <Icon name="wifi-off" />
           <div className="alert__title">Pas de connexion</div>
           <div>Pour entrer, ton téléphone doit être connecté à internet. Ensuite, l'appli marche aussi sans connexion.</div>
+        </div>
+      )}
+      {status === 'serveur' && (
+        <div className="alert alert--neutral" role="status">
+          <Icon name="wifi-off" />
+          <div>Le serveur ne répond pas. Réessaie dans un moment.</div>
         </div>
       )}
       <form className="login__form" onSubmit={submit} noValidate>
@@ -113,7 +121,7 @@ export default function Login() {
           </p>
         </div>
         <button className="btn btn--contained btn--block" type="submit" disabled={!raw.trim() || status === 'envoi'}>
-          {status === 'hors' ? 'Réessayer' : 'Entrer'}
+          {status === 'hors' || status === 'serveur' ? 'Réessayer' : 'Entrer'}
         </button>
       </form>
       <p className="t-caption">Tu n'as pas de code ? Demande-le à la personne qui te suit.</p>

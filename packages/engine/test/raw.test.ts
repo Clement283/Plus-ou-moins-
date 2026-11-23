@@ -140,6 +140,8 @@ describe('readRaw — autres lectures', () => {
   it('autres erreurs', () => {
     expect(readRaw(type('3-4'), true)).toEqual(werr('ecriture-invalide')); // doc 07 #1A
     expect(readRaw(type('3-4-'), true)).toEqual(werr('ecriture-invalide'));
+    expect(readRaw(type('3-(4)'), true)).toEqual(werr('ecriture-invalide')); // décision du 2026-11-23
+    expect(readRaw(type('3-'), true)).toEqual(werr('moins-apres'));
     expect(readRaw(type('3-F1>2'), true)).toEqual(werr('ecriture-invalide'));
     expect(readRaw(type(')-3'), true)).toEqual(werr('parenthese')); // doc 07 #5A
     expect(readRaw(type(')3'), true)).toEqual(werr('parenthese'));

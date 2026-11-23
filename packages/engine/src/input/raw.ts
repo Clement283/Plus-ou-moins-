@@ -128,12 +128,12 @@ const writingError = (errorType: ErrorType, divZero = false): ReadResult => ({
 /**
  * Error of a sequence that should be "-?" followed by one number, where 'F'
  * stands for a fraction and acts as a number. Checked in order: two
- * consecutive '-', a '-' between two numbers ("3-4": an unfinished
- * calculation, doc 07 #1), a trailing '-' after a number, anything else.
+ * consecutive '-', a '-' followed by anything after a number ("3-4", "3-(4)": an unfinished
+ * calculation, doc 07 #1 and the 2026-11-23 decision), a trailing '-' after a number, anything else.
  */
 function shapeError(shape: string): ErrorType {
   if (shape.includes('--')) return 'double-signe';
-  if (/[\dF]-[\dF]/.test(shape)) return 'ecriture-invalide';
+  if (/[\dF]-./.test(shape)) return 'ecriture-invalide';
   if (/[\dF]-/.test(shape)) return 'moins-apres';
   return 'ecriture-invalide';
 }

@@ -85,6 +85,15 @@ export const SCREENS: Record<string, ScreenDef> = {
           await page.waitForSelector('.alert--neutral');
         },
       },
+      {
+        name: 'serveur',
+        expectedConsole: /status of 500/,
+        before: async (page) => {
+          await page.route('**/api/login', (r: any) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"server"}' }));
+          await typeCode(page, 'k7m2 9qxp', true);
+          await page.waitForSelector('.alert--neutral');
+        },
+      },
     ],
   },
   clavier: {

@@ -403,6 +403,7 @@ describe('QCM', () => {
 describe('Signe du résultat', () => {
   it('deux gros boutons « + » et « − »', () => {
     const t = setup(signe);
+    expect(t.container.textContent).toContain('Quel est le signe du résultat ?');
     const b = t.$$('.choice');
     expect(b.map((x) => x.textContent)).toEqual(['+', '−']);
     fireEvent.click(b[1]!);

@@ -29,7 +29,7 @@ export function Qcm({ q, course, locked, onAnswer, header, footer }: QProps<'qcm
   return (
     <QFrame header={header} footer={footer} locked={locked}>
       <div className="q-expr" data-copie>
-        <p className="t-body2">{writing ? 'Lequel est bien écrit ?' : sign ? 'Signe du résultat.' : 'Choisis la bonne réponse.'}</p>
+        <p className="t-body2">{writing ? 'Lequel est bien écrit ?' : sign ? 'Quel est le signe du résultat ?' : 'Choisis la bonne réponse.'}</p>
         {!writing && (
           <p className="t-math-xl">
             <Math latex={toLatex(q.ex.expr)} />

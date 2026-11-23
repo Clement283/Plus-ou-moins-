@@ -10,7 +10,7 @@ export const WRITING_MESSAGES = {
   'parenthese': 'Une parenthèse ouverte doit être fermée, et une parenthèse fermée doit avoir été ouverte.',
   /** Doc 07 #5: a closed parenthesis before the number, none opened. */
   'parenthese-fermee': 'Une parenthèse fermée doit avoir été ouverte.',
-  /** Doc 07 #1: « 3−4 », a calculation left unfinished. */
+  /** Doc 07 #1: « 3−4 » or « 3−(4) », a calculation left unfinished. */
   'un-seul-nombre': 'Ta réponse doit être un seul nombre.',
   'ecriture-invalide': "Cette réponse n'est pas un nombre bien écrit.",
   'division-par-zero': 'On ne divise jamais par 0.',
@@ -33,7 +33,7 @@ export function diagnoseWriting(raw: RawInput, expectInteger: boolean, errorType
     default: {
       const read = readRaw(raw, expectInteger);
       if (read.kind === 'writing-error' && read.divZero) return WRITING_MESSAGES['division-par-zero'];
-      if ([chars(raw.tokens), ...boxes(raw.tokens)].some((s) => /[\dF]-[\dF]/.test(s))) return WRITING_MESSAGES['un-seul-nombre'];
+      if ([chars(raw.tokens), ...boxes(raw.tokens)].some((s) => /[\dF]-./.test(s))) return WRITING_MESSAGES['un-seul-nombre'];
       return WRITING_MESSAGES['ecriture-invalide'];
     }
   }

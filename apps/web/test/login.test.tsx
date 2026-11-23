@@ -99,6 +99,19 @@ describe('Connexion', () => {
     await waitFor(async () => expect(await getSession()).toBeDefined());
   });
 
+  it.each([500, 429, 503])('erreur serveur (%i) : message distinct et bouton « Réessayer »', async (status) => {
+    stubLogin(() => json({ error: 'x' }, status));
+    render(<Login />);
+    type('k7m2 9qxp');
+    await act(async () => fireEvent.click(button()));
+    const alert = await screen.findByRole('status');
+    expect(alert.classList.contains('alert--neutral')).toBe(true);
+    expect(alert.textContent).toBe('Le serveur ne répond pas. Réessaie dans un moment.');
+    expect(screen.queryByText(/n'existe pas/)).toBeNull();
+    expect(button().textContent).toBe('Réessayer');
+    expect(field().value).toBe('K7M2 9QXP');
+  });
+
   it('modifier le code efface le message d\'erreur', async () => {
     stubLogin(() => json({}, 401));
     render(<Login />);
