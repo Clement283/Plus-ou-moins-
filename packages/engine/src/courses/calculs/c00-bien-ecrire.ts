@@ -253,7 +253,9 @@ function customQuestion(kind: QuestionKind, ctx: BuildCtx): Question | null {
     return { kind: 'erreur', ex, lines: tokensOf(ex), wrongLine: faultAtOf(ex), errorType: faultTypeOf(ex) };
   }
   if (kind === 'qcm') {
-    // 4 writings of the same calculation, exactly one well written
+    // 4 writings of the same calculation, exactly one well written; with a trap (doc 01 §5),
+    // one of the wrong writings makes that very fault
+    const trap = errors.find((e) => e.id === ctx.trapErrorType)?.id;
     const [expr, wrong] = redraw(
       () => {
         const e = wellWritten(level, rng);
@@ -271,7 +273,7 @@ function customQuestion(kind: QuestionKind, ctx: BuildCtx): Question | null {
         }
         return [e, chosen] as const;
       },
-      ([, chosen]) => chosen.length === 3,
+      ([, chosen]) => chosen.length === 3 && (trap === undefined || chosen.some((v) => v.type === trap)),
     );
     const choices = shuffle(rng, [
       { value: rat(0), latex: toLatex(expr), errorType: null as string | null },

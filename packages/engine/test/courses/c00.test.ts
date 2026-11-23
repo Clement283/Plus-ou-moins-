@@ -186,6 +186,19 @@ describe('Cours 0 — Bien écrire un calcul', () => {
       });
     });
 
+    it('QCM avec un piège (doc 01 §5) : une des écritures fausses fait cette faute-là', () => {
+      for (const trap of ['signes-colles', 'moins-apres', 'parenthese'])
+        for (const level of LEVELS) {
+          const c = ctx(level, 4000 + level, trap);
+          for (let i = 0; i < DRAWS; i++) {
+            const q = c00.customQuestion?.('qcm', c);
+            if (q?.kind !== 'qcm') throw new Error('qcm');
+            expect(q.choices.filter((ch) => ch.errorType === null)).toHaveLength(1);
+            expect(q.choices.some((ch) => ch.errorType === trap)).toBe(true);
+          }
+        }
+    });
+
     it('Classer bien écrit / mal écrit', () => {
       for (const level of LEVELS) {
         const c = ctx(level, 4000 + level);
