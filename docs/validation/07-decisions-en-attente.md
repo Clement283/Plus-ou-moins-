@@ -1,6 +1,23 @@
 # 07 — Décisions en attente (version détaillée)
 
-*Statut : à valider*
+*Statut : décisions 1 à 19 prises par le porteur du projet (2026-11-23) ; 20 et 21 en attente*
+
+## Décisions du porteur du projet
+
+| # | Choix | # | Choix | # | Choix |
+|---|---|---|---|---|---|
+| 1 | A | 8 | A | 15 | **B** (mélange des niveaux 1, 2, 3) |
+| 2 | A | 9 | A | 16 | A |
+| 3 | A | 10 | A | 17 | A |
+| 4 | **B** (Valider possible, « écriture invalide ») | 11 | A | 18 | **B** (28 jours) |
+| 5 | A | 12 | A | 19 | B |
+| 6 | A | 13 | A, précisé ci-dessous | 20 | *en attente* |
+| 7 | A | 14 | A | 21 | *en attente* |
+
+**Précision sur le n° 13 :** la règle vaut pour **chaque calcul séparément**. Si elle rate plusieurs calculs plusieurs fois, chacun de ces calculs, raté 2 fois, peut être passé : le bouton « Passer » n'est pas limité à un seul calcul par activité.
+
+Ces décisions complètent les documents 01 à 06 ; en cas de différence, ce document fait foi (notamment pour le n° 4, qui modifie la règle « Valider grisé » du document 03).
+
 
 Pendant la construction, on a rencontré des situations que les documents 01 à 06 ne prévoyaient pas. Pour chacune, ce document décrit :
 - **la situation**, avec un exemple concret ;
