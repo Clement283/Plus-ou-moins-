@@ -24,10 +24,10 @@ export function NumberLine({ from, to, jumps }: { from: number; to: number; jump
     return () => clearTimeout(t);
   }, [step, n]);
 
-  const span = to - from;
+  const span = to > from ? to - from : 1; // droite vide ou à l'envers : on ne divise pas par zéro
   const pct = (v: number): string => `${((v - from) / span) * 100}%`;
   const at = step === 0 ? (jumps[0]?.from ?? from) : jumps[step - 1]!.from + jumps[step - 1]!.by;
-  const ticks = Array.from({ length: span + 1 }, (_, i) => from + i);
+  const ticks = Array.from({ length: Math.max(span, 0) + 1 }, (_, i) => from + i);
   const every = span > 12 ? 2 : 1;
   const state = step === 0 && n > 0 ? 'start' : step >= n ? 'final' : 'moving';
 

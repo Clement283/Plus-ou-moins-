@@ -127,6 +127,25 @@ describe('LessonBlocks', () => {
     expect(container.querySelector('[data-anim]')).toBeNull();
   });
 
+  it('mouvement réduit : animations figées (is-static), blocs sans fondu', () => {
+    reducedMotion(true);
+    const blocks: LessonBlock[] = [{ t: 'anim', name: 'compter-les-moins' }, { t: 'text', text: 'après' }];
+    const { container } = render(<LessonBlocks blocks={blocks} colorize />);
+    expect(container.querySelector('[data-anim].is-static')).not.toBeNull();
+    expect(container.querySelector('.lesson-reveal')).toBeNull();
+    cleanup();
+    reducedMotion(false);
+    const normal = render(<LessonBlocks blocks={blocks} colorize />);
+    expect(normal.container.querySelector('.is-static')).toBeNull();
+    expect(normal.container.querySelector('.lesson-reveal')).not.toBeNull();
+  });
+
+  it('un texte avec « : » reste une seule ligne, tel quel', () => {
+    const { container } = render(<LessonBlocks blocks={[{ t: 'text', text: '2 : pas faux', tone: 'neutre' }]} colorize />);
+    expect(container.querySelector('.lesson-line__note')).toBeNull();
+    expect(container.querySelector('.lesson-line')!.textContent).toBe('~2 : pas faux');
+  });
+
   it('les 3 animations nommées se rendent', () => {
     for (const name of ['signes-qui-se-cognent', 'moins-moins-devient-plus', 'compter-les-moins']) {
       const { container } = render(<LessonBlocks blocks={[{ t: 'anim', name }]} colorize />);
@@ -165,6 +184,12 @@ describe('NumberLine', () => {
     expect(container.querySelectorAll('.nl-arc.is-shown')).toHaveLength(2);
   });
 
+  it('une droite vide ou à l’envers ne plante pas', () => {
+    reducedMotion(true);
+    expect(() => render(<NumberLine from={2} to={2} jumps={[]} />)).not.toThrow();
+    expect(() => render(<NumberLine from={3} to={-1} jumps={[]} />)).not.toThrow();
+  });
+
   it('chaque bond porte sa valeur, rouge si négatif, bleue si positif', () => {
     reducedMotion(true);
     const { container } = render(<NumberLine from={-4} to={3} jumps={[{ from: -3, by: 5 }]} />);
@@ -186,8 +211,9 @@ describe('LessonPartScreen', () => {
 
   it('titre, blocs, bouton « Suivant »', () => {
     const next = vi.fn();
-    const { container, getByText } = render(<LessonPartScreen part={part} onNext={next} header={<span className="chip chip--module">Cours 4, leçon</span>} />);
-    expect(container.querySelector('h1')!.textContent).toContain('Enlever une dette');
+    const { container, getByText } = render(<LessonPartScreen part={part} onNext={next} title="Soustraire" header={<span className="chip chip--module">Cours 4, leçon</span>} />);
+    expect(container.querySelector('h1')!.textContent).toBe('Soustraire');
+    expect(container.textContent).toContain('Enlever une dette');
     expect(container.querySelector('.chip--module')!.textContent).toBe('Cours 4, leçon');
     fireEvent.click(getByText('Suivant'));
     expect(next).toHaveBeenCalledTimes(1);

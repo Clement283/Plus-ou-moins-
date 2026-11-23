@@ -781,6 +781,8 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .anim-neg--1 .count{animation-delay:700ms}
 .anim-neg--2 .count{animation-delay:1600ms}
 .anim-neg .count{transform:none}
-@media (prefers-reduced-motion:reduce){
-  .anim *,.lesson-reveal,.anim-after{animation-delay:0s!important}
-}
+/* mouvement réduit : scènes figées à leur état final (classe is-static posée par le composant) */
+.is-static,.is-static *{animation:none!important;transition:none!important}
+.is-static .anim-enc--a,.is-static .anim-enc--b{box-shadow:inset 0 0 0 2px var(--primary)}
+.is-static .circled{box-shadow:inset 0 0 0 2px var(--error-ink)}
+.nl .number-line__num{font:400 13px var(--font-body)}

@@ -1,3 +1,4 @@
+import { staticClass } from './static';
 import { Icon } from '../../ui/Icon';
 
 /**
@@ -6,7 +7,7 @@ import { Icon } from '../../ui/Icon';
  */
 export function SignesQuiSeCognent() {
   return (
-    <div className="paper anim" data-anim="signes-qui-se-cognent" role="img" aria-label="Le signe × et le signe − se cognent : deux signes ne se suivent jamais">
+    <div className={`paper anim${staticClass()}`} data-anim="signes-qui-se-cognent" role="img" aria-label="Le signe × et le signe − se cognent : deux signes ne se suivent jamais">
       <p className="t-math-xl anim-row anim-row--burst" aria-hidden="true">
         <span>4</span>
         <span className="anim-clash anim-clash--l">×</span>

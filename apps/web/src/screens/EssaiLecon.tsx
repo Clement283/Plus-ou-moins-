@@ -24,7 +24,7 @@ export default function EssaiLecon() {
     <main className="app-body app-body--grow" data-screen="essai-lecon" style={{ padding: 0, gap: 0 }}>
       <AppBar onClose={() => history.back()} stepper={{ total, done, current: index }} />
       {part.type === 'explication' ? (
-        <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} />
+        <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} title={course.title} />
       ) : (
         <QuestionView key={`${course.id}-${index}`} question={part.question} course={course} locked={false} onAnswer={() => undefined} header={<div className="row">{header}</div>} />
       )}

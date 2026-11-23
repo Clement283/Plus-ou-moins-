@@ -4,6 +4,7 @@ import { Math } from '../ui/Math';
 import { Bold } from './Bold';
 import { NumberLine } from './NumberLine';
 import { ANIMS } from './anims';
+import { prefersReducedMotion } from './reducedMotion';
 
 type Mark = '✓' | '✗' | '~';
 const TONE_CLASS = { ok: 'ok', ko: 'ko', neutre: 'neutral' } as const;
@@ -27,8 +28,7 @@ function linesOf(b: Extract<LessonBlock, { t: 'text' }>): Line[] | null {
     const tone = markTone ?? b.tone;
     if (!tone) return null;
     const body = markTone ? p.slice(1).trim() : p;
-    const [main, ...rest] = body.split(' : ');
-    out.push({ cls: TONE_CLASS[tone], mark: TONE_MARK[tone], main: main!, note: rest.length ? rest.join(' : ') : null });
+    out.push({ cls: TONE_CLASS[tone], mark: TONE_MARK[tone], main: body, note: null });
   }
   return out;
 }
@@ -36,10 +36,11 @@ function linesOf(b: Extract<LessonBlock, { t: 'text' }>): Line[] | null {
 /** Les blocs d'une partie de leçon ; `colorize` : négatifs rouges, positifs bleus dans les calculs qui le demandent. */
 export function LessonBlocks({ blocks, colorize }: { blocks: LessonBlock[]; colorize: boolean }) {
   const out: ReactNode[] = [];
+  const reduced = prefersReducedMotion();
   let delay = 0; // les blocs après une animation attendent la fin de celle-ci
   blocks.forEach((b, i) => {
-    const reveal = delay > 0 ? { style: { animationDelay: `${delay}ms` } } : {};
-    const rv = delay > 0 ? ' lesson-reveal' : '';
+    const reveal = delay > 0 && !reduced ? { style: { animationDelay: `${delay}ms` } } : {};
+    const rv = delay > 0 && !reduced ? ' lesson-reveal' : '';
     switch (b.t) {
       case 'text': {
         const lines = linesOf(b);
@@ -95,19 +96,17 @@ export function LessonBlocks({ blocks, colorize }: { blocks: LessonBlock[]; colo
 type Explication = Extract<LessonPart, { type: 'explication' }>;
 
 /**
- * Une idée par écran (maquette `cours.html`, « La leçon ») : pastille du cours en tête (`header`), titre (première
- * phrase simple de la partie), blocs, puis « Suivant ». L'AppBar et sa barre d'étapes sont posées par l'écran appelant.
+ * Une idée par écran (maquette `cours.html`, « La leçon ») : pastille du cours en tête (`header`), titre = titre du
+ * cours (`title`), blocs du moteur tels quels et dans l'ordre, puis « Suivant ». L'AppBar et sa barre d'étapes sont
+ * posées par l'écran appelant.
  */
-export function LessonPartScreen({ part, onNext, header }: { part: Explication; onNext: () => void; header?: ReactNode }) {
-  const [first, ...rest] = part.blocks;
-  // Le titre : le premier bloc s'il est une phrase simple (ni gras, ni ✓/✗, ni ton). Sinon, tout est en blocs.
-  const asTitle = first?.t === 'text' && !first.tone && !first.text.includes('**') && !MARKS[first.text[0] ?? ''] ? first.text : null;
+export function LessonPartScreen({ part, onNext, header, title }: { part: Explication; onNext: () => void; header?: ReactNode; title?: string }) {
   return (
     <div className="lesson-screen">
       <div className="c-body">
         {header && <div className="row">{header}</div>}
-        {asTitle && <h1 className={asTitle.length > 60 ? 't-h4' : 't-h3'}>{asTitle}</h1>}
-        <LessonBlocks blocks={asTitle ? rest : part.blocks} colorize />
+        {title && <h1 className="t-h3">{title}</h1>}
+        <LessonBlocks blocks={part.blocks} colorize />
       </div>
       <div className="c-foot">
         <button className="btn btn--contained btn--block" type="button" onClick={onNext}>
