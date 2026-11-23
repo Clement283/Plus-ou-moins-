@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins · Design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
+<script src="number-line.js"></script>
+<style>
+/* habillage du guide uniquement ; composants et tokens dans styles.css */
+body{color:var(--on-surface);background:var(--bg);display:flex;min-height:100vh}
+nav.side{position:sticky;top:0;align-self:flex-start;height:100vh;width:220px;flex:0 0 220px;background:var(--surface);border-right:1px solid var(--border);padding:22px 14px;overflow:auto}
+nav.side .brand{font:700 20px var(--font-display);color:var(--on-surface);margin-bottom:4px}
+nav.side .brand-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+nav.side a{display:block;padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);text-decoration:none}
+nav.side a:hover{background:var(--bg);color:var(--primary-ink)}
+nav.side a.concept-link{margin:0 0 6px;padding:12px;font-weight:600;color:var(--on-primary);background:var(--primary);border-radius:12px}
+nav.side a.concept-link:hover{filter:brightness(.95);color:var(--on-primary)}
+nav.side .grp{font-size:12px;font-weight:600;color:var(--subtle);margin:16px 0 4px 10px}
+main{flex:1;min-width:0;padding:72px 40px 120px;max-width:1080px}
+section{margin-bottom:52px;scroll-margin-top:72px}
+h2.sec{font:700 22px var(--font-display);color:var(--on-surface);margin-bottom:6px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+h2.sec .mui{font:500 13px var(--font-body);color:var(--subtle)}
+.sec-desc{color:var(--muted);font-size:15px;margin-bottom:16px;max-width:680px;line-height:1.6}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;flex-wrap:wrap;gap:22px;align-items:center}
+.stage.paper-bg{background:var(--bg)}
+.stage.col{flex-direction:column;align-items:stretch}
+.cell{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.cell.wide{align-items:stretch;flex:1 1 280px}
+.spec{font-size:12px;color:var(--subtle)}
+.colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.sw{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.sw .c{height:56px;display:flex;align-items:flex-end;padding:6px 8px;font:600 13px var(--font-body)}
+.sw .m{padding:8px 10px}.sw .n{font-size:13px;font-weight:600}.sw .v{font-size:12px;color:var(--subtle);font-variant-numeric:tabular-nums}
+.typerow{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--border)}
+.typerow .tk{font-size:12px;color:var(--subtle)}
+.sprow{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sprow .bar{background:var(--primary);height:12px;border-radius:3px}.sprow .lbl{width:170px;font-size:13px;color:var(--muted)}
+.rad{width:72px;height:72px;background:var(--primary-container);border:2px solid var(--primary)}
+.elev{width:120px;height:80px;background:var(--surface);border-radius:var(--r-lg);display:grid;place-items:center;font-size:13px;color:var(--muted)}
+.iconGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.iconGrid .it{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--on-surface)}
+.iconGrid .it .nm{font-size:11px;color:var(--subtle)}
+.mini-screen{position:relative;width:300px;height:200px;background:var(--bg);border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+
+#topctl{position:fixed;top:14px;right:16px;z-index:50;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;align-items:center}
+#themeSel,#langSel{font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.ds-btn{font:600 13px var(--font-body);background:var(--surface);border:1px solid var(--primary);color:var(--primary-ink);border-radius:8px;padding:8px 12px;cursor:pointer}
+#devToggle{font:600 13px var(--font-body);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;color:var(--muted)}
+#devToggle.on{background:var(--primary);border-color:var(--primary-strong);color:var(--on-primary)}
+.sec-prompt{font:600 12px var(--font-body);border:1px solid var(--primary);background:var(--surface);color:var(--primary-ink);border-radius:8px;padding:3px 9px;cursor:pointer}
+body.dev [data-insp]:hover{outline:2px dashed var(--secondary);outline-offset:3px;cursor:pointer}
+.insp-sel{outline:2px solid var(--primary)!important;outline-offset:3px}
+#inspector{position:fixed;top:0;right:0;width:340px;max-width:100%;height:100vh;background:var(--surface);border-left:1px solid var(--border);box-shadow:var(--elev-3);transform:translateX(100%);transition:transform .28s var(--ease);z-index:49;overflow:auto;padding:64px 20px 40px}
+body.inspecting #inspector{transform:translateX(0)}
+body.inspecting main{margin-right:340px}
+#inspector .iclose{position:absolute;top:16px;right:16px;border:none;background:none;color:var(--muted);cursor:pointer}
+#inspector .nm{font:700 20px var(--font-display);color:var(--on-surface)}
+#inspector .file{font-size:12px;color:var(--subtle);margin-top:2px}
+#inspector .desc{font-size:14px;color:var(--muted);line-height:1.6;margin-top:10px}
+#inspector h4{font-size:12px;font-weight:600;color:var(--subtle);margin:20px 0 8px}
+.prop{padding:8px 0;border-bottom:1px solid var(--border-faint)}.prop .pn{font-weight:600;font-size:13px}.prop .pt{font-size:12px;color:var(--secondary-ink)}.prop .pdef{font-size:12px;color:var(--subtle)}
+.tok{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;cursor:pointer}.tok:hover{background:var(--bg)}
+.tok .tsw{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);flex:0 0 22px}.tok .tn{font-weight:600;font-size:12px}.tok .tr{font-size:11px;color:var(--muted)}.tok .tv{margin-left:auto;font-size:11px;color:var(--subtle);text-align:right}
+.metric{display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:5px 0;border-bottom:1px dashed var(--border-faint)}.metric .mk{color:var(--muted)}
+.copyprompt{width:100%;margin-top:16px;font:600 14px var(--font-body);background:var(--primary);color:var(--on-primary);border:none;border-radius:10px;padding:12px;cursor:pointer}
+.copied{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--on-surface);color:var(--surface);font-size:13px;padding:8px 16px;border-radius:8px;opacity:0;transition:.2s;z-index:60;pointer-events:none}.copied.show{opacity:.95}
+
+/* téléphone : la barre latérale devient une bande défilante en haut */
+@media (max-width:820px){
+  body{display:block}
+  nav.side{position:sticky;top:0;z-index:40;width:auto;height:auto;display:flex;gap:4px;align-items:center;overflow-x:auto;padding:10px max(16px,env(safe-area-inset-left,0px));border-right:0;border-bottom:1px solid var(--border);white-space:nowrap}
+  nav.side .brand,nav.side .brand-sub,nav.side .grp{display:none}
+  nav.side a{flex:none}
+  nav.side a.concept-link{margin:0 6px 0 0;padding:8px 12px}
+  #topctl{position:static;justify-content:flex-start;padding:12px max(16px,env(safe-area-inset-left,0px)) 0}
+  main{padding:20px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px))}
+  #devToggle,#langSel{display:none}
+  .typerow{grid-template-columns:1fr;gap:4px}
+  body.inspecting main{margin-right:0}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7.5 12h9M12 7.5v9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.7L16 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+</svg>
+
+<div id="topctl">
+  <button class="ds-btn" type="button" onclick="copyFullSystem()" title="Copier une consigne pour installer ou mettre à jour tout le design system">⤓ Installer le design system</button>
+  <select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+  <select id="langSel" title="Langage cible des consignes" aria-label="Langage cible"></select>
+  <button id="devToggle" type="button" onclick="toggleDev()">◧ Mode inspection</button>
+</div>
+<aside id="inspector"><button class="iclose" type="button" onclick="closeInspector()" aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button><div id="inspectorBody"></div></aside>
+<div class="copied" id="copied">Copié</div>
+
+<nav class="side" aria-label="Sommaire">
+  <div class="brand">Plus ou moins</div>
+  <div class="brand-sub">Design system « Cahier au propre »</div>
+  <a class="concept-link" href="concept.html">Voir les 2 écrans concept</a>
+  <div class="grp">Fondations</div>
+  <a href="#colors">Couleurs</a><a href="#typography">Typographie</a><a href="#spacing">Espacements</a><a href="#radius">Rayons</a><a href="#elevation">Relief</a><a href="#icon">Icônes</a>
+  <div class="grp">Propres à l'appli</div>
+  <a href="#numberLine">Droite graduée</a><a href="#courseChip">Pastille de cours</a><a href="#answerField">Champ de réponse</a><a href="#keypad">Clavier maths</a><a href="#choice">Choix de QCM</a><a href="#lessonLine">Ligne de leçon</a><a href="#streak">Série</a>
+  <div class="grp">Saisie</div>
+  <a href="#button">Bouton</a><a href="#buttonGroup">Groupe de boutons</a><a href="#iconButton">Bouton icône</a><a href="#fab">Bouton flottant</a><a href="#checkbox">Case à cocher</a><a href="#radio">Bouton radio</a><a href="#switch">Interrupteur</a><a href="#select">Liste déroulante</a><a href="#autocomplete">Saisie assistée</a><a href="#slider">Curseur</a><a href="#textField">Champ texte</a><a href="#toggleButton">Bouton bascule</a><a href="#rating">Étoiles</a>
+  <div class="grp">Affichage</div>
+  <a href="#avatar">Avatar</a><a href="#badge">Pastille de nombre</a><a href="#chip">Étiquette</a><a href="#divider">Séparateur</a><a href="#list">Liste</a><a href="#table">Tableau</a><a href="#tooltip">Info-bulle</a>
+  <div class="grp">Retours</div>
+  <a href="#alert">Message de retour</a><a href="#dialog">Fenêtre</a><a href="#snackbar">Notification</a><a href="#progress">Progression</a><a href="#skeleton">Chargement</a><a href="#backdrop">Voile</a>
+  <div class="grp">Surfaces</div>
+  <a href="#appBar">Barre du haut</a><a href="#card">Carte</a><a href="#paper">Feuille</a><a href="#accordion">Accordéon</a>
+  <div class="grp">Navigation</div>
+  <a href="#bottomNav">Barre du bas</a><a href="#drawer">Tiroir</a><a href="#tabs">Onglets</a><a href="#menu">Menu</a><a href="#link">Lien</a><a href="#stepper">Étapes</a><a href="#speedDial">Actions rapides</a>
+</nav>
+
+<main>
+  <header style="margin-bottom:40px">
+    <div class="t-h1">Plus ou moins · Design system</div>
+    <p class="sec-desc" style="margin-top:8px">Proposition : pour une collégienne qui révise ses nombres relatifs, un cahier tenu au propre. Papier légèrement bleuté, encre indigo pour agir, vert juste et rouge du prof pour corriger, corail pour le module Calculs. Un seul motif fort : la droite graduée. Tous les styles viennent de <code>styles.css</code>. Le <b>mode inspection</b> montre les tokens de chaque composant.</p>
+  </header>
+
+  <!-- ================= FONDATIONS ================= -->
+  <section id="colors"><h2 class="sec">Couleurs</h2>
+    <p class="sec-desc">Chaque fond a sa couleur de texte associée (contraste vérifié au calcul, ≥ 4,5:1 pour le texte). Le rouge et le vert ne servent qu'au juste / faux. Le corail est la couleur du module Calculs : chaque module aura la sienne.</p>
+    <div class="colors" id="colorGrid"></div></section>
+
+  <section id="typography"><h2 class="sec">Typographie <span class="mui">Typography</span></h2>
+    <p class="sec-desc">Une seule police, Lexend, choisie pour la lecture (lettres espacées, chiffres nets). Pas de majuscules forcées. Le signe moins est toujours « − » (aussi large que « + »), jamais un tiret.</p>
+    <div id="typeList" data-insp="typography"></div></section>
+
+  <section id="spacing"><h2 class="sec">Espacements</h2>
+    <p class="sec-desc">Une échelle de 4 en 4. Trois rôles : éléments liés (8), groupes (16), grandes parties (24). Marge d'écran 16. Cible tactile 48, bouton principal 56.</p>
+    <div id="spacingList"></div></section>
+
+  <section id="radius"><h2 class="sec">Rayons</h2>
+    <p class="sec-desc">La forme dit le rôle : 24 pour les cartes posées sur le papier, 14 pour les boutons et champs, 10 pour les pastilles, rond pour les étiquettes.</p>
+    <div class="stage" id="radiusList"></div></section>
+
+  <section id="elevation"><h2 class="sec">Relief</h2>
+    <p class="sec-desc">Ombre douce, réservée aux cartes posées sur le papier (niveau 1) et aux éléments qui flottent (menus 2, fenêtres 3). Pas de bordure en plus de l'ombre.</p>
+    <div class="stage paper-bg">
+      <div class="cell"><div class="elev" style="box-shadow:var(--elev-0);border:1px solid var(--border)">0 · à plat</div><div class="spec">--elev-0</div></div>
+      <div class="cell"><div class="elev" style="box-shadow:var(--elev-1)">1 · carte</div><div class="spec">--elev-1</div></div>
+      <div class="cell"><div class="elev" style="box-shadow:var(--elev-2)">2 · menu</div><div class="spec">--elev-2</div></div>
+      <div class="cell"><div class="elev" style="box-shadow:var(--elev-3)">3 · fenêtre</div><div class="spec">--elev-3</div></div>
+    </div></section>
+
+  <section id="icon"><h2 class="sec">Icônes <span class="mui">Icon</span></h2>
+    <p class="sec-desc">Trait arrondi de 2, dans le style des jeux d'icônes ouverts (Lucide, Material Symbols). Jamais d'emoji pour l'interface. Usage : <code>&lt;svg class="ico"&gt;&lt;use href="#i-home"/&gt;&lt;/svg&gt;</code>.</p>
+    <div class="iconGrid" id="iconGrid" data-insp="icon"></div></section>
+
+  <!-- ================= PROPRES À L'APPLI ================= -->
+  <section id="numberLine"><h2 class="sec">Droite graduée</h2>
+    <p class="sec-desc">La jauge du jour, prise dans le cours lui-même. Une graduation par minute, l'objectif de 15 min en vert. Au-delà, la droite s'allonge et le curseur passe au vert.</p>
+    <div class="stage col">
+      <div class="cell wide"><div id="nl0" data-insp="numberLine"></div><div class="spec">0 min</div></div>
+      <div class="cell wide"><div id="nl8" data-insp="numberLine"></div><div class="spec">8 / 15 min</div></div>
+      <div class="cell wide"><div id="nl22" data-insp="numberLine"></div><div class="spec">22 / 15 min, objectif atteint</div></div>
+    </div></section>
+
+  <section id="courseChip"><h2 class="sec">Pastille de cours</h2>
+    <p class="sec-desc">Cinq états. Les étoiles montrent le meilleur niveau atteint et ne se perdent jamais. « À rattraper » est distinct de « à faire ».</p>
+    <div class="stage">
+      <div class="cell"><div class="course-chip" data-insp="courseChip"><b>0</b><span class="rating rating--sm" aria-label="3 étoiles"><svg class="ico"><use href="#i-star"/></svg><svg class="ico"><use href="#i-star"/></svg><svg class="ico"><use href="#i-star"/></svg></span></div><div class="spec">validé ★★★</div></div>
+      <div class="cell"><div class="course-chip" data-insp="courseChip"><b>3</b><span class="rating rating--sm" aria-label="1 étoile"><svg class="ico"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg></span></div><div class="spec">validé ★</div></div>
+      <div class="cell"><div class="course-chip is-todo" data-insp="courseChip"><b>4</b>à faire</div><div class="spec">à faire</div></div>
+      <div class="cell"><div class="course-chip is-retry" data-insp="courseChip"><b>4</b>à rattraper</div><div class="spec">à rattraper</div></div>
+      <div class="cell"><div class="course-chip is-locked" data-insp="courseChip"><b>5</b><svg class="ico ico--sm" style="color:var(--subtle)" aria-label="verrouillé"><use href="#i-lock"/></svg></div><div class="spec">verrouillé</div></div>
+      <div class="cell"><div class="course-num" data-insp="courseChip">4</div><div class="spec">numéro (carte)</div></div>
+      <div class="cell"><div class="course-num is-retry" data-insp="courseChip">4</div><div class="spec">numéro, à rattraper</div></div>
+    </div></section>
+
+  <section id="answerField"><h2 class="sec">Champ de réponse</h2>
+    <p class="sec-desc">Elle tape avec le clavier maths. Rien n'est corrigé ni déplacé automatiquement ; la seule mise en forme est la fraction empilée, qu'elle pose elle-même.</p>
+    <div class="stage">
+      <div class="cell wide"><div class="answer answer--empty" data-insp="answerField">Ta réponse</div><div class="spec">vide</div></div>
+      <div class="cell wide"><div class="answer" data-insp="answerField"><span class="math">−12</span><span class="answer__caret"></span></div><div class="spec">en cours</div></div>
+      <div class="cell wide"><div class="answer" data-insp="answerField"><span>−</span><span class="frac"><span>3</span><span class="is-slot is-active"></span></span></div><div class="spec">fraction, dénominateur actif</div></div>
+      <div class="cell wide"><div class="answer answer--success" data-insp="answerField"><span class="math">12</span></div><div class="spec">juste</div></div>
+      <div class="cell wide"><div class="answer answer--error" data-insp="answerField"><span class="math">−12</span></div><div class="spec">faux</div></div>
+    </div></section>
+
+  <section id="keypad"><h2 class="sec">Clavier maths</h2>
+    <p class="sec-desc">0 à 9, −, ( ), fraction, → pour passer au dénominateur puis sortir, effacer, Valider. Valider est actif dès qu'il y a au moins un caractère. Le clavier complet sera validé avec son écran.</p>
+    <div class="stage" style="justify-content:center">
+      <div style="width:100%;max-width:360px" data-insp="keypad">
+        <div class="keypad">
+          <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button><button class="key key--fn" type="button" aria-label="Effacer"><svg class="ico"><use href="#i-backspace"/></svg></button>
+          <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button><button class="key key--sign" type="button" aria-label="moins">−</button>
+          <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button><button class="key key--fn" type="button" aria-label="fraction"><span class="frac-icon"><i></i><span></span><i></i></span></button>
+          <button class="key" type="button">(</button><button class="key" type="button">0</button><button class="key" type="button">)</button><button class="key key--fn" type="button" aria-label="case suivante"><svg class="ico"><use href="#i-arrow-right"/></svg></button>
+          <button class="key key--submit key--wide" type="button" style="grid-column:span 4">Valider</button>
+        </div>
+      </div>
+    </div></section>
+
+  <section id="choice"><h2 class="sec">Choix de QCM</h2>
+    <p class="sec-desc">Quatre réponses en grille 2 × 2. Elle touche, puis valide. Après correction : la bonne en vert, la sienne en rouge si elle s'est trompée.</p>
+    <div class="stage">
+      <div class="cell wide"><div class="choice-grid" data-insp="choice"><button class="choice" type="button">9</button><button class="choice is-selected" type="button">−9</button><button class="choice" type="button">6</button><button class="choice" type="button">−6</button></div><div class="spec">sélection</div></div>
+      <div class="cell wide"><div class="choice-grid" data-insp="choice"><button class="choice is-correct" type="button">9</button><button class="choice is-wrong" type="button">−9</button><button class="choice" type="button">6</button><button class="choice" type="button">−6</button></div><div class="spec">après correction</div></div>
+    </div></section>
+
+  <section id="lessonLine"><h2 class="sec">Ligne de leçon</h2>
+    <p class="sec-desc">Exemple ✓ en vert, contre-exemple ✗ en rouge, et « pas faux, mais inutile » en gris (doc 07 n° 8).</p>
+    <div class="stage col" data-insp="lessonLine">
+      <div class="lesson-line lesson-line--ok"><span class="lesson-line__mark">✓</span><span>−3 + 5</span></div>
+      <div class="lesson-line lesson-line--neutral"><span class="lesson-line__mark">~</span><span>(−3) + 5</span><span class="lesson-line__note">pas faux, mais inutile</span></div>
+      <div class="lesson-line lesson-line--ko"><span class="lesson-line__mark">✗</span><span>4 × −3</span><span class="lesson-line__note">il faut des parenthèses</span></div>
+    </div></section>
+
+  <section id="streak"><h2 class="sec">Série</h2>
+    <p class="sec-desc">Les jours d'affilée où l'objectif a été atteint (doc 05). À confirmer : affichée aussi sur l'accueil de l'élève.</p>
+    <div class="stage"><div class="cell"><span class="streak" data-insp="streak"><svg class="ico"><use href="#i-flame"/></svg>6 jours</span><div class="spec">série</div></div></div></section>
+
+  <!-- ================= SAISIE ================= -->
+  <section id="button"><h2 class="sec">Bouton <span class="mui">Button</span></h2>
+    <p class="sec-desc">56 de haut pour le pouce. Un seul bouton principal par écran. « Passer » est volontairement discret (doc 01).</p>
+    <div class="stage">
+      <div class="cell"><button class="btn btn--contained" type="button" data-insp="button">Réviser</button><div class="spec">contained · principal</div></div>
+      <div class="cell"><button class="btn btn--ink" type="button" data-insp="button">Commencer le cours 4</button><div class="spec">contained · encre</div></div>
+      <div class="cell"><button class="btn btn--outlined" type="button" data-insp="button">Relire la leçon</button><div class="spec">outlined</div></div>
+      <div class="cell"><button class="btn btn--text" type="button" data-insp="button">Passer</button><div class="spec">text</div></div>
+      <div class="cell"><button class="btn btn--contained" type="button" disabled data-insp="button">Valider</button><div class="spec">désactivé</div></div>
+      <div class="cell"><button class="btn btn--contained btn--sm" type="button" data-insp="button">Continuer</button><div class="spec">petit</div></div>
+      <div class="cell" style="background:var(--primary);padding:14px;border-radius:16px"><button class="btn btn--inverse" type="button" data-insp="button">Encore des révisions</button><div class="spec" style="color:var(--on-primary)">sur carte indigo</div></div>
+    </div></section>
+
+  <section id="buttonGroup"><h2 class="sec">Groupe de boutons <span class="mui">Button group</span></h2>
+    <p class="sec-desc">Pour choisir un filtre court, par exemple dans l'entraînement.</p>
+    <div class="stage"><div class="btn-group" data-insp="buttonGroup"><button class="btn is-selected" type="button">Niveau 1</button><button class="btn" type="button">Niveau 2</button><button class="btn" type="button">Niveau 3</button></div></div></section>
+
+  <section id="iconButton"><h2 class="sec">Bouton icône <span class="mui">Icon button</span></h2>
+    <p class="sec-desc">Glyphe 24 dans une cible de 48.</p>
+    <div class="stage">
+      <div class="cell"><button class="icon-btn" type="button" aria-label="Retour" data-insp="iconButton"><svg class="ico"><use href="#i-back"/></svg></button><div class="spec">standard</div></div>
+      <div class="cell"><button class="icon-btn icon-btn--tonal" type="button" aria-label="Relire" data-insp="iconButton"><svg class="ico"><use href="#i-eye"/></svg></button><div class="spec">tonal</div></div>
+      <div class="cell"><button class="icon-btn icon-btn--filled" type="button" aria-label="Commencer" data-insp="iconButton"><svg class="ico"><use href="#i-chevron-right"/></svg></button><div class="spec">plein</div></div>
+      <div class="cell"><button class="icon-btn" type="button" aria-label="Fermer" disabled data-insp="iconButton"><svg class="ico"><use href="#i-close"/></svg></button><div class="spec">désactivé</div></div>
+    </div></section>
+
+  <section id="fab"><h2 class="sec">Bouton flottant <span class="mui">Floating action button</span></h2>
+    <p class="sec-desc">Pas utilisé à l'étape 1 (une action principale reste dans la page). Gardé pour plus tard.</p>
+    <div class="stage">
+      <div class="cell"><button class="fab" type="button" aria-label="S'entraîner" data-insp="fab"><svg class="ico"><use href="#i-practice"/></svg></button><div class="spec">normal</div></div>
+      <div class="cell"><button class="fab fab--sm" type="button" aria-label="S'entraîner" data-insp="fab"><svg class="ico"><use href="#i-practice"/></svg></button><div class="spec">petit</div></div>
+      <div class="cell"><button class="fab" type="button" data-insp="fab"><svg class="ico"><use href="#i-practice"/></svg>S'entraîner</button><div class="spec">étendu</div></div>
+    </div></section>
+
+  <section id="checkbox"><h2 class="sec">Case à cocher <span class="mui">Checkbox</span></h2>
+    <p class="sec-desc">Par exemple pour choisir les cours d'un entraînement.</p>
+    <div class="stage" data-insp="checkbox">
+      <label class="check"><input type="checkbox" checked> Cours 1</label>
+      <label class="check"><input type="checkbox"> Cours 2</label>
+      <label class="check"><input type="checkbox" id="cbInd"> Tout le module</label>
+      <label class="check"><input type="checkbox" disabled> Cours 5 (verrouillé)</label>
+    </div></section>
+
+  <section id="radio"><h2 class="sec">Bouton radio <span class="mui">Radio group</span></h2>
+    <div class="stage" data-insp="radio" role="radiogroup" aria-label="Durée">
+      <label class="radio"><input type="radio" name="r1" checked> 5 minutes</label>
+      <label class="radio"><input type="radio" name="r1"> 10 minutes</label>
+      <label class="radio"><input type="radio" name="r1" disabled> 20 minutes</label>
+    </div></section>
+
+  <section id="switch"><h2 class="sec">Interrupteur <span class="mui">Switch</span></h2>
+    <div class="stage" data-insp="switch">
+      <label class="switch"><input type="checkbox" checked> Sons</label>
+      <label class="switch"><input type="checkbox"> Mode sombre</label>
+    </div></section>
+
+  <section id="select"><h2 class="sec">Liste déroulante <span class="mui">Select</span></h2>
+    <div class="stage"><div class="cell wide"><label class="field" data-insp="select"><span class="field__label">Module</span><span class="field__box"><select><option>Calculs</option></select><svg class="ico" style="color:var(--muted)"><use href="#i-chevron-down"/></svg></span></label></div></div></section>
+
+  <section id="autocomplete"><h2 class="sec">Saisie assistée <span class="mui">Autocomplete</span></h2>
+    <p class="sec-desc">Réservée à la page de suivi (chercher un calcul raté).</p>
+    <div class="stage"><div class="cell wide" data-insp="autocomplete"><label class="field"><span class="field__label">Chercher un cours</span><span class="field__box is-focused"><svg class="ico" style="color:var(--muted)"><use href="#i-search"/></svg><input value="sous"></span></label>
+      <div class="autocomplete__list" style="margin-top:6px"><span class="is-active">Cours 4 · Soustraire, c'est ajouter l'opposé</span><span>Cours 2 · Additionner deux nombres de signes contraires</span></div></div></div></section>
+
+  <section id="slider"><h2 class="sec">Curseur <span class="mui">Slider</span></h2>
+    <p class="sec-desc">Réservé (réglages). Les sliders ne servent jamais à répondre à une question.</p>
+    <div class="stage"><div class="cell wide"><input class="slider" type="range" min="5" max="30" value="15" style="--v:40%" aria-label="Objectif en minutes" data-insp="slider"><div class="spec">objectif : 15 min</div></div></div></section>
+
+  <section id="textField"><h2 class="sec">Champ texte <span class="mui">Text field</span></h2>
+    <p class="sec-desc">Sert surtout à la connexion par code (insensible aux majuscules et aux espaces).</p>
+    <div class="stage">
+      <div class="cell wide"><label class="field" data-insp="textField"><span class="field__label">Ton code</span><span class="field__box"><input class="field__code" placeholder="ABCD-1234"></span><span class="field__help">Le code donné par tes parents.</span></label><div class="spec">outlined · vide</div></div>
+      <div class="cell wide"><label class="field" data-insp="textField"><span class="field__label">Ton code</span><span class="field__box is-focused"><input class="field__code" value="lune-42"></span><span class="field__help">&nbsp;</span></label><div class="spec">focus</div></div>
+      <div class="cell wide"><label class="field" data-insp="textField"><span class="field__label">Ton code</span><span class="field__box is-error"><input class="field__code" value="lune-24"></span><span class="field__help is-error">Ce code n'existe pas. Vérifie-le avec tes parents.</span></label><div class="spec">erreur</div></div>
+      <div class="cell wide"><label class="field" data-insp="textField"><span class="field__label">Ton code</span><span class="field__box field__box--filled"><input class="field__code" value="lune-42"></span></label><div class="spec">filled</div></div>
+      <div class="cell wide"><label class="field" data-insp="textField"><span class="field__label">Ton code</span><span class="field__box field__box--standard"><input class="field__code" value="lune-42"></span></label><div class="spec">standard</div></div>
+      <div class="cell wide"><label class="field" data-insp="textField"><span class="field__label">Ton code</span><span class="field__box is-disabled"><input class="field__code" value="lune-42" disabled></span></label><div class="spec">désactivé</div></div>
+    </div></section>
+
+  <section id="toggleButton"><h2 class="sec">Bouton bascule <span class="mui">Toggle button</span></h2>
+    <p class="sec-desc">Pour les questions « vrai ou faux » (doc 04).</p>
+    <div class="stage"><div class="cell wide"><div class="toggle-group" data-insp="toggleButton"><button class="toggle is-selected" type="button" aria-pressed="true">Vrai</button><button class="toggle" type="button" aria-pressed="false">Faux</button></div></div></div></section>
+
+  <section id="rating"><h2 class="sec">Étoiles <span class="mui">Rating</span></h2>
+    <p class="sec-desc">Lecture seule, 3 étoiles au plus : ★ cours validé, ★★ étape B, ★★★ étape D (doc 01).</p>
+    <div class="stage">
+      <div class="cell"><span class="rating" aria-label="1 étoile sur 3" data-insp="rating"><svg class="ico"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg></span><div class="spec">1 / 3</div></div>
+      <div class="cell"><span class="rating" aria-label="2 étoiles sur 3" data-insp="rating"><svg class="ico"><use href="#i-star"/></svg><svg class="ico"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg></span><div class="spec">2 / 3</div></div>
+      <div class="cell"><span class="rating" aria-label="3 étoiles sur 3" data-insp="rating"><svg class="ico"><use href="#i-star"/></svg><svg class="ico"><use href="#i-star"/></svg><svg class="ico"><use href="#i-star"/></svg></span><div class="spec">3 / 3</div></div>
+    </div></section>
+
+  <!-- ================= AFFICHAGE ================= -->
+  <section id="avatar"><h2 class="sec">Avatar <span class="mui">Avatar</span></h2>
+    <p class="sec-desc">Page de suivi : l'initiale de l'élève.</p>
+    <div class="stage"><span class="avatar" data-insp="avatar">L</span><span class="avatar avatar--lg" data-insp="avatar">L</span></div></section>
+
+  <section id="badge"><h2 class="sec">Pastille de nombre <span class="mui">Badge</span></h2>
+    <div class="stage">
+      <div class="cell"><span class="badge-wrap" data-insp="badge"><span class="icon-btn"><svg class="ico"><use href="#i-review"/></svg></span><span class="badge">5</span></span><div class="spec">nombre</div></div>
+      <div class="cell"><span class="badge-wrap" data-insp="badge"><span class="icon-btn"><svg class="ico"><use href="#i-chart"/></svg></span><span class="badge badge--dot"></span></span><div class="spec">point</div></div>
+    </div></section>
+
+  <section id="chip"><h2 class="sec">Étiquette <span class="mui">Chip</span></h2>
+    <div class="stage" data-insp="chip">
+      <span class="chip">Niveau 1</span><span class="chip chip--selected"><svg class="ico"><use href="#i-check"/></svg>Niveau 2</span>
+      <span class="chip chip--module">Calculs</span><span class="chip chip--success">Validé</span><span class="chip chip--error"><svg class="ico"><use href="#i-warning"/></svg>À rattraper</span><span class="chip chip--neutral">Passé</span>
+    </div></section>
+
+  <section id="divider"><h2 class="sec">Séparateur <span class="mui">Divider</span></h2>
+    <div class="stage col" data-insp="divider"><hr class="divider"><div class="spec">plein</div><hr class="divider divider--inset"><div class="spec">en retrait</div></div></section>
+
+  <section id="list"><h2 class="sec">Liste <span class="mui">List</span></h2>
+    <p class="sec-desc">Écran « Mes cours ».</p>
+    <div class="stage paper-bg"><div class="list" style="width:100%;max-width:400px" data-insp="list">
+      <a class="list-item" href="#list"><span class="course-num" style="width:44px;height:44px;font-size:20px">3</span><span class="list-item__text"><span class="list-item__title">Additionner des relatifs</span><span class="rating rating--sm"><svg class="ico"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg></span></span><span class="list-item__trail"><svg class="ico"><use href="#i-chevron-right"/></svg></span></a>
+      <a class="list-item" href="#list"><span class="course-num" style="width:44px;height:44px;font-size:20px">4</span><span class="list-item__text"><span class="list-item__title">Soustraire, c'est ajouter l'opposé</span><span class="list-item__sub">À faire</span></span><span class="list-item__trail"><svg class="ico"><use href="#i-chevron-right"/></svg></span></a>
+      <div class="list-item is-locked"><span class="course-chip is-locked" style="width:44px;height:44px;padding:0;display:grid;place-items:center"><svg class="ico ico--sm" style="color:var(--subtle)"><use href="#i-lock"/></svg></span><span class="list-item__text"><span class="list-item__title">Multiplier deux relatifs</span><span class="list-item__sub">Se débloque après le cours 4</span></span></div>
+    </div></div></section>
+
+  <section id="table"><h2 class="sec">Tableau <span class="mui">Table</span></h2>
+    <p class="sec-desc">Page de suivi (parent) : défile horizontalement dans son cadre si besoin.</p>
+    <div class="table-wrap" data-insp="table"><table class="table">
+      <thead><tr><th>Cours</th><th>Étoiles</th><th>Niveau actuel</th><th>Prochaine révision</th></tr></thead>
+      <tbody><tr><td>1 · Même signe</td><td>★★</td><td>2</td><td>jeudi 26 nov.</td></tr><tr><td>3 · Soustraire</td><td>★</td><td>1</td><td>demain</td></tr><tr><td>4 · Opposé</td><td>—</td><td>à rattraper</td><td>—</td></tr></tbody>
+    </table></div></section>
+
+  <section id="tooltip"><h2 class="sec">Info-bulle <span class="mui">Tooltip</span></h2>
+    <div class="stage" style="padding-top:28px"><span class="tooltip" data-insp="tooltip">Une étoile de plus à la prochaine révision réussie.</span></div></section>
+
+  <!-- ================= RETOURS ================= -->
+  <section id="alert"><h2 class="sec">Message de retour <span class="mui">Alert</span></h2>
+    <p class="sec-desc">Après chaque réponse. Le message d'erreur explique, sans gronder.</p>
+    <div class="stage col" data-insp="alert">
+      <div class="alert alert--success"><svg class="ico"><use href="#i-check-circle"/></svg><span class="alert__title">Juste !</span><span class="math">−3 × (−4) = 12</span></div>
+      <div class="alert alert--error"><svg class="ico"><use href="#i-x-circle"/></svg><span class="alert__title">Pas tout à fait</span><span>Tu as répondu <span class="math">−12</span>. Moins par moins donne plus : <span class="math">−3 × (−4) = 12</span>.</span></div>
+      <div class="alert alert--neutral"><svg class="ico"><use href="#i-info"/></svg><span class="alert__title">Calcul pas fini</span><span>Ta réponse doit être un seul nombre.</span></div>
+      <div class="alert alert--info"><svg class="ico"><use href="#i-info"/></svg><span class="alert__title">Juste !</span><span>On écrit simplement <span class="math">−7</span>.</span></div>
+    </div></section>
+
+  <section id="dialog"><h2 class="sec">Fenêtre <span class="mui">Dialog</span></h2>
+    <div class="stage paper-bg" style="justify-content:center"><div class="dialog" data-insp="dialog">
+      <div class="t-h5">Arrêter le cours ?</div><p class="t-body2">Tu reprendras à la question 7. Ce que tu as fait est gardé.</p>
+      <div class="dialog__actions"><button class="btn btn--contained btn--block" type="button">Continuer le cours</button><button class="btn btn--outlined btn--block" type="button">Arrêter pour l'instant</button></div>
+    </div></div></section>
+
+  <section id="snackbar"><h2 class="sec">Notification <span class="mui">Snackbar</span></h2>
+    <div class="stage col">
+      <div class="snackbar" data-insp="snackbar">Pas de connexion. Tes réponses sont gardées et partiront plus tard.</div>
+      <div class="snackbar" data-insp="snackbar">Cours 4 validé.<button class="snackbar__action" type="button">Voir</button></div>
+    </div></section>
+
+  <section id="progress"><h2 class="sec">Progression <span class="mui">Progress</span></h2>
+    <div class="stage col">
+      <div data-insp="progress"><div class="progress" style="--v:60%"><i></i></div><div class="spec" style="margin-top:6px">linéaire : question 9 sur 15</div></div>
+      <div data-insp="progress"><div class="progress progress--module" style="--v:50%"><i></i></div><div class="spec" style="margin-top:6px">module Calculs : 4 cours sur 8</div></div>
+      <div data-insp="progress"><div class="progress progress--indeterminate"><i></i></div><div class="spec" style="margin-top:6px">indéterminée</div></div>
+      <div class="row" data-insp="progress"><span class="spinner" role="status" aria-label="Chargement"></span><span class="spec">circulaire</span></div>
+    </div></section>
+
+  <section id="skeleton"><h2 class="sec">Chargement <span class="mui">Skeleton</span></h2>
+    <div class="stage paper-bg"><div class="card" style="width:100%;max-width:360px" data-insp="skeleton"><div class="skeleton" style="height:20px;width:60%"></div><div class="skeleton" style="height:14px;width:90%"></div><div class="skeleton" style="height:56px;border-radius:var(--r-md)"></div></div></div></section>
+
+  <section id="backdrop"><h2 class="sec">Voile <span class="mui">Backdrop</span></h2>
+    <div class="stage"><div class="mini-screen" data-insp="backdrop"><div style="padding:16px" class="t-body2">Fond de l'écran</div><div class="backdrop"><span class="spinner"></span></div></div></div></section>
+
+  <!-- ================= SURFACES ================= -->
+  <section id="appBar"><h2 class="sec">Barre du haut <span class="mui">App bar</span></h2>
+    <p class="sec-desc">Pendant un cours ou une révision : quitter, progression, numéro de question.</p>
+    <div class="stage col"><div class="appbar paper" style="padding-right:12px" data-insp="appBar"><button class="icon-btn" type="button" aria-label="Quitter"><svg class="ico"><use href="#i-close"/></svg></button><div class="progress" style="--v:60%"><i></i></div><span class="t-caption math">9 / 15</span></div>
+      <div class="appbar paper" data-insp="appBar"><button class="icon-btn" type="button" aria-label="Retour"><svg class="ico"><use href="#i-back"/></svg></button><span class="appbar__title">Mes cours</span><button class="icon-btn" type="button" aria-label="Plus"><svg class="ico"><use href="#i-more-v"/></svg></button></div></div></section>
+
+  <section id="card"><h2 class="sec">Carte <span class="mui">Card</span></h2>
+    <p class="sec-desc">Trois variantes : la carte blanche posée sur le papier, la carte forte indigo (une seule par écran), la carte « fait » en vert pâle.</p>
+    <div class="stage paper-bg" style="align-items:flex-start">
+      <div class="card" style="flex:1 1 260px" data-insp="card"><div class="row" style="gap:14px;align-items:flex-start"><span class="course-num">4</span><div><div class="t-subtitle2" style="color:var(--secondary-ink)">Prochain cours</div><div class="t-h4">Soustraire, c'est ajouter l'opposé</div><div class="t-body2 math" style="margin-top:4px">5 − (−3) = 5 + 3</div></div></div><button class="btn btn--ink btn--block" type="button">Commencer le cours 4</button></div>
+      <div class="card card--feature" style="flex:1 1 260px" data-insp="card"><span class="card__eyebrow"><svg class="ico ico--sm"><use href="#i-review"/></svg>Révisions du jour</span><div class="t-h3">5 révisions à faire</div><div class="card__meta">15 questions, environ 5 minutes</div><button class="btn btn--inverse btn--block" type="button" style="margin-top:12px">Réviser</button></div>
+      <div class="card card--done" style="flex:1 1 260px" data-insp="card"><span class="card__eyebrow"><svg class="ico ico--sm"><use href="#i-check"/></svg>Révisions faites</span><div class="t-h4">Tout est révisé pour aujourd'hui</div><div class="card__meta">Pour continuer, entraîne-toi sur les cours de ton choix.</div><button class="btn btn--outlined btn--block" type="button" style="margin-top:12px">S'entraîner</button></div>
+    </div></section>
+
+  <section id="paper"><h2 class="sec">Feuille <span class="mui">Paper</span></h2>
+    <p class="sec-desc">Surface blanche sans ombre, pour grouper (listes, barres).</p>
+    <div class="stage paper-bg"><div class="paper" style="padding:16px;width:240px" data-insp="paper"><span class="t-body2">Surface blanche, rayon 24.</span></div></div></section>
+
+  <section id="accordion"><h2 class="sec">Accordéon <span class="mui">Accordion</span></h2>
+    <p class="sec-desc">Relire une partie de la leçon sans tout dérouler.</p>
+    <div class="accordion" style="max-width:480px" data-insp="accordion">
+      <details open><summary>La règle<svg class="ico"><use href="#i-chevron-down"/></svg></summary><div class="accordion__body">Soustraire un nombre, c'est ajouter son opposé : <span class="math">5 − (−3) = 5 + 3 = 8</span>.</div></details>
+      <details><summary>Exemples guidés<svg class="ico"><use href="#i-chevron-down"/></svg></summary><div class="accordion__body">3 exemples à compléter.</div></details>
+    </div></section>
+
+  <!-- ================= NAVIGATION ================= -->
+  <section id="bottomNav"><h2 class="sec">Barre du bas <span class="mui">Bottom navigation</span></h2>
+    <div class="stage"><nav class="bottomnav" style="width:100%;max-width:400px;border-radius:16px" aria-label="Navigation" data-insp="bottomNav">
+      <a class="bottomnav__item is-active" href="#bottomNav" aria-current="page"><svg class="ico"><use href="#i-home"/></svg>Accueil</a>
+      <a class="bottomnav__item" href="#bottomNav"><svg class="ico"><use href="#i-book"/></svg>Mes cours</a>
+      <a class="bottomnav__item" href="#bottomNav"><svg class="ico"><use href="#i-practice"/></svg>Entraînement</a>
+    </nav></div></section>
+
+  <section id="drawer"><h2 class="sec">Tiroir <span class="mui">Drawer</span></h2>
+    <p class="sec-desc">Réservé à la page de suivi (changer d'élève, se déconnecter).</p>
+    <div class="stage paper-bg"><nav class="drawer" data-insp="drawer"><a class="is-active" href="#drawer"><svg class="ico"><use href="#i-chart"/></svg>Vue d'ensemble</a><a href="#drawer"><svg class="ico"><use href="#i-book"/></svg>Module Calculs</a><a href="#drawer"><svg class="ico"><use href="#i-logout"/></svg>Se déconnecter</a></nav></div></section>
+
+  <section id="tabs"><h2 class="sec">Onglets <span class="mui">Tabs</span></h2>
+    <div class="stage"><div class="tabs" style="width:100%;max-width:400px" role="tablist" data-insp="tabs"><button class="tabs__tab is-active" role="tab" aria-selected="true" type="button">7 jours</button><button class="tabs__tab" role="tab" aria-selected="false" type="button">28 jours</button></div></div></section>
+
+  <section id="menu"><h2 class="sec">Menu <span class="mui">Menu</span></h2>
+    <div class="stage paper-bg"><div class="menu" data-insp="menu"><a href="#menu"><svg class="ico"><use href="#i-eye"/></svg>Relire la leçon</a><a href="#menu"><svg class="ico"><use href="#i-practice"/></svg>S'entraîner sur ce cours</a><a href="#menu" class="is-danger"><svg class="ico"><use href="#i-logout"/></svg>Se déconnecter</a></div></div></section>
+
+  <section id="link"><h2 class="sec">Lien <span class="mui">Link</span></h2>
+    <div class="stage"><p class="t-body1">Tu peux <a class="link" href="#link" data-insp="link">relire la leçon</a> quand tu veux.</p></div></section>
+
+  <section id="stepper"><h2 class="sec">Étapes <span class="mui">Stepper</span></h2>
+    <p class="sec-desc">Le déroulé d'un cours : leçon, exemples guidés, 5 exercices de fin.</p>
+    <div class="stage col"><div class="stepper" data-insp="stepper"><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-error"></span><span class="stepper__step is-current"></span><span class="stepper__step"></span><span class="stepper__step"></span></div><div class="spec">fait · fait · raté · en cours · à venir</div></div></section>
+
+  <section id="speedDial"><h2 class="sec">Actions rapides <span class="mui">Speed dial</span></h2>
+    <p class="sec-desc">Pas utilisé à l'étape 1. Gardé pour la complétude du catalogue.</p>
+    <div class="stage"><div class="speed-dial" data-insp="speedDial"><span class="speed-dial__action"><span>Réviser</span><button class="icon-btn icon-btn--tonal" type="button" aria-label="Réviser"><svg class="ico"><use href="#i-review"/></svg></button></span><span class="speed-dial__action"><span>S'entraîner</span><button class="icon-btn icon-btn--tonal" type="button" aria-label="S'entraîner"><svg class="ico"><use href="#i-practice"/></svg></button></span><button class="fab" type="button" aria-label="Ouvrir"><svg class="ico"><use href="#i-close"/></svg></button></div></div></section>
+</main>
+
+<script>
+document.getElementById('cbInd').indeterminate = true;
+['nl0','nl8','nl22'].forEach(function(id){ renderNumberLine(document.getElementById(id), +id.slice(2)); });
+
+/* ===== Fondations ===== */
+const COLORS=[['primary','on-primary','Indigo · action'],['primary-container','on-primary-container','Indigo doux'],['secondary','on-secondary','Corail · Calculs'],['secondary-container','on-secondary-container','Corail doux'],
+ ['bg','on-bg','Papier'],['surface','on-surface','Surface'],['surface-sunken','on-surface','Puits'],['muted-surface','on-muted-surface','Gris neutre'],
+ ['success','on-success','Vert juste'],['success-container','on-success-container','Vert doux'],['error','on-error','Rouge du prof'],['error-container','on-error-container','Rouge doux'],
+ ['star','on-warning','Étoile'],['muted','surface','Texte secondaire'],['subtle','surface','Petit libellé'],['border','on-surface','Trait']];
+const cs=()=>getComputedStyle(document.documentElement);
+function drawColors(){const c=cs();colorGrid.innerHTML=COLORS.map(([n,on,l])=>`<div class="sw"><div class="c" style="background:var(--${n});color:var(--${on})">Aa −3</div><div class="m"><div class="n">${l}</div><div class="v">--${n} · ${c.getPropertyValue('--'+n).trim()}</div></div></div>`).join('');}
+drawColors();
+document.getElementById('themeSel').addEventListener('change',()=>setTimeout(drawColors,0));
+const TYPE=[['t-h2','Titre d\'écran · 700 / 26','Bonjour !'],['t-h3','Titre de carte forte · 700 / 24','5 révisions à faire'],['t-math-xl','Calcul de question · 500 / 40','−3 × (−4)'],['t-math','Calcul courant · 500 / 28','5 − (−3) = 5 + 3'],['t-h4','Titre de cours · 600 / 19','Soustraire, c\'est ajouter l\'opposé'],['t-h5','Titre de section · 600 / 17','Aujourd\'hui'],['t-body1','Texte · 400 / 17','Les deux nombres sont négatifs : le résultat est négatif aussi.'],['t-body2','Secondaire · 400 / 15','Encore 7 minutes pour ton objectif.'],['t-subtitle2','Sur-titre · 600 / 14','Prochain cours'],['t-button','Bouton · 600 / 18','Commencer le cours 4'],['t-caption','Légende · 400 / 13','4 cours sur 8 validés']];
+typeList.innerHTML=TYPE.map(([n,m,s])=>`<div class="typerow"><div class="tk">.${n}<br>${m}</div><div class="${n}" style="white-space:normal">${s}</div></div>`).join('');
+const SPACING=[['sp-4',4],['sp-8 · éléments liés',8],['sp-12',12],['sp-16 · groupes, marge',16],['sp-20',20],['sp-24 · grandes parties',24],['sp-32',32],['sp-48 · cible tactile',48]];
+spacingList.innerHTML=SPACING.map(([n,v])=>`<div class="sprow"><div class="lbl">${n} · ${v}px</div><div class="bar" style="width:${v*4}px;max-width:60vw"></div></div>`).join('');
+const RADII=[['r-xs','6 · cases'],['r-sm','10 · pastilles'],['r-md','14 · boutons, champs'],['r-lg','24 · cartes'],['r-full','rond · étiquettes']];
+radiusList.innerHTML=RADII.map(([n,l])=>`<div class="cell"><div class="rad" style="border-radius:var(--${n})"></div><div class="spec">--${n}<br>${l}</div></div>`).join('');
+const ICONS=['home','book','practice','review','back','chevron-right','chevron-down','close','check','check-circle','x-circle','info','warning','flame','star','lock','eye','clock','user','logout','menu','search','settings','more-v','backspace','arrow-right','skip','chart'];
+iconGrid.innerHTML=ICONS.map(n=>`<div class="it"><svg class="ico ico--lg"><use href="#i-${n}"/></svg><div class="nm">i-${n}</div></div>`).join('');
+
+/* ===== SPECS : une entrée par composant (inspecteur + consignes). Les valeurs des tokens sont lues en direct. ===== */
+const T=(r,n)=>({r,n});
+const SPECS={
+ typography:{name:'Typographie',file:'theme/typography',desc:'Une seule famille, Lexend. Échelle MUI (h1–h6, subtitle, body, button, caption, overline) + deux styles de calcul (t-math, t-math-xl) en chiffres tabulaires. Moins = U+2212.',props:[{n:'variant',t:'h1|h2|h3|h4|h5|h6|subtitle1|subtitle2|body1|body2|button|caption|overline|math|mathXl',def:'body1'}],tokens:[T('famille','--font-body'),T('calcul','--font-math'),T('couleur','--on-surface'),T('secondaire','--muted')],metrics:[['h2','700 26/1.15'],['h3','700 24/1.2'],['h4','600 19/1.25'],['body1','400 17/1.55'],['body2','400 15/1.5'],['math','500 28'],['mathXl','500 40']]},
+ icon:{name:'Icône',file:'components/Icon',desc:'Sprite SVG en ligne, trait arrondi de 2, couleur héritée (currentColor). Jamais d\'emoji.',props:[{n:'name',t:'IconName'},{n:'size',t:'sm|md|lg',def:'md'}],tokens:[T('taille','--icon-size'),T('en ligne','--icon-inline'),T('trait','--icon-stroke'),T('bout','--icon-cap')],metrics:[['glyphe','24'],['cible','48 (via bouton)']]},
+ numberLine:{name:'Droite graduée',file:'components/NumberLine',desc:'Jauge du temps du jour. Une graduation par minute, graduations majeures tous les 5, objectif marqué en vert. Au-delà de l\'objectif, l\'axe s\'allonge par pas de 5 et le curseur passe au vert. Animation de 700 ms à l\'arrivée (coupée si mouvement réduit).',props:[{n:'minutes',t:'number'},{n:'goal',t:'number',def:'15'}],tokens:[T('remplissage, curseur','--signature'),T('texte du curseur','--on-primary'),T('rail','--surface-sunken'),T('graduation','--tick'),T('graduation majeure','--tick-major'),T('objectif','--goal'),T('nombres','--muted'),T('durée','--dur-slow')],metrics:[['hauteur','68 (curseur compris)'],['rail','4'],['graduation','2 × 12 / majeure 18 / objectif 3 × 22'],['marge axe','14']]},
+ courseChip:{name:'Pastille de cours',file:'components/CourseChip',desc:'Numéro de cours et son état : validé (étoiles), à faire, à rattraper, verrouillé. Variante grande (course-num, 52) pour les cartes et listes ; variante bande (course-strip, 8 colonnes).',props:[{n:'number',t:'number'},{n:'state',t:'done|todo|retry|locked',def:'locked'},{n:'stars',t:'0|1|2|3',def:'0'},{n:'size',t:'chip|num|strip',def:'chip'}],tokens:[T('fond validé','--surface-sunken'),T('à faire','--secondary-container'),T('trait à faire','--secondary'),T('texte à faire','--on-secondary-container'),T('à rattraper','--error-container'),T('trait à rattraper','--error'),T('verrouillé','--muted-surface'),T('étoile','--star')],metrics:[['largeur','64'],['rayon','--r-sm (10)'],['trait d\'état','2 (intérieur)'],['numéro carte','52 × 52, rayon 14']]},
+ answerField:{name:'Champ de réponse',file:'components/AnswerField',desc:'Affiche exactement ce qu\'elle tape (aucune correction automatique). Fraction empilée posée par la touche fraction, case active entourée d\'indigo. États : vide, en cours, juste, faux.',props:[{n:'value',t:'Token[]'},{n:'state',t:'empty|editing|correct|wrong',def:'empty'}],tokens:[T('fond','--surface'),T('trait actif','--primary'),T('juste','--success'),T('fond juste','--success-container'),T('faux','--error'),T('fond faux','--error-container'),T('indication','--subtle')],metrics:[['hauteur min','72'],['rayon','--r-md (14)'],['taille du nombre','500 32'],['fraction','0.7 em, barre 2']]},
+ keypad:{name:'Clavier maths',file:'components/MathKeypad',desc:'Clavier propre à l\'appli : 0–9, −, ( ), fraction, → (case suivante), effacer, Valider. Valider actif dès qu\'il y a au moins un caractère (doc 03, doc 07 n° 4).',props:[{n:'onKey',t:'(key)=>void'},{n:'canSubmit',t:'bool',def:'false'}],tokens:[T('fond','--surface-sunken'),T('touche','--surface'),T('ombre touche','--border'),T('touche moins','--primary-container'),T('texte moins','--on-primary-container'),T('Valider','--primary'),T('texte Valider','--on-primary')],metrics:[['colonnes','4'],['touche','min 52 de haut'],['espacement','8'],['rayon touche','--r-sm (10)']]},
+ choice:{name:'Choix de QCM',file:'components/Choice',desc:'Réponse proposée en grille 2 × 2. États : normal, sélectionné, juste, faux.',props:[{n:'label',t:'string'},{n:'state',t:'idle|selected|correct|wrong',def:'idle'}],tokens:[T('fond','--surface'),T('trait','--border'),T('sélection','--primary-container'),T('trait sélection','--primary'),T('juste','--success-container'),T('faux','--error-container')],metrics:[['hauteur min','64'],['rayon','--r-md (14)'],['texte','500 24']]},
+ lessonLine:{name:'Ligne de leçon',file:'components/LessonLine',desc:'Exemple de leçon : ✓ juste (vert), ✗ faux (rouge), ~ pas faux mais inutile (gris, doc 07 n° 8). Note facultative à droite.',props:[{n:'expr',t:'string'},{n:'tone',t:'ok|ko|neutre'},{n:'note',t:'string?'}],tokens:[T('juste','--success-container'),T('marque juste','--on-success-container'),T('faux','--error-container'),T('marque faux','--on-error-container'),T('neutre','--muted-surface'),T('texte neutre','--on-muted-surface')],metrics:[['padding','12 × 16'],['rayon','--r-sm (10)'],['texte','500 19']]},
+ streak:{name:'Série',file:'components/Streak',desc:'Jours d\'affilée avec l\'objectif atteint (doc 05). Flamme corail.',props:[{n:'days',t:'number'}],tokens:[T('fond','--surface'),T('trait','--border'),T('flamme','--secondary')],metrics:[['hauteur','34'],['rayon','--r-full']]},
+ button:{name:'Bouton',file:'components/Button',desc:'Variantes MUI : contained (principal indigo, encre, inverse sur carte indigo), outlined, text (« Passer »). États : normal, survol, appui (scale .98), focus (anneau 3 px), désactivé.',props:[{n:'label',t:'string'},{n:'variant',t:'contained|outlined|text',def:'contained'},{n:'color',t:'primary|ink|inverse|success',def:'primary'},{n:'size',t:'md|sm',def:'md'},{n:'fullWidth',t:'bool',def:'false'},{n:'disabled',t:'bool',def:'false'}],tokens:[T('fond principal','--primary'),T('texte principal','--on-primary'),T('fond encre','--on-surface'),T('texte encre','--surface'),T('contour','--border'),T('texte discret','--muted'),T('désactivé','--surface-sunken'),T('texte désactivé','--subtle'),T('focus','--ring')],metrics:[['hauteur','56 (sm 48)'],['rayon','--r-md (14) / sm 10'],['padding','h 24 (sm 16)'],['texte','600 18 (sm 16)']]},
+ buttonGroup:{name:'Groupe de boutons',file:'components/ButtonGroup',desc:'Choix exclusif court, segments contigus.',props:[{n:'options',t:'string[]'},{n:'value',t:'string'}],tokens:[T('contour','--border'),T('sélection','--primary-container'),T('texte sélection','--on-primary-container')],metrics:[['hauteur','48'],['rayon','--r-md (14)']]},
+ iconButton:{name:'Bouton icône',file:'components/IconButton',desc:'Glyphe 24 dans une cible 48. Variantes standard, tonal, plein.',props:[{n:'icon',t:'IconName'},{n:'variant',t:'standard|tonal|filled',def:'standard'},{n:'label',t:'string (aria-label)'},{n:'disabled',t:'bool',def:'false'}],tokens:[T('texte','--on-surface'),T('survol','--surface-sunken'),T('tonal','--primary-container'),T('plein','--on-surface')],metrics:[['taille','48 × 48'],['rayon','--r-md (14)']]},
+ fab:{name:'Bouton flottant',file:'components/Fab',desc:'Non utilisé à l\'étape 1. Tailles normal, petit, étendu.',props:[{n:'icon',t:'IconName'},{n:'label',t:'string?'},{n:'size',t:'md|sm',def:'md'}],tokens:[T('fond','--primary'),T('texte','--on-primary'),T('ombre','--elev-2')],metrics:[['taille','56 (sm 44)'],['rayon','--r-md (14)']]},
+ checkbox:{name:'Case à cocher',file:'components/Checkbox',desc:'États : coché, non coché, indéterminé, désactivé.',props:[{n:'checked',t:'bool'},{n:'indeterminate',t:'bool',def:'false'},{n:'label',t:'string'},{n:'disabled',t:'bool',def:'false'}],tokens:[T('trait','--muted'),T('coché','--primary'),T('coche','--on-primary'),T('désactivé','--surface-sunken')],metrics:[['case','24'],['cible','48'],['rayon','--r-xs (6)']]},
+ radio:{name:'Bouton radio',file:'components/RadioGroup',desc:'Choix exclusif dans une liste.',props:[{n:'options',t:'string[]'},{n:'value',t:'string'}],tokens:[T('trait','--muted'),T('choisi','--primary')],metrics:[['taille','24'],['cible','48']]},
+ switch:{name:'Interrupteur',file:'components/Switch',desc:'Réglage oui / non (réglages, page de suivi).',props:[{n:'checked',t:'bool'},{n:'label',t:'string'}],tokens:[T('rail','--surface-sunken'),T('rail actif','--primary'),T('pastille','--muted'),T('pastille active','--on-primary')],metrics:[['rail','52 × 32'],['pastille','24'],['ressort','--ease-spring']]},
+ select:{name:'Liste déroulante',file:'components/Select',desc:'Champ de base + chevron.',props:[{n:'label',t:'string'},{n:'options',t:'string[]'},{n:'value',t:'string'}],tokens:[T('fond','--surface'),T('trait','--border'),T('focus','--primary'),T('libellé','--muted')],metrics:[['hauteur','56'],['rayon','--r-md (14)']]},
+ autocomplete:{name:'Saisie assistée',file:'components/Autocomplete',desc:'Champ + liste de suggestions (page de suivi).',props:[{n:'label',t:'string'},{n:'options',t:'string[]'},{n:'value',t:'string'}],tokens:[T('liste','--surface'),T('ombre','--elev-2'),T('actif','--primary-container')],metrics:[['ligne','48'],['rayon','--r-md (14)']]},
+ slider:{name:'Curseur',file:'components/Slider',desc:'Réglage continu (réglages). Jamais pour répondre à une question.',props:[{n:'min',t:'number'},{n:'max',t:'number'},{n:'value',t:'number'}],tokens:[T('rail','--surface-sunken'),T('rempli','--primary'),T('pastille','--primary')],metrics:[['rail','6'],['pastille','24']]},
+ textField:{name:'Champ texte',file:'components/TextField',desc:'Variantes outlined / filled / standard. États : vide, focus, rempli, erreur, désactivé. Libellé au-dessus, aide ou erreur en dessous.',props:[{n:'label',t:'string'},{n:'value',t:'string'},{n:'variant',t:'outlined|filled|standard',def:'outlined'},{n:'helper',t:'string?'},{n:'error',t:'string?'},{n:'disabled',t:'bool',def:'false'}],tokens:[T('fond','--surface'),T('trait','--border'),T('focus','--primary'),T('erreur','--error'),T('texte erreur','--error-ink'),T('filled','--surface-sunken'),T('libellé','--muted')],metrics:[['hauteur','56'],['rayon','--r-md (14)'],['trait','2'],['texte','400 18']]},
+ toggleButton:{name:'Bouton bascule',file:'components/ToggleButton',desc:'Choix exclusif côte à côte (« Vrai » / « Faux »).',props:[{n:'options',t:'string[]'},{n:'value',t:'string?'}],tokens:[T('fond','--surface'),T('trait','--border'),T('sélection','--primary-container'),T('trait sélection','--primary')],metrics:[['hauteur','56'],['espacement','8'],['rayon','--r-md (14)']]},
+ rating:{name:'Étoiles',file:'components/Stars',desc:'Lecture seule, 0 à 3 étoiles (meilleur niveau atteint, ne se perd jamais).',props:[{n:'value',t:'0|1|2|3'},{n:'size',t:'md|sm',def:'md'}],tokens:[T('pleine','--star'),T('vide','--star-empty')],metrics:[['taille','18 (sm 12)'],['écart','2']]},
+ avatar:{name:'Avatar',file:'components/Avatar',desc:'Initiale de l\'élève.',props:[{n:'initial',t:'string'},{n:'size',t:'md|lg',def:'md'}],tokens:[T('fond','--primary-container'),T('texte','--on-primary-container')],metrics:[['taille','40 (lg 56)']]},
+ badge:{name:'Pastille de nombre',file:'components/Badge',desc:'Nombre ou point sur une icône.',props:[{n:'count',t:'number?'},{n:'dot',t:'bool',def:'false'}],tokens:[T('fond','--error'),T('texte','--on-error'),T('liseré','--surface')],metrics:[['hauteur','20 (point 10)']]},
+ chip:{name:'Étiquette',file:'components/Chip',desc:'Petite étiquette d\'état ou de filtre : neutre, sélectionnée, module, validé, à rattraper, passé.',props:[{n:'label',t:'string'},{n:'tone',t:'default|selected|module|success|error|neutral',def:'default'},{n:'icon',t:'IconName?'}],tokens:[T('module','--secondary-container'),T('sélection','--primary-container'),T('validé','--success-container'),T('à rattraper','--error-container'),T('passé','--muted-surface')],metrics:[['hauteur','32'],['rayon','--r-full'],['texte','600 14']]},
+ divider:{name:'Séparateur',file:'components/Divider',desc:'Trait de 1, plein ou en retrait.',props:[{n:'inset',t:'bool',def:'false'}],tokens:[T('couleur','--border')],metrics:[['épaisseur','1']]},
+ list:{name:'Liste',file:'components/List',desc:'Lignes de 64 min : élément de tête, titre, sous-titre, élément de fin. État verrouillé.',props:[{n:'items',t:'ListItem[]'}],tokens:[T('fond','--surface'),T('séparation','--border-faint'),T('sous-titre','--muted'),T('fin','--subtle')],metrics:[['ligne','min 64'],['padding','12 × 16'],['rayon liste','--r-lg (24)']]},
+ table:{name:'Tableau',file:'components/Table',desc:'Données de la page de suivi ; défile horizontalement dans son cadre.',props:[{n:'columns',t:'Column[]'},{n:'rows',t:'Row[]'}],tokens:[T('fond','--surface'),T('en-tête','--muted'),T('lignes','--border-faint')],metrics:[['cellule','12 × 16'],['texte','400 15 tabulaire']]},
+ tooltip:{name:'Info-bulle',file:'components/Tooltip',desc:'Courte explication au toucher long.',props:[{n:'text',t:'string'}],tokens:[T('fond','--on-surface'),T('texte','--surface')],metrics:[['largeur max','240'],['rayon','--r-sm (10)']]},
+ alert:{name:'Message de retour',file:'components/Feedback',desc:'Retour après une réponse : juste (vert), faux (rouge, avec la bonne réponse et l\'explication), écriture (gris neutre), info (indigo).',props:[{n:'tone',t:'success|error|neutral|info'},{n:'title',t:'string'},{n:'body',t:'string'}],tokens:[T('juste','--success-container'),T('titre juste','--on-success-container'),T('faux','--error-container'),T('titre faux','--on-error-container'),T('neutre','--muted-surface'),T('info','--primary-container')],metrics:[['padding','16'],['rayon','--r-md (14)'],['titre','600 17']]},
+ dialog:{name:'Fenêtre',file:'components/Dialog',desc:'Confirmation : titre, texte, 2 boutons empilés pleine largeur.',props:[{n:'title',t:'string'},{n:'body',t:'string'},{n:'actions',t:'Action[]'}],tokens:[T('fond','--surface'),T('ombre','--elev-3'),T('voile','--scrim')],metrics:[['largeur max','340'],['padding','24'],['rayon','--r-lg (24)']]},
+ snackbar:{name:'Notification',file:'components/Snackbar',desc:'Message bref en bas d\'écran, avec action facultative (ex. hors ligne).',props:[{n:'message',t:'string'},{n:'action',t:'string?'}],tokens:[T('fond','--on-surface'),T('texte','--surface'),T('action','--primary-container')],metrics:[['largeur max','360'],['rayon','--r-md (14)']]},
+ progress:{name:'Progression',file:'components/Progress',desc:'Linéaire (questions, module), indéterminée, circulaire.',props:[{n:'value',t:'0–100?'},{n:'variant',t:'linear|circular',def:'linear'},{n:'color',t:'primary|module',def:'primary'}],tokens:[T('rail','--surface-sunken'),T('rempli','--primary'),T('module','--secondary')],metrics:[['hauteur','8'],['cercle','28, trait 3']]},
+ skeleton:{name:'Chargement',file:'components/Skeleton',desc:'Blocs pulsés pendant le chargement.',props:[{n:'width',t:'length'},{n:'height',t:'length'}],tokens:[T('fond','--surface-sunken')],metrics:[['rayon','--r-sm (10)'],['pulsation','1.4 s']]},
+ backdrop:{name:'Voile',file:'components/Backdrop',desc:'Assombrit l\'écran sous une fenêtre ou un chargement.',props:[{n:'open',t:'bool'}],tokens:[T('voile','--scrim')],metrics:[['couvre','tout l\'écran']]},
+ appBar:{name:'Barre du haut',file:'components/AppBar',desc:'Pendant une activité : quitter + progression + compteur. Ailleurs : retour + titre + menu.',props:[{n:'leading',t:'back|close'},{n:'title',t:'string?'},{n:'progress',t:'number?'},{n:'trailing',t:'node?'}],tokens:[T('texte','--on-surface'),T('rail','--surface-sunken'),T('rempli','--primary')],metrics:[['hauteur','56'],['icônes','48']]},
+ card:{name:'Carte',file:'components/Card',desc:'Carte blanche (ombre douce, rayon 24), carte forte indigo (une seule par écran, chiffres « −3 +5 » en filigrane), carte « fait » vert pâle.',props:[{n:'variant',t:'default|feature|done|outlined',def:'default'},{n:'children',t:'node'}],tokens:[T('fond','--surface'),T('ombre','--elev-1'),T('forte','--primary'),T('texte forte','--on-primary'),T('fait','--success-container'),T('titre fait','--on-success-container')],metrics:[['rayon','--r-lg (24)'],['padding','16 (forte 20)'],['écart interne','16']]},
+ paper:{name:'Feuille',file:'components/Paper',desc:'Surface blanche sans ombre.',props:[{n:'children',t:'node'}],tokens:[T('fond','--surface')],metrics:[['rayon','--r-lg (24)']]},
+ accordion:{name:'Accordéon',file:'components/Accordion',desc:'Parties repliables (relire une leçon).',props:[{n:'items',t:'{title,body}[]'}],tokens:[T('fond','--surface'),T('séparation','--border-faint'),T('corps','--muted')],metrics:[['en-tête','56'],['rayon','--r-lg (24)']]},
+ bottomNav:{name:'Barre du bas',file:'components/BottomNav',desc:'Accueil, Mes cours, Entraînement. Masquée pendant une activité.',props:[{n:'active',t:'home|courses|practice'}],tokens:[T('fond','--surface'),T('trait','--border'),T('actif','--primary-ink'),T('inactif','--muted')],metrics:[['élément','56 de haut'],['icône','24'],['texte','13']]},
+ drawer:{name:'Tiroir',file:'components/Drawer',desc:'Navigation latérale de la page de suivi.',props:[{n:'items',t:'NavItem[]'},{n:'active',t:'string'}],tokens:[T('fond','--surface'),T('actif','--primary-container'),T('ombre','--elev-3')],metrics:[['largeur','260'],['élément','48']]},
+ tabs:{name:'Onglets',file:'components/Tabs',desc:'Onglets segmentés (période de la page de suivi).',props:[{n:'tabs',t:'string[]'},{n:'value',t:'string'}],tokens:[T('rail','--surface-sunken'),T('actif','--surface'),T('texte inactif','--muted')],metrics:[['hauteur','48 (onglet 40)'],['rayon','--r-full']]},
+ menu:{name:'Menu',file:'components/Menu',desc:'Liste d\'actions flottante.',props:[{n:'items',t:'MenuItem[]'}],tokens:[T('fond','--surface'),T('ombre','--elev-2'),T('danger','--error-ink')],metrics:[['ligne','48'],['rayon','--r-md (14)']]},
+ link:{name:'Lien',file:'components/Link',desc:'Lien souligné dans le texte.',props:[{n:'href',t:'string'}],tokens:[T('couleur','--link')],metrics:[['soulignement','2, décalé 3']]},
+ stepper:{name:'Étapes',file:'components/Stepper',desc:'Une barre par question du cours : faite, ratée, en cours, à venir.',props:[{n:'steps',t:'("done"|"error"|"current"|"todo")[]'}],tokens:[T('fait','--primary'),T('raté','--error'),T('à venir','--surface-sunken')],metrics:[['hauteur','6'],['écart','4']]},
+ speedDial:{name:'Actions rapides',file:'components/SpeedDial',desc:'Non utilisé à l\'étape 1.',props:[{n:'actions',t:'Action[]'}],tokens:[T('bouton','--primary'),T('actions','--primary-container')],metrics:[['bouton','56'],['actions','48']]},
+};
+
+/* ===== Consignes (copier comme prompt) ===== */
+const LANGS=['React (TypeScript + CSS)','HTML + CSS','React Native','Flutter (Dart)','SwiftUI','Jetpack Compose (Kotlin)'];
+let promptLang=LANGS[0];
+langSel.innerHTML=LANGS.map(l=>`<option${l===promptLang?' selected':''}>${l}</option>`).join('');
+langSel.onchange=()=>promptLang=langSel.value;
+const tokVal=n=>cs().getPropertyValue(n).trim();
+const varGroups={'Couleurs (chaque fond garde son --on-*)':['--primary','--on-primary','--primary-strong','--primary-ink','--primary-container','--on-primary-container','--secondary','--on-secondary','--secondary-container','--on-secondary-container','--secondary-ink','--bg','--on-bg','--surface','--on-surface','--surface-sunken','--muted-surface','--on-muted-surface','--muted','--subtle','--border','--border-faint','--hairline','--success','--on-success','--success-container','--on-success-container','--error','--on-error','--error-container','--on-error-container','--error-ink','--warning','--on-warning','--star','--star-empty','--link','--scrim','--signature','--tick','--tick-major','--goal'],
+ 'Espacements':['--gap-related','--gap-section','--gap-major','--layout-gutter','--target-min','--target-main','--sp-2','--sp-4','--sp-8','--sp-12','--sp-16','--sp-20','--sp-24','--sp-32','--sp-48','--opt-1','--opt-3'],
+ 'Rayons':['--r-none','--r-xs','--r-sm','--r-md','--r-lg','--r-full'],'Relief':['--elev-0','--elev-1','--elev-2','--elev-3'],'Focus':['--ring','--focus-ring'],
+ 'Polices':['--font-display','--font-body','--font-math'],'Mouvement':['--dur-fast','--dur-base','--dur-slow','--ease','--ease-spring'],'Icônes':['--icon-size','--icon-inline','--icon-large','--icon-stroke','--icon-cap','--icon-join','--icon-fill']};
+function tokenLines(){const out=[];for(const[g,names]of Object.entries(varGroups)){const rows=names.map(n=>{const v=tokVal(n);return v?`- ${n} = ${v}`:null;}).filter(Boolean);if(rows.length)out.push(`### ${g}`,...rows,'');}return out;}
+function foundationsBody(){const L=['## Fondations — tokens (source unique)',`Définir chaque token ci-dessous comme constante nommée dans UN fichier de thème, idiomatique en ${promptLang}. Les composants référencent les tokens par leur nom, jamais de valeur brute. Thème sombre : mêmes noms, valeurs du bloc :root[data-theme="dark"] de styles.css.`,'',...tokenLines(),'### Échelle typographique'];TYPE.forEach(([n,m])=>L.push(`- ${n} : ${m}`));
+ L.push('','### Règles','- Chaque fond reste associé à son --on-* (contraste ≥ 4,5:1 vérifié).','- L\'indigo mène les actions ; le corail est la couleur du module Calculs ; vert et rouge uniquement pour juste / faux.','- Le signe moins est toujours U+2212. Aucune correction automatique de la saisie.','- Rôles d\'espacement : éléments liés 8 < groupes 16 < grandes parties 24 ; marge d\'écran 16.');return L.join('\n');}
+function buildPrompt(key){const s=SPECS[key];const L=[`# Ajouter ou mettre à jour le composant \`${s.name}\` — ${promptLang}`,'',`Composant du design system de Plus ou moins. S'il existe déjà un composant avec ce rôle, le modifier SUR PLACE pour suivre cette spécification (elle fait foi) et noter tout changement cassant. Sinon, le créer en réutilisant les tokens existants.`,'','## Ce que c\'est',s.desc,'','## Propriétés'];
+ s.props.forEach(p=>L.push(`- \`${p.n}\` : ${p.t}${p.def?` (défaut ${p.def})`:''}`));L.push('','## Tokens (dans la couche de fondation, jamais en dur)');s.tokens.forEach(t=>L.push(`- ${t.n} = ${tokVal(t.n)||'(voir styles.css)'}   // ${t.r}`));
+ L.push('','## Mesures');s.metrics.forEach(([k,v])=>L.push(`- ${k} : ${v}`));L.push('','## Exigences','- Implémenter chaque variante et état listés.','- Référencer les tokens par leur nom ; cibles tactiles ≥ 48.',`- Code ${promptLang} complet + un court exemple d'utilisation.`);return L.join('\n');}
+function copyPrompt(key){copyText(buildPrompt(key));toast(`Copié : ${SPECS[key].name} → ${promptLang}`);}
+function fullSystemPrompt(){const keys=Object.keys(SPECS);const L=[`# Installer ou mettre à jour TOUT le design system de Plus ou moins — ${promptLang}`,'',`S'il n'existe pas, le créer ; s'il existe en partie, mettre à jour sur place pour suivre cette spécification (elle fait foi).`,'','## Ordre','1. La couche de tokens ci-dessous, source unique.','2. Les composants, chacun important cette couche partagée (jamais de valeurs redéfinies localement).','3. Un index des composants + une passe de vérification : seuls des tokens nommés sont utilisés.','','---','',foundationsBody(),'','---','',`## Composants (${keys.length})`];
+ keys.forEach(k=>{const s=SPECS[k];L.push('',`### ${s.name} — \`${s.file}\``,s.desc,`- props : ${s.props.map(p=>p.n+':'+p.t).join(', ')}`,`- tokens : ${s.tokens.map(t=>t.n).join(', ')}`,`- mesures : ${s.metrics.map(m=>m[0]+' '+m[1]).join(', ')}`);});return L.join('\n');}
+function copyFullSystem(){copyText(fullSystemPrompt());toast(`Copié : design system complet (${Object.keys(SPECS).length} composants) → ${promptLang}`);}
+function copyText(t){try{navigator.clipboard.writeText(t).catch(()=>{});}catch(e){}}
+document.querySelectorAll('main section[id]').forEach(sec=>{const key=sec.id;if(!SPECS[key])return;const h=sec.querySelector('h2.sec');if(!h||h.querySelector('.sec-prompt'))return;
+ const b=document.createElement('button');b.className='sec-prompt';b.type='button';b.textContent='Copier comme consigne';b.addEventListener('click',()=>copyPrompt(key));h.appendChild(b);});
+
+/* ===== Mode inspection ===== */
+function toggleDev(){const on=document.body.classList.toggle('dev');devToggle.classList.toggle('on',on);devToggle.textContent=on?'◧ Inspection activée':'◧ Mode inspection';if(!on)closeInspector();}
+function closeInspector(){document.body.classList.remove('inspecting');document.querySelectorAll('.insp-sel').forEach(e=>e.classList.remove('insp-sel'));}
+document.addEventListener('click',e=>{if(e.target.closest('#inspector')||e.target.closest('#topctl'))return;if(!document.body.classList.contains('dev'))return;
+ const el=e.target.closest('[data-insp]');if(el&&SPECS[el.dataset.insp]){e.preventDefault();selectComp(el,el.dataset.insp);}});
+function selectComp(el,key){document.querySelectorAll('.insp-sel').forEach(x=>x.classList.remove('insp-sel'));el.classList.add('insp-sel');document.body.classList.add('inspecting');const s=SPECS[key];
+ const props=s.props.map(p=>`<div class="prop"><span class="pn">${p.n}</span> <span class="pt">${p.t}</span>${p.def?` <span class="pdef">= ${p.def}</span>`:''}</div>`).join('');
+ const toks=s.tokens.map(t=>{const v=tokVal(t.n);const isCol=/^#|^rgb/.test(v);return `<div class="tok" data-copy="${t.n}"><div class="tsw" style="background:${isCol?v:'var(--bg)'}"></div><div><div class="tn">${t.n}</div><div class="tr">${t.r}</div></div><div class="tv">${v.length>22?v.slice(0,22)+'…':v}</div></div>`;}).join('');
+ const mets=s.metrics.map(([k,v])=>`<div class="metric"><span class="mk">${k}</span><span>${v}</span></div>`).join('');
+ inspectorBody.innerHTML=`<div class="nm">${s.name}</div><div class="file">${s.file}</div><div class="desc">${s.desc}</div><h4>Propriétés</h4>${props}<h4>Tokens · toucher pour copier</h4>${toks}<h4>Mesures</h4>${mets}<button class="copyprompt" type="button" onclick="copyPrompt('${key}')">Copier comme consigne</button>`;
+ inspectorBody.querySelectorAll('.tok').forEach(d=>d.addEventListener('click',()=>{copyText(`var(${d.dataset.copy})`);toast('Copié var('+d.dataset.copy+')');}));}
+function toast(msg){const c=document.getElementById('copied');c.textContent=msg;c.classList.add('show');setTimeout(()=>c.classList.remove('show'),1400);}
+</script>
+</body>
+</html>

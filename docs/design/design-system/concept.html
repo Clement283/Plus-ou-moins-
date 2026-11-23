@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins · Écrans concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
+<script src="number-line.js"></script>
+<style>
+/* habillage de la page concept uniquement — les ÉCRANS n'utilisent que les classes de styles.css */
+body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.head{max-width:680px;text-align:center;margin-bottom:20px}
+.head h1{font:700 26px var(--font-display);color:var(--on-surface)}
+.head p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.6}
+.states{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:8px}
+.states button{border:0;background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px var(--font-body);cursor:pointer;box-shadow:inset 0 0 0 1px var(--border)}
+.states button[aria-pressed="true"]{background:var(--on-surface);color:var(--surface);font-weight:600;box-shadow:none}
+.state-note{font-size:14px;color:var(--muted);text-align:center;max-width:52ch;margin:0 auto 20px;min-height:2.8em}
+.two{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:100%}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
+.col .label{font:600 14px var(--font-body);color:var(--muted)}
+/* cadre de présentation : carré, sans coque de téléphone */
+.device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.scrollbody{flex:1;overflow:auto;padding:var(--sp-20) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--gap-section)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
+.day{display:grid;gap:var(--sp-4)}
+.day-head{display:flex;justify-content:space-between;align-items:baseline}
+.day p.is-goal{color:var(--success);font-weight:600}
+.course-head{display:flex;gap:var(--sp-12);align-items:flex-start}
+.strip-head{display:flex;justify-content:space-between}
+.strip{border-top:1px solid var(--border);padding-top:var(--sp-12);display:grid;gap:var(--sp-8)}
+/* écran question */
+.q-body{flex:1;display:flex;flex-direction:column;padding:var(--sp-8) var(--layout-gutter) var(--sp-16);gap:var(--gap-section)}
+.q-expr{flex:1;display:grid;place-content:center;justify-items:center;gap:var(--sp-8);text-align:center}
+.legend{max-width:620px;margin-top:20px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
+.legend b{color:var(--on-surface)}
+.backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
+#themeSel{position:fixed;top:14px;right:max(14px,env(safe-area-inset-right,0px));z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.questions{max-width:620px;width:100%;margin-top:28px;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-16) var(--sp-20)}
+.questions ol{padding-left:20px;display:grid;gap:8px;font-size:15px;color:var(--muted);margin-top:8px}
+.questions b{color:var(--on-surface)}
+</style>
+</head>
+<body>
+<a class="backlink" href="index.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Retour au design system</a>
+<select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7.5 12h9M12 7.5v9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.7L16 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+</svg>
+
+<div class="head">
+  <h1>Accueil de l'élève et question de cours</h1>
+  <p>Deux écrans composés uniquement avec les composants du design system. Maquettes statiques à valider ; rien n'est codé.</p>
+</div>
+
+<div class="states" role="group" aria-label="Situation de l'accueil">
+  <button type="button" data-state="matin" aria-pressed="false">Début de journée</button>
+  <button type="button" data-state="encore" aria-pressed="true">Après une séance</button>
+  <button type="button" data-state="atteint" aria-pressed="false">Objectif atteint</button>
+  <button type="button" data-state="rattrapage" aria-pressed="false">Cours à rattraper</button>
+</div>
+<p class="state-note" id="stateNote"></p>
+
+<div class="two">
+  <!-- ============ ÉCRAN 1 : ACCUEIL ============ -->
+  <div class="col">
+    <div class="label">Accueil</div>
+    <div class="device">
+      <main class="scrollbody">
+        <header class="top">
+          <h1 class="t-h2">Bonjour !</h1>
+          <span class="streak" aria-label="6 jours d'affilée avec l'objectif atteint"><svg class="ico"><use href="#i-flame"/></svg>6 jours</span>
+        </header>
+
+        <section class="day" aria-label="Temps du jour">
+          <div class="day-head"><h2 class="t-h5">Aujourd'hui</h2><span class="t-body2 math" id="dayCount"></span></div>
+          <div id="dayLine"></div>
+          <p class="t-body2" id="dayText"></p>
+        </section>
+
+        <section id="reviewCard" aria-live="polite"></section>
+
+        <section class="card" aria-label="Prochain cours" id="courseCard"></section>
+      </main>
+      <nav class="bottomnav" aria-label="Navigation">
+        <a class="bottomnav__item is-active" href="#" aria-current="page"><svg class="ico"><use href="#i-home"/></svg>Accueil</a>
+        <a class="bottomnav__item" href="#"><svg class="ico"><use href="#i-book"/></svg>Mes cours</a>
+        <a class="bottomnav__item" href="#"><svg class="ico"><use href="#i-practice"/></svg>Entraînement</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ============ ÉCRAN 2 : QUESTION DE COURS ============ -->
+  <div class="col">
+    <div class="label">Question de cours (exercice de fin)</div>
+    <div class="device">
+      <div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)">
+        <button class="icon-btn" type="button" aria-label="Quitter le cours"><svg class="ico"><use href="#i-close"/></svg></button>
+        <div class="stepper" style="flex:1" aria-label="Question 9 sur 12">
+          <span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-error"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-current"></span><span class="stepper__step"></span><span class="stepper__step"></span><span class="stepper__step"></span>
+        </div>
+      </div>
+      <div class="q-body">
+        <div class="row" style="justify-content:space-between">
+          <span class="chip chip--module">Cours 4 · Exercice 2 sur 5</span>
+        </div>
+        <div class="q-expr">
+          <p class="t-body2">Calcule.</p>
+          <p class="t-math-xl">5 − (−3) + (−4)</p>
+        </div>
+        <div class="answer" aria-label="Ta réponse"><span class="math">4</span><span class="answer__caret"></span></div>
+      </div>
+      <div class="keypad" style="border-radius:var(--r-lg) var(--r-lg) 0 0">
+        <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button><button class="key key--fn" type="button" aria-label="Effacer"><svg class="ico"><use href="#i-backspace"/></svg></button>
+        <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button><button class="key key--sign" type="button" aria-label="moins">−</button>
+        <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button><button class="key key--fn" type="button" aria-label="fraction"><span class="frac-icon"><i></i><span></span><i></i></span></button>
+        <button class="key" type="button">(</button><button class="key" type="button">0</button><button class="key" type="button">)</button><button class="key key--fn" type="button" aria-label="case suivante"><svg class="ico"><use href="#i-arrow-right"/></svg></button>
+        <button class="key key--submit" type="button" style="grid-column:span 4">Valider</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="legend">L'accueil est une pile calme : <b>droite graduée</b> (signature), <b>carte forte indigo</b> pour les révisions (la seule de l'écran), <b>carte blanche</b> pour le prochain cours, <b>barre du bas</b>. La question retire la navigation : <b>barre d'étapes</b>, le <b>calcul en grand</b> au centre, le <b>champ de réponse</b> et le <b>clavier maths</b> qui remonte du bas.</p>
+
+<div class="questions">
+  <h2 class="t-h5">Questions pour toi avant de valider l'accueil</h2>
+  <ol>
+    <li><b>La série « 6 jours ».</b> Le doc 05 la prévoit sur ta page de suivi. Je la propose aussi sur l'accueil de l'élève, pour la motiver. On la garde ?</li>
+    <li><b>Le prénom.</b> L'accueil dit « Bonjour ! ». Les comptes n'ont pas de prénom pour l'instant : on en ajoute un pour écrire « Bonjour Léa ! » ?</li>
+    <li><b>La bande des 8 cours</b> sous le prochain cours. Elle double un peu « Mes cours », mais montre d'un coup d'œil où elle en est. On la garde ?</li>
+  </ol>
+</div>
+
+<script>
+(function(){
+  var star = '<svg class="ico"><use href="#i-star"/></svg>', starE = '<svg class="ico is-empty"><use href="#i-star"/></svg>';
+  function stars(n){ var s=''; for(var i=0;i<3;i++) s += i<n ? star : starE; return '<span class="rating rating--sm" aria-label="'+n+' étoile'+(n>1?'s':'')+'">'+s+'</span>'; }
+  function strip(retry){
+    var h='', st=[3,2,2,1];
+    st.forEach(function(n,i){ h+='<div class="course-chip"><b>'+i+'</b>'+stars(n)+'</div>'; });
+    h += retry ? '<div class="course-chip is-retry"><b>4</b></div>' : '<div class="course-chip is-todo"><b>4</b></div>';
+    for(var j=5;j<8;j++) h+='<div class="course-chip is-locked"><b>'+j+'</b></div>';
+    return '<div class="strip"><div class="strip-head"><span class="t-h6">Module Calculs</span><span class="t-caption">4 cours sur 8 validés</span></div>'+
+           '<div class="course-strip" aria-label="Cours 0 à 3 validés, cours 4 '+(retry?'à rattraper':'à faire')+', 5 à 7 verrouillés">'+h+'</div></div>';
+  }
+  var icoRev='<svg class="ico ico--sm"><use href="#i-review"/></svg>', icoChk='<svg class="ico ico--sm"><use href="#i-check"/></svg>';
+  var courseNormal = '<div class="course-head"><span class="course-num" aria-hidden="true">4</span><div style="min-width:0">'+
+    '<div class="t-subtitle2" style="color:var(--secondary-ink)">Prochain cours</div><h3 class="t-h4">Soustraire, c\'est ajouter l\'opposé</h3>'+
+    '<p class="t-body2 math" style="margin-top:4px">5 − (−3) = 5 + 3</p></div></div>'+
+    '<button class="btn btn--ink btn--block" type="button">Commencer le cours 4</button>';
+  var courseRetry = '<div class="course-head"><span class="course-num is-retry" aria-hidden="true">4</span><div style="min-width:0">'+
+    '<div class="t-subtitle2" style="color:var(--error-ink)">Cours à rattraper</div><h3 class="t-h4">Soustraire, c\'est ajouter l\'opposé</h3>'+
+    '<p class="t-body2" style="margin-top:4px">5 exercices. Avec 4 justes, le cours est validé.</p></div></div>'+
+    '<div style="display:grid;gap:4px"><button class="btn btn--ink btn--block" type="button">Faire le rattrapage</button>'+
+    '<button class="btn btn--text" type="button" style="justify-self:center">Relire la leçon</button></div>';
+  function feature(title, meta, btn){ return '<div class="card card--feature"><span class="card__eyebrow">'+icoRev+'Révisions du jour</span><h2 class="t-h3">'+title+'</h2><p class="card__meta">'+meta+'</p><button class="btn btn--inverse btn--block" type="button" style="margin-top:12px">'+btn+'</button></div>'; }
+  var S = {
+    matin:{note:'Elle ouvre l\'appli le matin : 5 cours sont à réviser aujourd\'hui.',min:0,text:'Objectif du jour : 15 minutes.',
+      rev:feature('5 révisions à faire','15 questions, environ 5 minutes','Réviser'),course:courseNormal+strip()},
+    encore:{note:'Elle a fait une séance de 5 révisions. Il reste 2 cours dus (doc 02 : « Encore des révisions »).',min:8,text:'Encore 7 minutes pour ton objectif.',
+      rev:feature('Encore 2 révisions','6 questions, environ 2 minutes','Encore des révisions'),course:courseNormal+strip()},
+    atteint:{note:'Plus aucun cours dû et 22 minutes faites : la carte devient « Révisions faites » et propose l\'entraînement.',min:22,text:'Objectif atteint ! 7 minutes en plus.',goal:true,
+      rev:'<div class="card card--done"><span class="card__eyebrow">'+icoChk+'Révisions faites</span><h2 class="t-h4">Tout est révisé pour aujourd\'hui</h2><p class="card__meta">Pour continuer, entraîne-toi sur les cours de ton choix.</p><button class="btn btn--outlined btn--block" type="button" style="margin-top:12px">S\'entraîner</button></div>',
+      course:courseNormal+strip()},
+    rattrapage:{note:'Le cours 4 n\'a pas été validé hier : le rattrapage remplace « Prochain cours » (doc 01 §2).',min:3,text:'Encore 12 minutes pour ton objectif.',
+      rev:feature('3 révisions à faire','9 questions, environ 3 minutes','Réviser'),course:courseRetry+strip(true)}
+  };
+  function show(k){
+    var e=S[k];
+    document.getElementById('stateNote').textContent=e.note;
+    document.getElementById('dayCount').textContent=e.min+' / 15 min';
+    var t=document.getElementById('dayText'); t.textContent=e.text; t.className='t-body2'+(e.goal?' is-goal':'');
+    renderNumberLine(document.getElementById('dayLine'), e.min);
+    document.getElementById('reviewCard').innerHTML=e.rev;
+    document.getElementById('courseCard').innerHTML=e.course;
+    document.querySelectorAll('[data-state]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-state')===k)); });
+  }
+  document.querySelectorAll('[data-state]').forEach(function(b){ b.addEventListener('click', function(){ show(b.getAttribute('data-state')); }); });
+  show('encore');
+})();
+</script>
+</body>
+</html>
