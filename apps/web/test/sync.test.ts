@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppEvent } from '@pom/engine';
 import { resetDb, getDb } from '../src/store/db';
-import { flush, loadAll, recordEvent, setSession, startSync, type NewEvent } from '../src/store/sync';
+import { flush, getSession, loadAll, recordEvent, setSession, startSync, type NewEvent } from '../src/store/sync';
 
 const USER = { id: 'u1', name: 'Léa', role: 'eleve' as const };
 const partDone = (i: number): NewEvent => ({
@@ -12,9 +12,10 @@ const partDone = (i: number): NewEvent => ({
 /** Faux serveur en mémoire : POST idempotent par id, GET renvoie tout. */
 function fakeServer() {
   const store = new Map<string, AppEvent>();
-  const state = { online: true, posts: 0, dropAfterStore: false, postDelay: 0 };
+  const state = { online: true, revoked: false, posts: 0, dropAfterStore: false, postDelay: 0 };
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
     if (!state.online) throw new TypeError('network down');
+    if (state.revoked) return new Response('{}', { status: 401 });
     const json = (b: unknown) => new Response(JSON.stringify(b), { status: 200 });
     if (url === '/api/events' && init?.method === 'POST') {
       state.posts++;
@@ -179,5 +180,33 @@ describe('startSync', () => {
     expect(Object.keys(listeners).sort()).toEqual(['online', 'visibilitychange']);
     stop();
     expect(Object.keys(listeners)).toEqual([]);
+  });
+
+  it('401 sur GET /api/events (jeton révoqué) : la session est effacée, le cache local reste lu', async () => {
+    const srv = fakeServer();
+    await recordEvent(partDone(1));
+    await flush();
+    srv.state.revoked = true;
+    const all = await loadAll();
+    expect(all).toHaveLength(1);
+    expect(await getSession()).toBeUndefined();
+  });
+
+  it('401 sur POST /api/events : la session est effacée, l\'outbox est conservée', async () => {
+    const srv = fakeServer();
+    srv.state.revoked = true;
+    await recordEvent(partDone(1));
+    await flush();
+    expect(await getSession()).toBeUndefined();
+    expect(await outboxSize()).toBe(1);
+  });
+
+  it('une erreur réseau n\'efface pas la session', async () => {
+    const srv = fakeServer();
+    srv.state.online = false;
+    await loadAll();
+    await recordEvent(partDone(1));
+    await flush();
+    expect(await getSession()).toEqual({ token: 't', user: USER });
   });
 });

@@ -40,15 +40,41 @@ export interface Shot {
   /** Sélecteur à attendre avant la capture (défaut : le <main> de l'écran). */
   ready?: string;
   fullPage?: boolean;
+  /** Erreurs de console attendues dans cette situation (ex. le 401 d'un code inconnu). */
+  expectedConsole?: RegExp;
 }
 export interface ScreenDef {
   route: string;
   scenarios: Shot[];
 }
 
+/** Tape un code dans le champ de connexion (au clavier, comme elle) ; `submit` appuie sur « Entrer ». */
+async function typeCode(page: Page, code: string, submit = false): Promise<void> {
+  await page.click('.field__code');
+  await page.keyboard.type(code);
+  if (submit) await page.click('button[type=submit]');
+}
+
 /** Registre des écrans : les tâches d'écran y ajoutent une entrée. */
 export const SCREENS: Record<string, ScreenDef> = {
-  login: { route: '#/', scenarios: [{ name: 'connexion' }] },
+  login: {
+    route: '#/',
+    scenarios: [
+      { name: 'depart' },
+      { name: 'code-tape', before: (page) => typeCode(page, 'k7m2 9qxp') },
+      // Sans fixture, /api/login répond 401 : « code inconnu ».
+      { name: 'code-inconnu', expectedConsole: /status of 401/, before: async (page) => { await typeCode(page, 'k7m2 9qxq', true); await page.waitForSelector('.field__help.is-error'); } },
+      {
+        name: 'hors-ligne',
+        expectedConsole: /ERR_INTERNET_DISCONNECTED/,
+        before: async (page) => {
+          await page.route('**/api/login', (r: any) => r.abort('internetdisconnected'));
+          await typeCode(page, 'k7m2 9qxp', true);
+          await page.waitForSelector('.alert--neutral');
+        },
+      },
+    ],
+  },
 };
 
 // --- serveur ---------------------------------------------------------------
@@ -184,7 +210,7 @@ async function main(): Promise<number> {
             await page.waitForTimeout(300);
             const width = await page.evaluate(() => document.documentElement.scrollWidth);
             if (width !== WIDTH) problems.push(`${label} : scrollWidth ${width} au lieu de ${WIDTH}`);
-            for (const e of errors) problems.push(`${label} : erreur console : ${e}`);
+            for (const e of errors.filter((m) => !shot.expectedConsole?.test(m))) problems.push(`${label} : erreur console : ${e}`);
             await page.screenshot({ path: resolve(outDir, `${label}.png`), fullPage: shot.fullPage ?? false });
             count++;
             console.log(`  ${label}.png`);

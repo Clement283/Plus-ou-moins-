@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { parisDay, type AppEvent } from '@pom/engine';
-import { getEvents, postEvents } from '../api';
+import { ApiError, getEvents, postEvents } from '../api';
 import { getDb, SESSION_KEY, type Session } from './db';
 
 const BATCH = 500;
@@ -24,6 +24,11 @@ export async function setSession(s: Session): Promise<void> {
 export async function clearSession(): Promise<void> {
   await (await getDb()).delete('session', SESSION_KEY);
   notify();
+}
+
+/** Jeton refusé par le serveur (révoqué) : on efface la session, l'appli revient à la connexion. */
+async function dropSessionIf401(e: unknown): Promise<void> {
+  if (e instanceof ApiError && e.status === 401) await clearSession();
 }
 
 // --- abonnés (useEvents) ---------------------------------------------------
@@ -100,9 +105,10 @@ async function drainOutbox(): Promise<void> {
       await Promise.all([...sent.map((e) => tx.store.delete(e.id)), tx.done]);
       if (batch.length < BATCH) return;
     }
-  } catch {
+  } catch (e) {
     // Réseau coupé ou refus serveur : l'outbox est conservée, on réessaiera
-    // (online, retour au premier plan, démarrage).
+    // (online, retour au premier plan, démarrage). Un 401 ramène à la connexion.
+    await dropSessionIf401(e);
   }
 }
 
@@ -124,8 +130,9 @@ export async function loadAll(): Promise<AppEvent[]> {
     const remote = await getEvents(session.token);
     const tx = db.transaction('events', 'readwrite');
     await Promise.all([...remote.map((e) => tx.store.put(e)), tx.done]);
-  } catch {
-    // Hors ligne : on se contente du cache local.
+  } catch (e) {
+    // Hors ligne : on se contente du cache local. Un 401 (jeton révoqué) efface la session.
+    await dropSessionIf401(e);
   }
   // Le cache garde les événements de tous les comptes du téléphone : on ne lit que ceux du compte connecté.
   const all = await db.getAllFromIndex('events', 'byUser', session.user.id);

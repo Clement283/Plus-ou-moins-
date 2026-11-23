@@ -492,6 +492,7 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .login__intro{display:grid;gap:var(--sp-8)}
 .login__form{display:grid;gap:var(--sp-16)}
 .field__help .ico{vertical-align:-3px;margin-right:var(--sp-4)}
+.field__box input:focus-visible{box-shadow:none} /* le cadre du champ porte déjà l'anneau de focus */
 /* ligne de cours repliable (Mes cours) */
 .crow + .crow{border-top:1px solid var(--border-faint)}
 .crow > summary,.crow > .crow__static{list-style:none;display:flex;align-items:center;gap:var(--sp-12);min-height:72px;padding:var(--sp-12) var(--sp-16);cursor:pointer;color:var(--on-surface)}
