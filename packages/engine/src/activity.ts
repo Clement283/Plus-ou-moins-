@@ -7,9 +7,11 @@
  *   first answer, then 2, 3… for every later presentation. The « même type » calcul is a NEW calcul
  *   but belongs to the failed item, so it is recorded as one of that item's attempts (≥ 2): only the
  *   first answer of each original item counts for srs (5 'fin' answers, 3 review answers).
- * - « 3 questions plus loin »: the « même type » calcul comes after the next 3 questions still to
- *   do (explanations not counted; pending repeats and « même type » calculs counted). With fewer
- *   than 3 left, it goes at the end. The exact repeat is then added at the very end.
+ * - « 3 questions plus loin, ou à la fin s'il en reste moins de 3 » (read literally): the failed
+ *   question at position n, the « même type » calcul at position n + 3, i.e. after the next 2
+ *   questions still to do (explanations not counted; pending repeats and « même type » calculs
+ *   counted). With fewer than 3 questions left after the failed one, it goes at the end. The exact
+ *   repeat is then added at the very end, after it.
  * - The « même type » calcul is added after the FIRST failure of an original item only. A failed
  *   repeat comes back at the end again; a failed « même type » calcul adds nothing.
  * - « Passer » (`canSkip`): offered on a repeat of a calcul that has failed at least twice (failures
@@ -22,8 +24,9 @@
  *   course's end exercise kind.
  * - A course run records 'lecon' / 'exemple' / 'fin' answers under one activityId; its activity_end
  *   says 'fin' (as srs expects). activity_end has courseId null when the activity spans several courses.
- * - Functions return new states and never change the one they receive; the injected `rng` is the
- *   only thing that advances (when a « même type » calcul is drawn).
+ * - Functions return new states and never change the one they receive. The state is plain data:
+ *   `createActivity` draws one seed from the injected `rng`, and each « même type » calcul is drawn
+ *   from a generator seeded by (seed, itemId), so `answer` gives the same result for the same state.
  */
 import type { Activity, AppEvent, QuestionKind } from './events';
 import { getCourse, type CourseDef, type Exercise, type Level, type LessonBlock } from './courses';
@@ -70,7 +73,8 @@ type Step = { type: 'explication'; item: ExplanationItem } | { type: 'question';
 export interface ActivityState {
   kind: ActivityKind;
   activityId: string;
-  rng: Rng;
+  /** Seed of the « même type » calculs (one per item, see memeType). */
+  seed: number;
   courseIds: string[];
   queue: Step[];
   /** Answers given per item (« Simplifie » excluded). */
@@ -85,7 +89,8 @@ export type CurrentStep =
   | { type: 'explication'; item: ExplanationItem }
   | { type: 'question'; item: QuestionItem; question: Question; role: StepRole; attempt: number; canSkip: boolean };
 
-export const MEME_TYPE_GAP = 3;
+/** The « même type » calcul comes this many positions after the failed question (doc 01 §6). */
+export const MEME_TYPE_DISTANCE = 3;
 export const END_EXERCISES = 5;
 export const RATTRAPAGE_EXERCISES = 5;
 export const TRAINING_SERIES_LENGTH = 10;
@@ -94,10 +99,11 @@ const ALL_KINDS: QuestionKind[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires'
 const DISTINCT_TRIES = 20;
 
 export function createActivity(kind: ActivityKind, items: ActivityItem[], ctx: { activityId: string; rng: Rng }): ActivityState {
+  if (items.length === 0) throw new Error('Activité sans question ni explication');
   return {
     kind,
     activityId: ctx.activityId,
-    rng: ctx.rng,
+    seed: Math.floor(ctx.rng() * 2 ** 32),
     courseIds: [...new Set(items.map((i) => i.courseId))],
     queue: items.map((item): Step => (item.type === 'explication' ? { type: 'explication', item } : { type: 'question', item, role: 'original', question: item.question })),
     answered: {},
@@ -154,11 +160,21 @@ function answerEvent(s: ActivityState, step: Extract<Step, { type: 'question' }>
   };
 }
 
-/** Index after the first `n` questions of `queue`, or the end when fewer remain. */
-function afterQuestions(queue: Step[], n: number): number {
-  let seen = 0;
-  for (let i = 0; i < queue.length; i++) if (queue[i]!.type === 'question' && ++seen === n) return i + 1;
-  return queue.length;
+/**
+ * Where the « même type » calcul goes in `queue` (the steps after the failed question): after the
+ * next MEME_TYPE_DISTANCE − 1 questions, or at the end when fewer than MEME_TYPE_DISTANCE remain.
+ */
+function memeTypeIndex(queue: Step[]): number {
+  const questions = queue.flatMap((step, i) => (step.type === 'question' ? [i] : []));
+  if (questions.length < MEME_TYPE_DISTANCE) return queue.length;
+  return questions[MEME_TYPE_DISTANCE - 2]! + 1;
+}
+
+/** Deterministic generator for the item's « même type » calcul (FNV-1a of seed and itemId). */
+function itemRng(seed: number, itemId: string): Rng {
+  let h = 0x811c9dc5 ^ seed;
+  for (const ch of itemId) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193);
+  return seededRng(h >>> 0);
 }
 
 /** Answer to the current question (outcome from checkAnswer). */
@@ -172,8 +188,8 @@ export function answer(s: ActivityState, outcome: Outcome, durationMs: number): 
   if (!outcome.correct && step.role !== 'meme-type') {
     failures[id] = (failures[id] ?? 0) + 1;
     if (step.role === 'original') {
-      const meme: Step = { type: 'question', item: step.item, role: 'meme-type', question: memeType(step.item, step.question, outcome.errorType, s.rng) };
-      queue.splice(afterQuestions(queue, MEME_TYPE_GAP), 0, meme);
+      const meme: Step = { type: 'question', item: step.item, role: 'meme-type', question: memeType(step.item, step.question, outcome.errorType, itemRng(s.seed, id)) };
+      queue.splice(memeTypeIndex(queue), 0, meme);
     }
     queue.push({ type: 'question', item: step.item, role: 'repetition', question: step.item.question });
   }

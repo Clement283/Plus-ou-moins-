@@ -8,7 +8,7 @@ import { foldProgress, LADDER, type ProgressState } from '../src/srs';
 import { nextReviewSession } from '../src/reviews';
 import { addDays } from '../src/time';
 import {
-  MEME_TYPE_GAP,
+  MEME_TYPE_DISTANCE,
   TRAINING_SERIES_LENGTH,
   answer,
   availableKinds,
@@ -135,9 +135,27 @@ describe('activité — déroulé de base', () => {
 
   it('les fonctions ne modifient pas l’état reçu', () => {
     const s = start(finItems(5));
-    const before = head(s);
+    const snapshot = structuredClone(s);
     answer(s, ko(), 1000);
-    expect(head(s)).toBe(before);
+    answer(s, simplifie, 1000);
+    expect(s).toEqual(snapshot);
+    const failedTwice = answer(answer(answer(s, ko(), 1).state, ok, 1).state, ok, 1).state;
+    const snap2 = structuredClone(failedTwice);
+    answer(failedTwice, ok, 1);
+    expect(failedTwice).toEqual(snap2);
+  });
+
+  it('même état, même réponse → même résultat (le calcul du même type ne dépend que de l’état)', () => {
+    let s = start(finItems(5));
+    s = answer(s, ok, 1000).state;
+    const a = answer(s, ko(), 1000);
+    const b = answer(s, ko(), 1000);
+    expect(a.state).toEqual(b.state);
+    expect(a.event).toEqual(b.event);
+  });
+
+  it('activité vide : erreur claire', () => {
+    expect(() => createActivity('cours', [], { activityId: 'x', rng: seededRng(1) })).toThrow('Activité sans question ni explication');
   });
 
   it('fin d’activité : activity_end, completed seulement si tout est fait', () => {
@@ -149,21 +167,27 @@ describe('activité — déroulé de base', () => {
 });
 
 describe('après une erreur (doc 01 §6)', () => {
-  it('un calcul du même type 3 questions plus loin, et le même calcul à la fin', () => {
+  it('un calcul du même type 3 questions plus loin (position n + 3), et le même calcul à la fin', () => {
     const { seen } = play(start(finItems(6)), { 'q0:original': [ko()] });
-    expect(MEME_TYPE_GAP).toBe(3);
+    expect(MEME_TYPE_DISTANCE).toBe(3);
     expect(seen).toEqual([
-      'q0:original', 'q1:original', 'q2:original', 'q3:original', 'q0:meme-type',
-      'q4:original', 'q5:original', 'q0:repetition',
+      'q0:original', 'q1:original', 'q2:original', 'q0:meme-type',
+      'q3:original', 'q4:original', 'q5:original', 'q0:repetition',
     ]);
+    expect(seen.indexOf('q0:meme-type') - seen.indexOf('q0:original')).toBe(3);
   });
 
-  it('exactement 3 questions restantes : le calcul du même type vient juste après elles', () => {
+  it('exactement 3 questions restantes : le calcul du même type avant la dernière', () => {
     const { seen } = play(start(finItems(4)), { 'q0:original': [ko()] });
-    expect(seen).toEqual(['q0:original', 'q1:original', 'q2:original', 'q3:original', 'q0:meme-type', 'q0:repetition']);
+    expect(seen).toEqual(['q0:original', 'q1:original', 'q2:original', 'q0:meme-type', 'q3:original', 'q0:repetition']);
   });
 
-  it('moins de 3 questions restantes : le calcul du même type à la fin, puis le même calcul', () => {
+  it('2 questions restantes : le calcul du même type à la fin, puis le même calcul', () => {
+    const { seen } = play(start(finItems(5)), { 'q2:original': [ko()] });
+    expect(seen).toEqual(['q0:original', 'q1:original', 'q2:original', 'q3:original', 'q4:original', 'q2:meme-type', 'q2:repetition']);
+  });
+
+  it('moins de 3 questions restantes (1 ou 0) : le calcul du même type à la fin, puis le même calcul', () => {
     const { seen } = play(start(finItems(5)), { 'q3:original': [ko()] });
     expect(seen).toEqual(['q0:original', 'q1:original', 'q2:original', 'q3:original', 'q4:original', 'q3:meme-type', 'q3:repetition']);
     const last = play(start(finItems(5)), { 'q4:original': [ko()] });
@@ -171,11 +195,11 @@ describe('après une erreur (doc 01 §6)', () => {
   });
 
   it('les repassages en attente comptent parmi les questions restantes', () => {
-    // q0 raté → [q1 q2 q3 S0 q4 R0] ; q1 raté → 3 questions plus loin : après q2 q3 S0
-    const { seen } = play(start(finItems(5)), { 'q0:original': [ko()], 'q1:original': [ko()] });
+    // q0 raté → [q1 q2 S0 q3 R0] ; q2 raté → restent S0 q3 R0 (3) → après S0 q3 ; sans eux, ce serait la fin
+    const { seen } = play(start(finItems(4)), { 'q0:original': [ko()], 'q2:original': [ko()] });
     expect(seen).toEqual([
-      'q0:original', 'q1:original', 'q2:original', 'q3:original', 'q0:meme-type', 'q1:meme-type',
-      'q4:original', 'q0:repetition', 'q1:repetition',
+      'q0:original', 'q1:original', 'q2:original', 'q0:meme-type', 'q3:original', 'q2:meme-type',
+      'q0:repetition', 'q2:repetition',
     ]);
   });
 
@@ -339,11 +363,17 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
   });
 
   it('les explications ne comptent pas parmi les « 3 questions plus loin »', () => {
-    const course = getCourse(C1);
-    const items = courseRunItems(course, seededRng(2));
-    const firstQ = items.find((x) => x.type === 'question')!;
-    const { seen } = play(createActivity('cours', items, { activityId: 'r', rng: seededRng(2) }), { [`${firstQ.itemId}:original`]: [ko()] });
-    expect(seen.indexOf(`${firstQ.itemId}:meme-type`)).toBe(4);
+    const expl = (itemId: string, partIndex: number): ActivityItem => ({ type: 'explication', itemId, courseId: C5, partIndex, blocks: [] });
+    const [q0, q1, q2, q3] = finItems(4);
+    const s = start([q0!, expl('e1', 1), q1!, expl('e2', 3), q2!, q3!]);
+    const steps: string[] = [];
+    let state = answer(s, ko(), 1).state;
+    while (!isDone(state)) {
+      steps.push(head(state));
+      const c = current(state)!;
+      state = c.type === 'explication' ? explanationDone(state, 1).state : answer(state, ok, 1).state;
+    }
+    expect(steps).toEqual(['expl:e1', 'q1:original', 'expl:e2', 'q2:original', 'q0:meme-type', 'q3:original', 'q0:repetition']);
   });
 
   it('le calcul du même type d’un exemple du Cours 0 (trou fait à la main) est un exercice de fin du cours', () => {
@@ -448,9 +478,8 @@ describe('révision', () => {
     expect(seen.filter((k) => k.startsWith(`${failed.itemId}:`))).toEqual([
       `${failed.itemId}:original`, `${failed.itemId}:meme-type`, `${failed.itemId}:repetition`,
     ]);
-    const meme = answers(events).filter((e) => e.courseId === C5);
-    expect(meme).toHaveLength(5);
-    expect(new Set(meme.map((e) => e.questionKind)).size).toBeGreaterThan(0);
+    const c5Answers = answers(events).filter((e) => e.courseId === C5);
+    expect(c5Answers.map((e) => e.attempt).sort()).toEqual([1, 1, 1, 2, 3]);
     const after = foldProgress([...before, ...stamp(events, due)]);
     expect(after.journal.runs[`rev-1|${C5}`]).toMatchObject({ first: 3, ok: 2, done: true });
     expect(after.courses[C5]!.reviewHistory).toEqual([{ day: due, ok: false }]);
