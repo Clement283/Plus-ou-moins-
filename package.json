@@ -8,9 +8,12 @@
   ],
   "scripts": {
     "test": "npm test --workspaces --if-present && vitest run scripts",
-    "shots": "tsx e2e/shots.ts"
+    "shots": "tsx e2e/shots.ts",
+    "e2e": "playwright test",
+    "typecheck:e2e": "tsc -p e2e"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "tsx": "^4.23.15",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
