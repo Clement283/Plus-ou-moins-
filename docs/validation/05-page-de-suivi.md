@@ -1,6 +1,6 @@
 # 05 — Ta page de suivi
 
-*Statut : Validé (2026-11-22) — version 5. 2026-11-23 : taux d'erreurs de signe retiré (décision du porteur du projet).*
+*Statut : Validé (2026-11-22) — version 6. 2026-11-23 : taux d'erreurs de signe retiré (décision du porteur du projet) ; toutes les périodes passent à 28 jours, les 4 dernières semaines (décision du porteur du projet).*
 
 Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture seule**. Elle a trois niveaux :
 1. l'**accueil** : simple, l'essentiel d'un coup d'œil ;
@@ -13,10 +13,10 @@ Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture
 ┌──────────────────────────────────────┐
 │  [ Prénom ▾ ]                         │
 │                                      │
-│  30 DERNIERS JOURS                   │
+│  28 DERNIERS JOURS (4 SEMAINES)                   │
 │  ● ● ● ◐ ○ ● ● ● ● ● ◐ ● ● ● ● ●      │
 │  ● ● ○ ○ ● ● ● ◐ ● ● ● ● ● ●          │
-│  Objectif atteint 21 jours sur 30     │
+│  Objectif atteint 21 jours sur 28     │
 │                                      │
 │  ÉTAT                                │
 │  Aujourd'hui   12 / 15 min            │
@@ -26,7 +26,7 @@ Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture
 │  RÉVISIONS PAS FAITES                │
 │  4 en attente · la plus ancienne : lundi │
 │                                      │
-│  ERREURS LES PLUS COMMUNES (30 j)    │
+│  ERREURS LES PLUS COMMUNES (28 j)    │
 │  1. Règle des signes (×)   9 fois  ▸  │
 │  2. Opposé oublié          4 fois  ▸  │
 │  3. Moins après le nombre  2 fois  ▸  │
@@ -40,12 +40,12 @@ Cinq blocs, pas plus.
 
 **Choix de l'élève.** Si tu suis plusieurs élèves, une liste en haut permet de changer d'élève. L'appli se souvient du dernier élève consulté.
 
-**30 derniers jours.**
+**28 derniers jours (les 4 dernières semaines).**
 - Un point par jour :
   - ● objectif de 15 minutes atteint ;
   - ◐ un peu d'activité, mais moins de 15 minutes ;
   - ○ rien.
-- En dessous : « Objectif atteint N jours sur 30 ».
+- En dessous : « Objectif atteint N jours sur 28 ».
 - En touchant un jour, tu vois le temps par catégorie (révisions, cours, entraînement).
 
 **État.**
@@ -55,7 +55,7 @@ Cinq blocs, pas plus.
 
 **Révisions pas faites.** Le nombre de révisions en attente (dont la date est passée, doc 02) et la date de la plus ancienne. En touchant, tu vois la liste des cours concernés. Si tout est à jour : « Révisions à jour ✓ ».
 
-**Erreurs les plus communes.** Les 3 types d'erreur les plus fréquents sur 30 jours, tous cours confondus, avec leur nombre : familles signe, écriture et calcul. En touchant une erreur, tu vois **ses derniers calculs ratés de ce type**, avec ce qu'elle a répondu et la bonne réponse. Un calcul abandonné porte la mention « passé ». Les erreurs « autre » qui reviennent souvent sont à signaler : on pourra les ajouter aux erreurs reconnues du cours.
+**Erreurs les plus communes.** Les 3 types d'erreur les plus fréquents sur 28 jours, tous cours confondus, avec leur nombre : familles signe, écriture et calcul. En touchant une erreur, tu vois **ses derniers calculs ratés de ce type**, avec ce qu'elle a répondu et la bonne réponse. Un calcul abandonné porte la mention « passé ». Les erreurs « autre » qui reviennent souvent sont à signaler : on pourra les ajouter aux erreurs reconnues du cours.
 
 **À retravailler.** Les cours en difficulté, 3 au maximum, du plus faible au plus fort. Un cours est en difficulté si :
 - son taux de réussite des 14 derniers jours est sous **70 %** (avec au moins 5 réponses) ;
@@ -87,7 +87,7 @@ En touchant un cours, tu l'ouvres (§3). Si aucun cours n'est en difficulté : �
 Pour chaque cours :
 - les **étoiles** (meilleur niveau atteint) ;
 - le **niveau actuel** (qui peut redescendre) ;
-- le **taux de réussite des 30 derniers jours** (exercices, révisions et entraînement ; les questions de leçon et les exemples guidés ne comptent pas) ;
+- le **taux de réussite des 28 derniers jours** (exercices, révisions et entraînement ; les questions de leçon et les exemples guidés ne comptent pas) ;
 - la **prochaine révision** ;
 - un ⚠ s'il est en difficulté (mêmes conditions que « À retravailler », §1).
 
@@ -105,7 +105,7 @@ Les cours pas encore commencés sont affichés « 🔒 pas commencé », et le c
 │  04/03 ✓  06/03 ✗  07/03 ✓  09/03 ✓    │
 │  16/03 ✓  18/03 ✗  19/03 ✗            │
 │                                      │
-│  SES ERREURS (30 jours)              │
+│  SES ERREURS (28 jours)              │
 │  Règle des signes   7  ████████       │
 │  Erreur de table    2  ██             │
 │  Autre              1  █              │
@@ -118,7 +118,7 @@ Les cours pas encore commencés sont affichés « 🔒 pas commencé », et le c
 
 - **L'état du cours** : étoiles, niveau actuel, étape sur l'échelle de temps (doc 01), date de validation, prochaine révision.
 - **L'historique des révisions** : chaque révision, avec sa date et réussie ✓ ou ratée ✗.
-- **Ses erreurs sur 30 jours**, par type, du plus fréquent au moins fréquent.
+- **Ses erreurs sur 28 jours**, par type, du plus fréquent au moins fréquent.
 - **Les 10 dernières erreurs de ce cours**, avec sa réponse et la bonne. Un calcul raté plusieurs fois dans la même activité, ou passé, est signalé (« raté 3 fois, passé »).
 
 ## Exemples
@@ -151,5 +151,5 @@ Autres cas :
 | 4 cours en difficulté | les 3 plus faibles affichés |
 | 3 révisions en attente depuis lundi, 1 depuis mercredi | « 4 en attente · la plus ancienne : lundi » |
 | Aucune révision en attente | « Révisions à jour ✓ » |
-| 21 jours avec objectif atteint sur les 30 derniers | « Objectif atteint 21 jours sur 30 » |
+| 21 jours avec objectif atteint sur les 28 derniers | « Objectif atteint 21 jours sur 28 » |
 | Module « Calculs » : cours 0 à 4 validés, 5 en cours, 6 et 7 pas commencés | accueil : « Calculs 5 / 8 cours » ; module : 6 et 7 « 🔒 pas commencé », 5 « en cours » |

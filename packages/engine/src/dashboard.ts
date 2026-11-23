@@ -7,7 +7,7 @@
  * - A « calcul » is a first answer (attempt 1, not « Simplifie ») in a 'fin', 'rattrapage',
  *   'revision' or 'entrainement' activity. Success rates and the error counts
  *   are counted over calculs; a calcul is right when correct and not skipped.
- * - Windows end today and include it: 30 days = today − 29 … today, 14 days = today − 13 … today.
+ * - Windows end today and include it: 28 days (the last 4 weeks) = today − 27 … today, 14 days = today − 13 … today.
  * - A day is 'partiel' as soon as it has any answer or lesson part, without reaching the goal.
  * - A module is « en cours » once one of its courses is started, until all of them are validated.
  * - The course statuses are 'pas-commence' (locked or available), 'en-cours' (started), 'a-rattraper'
@@ -90,7 +90,7 @@ export interface ToRework {
 }
 
 export interface DashboardHome {
-  last30: { days: DayPoint[]; goalDays: number };
+  last28: { days: DayPoint[]; goalDays: number };
   state: {
     today: DailyTime;
     streak: number;
@@ -108,7 +108,7 @@ export interface ModuleCourse {
   status: DashCourseStatus;
   stars: 0 | 1 | 2 | 3;
   level: 1 | 2 | 3 | null;
-  success30: SuccessRate;
+  success28: SuccessRate;
   nextReview: string | null;
   /** ⚠: same conditions as « À retravailler ». */
   struggling: boolean;
@@ -138,7 +138,7 @@ export interface CourseView {
   validatedOn: string | null;
   nextReview: string | null;
   reviews: { day: string; ok: boolean }[];
-  errors30: ErrorCount[];
+  errors28: ErrorCount[];
   lastErrors: WrongCalcul[];
 }
 
@@ -211,16 +211,16 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     passed: passed.has(itemKey(e)),
   });
 
-  const from30 = addDays(today, -29);
+  const from28 = addDays(today, -27);
   const from14 = addDays(today, -13);
-  const calculs30 = calculs.filter((e) => inWindow(e.day, from30, today));
+  const calculs28 = calculs.filter((e) => inWindow(e.day, from28, today));
   const calculs14 = calculs.filter((e) => inWindow(e.day, from14, today));
-  const wrong30 = calculs30.filter((e) => !isRight(e));
+  const wrong28 = calculs28.filter((e) => !isRight(e));
 
-  // 30 derniers jours, and the série.
+  // 28 derniers jours, and the série.
   const activeDays = new Set(all.filter((e) => e.kind !== 'activity_end').map((e) => e.day));
-  const days: DayPoint[] = Array.from({ length: 30 }, (_, i) => {
-    const day = addDays(from30, i);
+  const days: DayPoint[] = Array.from({ length: 28 }, (_, i) => {
+    const day = addDays(from28, i);
     const { totalMs, reviewMs, courseMs, trainingMs, goalReached } = dailyTime(all, day);
     const mark: DayMark = goalReached ? 'atteint' : activeDays.has(day) ? 'partiel' : 'rien';
     return { day, mark, totalMs, reviewMs, courseMs, trainingMs };
@@ -244,11 +244,11 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     .sort((a, b) => (a.success14.rate ?? 2) - (b.success14.rate ?? 2) || courseRank.get(a.courseId)! - courseRank.get(b.courseId)!)
     .slice(0, TO_REWORK_MAX);
 
-  const common = countErrors(wrong30);
+  const common = countErrors(wrong28);
   const pending = pendingReviews(progress, today);
 
   const home: DashboardHome = {
-    last30: { days, goalDays: days.filter((d) => d.mark === 'atteint').length },
+    last28: { days, goalDays: days.filter((d) => d.mark === 'atteint').length },
     state: {
       today: todayTime,
       streak,
@@ -287,7 +287,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
         status: dashStatus(c),
         stars: c.stars,
         level: c.level,
-        success30: successRate(calculs30.filter((e) => e.courseId === id)),
+        success28: successRate(calculs28.filter((e) => e.courseId === id)),
         nextReview: c.nextReview,
         struggling: struggling.has(id),
         failedTwiceInARow: c.failedTwiceInARow,
@@ -313,7 +313,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
         validatedOn: c.validatedOn,
         nextReview: c.nextReview,
         reviews: c.reviewHistory.map((r) => ({ ...r })),
-        errors30: countErrors(wrong30.filter((e) => e.courseId === id)).map(({ errorType, family, count }) => ({ errorType, family, count })),
+        errors28: countErrors(wrong28.filter((e) => e.courseId === id)).map(({ errorType, family, count }) => ({ errorType, family, count })),
         lastErrors: wrongOfCourse.slice(-LISTED_ERRORS_MAX).reverse().map(wrongCalcul),
       };
     }

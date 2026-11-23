@@ -89,20 +89,20 @@ describe('computeDashboard — the example journal of doc 05 (cours 5, Thursday 
   });
 
   it('points of the 4 days: Mon ● · Tue ◐ · Wed ○ · Thu ●', () => {
-    const days = d.home.last30.days;
-    expect(days).toHaveLength(30);
-    expect(days[29]!.day).toBe(THU);
-    expect(days[0]!.day).toBe(addDays(THU, -29));
+    const days = d.home.last28.days;
+    expect(days).toHaveLength(28);
+    expect(days[27]!.day).toBe(THU);
+    expect(days[0]!.day).toBe(addDays(THU, -27));
     expect(days.slice(-4).map((x) => x.mark)).toEqual(['atteint', 'partiel', 'rien', 'atteint']);
-    expect(days[26]!.totalMs).toBe(16 * 60_000);
-    expect(d.home.last30.goalDays).toBe(2);
+    expect(days[24]!.totalMs).toBe(16 * 60_000);
+    expect(d.home.last28.goalDays).toBe(2);
   });
 
   it('cours 5 success over 14 days: (53 − 10) / 53 = 81 %, not in « À retravailler »', () => {
     expect(d.home.toRework).toEqual([]);
     const course = d.modules[0]!.courses.find((x) => x.courseId === c5)!;
-    expect(course.success30).toMatchObject({ ok: 43, total: 53 });
-    expect(Math.round(course.success30.rate! * 100)).toBe(81);
+    expect(course.success28).toMatchObject({ ok: 43, total: 53 });
+    expect(Math.round(course.success28.rate! * 100)).toBe(81);
     expect(course.struggling).toBe(false);
   });
 });
@@ -181,16 +181,16 @@ describe('computeDashboard — « Autres cas » of doc 05', () => {
     expect(d.home.pendingReviews).toEqual({ count: 0, oldest: null, items: [] });
   });
 
-  it('21 days with the goal reached over the last 30 → « Objectif atteint 21 jours sur 30 »', () => {
+  it('21 days with the goal reached over the last 28 → « Objectif atteint 21 jours sur 28 »', () => {
     const events = [
       ...Array.from({ length: 21 }, (_, i) => goalDay(addDays(TODAY, -i - (i >= 10 ? 5 : 0)))).flat(),
-      ...goalDay(addDays(TODAY, -30)), // 31 days ago: out of the window
+      ...goalDay(addDays(TODAY, -28)), // 29 days ago: out of the window
       ans({ day: addDays(TODAY, -12), course: C(1), ms: 60_000 }), // a little activity
     ];
     const d = computeDashboard(events, TODAY);
-    expect(d.home.last30.goalDays).toBe(21);
-    expect(d.home.last30.days.filter((x) => x.mark === 'atteint')).toHaveLength(21);
-    expect(d.home.last30.days.filter((x) => x.mark === 'partiel').map((x) => x.day)).toEqual([addDays(TODAY, -12)]);
+    expect(d.home.last28.goalDays).toBe(21);
+    expect(d.home.last28.days.filter((x) => x.mark === 'atteint')).toHaveLength(21);
+    expect(d.home.last28.days.filter((x) => x.mark === 'partiel').map((x) => x.day)).toEqual([addDays(TODAY, -12)]);
   });
 
   it('module « Calculs »: cours 0 to 4 validated, 5 in progress, 6 and 7 not started → 5 / 8; 6 and 7 « 🔒 pas commencé », 5 « en cours »', () => {
@@ -235,7 +235,7 @@ describe('computeDashboard — État', () => {
 
 });
 
-describe('computeDashboard — Erreurs les plus communes (30 days)', () => {
+describe('computeDashboard — Erreurs les plus communes (28 days)', () => {
   const TODAY = '2026-03-20';
 
   it('top 3 error types of the signe, écriture and calcul families, all courses together, with their latest wrong calculs', () => {
@@ -248,7 +248,7 @@ describe('computeDashboard — Erreurs les plus communes (30 days)', () => {
       ...Array.from({ length: 2 }, () => wrong(TODAY, C(0), 'moins-apres', 'ecriture')),
       wrong(TODAY, C(5), 'erreur-table', 'calcul'),
       ...Array.from({ length: 6 }, () => wrong(TODAY, C(5), 'autre', 'autre')), // not in the top
-      ...Array.from({ length: 5 }, () => wrong(addDays(TODAY, -30), C(5), 'erreur-table', 'calcul')), // too old
+      ...Array.from({ length: 5 }, () => wrong(addDays(TODAY, -28), C(5), 'erreur-table', 'calcul')), // 29 days ago: too old
       wrong(TODAY, C(5), 'erreur-table', 'calcul', { attempt: 2 }), // not a first answer
     ];
     const d = computeDashboard(events, TODAY);
@@ -292,23 +292,23 @@ describe('computeDashboard — Erreurs les plus communes (30 days)', () => {
 describe('computeDashboard — module view (§2)', () => {
   const TODAY = '2026-03-20';
 
-  it('per course: stars, current level, 30-day success without lesson questions and guided examples, next review', () => {
+  it('per course: stars, current level, 28-day success without lesson questions and guided examples, next review', () => {
     const v = addDays(TODAY, -10);
     const events = [
       ans({ day: v, course: C(1), activity: 'lecon', correct: false, activityId: 'run0' }), // an unfinished run
       ans({ day: v, course: C(1), activity: 'exemple', correct: false, activityId: 'run0' }),
       ...calculs(v, C(1), 5, 0, 0, { activity: 'fin', activityId: 'run1' }), // validated: step A
       ...review(addDays(v, 2), C(1), true), // step B: ★★ level 2
-      ...calculs(addDays(TODAY, -30), C(1), 4, 4, 0), // 31 days ago: out of the 30 days
+      ...calculs(addDays(TODAY, -28), C(1), 4, 4, 0), // 29 days ago: out of the 28 days
     ];
     const course = computeDashboard(events, TODAY).modules[0]!.courses[1]!;
     expect(course).toMatchObject({
       courseId: C(1), title: getCourse(C(1)).title, order: 1, status: 'valide', stars: 2, level: 2,
       nextReview: addDays(v, 4), struggling: false, failedTwiceInARow: false,
     });
-    expect(course.success30).toEqual({ ok: 8, total: 8, rate: 1 });
+    expect(course.success28).toEqual({ ok: 8, total: 8, rate: 1 });
     const untouched = computeDashboard(events, TODAY).modules[0]!.courses[7]!;
-    expect(untouched).toMatchObject({ status: 'pas-commence', stars: 0, level: null, nextReview: null, success30: { ok: 0, total: 0, rate: null } });
+    expect(untouched).toMatchObject({ status: 'pas-commence', stars: 0, level: null, nextReview: null, success28: { ok: 0, total: 0, rate: null } });
   });
 
   it('a course to catch up is reported as « à rattraper », distinct from « en cours » (doc 07 #19B)', () => {
@@ -335,7 +335,7 @@ describe('computeDashboard — course view (§3)', () => {
   const TODAY = '2026-03-20';
   const c5 = C(5);
 
-  it('state, review history, errors by type over 30 days, the 10 latest errors', () => {
+  it('state, review history, errors by type over 28 days, the 10 latest errors', () => {
     const v = '2026-03-02';
     const events = [
       ...validate(v, c5),
@@ -345,7 +345,7 @@ describe('computeDashboard — course view (§3)', () => {
       ...review('2026-03-09', c5, true), // C
       ...review('2026-03-16', c5, false),
       ...review('2026-03-17', c5, false), // back to B
-      ...calculs(addDays(TODAY, -31), c5, 3, 3, 3), // older than 30 days
+      ...calculs(addDays(TODAY, -28), c5, 3, 3, 3), // older than 28 days
       ...calculs(TODAY, c5, 9, 9, 7), // 7 sign errors, 2 calcul errors
       ans({ day: TODAY, course: c5, correct: false, family: 'autre' }),
       ...calculs(TODAY, c5, 2, 2, 0, { family: 'ecriture' }),
@@ -359,8 +359,8 @@ describe('computeDashboard — course view (§3)', () => {
       { day: '2026-03-04', ok: true }, { day: '2026-03-06', ok: false }, { day: '2026-03-07', ok: true },
       { day: '2026-03-09', ok: true }, { day: '2026-03-16', ok: false }, { day: '2026-03-17', ok: false },
     ]);
-    // the 3 failed reviews (1 calcul error each) are within the 30 days, the 3 older sign errors are not
-    expect(cv.errors30).toEqual([
+    // the 3 failed reviews (1 calcul error each) are within the 28 days, the 3 older sign errors are not
+    expect(cv.errors28).toEqual([
       { errorType: 'err-signe', family: 'signe', count: 7 },
       { errorType: 'err-calcul', family: 'calcul', count: 5 },
       { errorType: 'err-ecriture', family: 'ecriture', count: 2 },
@@ -372,7 +372,7 @@ describe('computeDashboard — course view (§3)', () => {
 
   it('an untouched course: no step, no validation, no review, no error', () => {
     const cv = computeDashboard([], TODAY).courses[C(7)]!;
-    expect(cv).toMatchObject({ status: 'pas-commence', stars: 0, level: null, step: null, validatedOn: null, nextReview: null, reviews: [], errors30: [], lastErrors: [] });
+    expect(cv).toMatchObject({ status: 'pas-commence', stars: 0, level: null, step: null, validatedOn: null, nextReview: null, reviews: [], errors28: [], lastErrors: [] });
   });
 
   it('marks a calcul failed several times in the same activity, or passed (« raté 3 fois, passé »)', () => {
