@@ -25,6 +25,7 @@
 | 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
 
 Autres décisions du 2026-11-23 :
+- Calcul pas fini (doc 03 §3) : « Le calcul n'est pas fini : simplifie. » quand le calcul est une division, « Simplifie. » sinon. Validé par le porteur du projet.
 - Le taux d'erreurs de signe est retiré partout (moteur, doc 05). Le suivi montre les erreurs les plus communes.
 - L'appli n'est pas centrée sur le changement de signe : les nombres relatifs sont le premier module. Description de l'appli : « Entraîne-toi, un peu chaque jour ».
 - Icône de l'appli : option A, « ± » empilé (`docs/design/icones.html`).
