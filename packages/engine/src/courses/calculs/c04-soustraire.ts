@@ -64,6 +64,7 @@ export const c04: CourseDef = {
   moduleId: MODULE_ID,
   order: 4,
   title: "Soustraire, c'est ajouter l'opposé",
+  shortTitle: 'Soustraire',
   rule: RULE,
   parts: [
     explication(

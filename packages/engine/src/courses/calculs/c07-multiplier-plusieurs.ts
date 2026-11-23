@@ -86,6 +86,7 @@ export const c07: CourseDef = {
   moduleId: MODULE_ID,
   order: 7,
   title: 'Multiplier plusieurs relatifs',
+  shortTitle: 'Multiplier plusieurs',
   rule: RULE,
   parts: [
     explication(

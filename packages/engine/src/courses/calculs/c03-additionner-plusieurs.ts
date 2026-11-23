@@ -128,6 +128,7 @@ export const c03: CourseDef = {
   moduleId: MODULE_ID,
   order: 3,
   title: 'Additionner plusieurs relatifs',
+  shortTitle: 'Plusieurs relatifs',
   rule: RULE,
   parts: [
     explication(

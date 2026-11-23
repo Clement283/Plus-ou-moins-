@@ -114,6 +114,7 @@ export const c05: CourseDef = {
   moduleId: MODULE_ID,
   order: 5,
   title: 'Multiplier deux relatifs',
+  shortTitle: 'Multiplier',
   rule: RULE,
   parts: [
     explication(

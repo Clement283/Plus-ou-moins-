@@ -134,6 +134,7 @@ export interface ReviewLine {
   courseId: string;
   order: number;
   title: string;
+  shortTitle: string;
   ok: number;
   total: 3;
   nextReview: string;
@@ -171,6 +172,7 @@ export function reviewSummary(
       courseId,
       order: getCourse(courseId).order,
       title: getCourse(courseId).title,
+      shortTitle: getCourse(courseId).shortTitle,
       ok: t.ok,
       total: 3,
       nextReview,

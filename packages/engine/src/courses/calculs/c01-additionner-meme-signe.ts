@@ -91,6 +91,7 @@ export const c01: CourseDef = {
   moduleId: MODULE_ID,
   order: 1,
   title: 'Additionner deux nombres de même signe',
+  shortTitle: 'Même signe',
   rule: RULE,
   parts: [
     explication(

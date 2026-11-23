@@ -226,6 +226,17 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'rien-a-travailler', fixture: 'debut-du-module', before: (page) => page.waitForTimeout(500) },
     ],
   },
+  revisions: {
+    route: '#/revisions',
+    scenarios: [
+      // Vraie séance (5 cours dus, tirage au hasard) : la première question, avec sa pastille.
+      { name: 'question', fixture: 'debut-de-journee', before: (page) => page.waitForTimeout(500) },
+      // Question à calculs fixes (même déroulé) : un QCM raté, bonne réponse et explication.
+      { name: 'qcm-rate', fixture: 'debut-de-journee', route: '#/essai/activite?cas=revision', before: (page) => play(page, [4]) },
+      { name: 'bilan-encore', fixture: 'debut-de-journee', route: '#/essai/bilan?cas=encore' },
+      { name: 'bilan-faites', fixture: 'debut-de-journee', route: '#/essai/bilan?cas=faites' },
+    ],
+  },
   questions: {
     route: '#/essai/questions?type=saisie',
     scenarios: [

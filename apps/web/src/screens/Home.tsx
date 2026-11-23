@@ -21,7 +21,7 @@ function dayText(minutes: number, goal: number): string {
   return `Encore ${plural(goal - minutes, 'minute', 'minutes')} pour ton objectif.`;
 }
 
-function ReviewCard({ reviews, started }: { reviews: SessionSize | null; started: boolean }) {
+export function ReviewCard({ reviews, started, onTrain = () => go('#/entrainement') }: { reviews: SessionSize | null; started: boolean; onTrain?: () => void }) {
   if (!reviews) {
     return (
       <div className="card card--done">
@@ -31,7 +31,7 @@ function ReviewCard({ reviews, started }: { reviews: SessionSize | null; started
         </span>
         <h2 className="t-h4">Tout est révisé pour aujourd'hui</h2>
         <p className="card__meta">Pour continuer, entraîne-toi sur les cours de ton choix.</p>
-        <button className="btn btn--outlined btn--block" type="button" onClick={() => go('#/entrainement')}>
+        <button className="btn btn--outlined btn--block" type="button" onClick={onTrain}>
           S'entraîner
         </button>
       </div>

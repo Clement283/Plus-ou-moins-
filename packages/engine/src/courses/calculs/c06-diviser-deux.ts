@@ -74,6 +74,7 @@ export const c06: CourseDef = {
   moduleId: MODULE_ID,
   order: 6,
   title: 'Diviser deux relatifs',
+  shortTitle: 'Diviser',
   rule: RULE,
   parts: [
     explication(

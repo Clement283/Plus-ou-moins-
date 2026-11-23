@@ -65,3 +65,19 @@ describe('Module « Calculs »', () => {
     }
   });
 });
+
+describe('Noms courts des cours (bilan de séance)', () => {
+  it('ceux de la maquette revisions.html', () => {
+    const m = getModule('calculs');
+    expect(m.courseIds.map((id) => getCourse(id).shortTitle)).toEqual([
+      'Bien écrire',
+      'Même signe',
+      'Signes contraires',
+      'Plusieurs relatifs',
+      'Soustraire',
+      'Multiplier',
+      'Diviser',
+      'Multiplier plusieurs',
+    ]);
+  });
+});

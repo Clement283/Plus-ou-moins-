@@ -70,6 +70,8 @@ export interface CourseDef {
   moduleId: string;
   order: number;
   title: string;
+  /** Nom court, pour les listes serrées (bilan de séance). */
+  shortTitle: string;
   rule: string;
   /** The course's own sequence, in order. */
   parts: LessonPart[];

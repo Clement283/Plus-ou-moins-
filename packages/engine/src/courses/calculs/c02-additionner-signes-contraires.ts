@@ -100,6 +100,7 @@ export const c02: CourseDef = {
   moduleId: MODULE_ID,
   order: 2,
   title: 'Additionner deux nombres de signes contraires',
+  shortTitle: 'Signes contraires',
   rule: RULE,
   parts: [
     explication(

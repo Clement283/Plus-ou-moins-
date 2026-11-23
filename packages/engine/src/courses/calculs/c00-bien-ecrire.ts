@@ -344,6 +344,7 @@ export const c00: CourseDef = {
   moduleId: MODULE_ID,
   order: 0,
   title: 'Bien écrire un calcul',
+  shortTitle: 'Bien écrire',
   rule: RULE,
   parts: [
     explication(math('4 \\times -3'), { t: 'anim', name: 'signes-qui-se-cognent' }, math('4 \\times (-3)')),

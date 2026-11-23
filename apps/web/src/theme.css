@@ -804,3 +804,8 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .row--wrap{gap:var(--sp-8);flex-wrap:wrap}
 /* pied d'écran collé en bas : barre d'action éventuelle puis barre de navigation */
 .app-foot{position:sticky;bottom:0;margin-top:auto;z-index:2}
+.scope-revisions .course-num{width:40px;height:40px;font-size:18px}
+.scope-revisions .list-item__title{font-size:16px}
+.list-item__trail .is-ok{color:var(--on-success-container);display:flex}
+.list-item__trail .is-ko{color:var(--on-error-container);display:flex}
+.bilan-day .progress i.is-goal{background:var(--goal)}
