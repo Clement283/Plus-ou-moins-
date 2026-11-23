@@ -39,7 +39,8 @@ export const emptyRaw = (): RawInput => ({ tokens: [], cursor: 'root' });
 const countChars = (tokens: readonly RawToken[]): number =>
   tokens.reduce((n, tok) => n + (tok.t === 'c' ? 1 : countChars(tok.num) + countChars(tok.den)), 0);
 
-export const canSubmit = (input: RawInput): boolean => countChars(input.tokens) > 0;
+/** Doc 07 #4: an empty fraction can be submitted (read as `ecriture-invalide`). */
+export const canSubmit = (input: RawInput): boolean => input.tokens.length > 0;
 
 type Frac = Extract<RawToken, { t: 'frac' }>;
 
@@ -127,10 +128,12 @@ const writingError = (errorType: ErrorType, divZero = false): ReadResult => ({
 /**
  * Error of a sequence that should be "-?" followed by one number, where 'F'
  * stands for a fraction and acts as a number. Checked in order: two
- * consecutive '-', a '-' after a number, anything else.
+ * consecutive '-', a '-' between two numbers ("3-4": an unfinished
+ * calculation, doc 07 #1), a trailing '-' after a number, anything else.
  */
 function shapeError(shape: string): ErrorType {
   if (shape.includes('--')) return 'double-signe';
+  if (/[\dF]-[\dF]/.test(shape)) return 'ecriture-invalide';
   if (/[\dF]-/.test(shape)) return 'moins-apres';
   return 'ecriture-invalide';
 }
@@ -138,10 +141,10 @@ function shapeError(shape: string): ErrorType {
 /**
  * Doc 03 §3 `parenthese`: an opened parenthesis is not closed, or a closed one
  * was never opened. Only when the parentheses sit where a wrap would be (before
- * the sign/number and after it), so that "3(4" stays `ecriture-invalide`.
+ * the number, signs and parentheses mixed, e.g. ")-3", and after it), so that "3(4" stays `ecriture-invalide`.
  */
 function unbalancedWrap(shape: string): boolean {
-  if (!/^[(-]*(\d+|F)\)*$/.test(shape)) return false;
+  if (!/^[()-]*(\d+|F)\)*$/.test(shape)) return false;
   let depth = 0;
   for (const ch of shape) {
     depth += ch === '(' ? 1 : ch === ')' ? -1 : 0;

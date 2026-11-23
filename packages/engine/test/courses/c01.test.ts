@@ -56,6 +56,14 @@ describe('Cours 1 — Additionner deux nombres de même signe', () => {
     expect(c01.generalExplanation(ex).rule).toBe(c01.rule);
   });
 
+  it('signe-oublie avec deux nombres positifs : phrase dédiée (doc 07 #6A)', () => {
+    const oublie = c01.errors[0];
+    expect(oublie?.explain(exOf(c01, '4 + 6')).rule).toBe('Les deux nombres sont positifs : le résultat est positif aussi.');
+    expect(oublie?.explain(exOf(c01, '−3 + (−5)')).rule).toBe(
+      'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !',
+    );
+  });
+
   it('générateur et calculs-pièges (1 000 tirages par niveau)', () =>
     propertyChecks(
       c01,

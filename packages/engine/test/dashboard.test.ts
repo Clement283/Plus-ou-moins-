@@ -234,7 +234,11 @@ describe('computeDashboard — État', () => {
   it('a module is « en cours » once a course is started, and until all its courses are validated', () => {
     expect(computeDashboard([], TODAY).home.state.modules).toEqual([]);
     const all = IDS.flatMap((id) => validate(TODAY, id));
-    expect(computeDashboard(all, TODAY).home.state.modules).toEqual([]);
+    const d = computeDashboard(all, TODAY);
+    expect(d.home.state.modules).toEqual([]);
+    // doc 07 #17A: a finished module leaves the État lines but stays in the module list, done
+    expect(d.modules[0]).toMatchObject({ moduleId: 'calculs', validated: 8, total: 8, done: true });
+    expect(computeDashboard(validate(TODAY, C(0)), TODAY).modules[0]!.done).toBe(false);
   });
 
   it('erreurs de signe: ↘ down, → stable (less than 3 points), ↗ up; writing errors are not mixed in', () => {
@@ -254,10 +258,12 @@ describe('computeDashboard — État', () => {
     expect(trend(36, 30).trend).toBe('hausse'); // 33 % vs 30 %
   });
 
-  it('one month earlier is a calendar month, clamped to the end of a shorter month', () => {
+  it('« il y a un mois » = la même fenêtre de 7 jours, 28 jours plus tôt (doc 07 #18B)', () => {
     const s = computeDashboard([], '2026-03-31').home.state.signErrors;
     expect(s.current).toMatchObject({ from: '2026-03-25', to: '2026-03-31' });
-    expect(s.monthAgo).toMatchObject({ from: '2026-02-22', to: '2026-02-28' });
+    expect(s.monthAgo).toMatchObject({ from: '2026-02-25', to: '2026-03-03' });
+    const e = [...calculs('2026-03-03', C(5), 10, 4, 4), ...calculs('2026-02-28', C(5), 10, 0, 0)];
+    expect(computeDashboard(e, '2026-03-31').home.state.signErrors.monthAgo).toMatchObject({ signErrors: 4, calculs: 20 });
   });
 
   it('a skipped answer and a « Simplifie » answer are not calculs', () => {
@@ -348,9 +354,23 @@ describe('computeDashboard — module view (§2)', () => {
     expect(untouched).toMatchObject({ status: 'pas-commence', stars: 0, level: null, nextReview: null, success30: { ok: 0, total: 0, rate: null } });
   });
 
-  it('a course to catch up (« à rattraper ») is still « en cours »', () => {
+  it('a course to catch up is reported as « à rattraper », distinct from « en cours » (doc 07 #19B)', () => {
     const events = calculs(TODAY, C(0), 5, 5, 0, { activity: 'fin', activityId: 'run0' });
-    expect(computeDashboard(events, TODAY).modules[0]!.courses[0]!.status).toBe('en-cours');
+    const d = computeDashboard(events, TODAY);
+    expect(d.modules[0]!.courses[0]!.status).toBe('a-rattraper');
+    expect(d.courses[C(0)]!.status).toBe('a-rattraper');
+    const started = computeDashboard([ans({ day: TODAY, course: C(1), activity: 'lecon', activityId: 'run1' })], TODAY);
+    expect(started.modules[0]!.courses[1]!.status).toBe('en-cours');
+  });
+
+  it('« à retravailler » compares the displayed percentage: 69,6 % shows 70 % and is not flagged (doc 07 #21A)', () => {
+    const at = (right: number, total: number) =>
+      computeDashboard(calculs(TODAY, C(4), total, total - right, 0), TODAY);
+    const d = at(348, 500); // 69,6 %
+    expect(d.home.toRework).toEqual([]);
+    expect(d.modules[0]!.courses[4]!.struggling).toBe(false);
+    expect(at(347, 500).home.toRework.map((x) => x.courseId)).toEqual([C(4)]); // 69,4 % shows 69 %
+    expect(at(7, 10).home.toRework).toEqual([]); // exactly 70 %
   });
 });
 

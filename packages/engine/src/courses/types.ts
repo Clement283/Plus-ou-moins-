@@ -52,8 +52,11 @@ export interface Explanation {
   steps: LessonBlock[];
 }
 
+/** How a text block is shown: 'neutre' = grey, neither right (✓) nor wrong (✗). */
+export type LessonTone = 'ok' | 'ko' | 'neutre';
+
 export type LessonBlock =
-  | { t: 'text'; text: string }
+  | { t: 'text'; text: string; tone?: LessonTone }
   | { t: 'math'; latex: string; colorize?: boolean }
   | { t: 'number-line'; from: number; to: number; jumps: { from: number; by: number }[]; animate: true }
   | { t: 'anim'; name: string };

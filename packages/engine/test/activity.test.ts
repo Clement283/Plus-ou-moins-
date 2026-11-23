@@ -304,6 +304,34 @@ describe('« Passer » (doc 01 §6, « Même calcul raté 2 fois → Passer »)'
   });
 });
 
+describe('« Passer » par calcul (doc 07 #13)', () => {
+  it('deux calculs différents ratés 2 fois : les deux se passent, chacun à son tour', () => {
+    let s = start(finItems(2));
+    s = answer(s, ko(), 1000).state; // q0 : 1er échec
+    s = answer(s, ko(), 1000).state; // q1 : 1er échec
+    // les calculs du même type sont réussis, les repassages ratés une fois (2e échec de chaque calcul)
+    const failed = new Set<string>();
+    while (!(failed.has('q0') && failed.has('q1'))) {
+      const c = current(s)!;
+      if (c.type !== 'question') throw new Error();
+      const again = c.role === 'repetition';
+      if (again) failed.add(c.item.itemId);
+      s = answer(s, again ? ko() : ok, 1000).state;
+    }
+    const canSkip = (x: ActivityState) => {
+      const c = current(x);
+      return c?.type === 'question' && c.canSkip;
+    };
+    const skipped: string[] = [];
+    while (!isDone(s)) {
+      expect(canSkip(s)).toBe(true);
+      skipped.push(head(s));
+      s = skip(s, 1000).state;
+    }
+    expect(skipped.sort()).toEqual(['q0:repetition', 'q1:repetition']);
+  });
+});
+
 describe('« Simplifie » (doc 03 §3)', () => {
   it('pas compté faux : enregistré unfinished avec le même numéro, le calcul reste affiché', () => {
     let s = start(finItems(2));
@@ -506,7 +534,7 @@ describe('révision', () => {
 });
 
 describe('entraînement : séries de 10 (doc 03 §5)', () => {
-  it('« tout mélangé » : 10 questions sur les cours validés, tous types possibles, au niveau du cours', () => {
+  it('« tout mélangé » : 10 questions sur les cours validés, tous types possibles, niveaux 1 à 3', () => {
     const { state } = validatedState([C0, C1, C5]);
     const seenKinds = new Set<QuestionKind>();
     const seenCourses = new Set<string>();
@@ -520,7 +548,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
         expect([C0, C1, C5]).toContain(x.courseId);
         expect(availableKinds(getCourse(x.courseId))).toContain(x.question.kind);
         const level = 'ex' in x.question ? x.question.ex.level : x.question.exs[0]!.level;
-        expect(level).toBe(state.courses[x.courseId]!.level);
+        expect([1, 2, 3]).toContain(level);
         seenKinds.add(x.question.kind);
         seenCourses.add(x.courseId);
       }
@@ -529,13 +557,24 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
     expect(seenCourses.size).toBe(3);
   });
 
-  it('un cours au choix : uniquement ce cours, au niveau où il en est', () => {
+  it('un cours au choix : uniquement ce cours (niveaux mélangés, pas celui du cours)', () => {
     const { state } = validatedState([C1, C5]);
     const leveled: ProgressState = { ...state, courses: { ...state.courses, [C5]: { ...state.courses[C5]!, step: 3, level: LADDER[3].level } } };
     const items = trainingSeries(leveled, { courseId: C5 }, seededRng(1));
     expect(items).toHaveLength(10);
     expect(items.every((x) => x.courseId === C5)).toBe(true);
-    expect(items.every((x) => ('ex' in x.question ? x.question.ex.level : x.question.exs[0]!.level) === 3)).toBe(true);
+  });
+
+  it('niveaux mélangés (doc 07 #15B) : sur 1 000 séries, chaque niveau tiré à 1/3 environ, quel que soit le niveau du cours', () => {
+    const { state } = validatedState([C0, C1, C5]);
+    const leveled: ProgressState = { ...state, courses: { ...state.courses, [C5]: { ...state.courses[C5]!, step: 3, level: LADDER[3].level } } };
+    const count: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
+    for (let seed = 0; seed < 1000; seed++)
+      for (const x of trainingSeries(leveled, 'tout', seededRng(seed)))
+        count['ex' in x.question ? x.question.ex.level : x.question.exs[0]!.level]!++;
+    const total = 1000 * TRAINING_SERIES_LENGTH;
+    expect(count[1]! + count[2]! + count[3]!).toBe(total);
+    for (const level of [1, 2, 3]) expect(Math.abs(count[level]! / total - 1 / 3)).toBeLessThan(0.02);
   });
 
   it('types valides par cours : le Cours 0 n’a que ses formats (pas de « Vrai ou faux »), les autres les 8', () => {

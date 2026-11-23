@@ -186,6 +186,18 @@ describe('Cours 0 — Bien écrire un calcul', () => {
       });
     });
 
+    it('piège « parenthese » aux niveaux 1 et 2 : une parenthèse ouverte autour d’un négatif, jamais fermée (doc 07 #7A)', () => {
+      for (const level of [1, 2] as const)
+        for (let i = 0; i < DRAWS; i++) {
+          const ex = c00.errors.find((e) => e.id === 'parenthese')!.trap(level, seededRng(5000 + i));
+          const pieces = ex.meta?.tokens as string[];
+          const at = ex.meta?.faultAt as number;
+          expect(ex.level).toBe(level);
+          expect(ex.meta?.faultType).toBe('parenthese');
+          expect(pieces[at]).toMatch(/^\(-\d/); // « (−3 » : ouverte autour d’un négatif
+        }
+    });
+
     it('QCM avec un piège (doc 01 §5) : une des écritures fausses fait cette faute-là', () => {
       for (const trap of ['signes-colles', 'moins-apres', 'parenthese'])
         for (const level of LEVELS) {
@@ -233,6 +245,13 @@ describe('Cours 0 — Bien écrire un calcul', () => {
       const q = c00.customQuestion?.('erreur', ctx(1, 1)) as Question;
       expect(c00.customCheck?.(q, { choice: 0 })).toBeNull();
     });
+  });
+
+  it('règle 2 : le contre-exemple « (−3) + 5 » est neutre (gris), pas ✗ (doc 07 #8A)', () => {
+    const rule2 = c00.parts[2];
+    if (rule2?.type !== 'explication') throw new Error('explication');
+    expect(rule2.blocks).toContainEqual({ t: 'text', text: '(−3) + 5 : pas faux, mais inutile', tone: 'neutre' });
+    expect(rule2.blocks.some((b) => b.t === 'text' && b.text.includes('✗'))).toBe(false);
   });
 
   it('leçon : déroulé', () => {

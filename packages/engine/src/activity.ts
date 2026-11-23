@@ -15,7 +15,8 @@
  * - The « même type » calcul is added after the FIRST failure of an original item only. A failed
  *   repeat comes back at the end again; a failed « même type » calcul adds nothing.
  * - « Passer » (`canSkip`): offered on a repeat of a calcul that has failed at least twice (failures
- *   of the « même type » calcul are not failures of the same calcul).
+ *   of the « même type » calcul are not failures of the same calcul). Counted per item (doc 07 #13):
+ *   every calcul of the activity failed twice can be skipped, not only one.
  * - « Simplifie » (outcome `unfinished`): recorded with the attempt number of the answer that will
  *   follow; the calcul stays on screen and nothing else changes.
  * - « Même type »: same course, same level, same kind of question, the recognised error as trap
@@ -94,6 +95,8 @@ export const MEME_TYPE_DISTANCE = 3;
 export const END_EXERCISES = 5;
 export const RATTRAPAGE_EXERCISES = 5;
 export const TRAINING_SERIES_LENGTH = 10;
+/** Doc 07 #15B: each training question's level is drawn uniformly among these. */
+const TRAINING_LEVELS: Level[] = [1, 2, 3];
 const ALL_KINDS: QuestionKind[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux'];
 /** Draws of a « même type » calcul (or of distinct end exercises) before accepting a duplicate. */
 const DISTINCT_TRIES = 20;
@@ -345,7 +348,7 @@ export function reviewItems(session: ReviewSession): QuestionItem[] {
 /**
  * Doc 03 §5: a series of 10 questions on the validated courses (« tout mélangé »: a random validated
  * course for each question) or on one chosen validated course; any kind the course can build, at
- * the course's current level. Never changes the schedule (srs ignores 'entrainement').
+ * a level drawn uniformly among 1, 2 and 3 for each question (doc 07 #15B, not the course's level). Never changes the schedule (srs ignores 'entrainement').
  */
 export function trainingSeries(state: ProgressState, choice: 'tout' | { courseId: string }, rng: Rng): QuestionItem[] {
   const validated = Object.values(state.courses).filter((c) => c.status === 'valide').map((c) => c.courseId);
@@ -356,7 +359,7 @@ export function trainingSeries(state: ProgressState, choice: 'tout' | { courseId
     const course = getCourse(courseId);
     const question = buildQuestion(course, pick(rng, availableKinds(course)), {
       rng,
-      level: state.courses[courseId]!.level ?? 1,
+      level: pick(rng, TRAINING_LEVELS),
       timesSeen: qcmSeen(state, courseId),
     });
     return { type: 'question', itemId: `entrainement-${i}`, courseId, activity: 'entrainement', question };

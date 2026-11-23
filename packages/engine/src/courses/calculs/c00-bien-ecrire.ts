@@ -352,7 +352,12 @@ export const c00: CourseDef = {
       text('✓ 4 × (−3)'),
       text('✗ 4 × −3 · ✗ 5 + −2'),
     ),
-    explication(text("**En tête d'un calcul, pas de parenthèses** pour un négatif : −3 + 5."), text('✓ −3 + 5')),
+    explication(
+      text("**En tête d'un calcul, pas de parenthèses** pour un négatif : −3 + 5."),
+      text('✓ −3 + 5'),
+      // Doc 07 #8A: not wrong, only useless — shown grey, not as a red ✗.
+      { t: 'text', text: '(−3) + 5 : pas faux, mais inutile', tone: 'neutre' },
+    ),
     explication(text("**Le signe − s'écrit avant le nombre** : −3, jamais 3−."), text('✓ −3'), text('✗ 3−')),
     explication(text('**Une parenthèse ouverte se ferme** : (−3), jamais (−3 tout seul.'), text('✓ (−3)'), text('✗ (−3')),
     lecon({

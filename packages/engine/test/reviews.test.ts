@@ -338,6 +338,24 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
     expect([...seenKinds].sort()).toEqual(['c0:classer', 'c0:qcm', 'other:classer', 'other:qcm', 'other:vraifaux']);
   });
 
+  it('fréquence des formats (doc 07 #10A) : 1 chance sur 4 de « vrai ou faux », 1 sur 4 de « classer » par cours', () => {
+    const state = onlyDue(all, IDS.slice(3, 8), D); // 5 cours, aucun n'est le Cours 0
+    let vf = 0;
+    let cl = 0;
+    let courses = 0;
+    for (let seed = 0; seed < 1000; seed++) {
+      const s = nextReviewSession(state, D, seededRng(seed), fixedId)!;
+      for (const id of courseIdsOf(s)) {
+        const kinds = s.items.filter((it) => it.courseId === id).map((it) => it.question.kind);
+        courses++;
+        vf += kinds.filter((k) => k === 'vraifaux').length;
+        cl += kinds.filter((k) => k === 'classer').length;
+      }
+    }
+    expect(Math.abs(vf / courses - 0.25)).toBeLessThan(0.03);
+    expect(Math.abs(cl / courses - 0.25)).toBeLessThan(0.03);
+  });
+
   it('les questions des différents cours sont entremêlées : jamais deux de suite du même cours', () => {
     for (const n of [2, 3, 5]) {
       const state = onlyDue(all, IDS.slice(1, 1 + n), D);

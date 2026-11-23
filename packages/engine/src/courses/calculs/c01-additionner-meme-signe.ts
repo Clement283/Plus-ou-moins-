@@ -29,7 +29,11 @@ const errors = buildErrors(
       id: 'signe-oublie',
       family: 'signe',
       detect: isOpposite,
-      text: () => 'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !',
+      // Doc 07 #6A: the sentence follows the sign of the two numbers.
+      text: (ex) =>
+        ex.answer.n < 0
+          ? 'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !'
+          : 'Les deux nombres sont positifs : le résultat est positif aussi.',
       draw: (level, rng) => sum(level, -draw(rng, SIZES[level]), -draw(rng, SIZES[level])),
       sample: (ex) => -ex.answer.n,
       // −3 + (−5) = +(3 + 5) = 8

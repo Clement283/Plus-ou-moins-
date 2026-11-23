@@ -41,6 +41,23 @@ describe('QCM (doc 04 §7)', () => {
     expect(reachable(n, display, level, formula)).toContain(key(choices));
   });
 
+  it('réponse 0 : jamais la formule « paires de signes », on en prend une autre (doc 07 #16A)', () => {
+    const rng = seededRng(16);
+    const formulas = new Set<string>();
+    for (let i = 0; i < 300; i++) {
+      const q = buildQuestion(C(2), 'qcm', { rng, level: 1, timesSeen: 9 });
+      if (q.kind !== 'qcm' || q.ex.answer.n !== 0) continue;
+      formulas.add(q.formula);
+    }
+    for (const f of ['debut', 'melangee'] as Formula[]) {
+      const q = qcmFor(C(2), exOf(C(2), '−7 + 7'), f, seededRng(1));
+      expect(q.kind === 'qcm' && q.formula).toBe(f);
+    }
+    expect(formulas.has('paires-signes')).toBe(false);
+    const forced = qcmFor(C(2), exOf(C(2), '−7 + 7'), 'paires-signes', seededRng(1));
+    expect(forced.kind === 'qcm' && forced.formula).toBe('melangee');
+  });
+
   it('records the error tied to the choice', () => {
     const q = qcmFor(C(5), exOf(C(5), '−3 × (−3)'), 'debut', seededRng(1));
     if (q.kind !== 'qcm') throw new Error('kind');

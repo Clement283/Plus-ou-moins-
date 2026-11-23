@@ -8,15 +8,17 @@
  *   'revision' or 'entrainement' activity. Success rates, the sign-error rate and the error counts
  *   are counted over calculs; a calcul is right when correct and not skipped.
  * - Windows end today and include it: 30 days = today − 29 … today, 14 days = today − 13 … today,
- *   7 days = today − 6 … today. « Les 7 jours d'il y a un mois » ends on the same day one calendar
- *   month earlier (clamped to the end of a shorter month). The trend compares the rounded
+ *   7 days = today − 6 … today. « Les 7 jours d'il y a un mois » is the same 7-day window 28 days
+ *   earlier (doc 07 #18B). The trend compares the rounded
  *   percentages the follower sees: a difference under 3 points is stable; no trend when either
  *   window has no calcul.
  * - A day is 'partiel' as soon as it has any answer or lesson part, without reaching the goal.
  * - A module is « en cours » once one of its courses is started, until all of them are validated.
- * - The course statuses are 'pas-commence' (locked or available), 'en-cours' (started, including
- *   « à rattraper ») and 'valide'.
- * - « À retravailler » orders by the 14-day success rate (no answer in 14 days: last), then course
+ * - The course statuses are 'pas-commence' (locked or available), 'en-cours' (started), 'a-rattraper'
+ *   (finished without validation, doc 07 #19B) and 'valide'.
+ * - A finished module leaves the home État lines but stays in the module list with `done` (doc 07 #17A).
+ * - « À retravailler » compares the rounded, displayed percentage with 70
+ *   (doc 07 #21A: a displayed 70 % is never flagged) and orders by the 14-day success rate (no answer in 14 days: last), then course
  *   order. The most common errors leave out « autre » (counted apart in `otherCount`) and tie on
  *   the most recent occurrence; the course view's errors include « autre ».
  * - The wrong calculs listed (home and course view) are the 10 most recent. `failures` counts the
@@ -31,7 +33,8 @@ import { LADDER, foldProgress, type CourseProgress } from './srs';
 import { addDays } from './time';
 
 export const SIGN_TREND_THRESHOLD_POINTS = 3;
-export const STRUGGLING_RATE = 0.7;
+/** « À retravailler » below this displayed percentage (doc 07 #21A). */
+export const STRUGGLING_PERCENT = 70;
 export const STRUGGLING_MIN_ANSWERS = 5;
 export const TO_REWORK_MAX = 3;
 export const COMMON_ERRORS_MAX = 3;
@@ -39,7 +42,7 @@ export const LISTED_ERRORS_MAX = 10;
 
 export type DayMark = 'atteint' | 'partiel' | 'rien';
 export type SignTrend = 'baisse' | 'stable' | 'hausse';
-export type DashCourseStatus = 'pas-commence' | 'en-cours' | 'valide';
+export type DashCourseStatus = 'pas-commence' | 'en-cours' | 'a-rattraper' | 'valide';
 
 export interface DayPoint {
   day: string;
@@ -132,6 +135,8 @@ export interface ModuleView {
   title: string;
   validated: number;
   total: number;
+  /** Every course validated: the module has left the home État lines (doc 07 #17A). */
+  done: boolean;
   courses: ModuleCourse[];
 }
 
@@ -173,13 +178,6 @@ function successRate(list: Answer[]): SuccessRate {
   return { ok, total: list.length, rate: list.length === 0 ? null : ok / list.length };
 }
 
-/** Same day one calendar month earlier, clamped to the end of a shorter month. */
-function oneMonthEarlier(day: string): string {
-  const [y = 0, m = 1, d = 1] = day.split('-').map(Number);
-  const lastDay = new Date(Date.UTC(y, m - 1, 0)).getUTCDate();
-  return new Date(Date.UTC(y, m - 2, Math.min(d, lastDay))).toISOString().slice(0, 10);
-}
-
 function signWindow(calculs: Answer[], to: string): SignWindow {
   const from = addDays(to, -6);
   const list = calculs.filter((e) => inWindow(e.day, from, to));
@@ -195,8 +193,14 @@ function trendOf(current: SignWindow, before: SignWindow): SignTrend | null {
 }
 
 function dashStatus(c: CourseProgress): DashCourseStatus {
-  if (c.status === 'valide') return 'valide';
-  return c.status === 'verrouille' || c.status === 'disponible' ? 'pas-commence' : 'en-cours';
+  switch (c.status) {
+    case 'valide':
+    case 'a-rattraper':
+    case 'en-cours':
+      return c.status;
+    default:
+      return 'pas-commence'; // 'verrouille' | 'disponible'
+  }
 }
 
 /** Error types by count (most frequent first, ties: most recent occurrence first). */
@@ -260,7 +264,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     for (const id of m.courseIds) {
       const c = progress.courses[id]!;
       const success14 = successRate(calculs14.filter((e) => e.courseId === id));
-      const lowSuccess = success14.total >= STRUGGLING_MIN_ANSWERS && success14.rate! < STRUGGLING_RATE;
+      const lowSuccess = success14.total >= STRUGGLING_MIN_ANSWERS && Math.round(success14.rate! * 100) < STRUGGLING_PERCENT;
       if (lowSuccess || c.failedTwiceInARow)
         struggling.set(id, { courseId: id, moduleId: m.id, title: getCourse(id).title, success14, lowSuccess, failedTwiceInARow: c.failedTwiceInARow });
     }
@@ -271,7 +275,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
 
   const common = countErrors(wrong30);
   const current = signWindow(calculs, today);
-  const monthAgo = signWindow(calculs, oneMonthEarlier(today));
+  const monthAgo = signWindow(calculs, addDays(today, -28));
   const pending = pendingReviews(progress, today);
 
   const home: DashboardHome = {
@@ -305,6 +309,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     title: m.title,
     validated: progress.modules[m.id]!.validated,
     total: progress.modules[m.id]!.total,
+    done: progress.modules[m.id]!.done,
     courses: m.courseIds.map((id) => {
       const c = progress.courses[id]!;
       return {

@@ -57,7 +57,8 @@ describe('doc 03 — table « Exemples »', () => {
   it('(rien) : Valider grisé', () => {
     expect(canSubmit(emptyRaw())).toBe(false);
     expect(canSubmit(type('-'))).toBe(true);
-    expect(canSubmit(type('F'))).toBe(false); // une fraction vide ne contient aucun caractère
+    expect(canSubmit(type('F'))).toBe(true); // doc 07 #4B : fraction vide validable → écriture invalide
+    expect(readRaw(type('F'), true)).toEqual(werr('ecriture-invalide'));
     expect(canSubmit(type('F>3'))).toBe(true);
   });
 
@@ -115,6 +116,7 @@ describe('readRaw — autres lectures', () => {
   });
   it('erreurs dans une case de la fraction', () => {
     expect(readRaw(type('F3->4'), true)).toEqual(werr('moins-apres'));
+    expect(readRaw(type('F3-4>5'), true)).toEqual(werr('ecriture-invalide')); // « 3-4 » dans la case
     expect(readRaw(type('F--3>4'), true)).toEqual(werr('double-signe'));
     expect(readRaw(type('F3>4-'), true)).toEqual(werr('moins-apres'));
     expect(readRaw(type('F(3)>4'), true)).toEqual(werr('ecriture-invalide'));
@@ -136,7 +138,13 @@ describe('readRaw — autres lectures', () => {
     expect(readRaw(type('F3>-4)'), true)).toEqual(werr('parenthese'));
   });
   it('autres erreurs', () => {
-    expect(readRaw(type('3-4'), true)).toEqual(werr('moins-apres'));
+    expect(readRaw(type('3-4'), true)).toEqual(werr('ecriture-invalide')); // doc 07 #1A
+    expect(readRaw(type('3-4-'), true)).toEqual(werr('ecriture-invalide'));
+    expect(readRaw(type('3-F1>2'), true)).toEqual(werr('ecriture-invalide'));
+    expect(readRaw(type(')-3'), true)).toEqual(werr('parenthese')); // doc 07 #5A
+    expect(readRaw(type(')3'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type(')-F3>4'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('()3'), true)).toEqual(werr('ecriture-invalide'));
     expect(readRaw(type('-3-'), true)).toEqual(werr('moins-apres'));
     expect(readRaw(type('3--'), true)).toEqual(werr('double-signe'));
     expect(readRaw(type('()'), true)).toEqual(werr('ecriture-invalide'));
@@ -149,7 +157,7 @@ describe('readRaw — autres lectures', () => {
     expect(readRaw(type('(-0)'), true)).toEqual(value(0, 1, 'zero-signe'));
     expect(readRaw(type('-00'), true)).toEqual(value(0, 1, 'zero-signe'));
     expect(readRaw(type('00'), true)).toEqual(value(0, 1, 'zero-tete'));
-    expect(readRaw(type('-07'), true)).toEqual(value(-7, 1, 'zero-tete'));
+    expect(readRaw(type('-07'), true)).toEqual(value(-7, 1, 'zero-tete')); // doc 07 #3A (−00 : zero-signe ci-dessus)
     expect(readRaw(type('(07)'), true)).toEqual(value(7, 1, 'zero-tete'));
     expect(readRaw(type('0'), true)).toEqual(value(0));
   });
