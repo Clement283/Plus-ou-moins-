@@ -583,6 +583,8 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 
 /* ---- révisions (revisions.html) ---- */
 .chips{display:flex;flex-wrap:wrap;gap:var(--sp-8)}
+.chips--split{justify-content:space-between;align-items:center}
+.chip-action{padding:0 var(--sp-8);white-space:nowrap}
 .expr{display:grid;justify-items:center;gap:var(--sp-4);text-align:center;padding:var(--sp-8) 0}
 .expr--tall{flex:1;align-content:center}
 .scope-revisions .choice{gap:var(--sp-8)}

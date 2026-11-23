@@ -40,8 +40,10 @@ export interface ActivityScreenProps {
   record: boolean;
   /** Si présent, la croix demande confirmation avec ces textes. */
   confirmQuit?: { title: string; body: string };
-  /** Fin de l'activité : `completed` est faux quand l'élève quitte avant la fin. */
-  onEnd: (state: ActivityState, completed: boolean) => void;
+  /** Fin de l'activité : `completed` est faux quand l'élève quitte avant la fin ; `results` : une valeur par étape faite. */
+  onEnd: (state: ActivityState, completed: boolean, results: StepResult[]) => void;
+  /** Petit bouton à droite de la pastille (« Relire la leçon ») : ouvre autre chose, donc quitte l'activité (avec confirmation si `confirmQuit`). */
+  chipAction?: { label: string; onSelect: () => void; confirm?: { title: string; body: string } };
   /** Tirage des calculs « du même genre » (défaut : Math.random) et identifiant de l'activité (défaut : UUID). */
   rng?: Rng;
   activityId?: string;
@@ -54,12 +56,12 @@ type View =
 
 const exerciseOf = (q: Question) => ('ex' in q ? q.ex : q.exs[0]!);
 
-export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, rng, activityId }: ActivityScreenProps) {
+export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, chipAction, rng, activityId }: ActivityScreenProps) {
   const [state, setState] = useState<ActivityState>(() => createActivity(kind, items, { activityId: activityId ?? crypto.randomUUID(), rng: rng ?? Math.random }));
   const [view, setView] = useState<View>(() => ({ phase: 'ask', step: current(state)!, notice: null }));
   const [results, setResults] = useState<StepResult[]>([]);
   const [shown, setShown] = useState(0); // une valeur par étape affichée : fait repartir le chronomètre
-  const [asking, setAsking] = useState(false);
+  const [asking, setAsking] = useState<'close' | 'action' | null>(null);
   const timer = useStepTimer(shown);
   /** Un seul traitement par étape affichée : un double toucher ne compte pas deux fois. */
   const handled = useRef(-1);
@@ -82,10 +84,10 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     setShown((n) => n + 1);
   };
   /** Étape suivante, ou fin de l'activité. */
-  const advance = (s: ActivityState) => {
+  const advance = (s: ActivityState, res: StepResult[] = results) => {
     if (isDone(s)) {
       save(endEvent(s));
-      onEnd(s, true);
+      onEnd(s, true, res);
     } else show(s);
   };
 
@@ -128,12 +130,13 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     const r = explanationDone(state, timer.read());
     save(r.event);
     setResults((x) => [...x, 'ok']);
-    advance(r.state);
+    advance(r.state, [...results, 'ok']);
   };
 
-  const quit = () => {
+  const quit = (after?: () => void) => {
     save({ ...endEvent(state), completed: false });
-    onEnd(state, false);
+    if (after) after();
+    else onEnd(state, false, results);
   };
 
   // --- barre du haut ---
@@ -142,25 +145,26 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const label = view.phase === 'ask' ? undefined : `Question ${results.length} sur ${total}, ${view.phase === 'skipped' ? 'passée' : view.correct ? 'juste' : 'ratée'}`;
   const bar = (
     <AppBar
-      onClose={() => (confirmQuit ? setAsking(true) : quit())}
+      onClose={() => (confirmQuit ? setAsking('close') : quit())}
       stepper={{ total, done: results, current: answered ? -1 : results.length, ...(label ? { label } : {}) }}
     />
   );
-  const dialog = asking && confirmQuit && (
+  const sure = asking === 'action' ? (chipAction?.confirm ?? confirmQuit) : confirmQuit;
+  const dialog = asking && sure && (
     <Dialog
-      title={confirmQuit.title}
+      title={sure.title}
       actions={
         <>
-          <button className="btn btn--contained btn--block" type="button" onClick={() => setAsking(false)}>
+          <button className="btn btn--contained btn--block" type="button" onClick={() => setAsking(null)}>
             Continuer
           </button>
-          <button className="btn btn--text" type="button" onClick={quit}>
+          <button className="btn btn--text" type="button" onClick={() => quit(asking === 'action' ? chipAction?.onSelect : undefined)}>
             Quitter
           </button>
         </>
       }
     >
-      <p className="t-body1">{confirmQuit.body}</p>
+      <p className="t-body1">{sure.body}</p>
     </Dialog>
   );
 
@@ -173,12 +177,18 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     </main>
   );
   const chips = (step: Extract<CurrentStep, { type: 'question' }>, extra?: string) => (
-    <div className="chips">
+    <div className={chipAction ? 'chips chips--split' : 'chips'}>
       <span className={kind === 'revision' ? 'chip' : 'chip chip--module'}>
         {kind === 'revision' && <Icon name="review" size="sm" />}
         {chip(step, pos)}
       </span>
       {extra && <span className="chip chip--neutral">{extra}</span>}
+      {chipAction && (
+        <button className="btn btn--text btn--sm chip-action" type="button" onClick={() => (confirmQuit ? setAsking('action') : quit(chipAction.onSelect))}>
+          <Icon name="book" size="sm" />
+          {chipAction.label}
+        </button>
+      )}
     </div>
   );
   const subChip = (step: Extract<CurrentStep, { type: 'question' }>) => (kind === 'revision' && step.role !== 'original' ? SUB_CHIP[step.role] : undefined);

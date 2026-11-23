@@ -80,6 +80,22 @@ async function play(page: Page, moves: (number | 'c' | 'p')[]): Promise<void> {
   }
 }
 
+
+/** Parcourt le cours 4 réel (#/cours/c04-soustraire) jusqu'à la partie `n` (0 à 8), en répondant juste. */
+async function courseTo(page: Page, n: number): Promise<void> {
+  const click = (label: string) => page.click(`button:text-is("${label}")`);
+  const next = async () => { await page.waitForTimeout(120); };
+  const steps: (() => Promise<void>)[] = [
+    async () => click('Suivant'),
+    async () => click('Suivant'),
+    async () => { /* tuiles 3, −, 5, + : on pose 5, + puis 3 */ for (const i of [3, 4, 1]) await page.click(`.tags .tag:nth-child(${i})`); await click('Valider'); await click('Continuer'); },
+    async () => { await tapKeys(page, '7', 'Valider'); await click('Continuer'); },
+    async () => { await page.click('.copy-line:nth-child(2)'); await click('Continuer'); },
+    async () => { await tapKeys(page, '4', 'Valider'); await click('Continuer'); },
+  ];
+  for (let i = 0; i < n && i < steps.length; i++) { await steps[i]!(); await next(); }
+}
+
 /** Registre des écrans : les tâches d'écran y ajoutent une entrée. */
 export const SCREENS: Record<string, ScreenDef> = {
   login: {
@@ -167,6 +183,24 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'quitter', fixture: 'debut-de-journee', before: async (page) => { await page.click('.appbar .icon-btn'); await page.waitForSelector('[role=dialog]'); } },
       { name: 'simplifie', fixture: 'debut-de-journee', route: '#/essai/activite?cas=simplifie', before: async (page) => { await tapKeys(page, 'fraction', '−', '1', '2', 'case suivante', '4', 'Valider'); await page.waitForSelector('.alert--info'); } },
       { name: 'mal-ecrite', fixture: 'debut-de-journee', route: '#/essai/activite?cas=ecriture', before: async (page) => { await tapKeys(page, '8', '−', 'Valider'); await page.waitForSelector('.alert--error'); } },
+    ],
+  },
+  cours: {
+    route: '#/cours/c04-soustraire',
+    scenarios: [
+      { name: 'lecon-image', fixture: 'debut-de-journee', before: (page) => page.waitForTimeout(3500) },
+      { name: 'lecon-regle', fixture: 'debut-de-journee', before: async (page) => { await courseTo(page, 1); await page.waitForTimeout(600); } },
+      { name: 'question-guidee', fixture: 'debut-de-journee', before: (page) => courseTo(page, 2) },
+      { name: 'exemple-guide', fixture: 'debut-de-journee', before: async (page) => { await courseTo(page, 5); await freezeCaret(page); } },
+      { name: 'quitter-le-cours', fixture: 'debut-de-journee', before: async (page) => { await page.click('.appbar .icon-btn'); await page.waitForSelector('[role=dialog]'); } },
+      { name: 'relire', fixture: 'debut-de-journee', route: '#/cours/c04-soustraire/relire', before: (page) => page.waitForTimeout(3500) },
+      { name: 'resultat-valide', fixture: 'debut-de-journee', route: '#/essai/cours?cas=valide' },
+      { name: 'resultat-non-valide', fixture: 'debut-de-journee', route: '#/essai/cours?cas=non-valide' },
+      { name: 'resultat-dernier-cours', fixture: 'debut-de-journee', route: '#/essai/cours?cas=dernier' },
+      { name: 'rattrapage-serie', fixture: 'debut-de-journee', route: '#/rattrapage/c04-soustraire', before: async (page) => { for (let i = 0; i < 2; i++) { await tapKeys(page, '1', 'Valider'); await page.click('button:text-is("Continuer")'); await page.waitForTimeout(80); } await freezeCaret(page); } },
+      { name: 'rattrapage-quitter-relire', fixture: 'debut-de-journee', route: '#/rattrapage/c04-soustraire', before: async (page) => { await page.click('.chip-action'); await page.waitForSelector('[role=dialog]'); } },
+      { name: 'rattrapage-4-sur-5', fixture: 'debut-de-journee', route: '#/essai/cours?cas=rattrapage-ok' },
+      { name: 'rattrapage-3-sur-5', fixture: 'debut-de-journee', route: '#/essai/cours?cas=rattrapage-ko' },
     ],
   },
   questions: {
