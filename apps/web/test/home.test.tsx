@@ -99,17 +99,17 @@ describe('Accueil', () => {
     expect(v.btn('Commencer le cours 5')?.className).toContain('btn--ink');
   });
 
-  it('cours à rattraper : la carte propose le rattrapage et la leçon', () => {
+  it('cours à rattraper : la carte propose la série de validation et la leçon', () => {
     load('cours-a-rattraper');
     const v = mount(<Home />);
-    expect(v.text()).toContain('Cours à rattraper');
+    expect(v.text()).toContain('Cours à valider');
     expect(v.text()).toContain('5 exercices. Avec 4 justes, le cours est validé.');
     expect(v.text()).toContain('Encore 12 minutes pour ton objectif.');
-    fireEvent.click(v.btn('Faire le rattrapage')!);
+    fireEvent.click(v.btn('Faire la série de validation')!);
     expect(window.location.hash).toBe('#/rattrapage/c04-soustraire');
     fireEvent.click(v.btn('Relire la leçon')!);
     expect(window.location.hash).toBe('#/cours/c04-soustraire/relire');
-    expect(v.$('.course-window .is-retry')?.textContent).toContain('à rattraper');
+    expect(v.$('.course-window .is-retry')?.textContent).toContain('à valider');
     expect(v.$('.course-window .is-locked')).toBeTruthy();
   });
 
@@ -178,12 +178,12 @@ describe('Mes cours', () => {
     expect(open()).toHaveLength(0);
   });
 
-  it('à rattraper : rattrapage et leçon', () => {
+  it('à valider : série de validation et leçon', () => {
     load('cours-a-rattraper');
     const v = mount(<Courses />);
     expect(v.text()).toContain('4 cours sur 8 validés');
-    expect(v.text()).toContain('À rattraper');
-    fireEvent.click(v.btn('Faire le rattrapage')!);
+    expect(v.text()).toContain('À valider');
+    fireEvent.click(v.btn('Faire la série de validation')!);
     expect(window.location.hash).toBe('#/rattrapage/c04-soustraire');
     expect(v.text()).toContain('5 exercices, 4 justes pour valider. Tu peux recommencer autant de fois que tu veux.');
     expect(v.btn('Relire la leçon')).toBeTruthy();
@@ -217,7 +217,7 @@ describe('Entraînement', () => {
     fireEvent.click(v.btn('Mes cours')!);
     const boxes = v.$$('input[type=checkbox]') as HTMLInputElement[];
     expect(boxes).toHaveLength(5); // 0 à 3 validés + le 4 à rattraper
-    expect(v.text()).toContain('À rattraper');
+    expect(v.text()).toContain('À valider');
     expect(v.text()).toContain('Choisis au moins un cours');
     const go = v.btn('Commencer l\'entraînement') as HTMLButtonElement;
     expect(go.disabled).toBe(true);

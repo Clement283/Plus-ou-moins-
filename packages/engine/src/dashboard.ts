@@ -242,7 +242,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
       const c = progress.courses[id]!;
       const success14 = successRate(calculs14.filter((e) => e.courseId === id));
       const lowSuccess = success14.total >= STRUGGLING_MIN_ANSWERS && Math.round(success14.rate! * 100) < STRUGGLING_PERCENT;
-      // Only validated courses can be « en difficulté » (doc 08 #14): a course not validated yet shows « à rattraper ».
+      // Only validated courses can be « en difficulté » (doc 08 #14): a course not validated yet shows « à valider ».
       if (c.status === 'valide' && (lowSuccess || c.failedTwiceInARow))
         struggling.set(id, { courseId: id, moduleId: m.id, title: getCourse(id).title, success14, lowSuccess, failedTwiceInARow: c.failedTwiceInARow });
     }

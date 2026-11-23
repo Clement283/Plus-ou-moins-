@@ -5,7 +5,7 @@ import { Icon } from '../ui/Icon';
 import type { StepResult } from '../ui/Stepper';
 
 /**
- * Résultat d'un cours ou d'un rattrapage (docs 01 §2, 08 n° 5 et 6 ; maquette cours.html, groupes 3 et 4).
+ * Résultat d'un cours ou d'une série de validation (docs 01 §2, 08 n° 5 et 6 ; maquette cours.html, groupes 3 et 4).
  * Les chiffres viennent de `runResult` ; ici seulement la mise en page et les textes.
  */
 export interface RunResultViewProps {
@@ -39,7 +39,7 @@ export function RunResultView({ variant, courseId, result, results, onRetry }: R
     const sub =
       variant === 'cours'
         ? `${result.ok} bonnes réponses sur ${result.first}, dont ${result.finOk} exercices de fin justes sur ${result.fin}.`
-        : `Rattrapage réussi : ${result.ok} exercices justes sur ${result.first}.`;
+        : `Série de validation réussie : ${result.ok} exercices justes sur ${result.first}.`;
     return (
       <main className="app-body app-body--grow" data-screen="resultat" style={{ padding: 0, gap: 0 }}>
         {bar}
@@ -133,13 +133,13 @@ export function RunResultView({ variant, courseId, result, results, onRetry }: R
           <div className={`alert alert--${okFin ? 'success' : 'error'}`}>
             <Icon name={okFin ? 'check-circle' : 'x-circle'} />
             <div className="alert__title">4 exercices de fin sur 5</div>
-            <div>{`Tu en as réussi ${result.finOk}. Elle vérifie que tu sais calculer seule.`}</div>
+            <div>{`Tu en as réussi ${result.finOk}. Ces exercices vérifient que tu sais calculer seule.`}</div>
           </div>
         </div>
         <p className="t-body2" style={{ color: 'var(--muted)' }}>Pas besoin de refaire la leçon : 5 exercices, 4 justes pour valider. Tu peux recommencer.</p>
         <div style={{ flex: 1 }} />
         <button className="btn btn--contained btn--block" type="button" onClick={() => go({ name: 'rattrapage', id: courseId })}>
-          Faire le rattrapage
+          Faire la série de validation
         </button>
         {relire}
       </div>

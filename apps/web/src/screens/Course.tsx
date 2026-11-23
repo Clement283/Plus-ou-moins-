@@ -12,7 +12,7 @@ import { RunResultView } from './CourseResult';
  * et « relire la leçon » (`#/cours/:id/relire`, rien n'est enregistré). Docs 01 §2, 08 n° 4 à 6, 16 et 17.
  */
 const QUIT_COURSE = { title: 'Quitter le cours ?', body: 'Tu le reprendras depuis le début.' };
-const QUIT_RATTRAPAGE = { title: 'Quitter le rattrapage ?', body: 'Tu recommenceras une nouvelle série de 5.' };
+const QUIT_RATTRAPAGE = { title: 'Quitter la série de validation ?', body: 'Tu recommenceras une nouvelle série de 5.' };
 
 const itemNumber = (step: CurrentStep) => Number(step.item.itemId.split('-')[1] ?? 0);
 
@@ -104,7 +104,7 @@ export function RattrapageScreen({ courseId, rng }: { courseId: string; rng?: Rn
       key={activityId}
       kind="rattrapage"
       items={items}
-      chip={(_, pos) => `Rattrapage, ${pos.n} sur ${pos.total}`}
+      chip={(_, pos) => `Validation, ${pos.n} sur ${pos.total}`}
       record
       confirmQuit={QUIT_COURSE}
       chipAction={{ label: 'Relire la leçon', onSelect: () => go({ name: 'relire', id: courseId }), confirm: QUIT_RATTRAPAGE }}

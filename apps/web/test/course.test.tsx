@@ -115,7 +115,7 @@ describe('cours : résultat', () => {
     expect(t.text()).toContain('Tu as 3 bonnes réponses sur 5, soit 60 %.');
     expect(t.text()).toContain('4 exercices de fin sur 5');
     expect(t.text()).toContain('Tu en as réussi 3.');
-    expect(t.btn('Faire le rattrapage')).toBeTruthy();
+    expect(t.btn('Faire la série de validation')).toBeTruthy();
     fireEvent.click(t.btn('Relire la leçon')!);
     expect(window.location.hash).toBe('#/cours/' + encodeURIComponent(C04.id) + '/relire');
   });
@@ -193,12 +193,12 @@ describe('rattrapage', () => {
   it('4 sur 5 : cours validé', async () => {
     h.items = series('rattrapage');
     const t = mount(<RattrapageScreen courseId={C04.id} rng={seededRng(1)} />);
-    expect(t.text()).toContain('Rattrapage, 1 sur 5');
+    expect(t.text()).toContain('Validation, 1 sur 5');
     t.play([2, 4, 9, 5, 3]);
     t.drain();
     await settle();
     expect(t.text()).toContain('Cours 4 validé');
-    expect(t.text()).toContain('Rattrapage réussi : 4 exercices justes sur 5.');
+    expect(t.text()).toContain('Série de validation réussie : 4 exercices justes sur 5.');
     expect(t.btn('Commencer le cours 5')).toBeTruthy();
   });
 
@@ -215,14 +215,14 @@ describe('rattrapage', () => {
     const before = vi.mocked(rattrapageItems).mock.calls.length;
     fireEvent.click(t.btn('Refaire une série de 5')!);
     expect(vi.mocked(rattrapageItems).mock.calls.length).toBe(before + 1);
-    expect(t.text()).toContain('Rattrapage, 1 sur 5');
+    expect(t.text()).toContain('Validation, 1 sur 5');
   });
 
   it('« Relire la leçon » en cours de série demande confirmation puis abandonne la série', async () => {
     h.items = series('rattrapage');
     const t = mount(<RattrapageScreen courseId={C04.id} rng={seededRng(1)} />);
     fireEvent.click(t.btn('Relire la leçon')!);
-    expect(t.$('[role=dialog]')!.textContent).toContain('Quitter le rattrapage ?');
+    expect(t.$('[role=dialog]')!.textContent).toContain('Quitter la série de validation ?');
     expect(t.text()).toContain('Tu recommenceras une nouvelle série de 5.');
     fireEvent.click(t.$$('.dialog__actions button').find((b) => b.textContent === 'Quitter')!);
     await settle();

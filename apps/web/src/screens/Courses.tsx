@@ -25,7 +25,7 @@ function Status({ c }: { c: CourseProgress }) {
   if (c.status === 'a-rattraper')
     return (
       <span className="status status--retry">
-        <Icon name="review" size="sm" />À rattraper
+        <Icon name="review" size="sm" />À valider
       </span>
     );
   return <span className="status status--todo">À faire</span>;
@@ -47,7 +47,7 @@ function Actions({ c }: { c: CourseProgress }) {
     return (
       <>
         <button className="btn btn--outlined btn--block" type="button" onClick={() => go({ name: 'rattrapage', id: c.courseId })}>
-          Faire le rattrapage
+          Faire la série de validation
         </button>
         <button className="btn btn--text self-center" type="button" onClick={() => go({ name: 'relire', id: c.courseId })}>
           Relire la leçon

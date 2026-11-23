@@ -1,5 +1,7 @@
 # 05 — Ta page de suivi
 
+*2026-11-23 : « rattrapage » s'appelle désormais « série de validation » dans l'interface (doc 08).*
+
 *Statut : Validé (2026-11-22) — version 7. 2026-11-23 : taux d'erreurs de signe retiré (décision du porteur du projet) ; toutes les périodes passent à 28 jours, les 4 dernières semaines, sauf la règle des 70 % de « À retravailler » qui reste sur 14 jours ; seuls les cours validés peuvent être « à retravailler » (décisions du porteur du projet, doc 08).*
 
 Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture seule**. Elle a trois niveaux :
@@ -57,7 +59,7 @@ Cinq blocs, pas plus.
 
 **Erreurs les plus communes.** Les 3 types d'erreur les plus fréquents sur 28 jours, tous cours confondus, avec leur nombre : familles signe, écriture et calcul. En touchant une erreur, tu vois **ses derniers calculs ratés de ce type**, avec ce qu'elle a répondu et la bonne réponse. Un calcul abandonné porte la mention « passé ». Les erreurs « autre » qui reviennent souvent sont à signaler : on pourra les ajouter aux erreurs reconnues du cours.
 
-**À retravailler.** Les cours en difficulté, 3 au maximum, du plus faible au plus fort. Seul un cours **validé** peut être en difficulté (un cours pas encore validé est « à rattraper », doc 08 n° 14). Un cours validé est en difficulté si :
+**À retravailler.** Les cours en difficulté, 3 au maximum, du plus faible au plus fort. Seul un cours **validé** peut être en difficulté (un cours pas encore validé est « à valider », doc 08 n° 14). Un cours validé est en difficulté si :
 - son taux de réussite des 14 derniers jours est sous **70 %** (avec au moins 5 réponses) ;
 - **ou** il vient de rater **2 révisions d'affilée** (doc 01).
 

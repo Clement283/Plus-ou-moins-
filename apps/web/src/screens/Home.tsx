@@ -73,13 +73,13 @@ function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progre
   const course = getCourse(courseId);
   const retry = status === 'a-rattraper';
   return (
-    <section className="card" aria-label={retry ? 'Cours à rattraper' : 'Prochain cours'}>
+    <section className="card" aria-label={retry ? 'Cours à valider' : 'Prochain cours'}>
       <div className="course-head">
         <span className={retry ? 'course-num is-retry' : 'course-num'} aria-hidden="true">
           {course.order}
         </span>
         <div className="min-w0">
-          <div className={`t-subtitle2 ${retry ? 'ink-error' : 'ink-secondary'}`}>{retry ? 'Cours à rattraper' : 'Prochain cours'}</div>
+          <div className={`t-subtitle2 ${retry ? 'ink-error' : 'ink-secondary'}`}>{retry ? 'Cours à valider' : 'Prochain cours'}</div>
           <h3 className="t-h4">{course.title}</h3>
           {retry && <p className="t-body2 mt-4">5 exercices. Avec 4 justes, le cours est validé.</p>}
         </div>
@@ -87,7 +87,7 @@ function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progre
       {retry ? (
         <div className="stack-tight">
           <button className={`btn ${btn} btn--block`} type="button" onClick={() => go({ name: 'rattrapage', id: courseId })}>
-            Faire le rattrapage
+            Faire la série de validation
           </button>
           <button className="btn btn--text self-center" type="button" onClick={() => go({ name: 'relire', id: courseId })}>
             Relire la leçon
@@ -105,7 +105,7 @@ function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progre
 
 function ModuleStrip({ home, progress }: { home: StudentHome; progress: ProgressState }) {
   const m = home.module;
-  const says = m.window.map((c) => `cours ${c.order} ${c.status === 'valide' ? 'validé' : c.status === 'a-rattraper' ? 'à rattraper' : isTodo(c.status) ? 'à faire' : 'verrouillé'}`);
+  const says = m.window.map((c) => `cours ${c.order} ${c.status === 'valide' ? 'validé' : c.status === 'a-rattraper' ? 'à valider' : isTodo(c.status) ? 'à faire' : 'verrouillé'}`);
   const label = says.join(', ').replace(/^c/, 'C');
   return (
     <div className="strip">
@@ -130,7 +130,7 @@ function ModuleStrip({ home, progress }: { home: StudentHome; progress: Progress
           if (c.status === 'a-rattraper')
             return (
               <div key={c.courseId} className="course-chip is-retry">
-                <b>{c.order}</b>à rattraper
+                <b>{c.order}</b>à valider
               </div>
             );
           if (isTodo(c.status))

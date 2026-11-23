@@ -9,7 +9,7 @@ import { ActivityScreen } from './Activity';
 
 /**
  * Entraînement (maquette `navigation.html` écran 3, docs 03 §5, 08 n° 1 et 3) : « Tout mélangé » ou une sélection
- * de cours validés ou à rattraper, par séries de 10 questions. Ne change jamais les révisions (le moteur ignore
+ * de cours validés ou à valider, par séries de 10 questions. Ne change jamais les révisions (le moteur ignore
  * l'activité « entraînement » dans le calendrier).
  */
 
@@ -23,7 +23,7 @@ export function startTraining(choice: TrainingChoice | null): void {
 
 const COUNT = (n: number) => (n === 0 ? 'Choisis au moins un cours' : `${n} cours retenu${n > 1 ? 's' : ''}, ${TRAINING_SERIES_LENGTH} questions`);
 
-/** « Les cours 5 à 7 apparaîtront ici… » : les cours qui ne sont ni validés ni à rattraper. */
+/** « Les cours 5 à 7 apparaîtront ici… » : les cours qui ne sont ni validés ni à valider. */
 function comingText(orders: number[]): string | null {
   if (orders.length === 0) return null;
   const contiguous = orders.every((o, i) => i === 0 || o === orders[i - 1]! + 1);
@@ -33,7 +33,7 @@ function comingText(orders: number[]): string | null {
       : contiguous
         ? `Les cours ${orders[0]} à ${orders[orders.length - 1]} apparaîtront`
         : `Les cours ${orders.slice(0, -1).join(', ')} et ${orders[orders.length - 1]} apparaîtront`;
-  return `${who} ici quand ${orders.length === 1 ? "tu l'auras validé ou à rattraper" : 'tu les auras validés ou à rattraper'}.`;
+  return `${who} ici quand ${orders.length === 1 ? "tu l'auras validé ou à valider" : 'tu les auras validés ou à valider'}.`;
 }
 
 function Foot({ mode, pool, picked }: { mode: 'tout' | 'choix'; pool: string[]; picked: string[] }) {
@@ -118,13 +118,13 @@ export default function Training() {
                 return (
                   <label key={id} className="list-item">
                     <span className="check">
-                      <input type="checkbox" checked={picked.includes(id)} onChange={() => toggle(id)} aria-label={`Cours ${getCourse(id).order}${retry ? ', à rattraper' : ''}`} />
+                      <input type="checkbox" checked={picked.includes(id)} onChange={() => toggle(id)} aria-label={`Cours ${getCourse(id).order}${retry ? ', à valider' : ''}`} />
                     </span>
                     <span className="list-item__text">
                       <span className="list-item__title">{courseLabel(id)}</span>
                       {retry && (
                         <span className="status status--retry">
-                          <Icon name="review" size="sm" />À rattraper
+                          <Icon name="review" size="sm" />À valider
                         </span>
                       )}
                     </span>

@@ -1,5 +1,7 @@
 # 01 — Répétition espacée : quand un cours revient, et à quel niveau
 
+*2026-11-23 : « rattrapage » s'appelle désormais « série de validation » dans l'interface (doc 08).*
+
 *Statut : Validé (2026-11-22) — version 2*
 
 Ce document décrit comment l'appli décide **quels cours faire revenir en révision, quand, et à quel niveau**. Le tableau « Exemples » à la fin deviendra les tests automatiques.
@@ -109,10 +111,10 @@ Autres cas :
 |---|---|
 | Aucun cours commencé | cours 1 débloqué, tous les autres verrouillés |
 | Cours 1 : 11 sur 12 en tout, dont 5 sur 5 aux exercices de fin | validé ★, cours 2 débloqué, étape A, révision dans 48 h |
-| Cours 1 : 10 sur 12 en tout (83 %), mais 3 sur 5 aux exercices de fin | non validé, rattrapage proposé, cours 2 verrouillé |
-| Cours 1 : 9 sur 12 en tout (75 %), dont 4 sur 5 aux exercices de fin | non validé (moins de 80 %), rattrapage proposé |
-| Non validé, puis rattrapage 4 sur 5 | validé ★, cours 2 débloqué, étape A |
-| Non validé, puis rattrapage 3 sur 5 | toujours non validé, nouveau rattrapage proposé |
+| Cours 1 : 10 sur 12 en tout (83 %), mais 3 sur 5 aux exercices de fin | non validé, série de validation proposée, cours 2 verrouillé |
+| Cours 1 : 9 sur 12 en tout (75 %), dont 4 sur 5 aux exercices de fin | non validé (moins de 80 %), série de validation proposée |
+| Non validé, puis série de validation 4 sur 5 | validé ★, cours 2 débloqué, étape A |
+| Non validé, puis série de validation 3 sur 5 | toujours non validé, nouvelle série de validation proposée |
 | Étape A, 1er raté puis 2e raté | reste à A (on ne descend pas sous A) ; 1er raté : revient le lendemain ; 2e raté : revient dans 48 h |
 | Étape H, révision réussie | reste à H, revient dans 6 mois |
 | Étape F (1 mois), 1er raté puis 2e raté | 1er raté : F, revient le lendemain ; 2e raté : E, revient dans 1 semaine |
