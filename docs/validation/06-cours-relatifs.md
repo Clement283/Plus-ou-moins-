@@ -405,8 +405,8 @@ Les signes de a et de b sont tirés au hasard, avec au moins un négatif 3 fois 
 | 2 | −126 ÷ 6 | −21 |
 | 2 | 152 ÷ (−8) | −19 |
 | 2 | −270 ÷ (−9) | 30 |
-| 3 | −1452 ÷ 12 | −121 |
-| 3 | 2808 ÷ (−24) | −117 |
+| 3 | −1188 ÷ 12 | −99 |
+| 3 | 2208 ÷ (−24) | −92 |
 | 3 | −3366 ÷ (−34) | 99 |
 
 **Réponse donnée → erreur reconnue** (calcul −12 ÷ 4 = −3) : 3 → `regle-signes` · −48 → `multiplication-au-lieu-division` · 48 → `multiplication-au-lieu-division` · −4 → autre
