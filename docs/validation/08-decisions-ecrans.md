@@ -25,6 +25,7 @@
 | 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
 
 Autres décisions du 2026-11-23 :
+- Écran « cours pas encore validé » : sous le critère des exercices de fin, « Ces exercices vérifient que tu sais calculer seule. » (au lieu de « Elle vérifie… »).
 - Après une erreur, titres sans maquette : « Tout était juste. », « Voici le bon ordre. », « Voici les bonnes paires. » (validés).
 - « Trouver l'erreur » quand tout était juste : seule la ligne touchée passe en rouge ; l'explication dit « Tout était juste. ».
 - Vrai ou faux et étiquettes : aucune marque verte ou rouge sur la question corrigée, comme la maquette ; la correction est dans l'explication.
