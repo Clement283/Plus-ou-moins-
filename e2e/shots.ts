@@ -163,6 +163,10 @@ export const SCREENS: Record<string, ScreenDef> = {
       // Les animations durent jusqu'à ~3 s : la capture attend leur état final.
       ...[0, 1, 2].map((part): Shot => ({ name: `c04-partie-${part + 1}`, fixture: 'debut-de-journee', route: `#/essai/lecon?course=c04&part=${part}`, before: (page) => page.waitForTimeout(3500) })),
       { name: 'c04-animation-debut', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c04&part=0', before: (page) => page.waitForTimeout(0) },
+      { name: 'c04-partie-5-erreur', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c04&part=4', before: (page) => page.waitForTimeout(500) },
+      { name: 'c05-regle-attention', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c05&part=1', before: (page) => page.waitForTimeout(500) },
+      { name: 'c05-classer', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c05&part=4', before: (page) => page.waitForTimeout(500) },
+      { name: 'c00-regle-1-attention', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=1', before: (page) => page.waitForTimeout(500) },
       { name: 'c00-regle-neutre', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=2', before: (page) => page.waitForTimeout(500) },
       { name: 'c00-signes-qui-se-cognent', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=0', before: (page) => page.waitForTimeout(3000) },
       { name: 'c07-compter-les-moins', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c07&part=0', before: (page) => page.waitForTimeout(4000) },
