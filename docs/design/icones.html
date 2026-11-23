@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins · Icône de l'appli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="design-system/styles.css">
+<script src="design-system/theme.js"></script>
+<style>
+body{background:var(--bg);color:var(--on-surface);padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:900px;margin:0 auto;display:grid;gap:var(--gap-major)}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+#themeSel{font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--gap-section)}
+.opt{display:grid;gap:var(--sp-12);align-content:start}
+.big{width:160px;height:160px;border-radius:36px;overflow:hidden;justify-self:center}
+.big svg,.mask svg,.app svg{display:block;width:100%;height:100%}
+.sizes{display:flex;gap:var(--sp-16);align-items:flex-end;justify-content:center}
+.sizes div{display:grid;justify-items:center;gap:4px}
+.sizes span:first-child{display:block}
+.mask{width:72px;height:72px;border-radius:50%;overflow:hidden}
+.sq48{width:48px;height:48px;border-radius:11px;overflow:hidden}
+.sq32{width:32px;height:32px;border-radius:7px;overflow:hidden}
+.fav{width:16px;height:16px;border-radius:3px;overflow:hidden}
+.home{border-radius:var(--r-lg);padding:var(--sp-24) var(--sp-16);display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-16) var(--sp-8)}
+.home.light{background:#DCE3EE}.home.dark{background:#0E0F14}
+.app{display:grid;justify-items:center;gap:6px;font:500 11px var(--font-body)}
+.home.light .app{color:#1A1D2E}.home.dark .app{color:#F1F2F7}
+.app i{display:block;width:56px;height:56px;border-radius:14px;overflow:hidden}
+.app i.other{background:#9AA3B5}
+.home.dark .app i.other{background:#3A3F55}
+.homes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--gap-section)}
+.pick{font:600 13px var(--font-body);color:var(--primary-ink)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- A : « ± » empilé, plus blanc, moins corail -->
+  <symbol id="ic-a" viewBox="0 0 512 512">
+    <rect width="512" height="512" fill="#3B39D4"/>
+    <path d="M256 118v152M180 194h152" stroke="#FFFFFF" stroke-width="46" stroke-linecap="round"/>
+    <path d="M180 352h152" stroke="#FF8467" stroke-width="46" stroke-linecap="round"/>
+  </symbol>
+  <!-- B : plus et moins côte à côte -->
+  <symbol id="ic-b" viewBox="0 0 512 512">
+    <rect width="512" height="512" fill="#3B39D4"/>
+    <path d="M178 196v120M118 256h120" stroke="#FFFFFF" stroke-width="42" stroke-linecap="round"/>
+    <path d="M286 256h112" stroke="#FF8467" stroke-width="42" stroke-linecap="round"/>
+  </symbol>
+  <!-- C : la droite graduée, curseur au-dessus du zéro -->
+  <symbol id="ic-c" viewBox="0 0 512 512">
+    <rect width="512" height="512" fill="#3B39D4"/>
+    <path d="M120 300h272" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
+    <path d="M120 276v48M188 286v28M256 268v64M324 286v28M392 276v48" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/>
+    <path d="M206 150h100a26 26 0 0 1 26 26v26a26 26 0 0 1-26 26h-30l-20 24-20-24h-30a26 26 0 0 1-26-26v-26a26 26 0 0 1 26-26z" fill="#FF8467"/>
+    <path d="M228 189h56" stroke="#1A1D2E" stroke-width="16" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 class="t-h2">Icône de l'appli</h1>
+      <p class="t-body2" style="margin-top:6px">Trois propositions pour l'icône de l'écran d'accueil du téléphone. Même fond indigo de la charte ; le corail rappelle le premier module. Tout est dessiné en formes simples, pour rester net de 16 à 512 pixels.</p>
+    </div>
+    <select id="themeSel" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+  </div>
+
+  <section class="options">
+    <div class="opt card">
+      <span class="pick">Ma préférence</span>
+      <h2 class="t-h4">A. « ± » empilé</h2>
+      <div class="big"><svg><use href="#ic-a"/></svg></div>
+      <p class="t-body2">Le signe « plus ou moins » des maths, qui donne son nom à l'appli. Lisible même en tout petit. Ne dépend pas d'un chapitre : il reste juste quand d'autres modules arriveront.</p>
+      <div class="sizes"><div><span class="mask"><svg><use href="#ic-a"/></svg></span><span class="t-caption">rond (Android)</span></div><div><span class="sq48"><svg><use href="#ic-a"/></svg></span><span class="t-caption">48</span></div><div><span class="sq32"><svg><use href="#ic-a"/></svg></span><span class="t-caption">32</span></div><div><span class="fav"><svg><use href="#ic-a"/></svg></span><span class="t-caption">16</span></div></div>
+    </div>
+    <div class="opt card">
+      <span class="t-caption">&nbsp;</span>
+      <h2 class="t-h4">B. Plus et moins côte à côte</h2>
+      <div class="big"><svg><use href="#ic-b"/></svg></div>
+      <p class="t-body2">Se lit « plus, moins », comme le nom. Plus horizontal, donc un peu plus petit dans le carré.</p>
+      <div class="sizes"><div><span class="mask"><svg><use href="#ic-b"/></svg></span><span class="t-caption">rond (Android)</span></div><div><span class="sq48"><svg><use href="#ic-b"/></svg></span><span class="t-caption">48</span></div><div><span class="sq32"><svg><use href="#ic-b"/></svg></span><span class="t-caption">32</span></div><div><span class="fav"><svg><use href="#ic-b"/></svg></span><span class="t-caption">16</span></div></div>
+    </div>
+    <div class="opt card">
+      <span class="t-caption">&nbsp;</span>
+      <h2 class="t-h4">C. La droite graduée</h2>
+      <div class="big"><svg><use href="#ic-c"/></svg></div>
+      <p class="t-body2">Reprend le motif de la jauge du jour. Plus original, mais les graduations se perdent en dessous de 32 pixels, et le motif reste lié aux relatifs.</p>
+      <div class="sizes"><div><span class="mask"><svg><use href="#ic-c"/></svg></span><span class="t-caption">rond (Android)</span></div><div><span class="sq48"><svg><use href="#ic-c"/></svg></span><span class="t-caption">48</span></div><div><span class="sq32"><svg><use href="#ic-c"/></svg></span><span class="t-caption">32</span></div><div><span class="fav"><svg><use href="#ic-c"/></svg></span><span class="t-caption">16</span></div></div>
+    </div>
+  </section>
+
+  <section class="stack">
+    <h2 class="t-h5">Sur l'écran d'accueil du téléphone</h2>
+    <div class="homes">
+      <div class="home light">
+        <span class="app"><i class="other"></i>Photos</span><span class="app"><i><svg><use href="#ic-a"/></svg></i>A</span><span class="app"><i><svg><use href="#ic-b"/></svg></i>B</span><span class="app"><i><svg><use href="#ic-c"/></svg></i>C</span>
+        <span class="app"><i class="other"></i>Messages</span><span class="app"><i class="other"></i>Plans</span><span class="app"><i class="other"></i>Météo</span><span class="app"><i class="other"></i>Musique</span>
+      </div>
+      <div class="home dark">
+        <span class="app"><i class="other"></i>Photos</span><span class="app"><i><svg><use href="#ic-a"/></svg></i>A</span><span class="app"><i><svg><use href="#ic-b"/></svg></i>B</span><span class="app"><i><svg><use href="#ic-c"/></svg></i>C</span>
+        <span class="app"><i class="other"></i>Messages</span><span class="app"><i class="other"></i>Plans</span><span class="app"><i class="other"></i>Météo</span><span class="app"><i class="other"></i>Musique</span>
+      </div>
+    </div>
+    <p class="t-caption">Le nom sous l'icône sera « Plus ou moins ». Les icônes grises sont d'autres applis, pour comparer.</p>
+  </section>
+</div>
+</body>
+</html>
