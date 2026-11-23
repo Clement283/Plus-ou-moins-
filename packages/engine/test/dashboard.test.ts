@@ -110,12 +110,19 @@ describe('computeDashboard — the example journal of doc 05 (cours 5, Thursday 
 describe('computeDashboard — « Autres cas » of doc 05', () => {
   const TODAY = '2026-03-20';
 
-  it('cours 4: 10 answers over 14 days, 6 right (60 %) → in « À retravailler », with ⚠ in the module', () => {
-    const d = computeDashboard(calculs(addDays(TODAY, -3), C(4), 10, 4, 0), TODAY);
+  it('cours 4 (validated): 10 answers over 14 days, 6 right (60 %) → in « À retravailler », with ⚠ in the module', () => {
+    const events = [...validate(addDays(TODAY, -20), C(4)), ...calculs(addDays(TODAY, -3), C(4), 10, 4, 0)];
+    const d = computeDashboard(events, TODAY);
     expect(d.home.toRework.map((x) => x.courseId)).toEqual([C(4)]);
     expect(d.home.toRework[0]).toMatchObject({ title: getCourse(C(4)).title, lowSuccess: true, failedTwiceInARow: false });
     expect(d.home.toRework[0]!.success14).toMatchObject({ ok: 6, total: 10, rate: 0.6 });
     expect(d.modules[0]!.courses[4]!.struggling).toBe(true);
+  });
+
+  it('a course not validated yet is never « en difficulté » (doc 08 #14): it shows « à rattraper » instead', () => {
+    const d = computeDashboard(calculs(addDays(TODAY, -3), C(4), 10, 4, 0), TODAY);
+    expect(d.home.toRework).toEqual([]);
+    expect(d.modules[0]!.courses[4]!.struggling).toBe(false);
   });
 
   it('cours 3: 4 answers over 14 days, 1 right → not in « À retravailler » (fewer than 5 answers)', () => {
@@ -147,6 +154,7 @@ describe('computeDashboard — « Autres cas » of doc 05', () => {
 
   it('4 courses in difficulty → the 3 weakest, weakest first', () => {
     const events = [
+      ...[1, 2, 3, 4].flatMap((i) => validate(addDays(TODAY, -20), C(i))), // validated long ago (outside the 14 days)
       ...calculs(TODAY, C(1), 10, 4, 0), // 60 %
       ...calculs(TODAY, C(2), 10, 5, 0), // 50 %
       ...calculs(TODAY, C(3), 10, 6, 0), // 40 %
@@ -322,7 +330,7 @@ describe('computeDashboard — module view (§2)', () => {
 
   it('« à retravailler » compares the displayed percentage: 69,6 % shows 70 % and is not flagged (doc 07 #21A)', () => {
     const at = (right: number, total: number) =>
-      computeDashboard(calculs(TODAY, C(4), total, total - right, 0), TODAY);
+      computeDashboard([...validate(addDays(TODAY, -20), C(4)), ...calculs(TODAY, C(4), total, total - right, 0)], TODAY);
     const d = at(348, 500); // 69,6 %
     expect(d.home.toRework).toEqual([]);
     expect(d.modules[0]!.courses[4]!.struggling).toBe(false);

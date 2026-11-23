@@ -110,7 +110,7 @@ export interface ModuleCourse {
   level: 1 | 2 | 3 | null;
   success28: SuccessRate;
   nextReview: string | null;
-  /** ⚠: same conditions as « À retravailler ». */
+  /** ⚠: same conditions as « À retravailler » (validated courses only). */
   struggling: boolean;
   failedTwiceInARow: boolean;
 }
@@ -236,7 +236,8 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
       const c = progress.courses[id]!;
       const success14 = successRate(calculs14.filter((e) => e.courseId === id));
       const lowSuccess = success14.total >= STRUGGLING_MIN_ANSWERS && Math.round(success14.rate! * 100) < STRUGGLING_PERCENT;
-      if (lowSuccess || c.failedTwiceInARow)
+      // Only validated courses can be « en difficulté » (doc 08 #14): a course not validated yet shows « à rattraper ».
+      if (c.status === 'valide' && (lowSuccess || c.failedTwiceInARow))
         struggling.set(id, { courseId: id, moduleId: m.id, title: getCourse(id).title, success14, lowSuccess, failedTwiceInARow: c.failedTwiceInARow });
     }
   const courseRank = new Map(MODULES.flatMap((m) => m.courseIds).map((id, i) => [id, i]));
