@@ -17,6 +17,12 @@
 - Tâche 16 : décisions du doc 07 appliquées.
 Tests : `npm test` (moteur 510, web 9, api 9, scripts 7).
 
+## Design (2026-11-23)
+- Design system « Cahier au propre » validé : `docs/design/design-system/` (tokens, catalogue, `concept.html`).
+- Écrans validés : accueil de l'élève (4 situations) et question de cours.
+- Décisions du porteur du projet : série affichée sur l'accueil ; prénom affiché (à ajouter aux comptes) ; fenêtre de 4 cours + barre du module à la place de la bande complète.
+- Autres écrans en maquette dans `docs/design/ecrans/` (consignes : `BRIEF.md`), à valider un par un.
+
 ## Reste à faire
 1. **Étape design, avec validation du porteur du projet avant tout code d'écran** (directive du porteur du projet). Première maquette : `docs/design/maquette-accueil-eleve.html` (+ captures). Écrans à concevoir : connexion, accueil élève, mes cours / module, cours (leçon, exemples, exercices de fin, résultat, rattrapage), révisions, entraînement, retour sur erreur, clavier maths, les 8 types d'exercices, page de suivi (accueil, module, cours). Icônes de l'appli (PWA).
 2. Écrans (parties UI des tâches 6, 7, 10, 13, 14) une fois le design validé.
