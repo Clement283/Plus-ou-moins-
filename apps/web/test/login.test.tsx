@@ -54,8 +54,9 @@ describe('Connexion', () => {
     expect(button().disabled).toBe(false);
     await act(async () => fireEvent.click(button()));
     await waitFor(async () => expect(await getSession()).toEqual({ token: 'tok', user: USER }));
-    expect(loginFetch).toHaveBeenCalledTimes(1);
-    expect(JSON.parse(loginFetch.mock.calls[0]![1].body)).toEqual({ code: 'k7m2 9qxp' });
+    const logins = loginFetch.mock.calls.filter((c) => c[0] === '/api/login');
+    expect(logins).toHaveLength(1);
+    expect(JSON.parse(logins[0]![1].body)).toEqual({ code: 'k7m2 9qxp' });
   });
 
   it('garde la casse tapée quand on ajoute des lettres une à une', () => {

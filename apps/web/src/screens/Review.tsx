@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { foldProgress, nextReviewSession, reviewItems, type ActivityItem, type ProgressState, type Rng } from '@pom/engine';
 import { go } from '../router';
-import { useProgress, useToday } from '../store/progress';
+import { useToday } from '../store/progress';
 import { loadAll } from '../store/sync';
 import { ActivityScreen, type FirstAnswer } from './Activity';
 import { ReviewSummary } from './ReviewSummary';
@@ -21,10 +21,10 @@ const start = (state: ProgressState, today: string, rng: Rng): Run | null => {
 };
 
 export default function ReviewScreen({ rng }: { rng?: Rng }) {
-  const progress = useProgress();
   const today = useToday();
   const [run, setRun] = useState<Run | null>(null);
   const [firsts, setFirsts] = useState<FirstAnswer[] | null>(null);
+  const [more, setMore] = useState(false);
 
   // À l'arrivée : la progression à jour (le repli d'abord chargé peut être vide), puis la séance ; rien de dû → accueil.
   useEffect(() => {
@@ -49,10 +49,16 @@ export default function ReviewScreen({ rng }: { rng?: Rng }) {
         activityId={run.activityId}
         firsts={firsts}
         onMore={() => {
-          const r = start(progress, today, rng ?? Math.random);
-          if (!r) return go('#/');
-          setRun(r);
-          setFirsts(null);
+          // Comme à l'arrivée : la progression à jour (la séance qui vient de finir y est), jamais le repli en mémoire.
+          if (more) return;
+          setMore(true);
+          void loadAll().then((events) => {
+            setMore(false);
+            const r = start(foldProgress(events), today, rng ?? Math.random);
+            if (!r) return go('#/');
+            setRun(r);
+            setFirsts(null);
+          });
         }}
       />
     );

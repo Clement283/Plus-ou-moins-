@@ -17,6 +17,14 @@ test('élève : Cours 0 puis Cours 1 avec une erreur voulue, validation, accueil
   await expect(page.getByRole('heading', { name: 'Cours 0 validé' })).toBeVisible();
   await expect(page.getByText('Le cours 1, « Additionner deux nombres de même signe », est débloqué.')).toBeVisible();
 
+  // Entraînement, à froid (page rechargée sur l'écran) : la série démarre avec une question du cours 0.
+  await page.goto('/#/entrainement');
+  await page.reload();
+  await page.getByRole('button', { name: "Commencer l'entraînement" }).click();
+  await expect(page.locator('.chip--module')).toHaveText('Cours 0, entraînement');
+  await page.goto('/#/');
+  await page.getByRole('button', { name: 'Commencer le cours 1' }).waitFor();
+
   // Cours 1 : une erreur voulue, explication, l'exercice revient en fin d'activité.
   await page.getByRole('button', { name: 'Commencer le cours 1' }).click();
   const report = await runCourse(page, C1, { wrongFirstFin: true });

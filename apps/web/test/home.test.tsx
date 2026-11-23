@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { foldProgress, trainingPool, seededRng, type AppEvent } from '@pom/engine';
 import { scenario, TODAY, type ScenarioName } from '../../../e2e/fixtures';
 
 const h = vi.hoisted(() => ({ events: [] as AppEvent[], recorded: [] as any[] }));
 vi.mock('../src/store/sync', () => ({
   useEvents: () => h.events,
+  loadAll: vi.fn(async () => h.events),
   recordEvent: vi.fn(async (e: any) => void h.recorded.push(e)),
 }));
 vi.mock('../src/store/progress', async () => {
@@ -13,6 +14,7 @@ vi.mock('../src/store/progress', async () => {
   return {
     useProgress: () => engine.foldProgress(h.events),
     useToday: () => '2026-11-22',
+    useReady: () => true,
     useSession: () => ({ token: 't', user: { id: 'u-lea', name: 'Léa', role: 'eleve' } }),
   };
 });
@@ -249,25 +251,32 @@ describe('Entraînement', () => {
     expect(window.location.hash).toBe('#/entrainement/serie');
   });
 
-  it('la série : 10 questions du cours choisi, pastille « Cours N, entraînement », fin → retour à l\'entraînement, aucune date de révision touchée', () => {
+  it('la série : 10 questions du cours choisi, pastille « Cours N, entraînement », fin → retour à l\'entraînement, aucune date de révision touchée', async () => {
     load('cours-a-rattraper');
     const before = foldProgress(h.events);
     startTraining({ courseIds: ['c01-additionner-meme-signe'] });
+    // La série se tire d'après les événements chargés (loadAll), pas d'après un repli déjà prêt au premier rendu.
     const v = mount(<TrainingSeries rng={seededRng(7)} />);
-    expect(v.$('.chip--module')?.textContent).toBe('Cours 1, entraînement');
-    for (let i = 0; i < 80 && v.$('.chip'); i++) {
-      const pass = v.btn('Passer');
-      if (pass) fireEvent.click(pass);
-      else {
-        const cont = v.btn('Continuer');
-        if (cont) fireEvent.click(cont);
-        else break;
-      }
-    }
-    expect(h.recorded.every((e) => e.activity === 'entrainement' || e.kind === 'activity_end')).toBe(true);
+    expect(v.$('.chip--module')).toBeNull();
+    await waitFor(() => expect(v.$('.chip--module')?.textContent).toBe('Cours 1, entraînement'));
+    expect(v.container.querySelectorAll('.stepper__step')).toHaveLength(10);
+    // La croix quitte la série : retour à l'entraînement.
+    fireEvent.click(v.btn('Quitter')!);
+    await waitFor(() => expect(window.location.hash).toBe('#/entrainement'));
     expect(trainingPool(before)).toContain('c01-additionner-meme-signe');
     const after = foldProgress([...h.events, ...h.recorded.map((e, i) => ({ ...e, id: `n${i}`, userId: 'u-lea', at: Date.UTC(2026, 10, 22, 12) + i, day: TODAY }))]);
     for (const id of Object.keys(before.courses)) expect(after.courses[id]!.nextReview).toBe(before.courses[id]!.nextReview);
+  });
+
+  it('le choix est consommé : revenir sur l\'adresse de la série plus tard renvoie à l\'entraînement', async () => {
+    load('cours-a-rattraper');
+    startTraining({ courseIds: ['c01-additionner-meme-signe'] });
+    const first = mount(<TrainingSeries rng={seededRng(7)} />);
+    await waitFor(() => expect(first.$('.chip--module')).not.toBeNull());
+    first.unmount();
+    window.location.hash = '#/entrainement/serie';
+    mount(<TrainingSeries rng={seededRng(7)} />);
+    await waitFor(() => expect(window.location.hash).toBe('#/entrainement'));
   });
 
   it('sans choix en mémoire (rechargement), la série renvoie à l\'entraînement', () => {

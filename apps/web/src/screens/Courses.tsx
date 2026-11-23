@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MODULES, getCourse, type CourseProgress } from '@pom/engine';
 import { Stars, courseLabel } from '../components/CourseBits';
 import { go } from '../router';
-import { useProgress } from '../store/progress';
+import { useProgress, useReady } from '../store/progress';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
 
@@ -66,6 +66,12 @@ function Actions({ c }: { c: CourseProgress }) {
 }
 
 export default function Courses() {
+  const ready = useReady();
+  if (!ready) return <main className="app-body" data-screen="mes-cours" aria-busy="true" />;
+  return <CoursesList />;
+}
+
+function CoursesList() {
   const progress = useProgress();
   const module = MODULES.find((m) => !progress.modules[m.id]?.done) ?? MODULES[0]!;
   const mp = progress.modules[module.id]!;

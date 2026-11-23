@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { getCourse, studentHome, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
+import { DAILY_GOAL_MS, getCourse, studentHome, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
 import { DayGauge } from '../components/DayGauge';
 import { Stars, isTodo } from '../components/CourseBits';
 import { go } from '../router';
-import { useProgress, useSession, useToday } from '../store/progress';
+import { useProgress, useReady, useSession, useToday } from '../store/progress';
 import { useEvents } from '../store/sync';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
@@ -147,7 +147,7 @@ function ModuleStrip({ home, progress }: { home: StudentHome; progress: Progress
           );
         })}
       </div>
-      <a className="link t-body2 self-start" href="#/cours">
+      <a className="link link--target t-body2 self-start" href="#/cours">
         Voir tous mes cours
       </a>
     </div>
@@ -159,9 +159,12 @@ export default function Home() {
   const events = useEvents();
   const today = useToday();
   const name = useSession()?.user.name;
+  const ready = useReady();
   const home = useMemo(() => studentHome(progress, events, today), [progress, events, today]);
   const minutes = Math.floor(home.today.totalMs / 60_000);
-  const goal = 15;
+  const goal = DAILY_GOAL_MS / 60_000;
+  // Rien tant que la session et les événements locaux ne sont pas chargés : jamais de prénom absent ni de « 0 cours » faux.
+  if (!ready) return <main className="app-body" data-screen="accueil" aria-busy="true" />;
   return (
     <>
       <main className="app-body" data-screen="accueil">

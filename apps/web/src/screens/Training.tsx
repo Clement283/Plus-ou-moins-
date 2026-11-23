@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { MODULES, TRAINING_SERIES_LENGTH, getCourse, trainingPool, trainingSeries, type QuestionItem, type Rng } from '@pom/engine';
+import { useEffect, useState } from 'react';
+import { MODULES, TRAINING_SERIES_LENGTH, foldProgress, getCourse, trainingPool, trainingSeries, type QuestionItem, type Rng } from '@pom/engine';
 import { Stars, courseLabel } from '../components/CourseBits';
 import { go } from '../router';
-import { useProgress } from '../store/progress';
+import { useProgress, useReady } from '../store/progress';
+import { loadAll } from '../store/sync';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
 import { ActivityScreen } from './Activity';
@@ -49,6 +50,20 @@ function Foot({ mode, pool, picked }: { mode: 'tout' | 'choix'; pool: string[]; 
 }
 
 export default function Training() {
+  const ready = useReady();
+  if (!ready)
+    return (
+      <>
+        <main className="app-body" data-screen="entrainement" aria-busy="true" />
+        <div className="app-foot">
+          <BottomNav active="entrainement" />
+        </div>
+      </>
+    );
+  return <TrainingChoose />;
+}
+
+function TrainingChoose() {
   const progress = useProgress();
   const pool = trainingPool(progress);
   const [mode, setMode] = useState<'tout' | 'choix'>('tout');
@@ -150,23 +165,34 @@ export default function Training() {
 
 /** La série : 10 questions dans le déroulé commun ; à la fin (ou à la croix), retour à l'entraînement. */
 export function TrainingSeries({ rng }: { rng?: Rng }) {
-  const progress = useProgress();
+  // Le choix est consommé une fois : revenir en arrière puis avancer ne relance pas une série périmée.
   const [choice] = useState(pending);
-  // Tirée une seule fois : la progression change à chaque réponse enregistrée.
-  const items = useMemo((): QuestionItem[] | null => {
-    if (!choice) return null;
-    try {
-      return trainingSeries(progress, choice, rng ?? Math.random);
-    } catch {
-      return null;
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [items, setItems] = useState<QuestionItem[] | null | undefined>(undefined); // undefined : en cours de chargement
+  // Tirée une seule fois, d'après la progression à jour (le repli du magasin peut ne pas être prêt à l'ouverture directe).
   useEffect(() => {
-    if (!items) go('#/entrainement');
+    if (!choice) {
+      setItems(null);
+      return;
+    }
+    let alive = true;
+    void loadAll().then((events) => {
+      if (!alive) return;
+      pending = null;
+      try {
+        setItems(trainingSeries(foldProgress(events), choice, rng ?? Math.random));
+      } catch {
+        setItems(null);
+      }
+    });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (items === null) go('#/entrainement');
   }, [items]);
-  if (!items) {
-    return <main className="app-body" data-screen="entrainement-serie" />;
-  }
+  if (!items) return <main className="app-body" data-screen="entrainement-serie" />;
   return (
     <ActivityScreen
       kind="entrainement"

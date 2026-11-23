@@ -14,6 +14,7 @@ vi.mock('../src/store/progress', async () => {
   return {
     useProgress: () => engine.foldProgress(h.events),
     useToday: () => '2026-11-22',
+    useReady: () => true,
     useSession: () => ({ token: 't', user: { id: 'u-lea', name: 'Léa', role: 'eleve' } }),
   };
 });
@@ -205,6 +206,29 @@ describe('Révisions : fin de séance', () => {
     expect(v.text()).toContain('Révisions faites'); // les 5 sont faits, plus rien de dû
     fireEvent.click(v.btn("Revenir à l'accueil")!);
     expect(window.location.hash).toBe('#/');
+  });
+
+  it('« Encore des révisions » repart des événements à jour : jamais un cours déjà révisé', async () => {
+    const { loadAll } = await import('../src/store/sync');
+    load('apres-une-seance');
+    h.stub = true;
+    const v = await mount(<ReviewScreen rng={seededRng(3)} />);
+    const id = h.props.activityId as string;
+    const due = pendingReviews(foldProgress(h.events), TODAY).map((p) => p.courseId);
+    expect(due.length).toBeGreaterThanOrEqual(2);
+    h.events = [...h.events, ...answersOf(id, due[0]!, 3, 0)];
+    h.endWith.firsts = [0, 1, 2].map(() => ({ activity: 'revision', correct: true }));
+    fireEvent.click(v.btn('fin-stub')!);
+    await flush();
+    const calls = vi.mocked(loadAll).mock.calls.length;
+    fireEvent.click(v.btn('Encore des révisions')!);
+    await flush();
+    await flush();
+    expect(vi.mocked(loadAll).mock.calls.length).toBe(calls + 1);
+    expect(h.props.activityId).not.toBe(id);
+    const courses = new Set((h.props.items as { courseId: string }[]).filter((i) => i.courseId).map((i) => i.courseId));
+    expect(courses.has(due[0]!)).toBe(false);
+    expect(courses.size).toBeGreaterThan(0);
   });
 
   it('le repli ne contient pas la séance au bout de 3 s : en-tête avec les réponses en mémoire', async () => {

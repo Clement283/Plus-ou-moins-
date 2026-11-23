@@ -11,18 +11,30 @@ export class ApiError extends Error {
   }
 }
 
+/** Délai (ms) au-delà duquel une requête est abandonnée (réseau très lent = comme hors ligne). */
+export const REQUEST_TIMEOUT_MS = 10_000;
+
 async function request<T>(path: string, init: RequestInit & { token?: string } = {}): Promise<T> {
   const { token, ...rest } = init;
   const headers: Record<string, string> = { 'content-type': 'application/json' };
   if (token) headers.authorization = `Bearer ${token}`;
-  let res: Response;
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), REQUEST_TIMEOUT_MS);
   try {
-    res = await fetch(path, { ...rest, headers });
-  } catch {
-    throw new ApiError(0, 'network');
+    let res: Response;
+    try {
+      res = await fetch(path, { ...rest, headers, signal: abort.signal });
+    } catch {
+      throw new ApiError(0, 'network');
+    }
+    if (!res.ok) throw new ApiError(res.status, `HTTP ${res.status}`);
+    return (await res.json()) as T;
+  } catch (e) {
+    if (e instanceof ApiError) throw e;
+    throw new ApiError(0, 'network'); // corps illisible ou lecture interrompue par le délai
+  } finally {
+    clearTimeout(timer);
   }
-  if (!res.ok) throw new ApiError(res.status, `HTTP ${res.status}`);
-  return (await res.json()) as T;
 }
 
 export function login(code: string): Promise<LoginResult> {

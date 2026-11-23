@@ -1,87 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { applyEvent, foldProgress, parisDay, type AppEvent, type ProgressState } from '@pom/engine';
-import { getDb, type Session } from './db';
-import { getSession, onChange, useEvents } from './sync';
+import { useEffect, useState } from 'react';
+import { parisDay } from '@pom/engine';
+import { useStoredProgress, useStoredReady, useStoredSession } from './sync';
 
-// --- session ---------------------------------------------------------------
+// --- session et progression (magasin partagé de sync.ts) ----------------------
+
+export { FOLD_WAIT_MS, advanceProgress, loadProgressCache, saveProgressCache } from './foldcache';
 
 /** Session courante : `undefined` pendant le chargement, `null` si personne n'est connecté. */
-export function useSession(): Session | null | undefined {
-  const [session, setSession] = useState<Session | null | undefined>(undefined);
-  useEffect(() => {
-    let alive = true;
-    const refresh = () => void getSession().then((s) => alive && setSession(s ?? null), () => alive && setSession(null));
-    refresh();
-    const off = onChange(refresh);
-    return () => {
-      alive = false;
-      off();
-    };
-  }, []);
-  return session;
-}
+export const useSession = useStoredSession;
 
-// --- progression -----------------------------------------------------------
+/** Progression de l'élève connecté : repli des événements locaux, mise à jour incrémentale, cache IndexedDB (voir sync.ts). */
+export const useProgress = useStoredProgress;
 
-/** Ajoute à `prev` les événements qu'il ne connaît pas (applyEvent refait le repli si l'un est plus ancien). */
-export function advanceProgress(prev: ProgressState | null, events: AppEvent[]): ProgressState {
-  if (!prev) return foldProgress(events);
-  const known = new Set(prev.journal.events.map((e) => e.id));
-  let s = prev;
-  for (const e of events) if (!known.has(e.id)) s = applyEvent(s, e);
-  return s;
-}
-
-const BUILD = typeof __APP_BUILD__ === 'string' ? __APP_BUILD__ : 'dev';
-
-export async function loadProgressCache(userId: string, build = BUILD): Promise<ProgressState | null> {
-  try {
-    const c = await (await getDb()).get('progress', userId);
-    return c && c.build === build ? c.state : null;
-  } catch {
-    return null;
-  }
-}
-
-export async function saveProgressCache(userId: string, state: ProgressState, build = BUILD): Promise<void> {
-  try {
-    await (await getDb()).put('progress', { build, state }, userId);
-  } catch {
-    // Le cache est facultatif.
-  }
-}
-
-/** Progression de l'élève connecté : repli des événements, mise à jour incrémentale, cache IndexedDB. */
-export function useProgress(): ProgressState {
-  const events = useEvents();
-  const session = useSession();
-  const uid = session?.user.id ?? null;
-  const [seed, setSeed] = useState<{ uid: string; state: ProgressState } | null>(null);
-  const last = useRef<{ uid: string | null; state: ProgressState } | null>(null);
-
-  useEffect(() => {
-    if (!uid) return;
-    let alive = true;
-    void loadProgressCache(uid).then((state) => alive && state && setSeed({ uid, state }));
-    return () => {
-      alive = false;
-    };
-  }, [uid]);
-
-  const state = useMemo(() => {
-    const mine = events.filter((e) => e.userId === uid);
-    const prev = last.current?.uid === uid ? last.current.state : seed?.uid === uid ? seed.state : null;
-    const next = advanceProgress(prev, mine);
-    last.current = { uid, state: next };
-    return next;
-  }, [events, uid, seed]);
-
-  useEffect(() => {
-    if (uid && state.journal.events.length > 0) void saveProgressCache(uid, state);
-  }, [uid, state]);
-
-  return state;
-}
+/** Vrai quand la session et les premiers événements locaux sont chargés : avant, aucun chiffre ne doit s'afficher. */
+export const useReady = useStoredReady;
 
 // --- jour ------------------------------------------------------------------
 
