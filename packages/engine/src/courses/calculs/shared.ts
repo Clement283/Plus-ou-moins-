@@ -3,7 +3,7 @@ import { type Expr, evaluate, num, op, toLatex } from '../../math/expr';
 import { type Rational, eqRat, rat } from '../../math/rational';
 import { type Rng, pick, randInt } from '../../rng';
 import type { ErrorFamily } from '../../events';
-import type { CourseDef, ErrorDef, Exercise, Explanation, LessonBlock, Level, LessonPart, WrongResolution } from '../types';
+import type { CourseDef, ErrorDef, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, WrongResolution } from '../types';
 import type { Question } from '../../exercises/types';
 
 /** Number sizes of courses 1, 2 and 4: 1–9, tens, hundreds. */
@@ -86,7 +86,35 @@ export const explication = (...blocks: LessonBlock[]): LessonPart => ({ type: 'e
 export const text = (t: string): LessonBlock => ({ t: 'text', text: t });
 export const math = (latex: string): LessonBlock => ({ t: 'math', latex, colorize: true });
 export const lecon = (question: Question): LessonPart => ({ type: 'question', activity: 'lecon', question });
-export const exemple = (question: Question): LessonPart => ({ type: 'question', activity: 'exemple', question });
+/** Consigne des exemples guidés (doc 09, maquette). */
+export const COMPLETE = "Complète, une case après l'autre.";
+export const exemple = (question: Question): LessonPart => ({
+  type: 'question',
+  activity: 'exemple',
+  question,
+  ...(question.kind === 'trou' ? { consigne: COMPLETE } : {}),
+});
+
+/** Doc 09 : titre (et sous-titre) de l'écran. */
+export const titled = <P extends LessonPart>(title: string, subtitle: string | undefined, part: P): P => ({
+  ...part,
+  title,
+  ...(subtitle === undefined ? {} : { subtitle }),
+});
+
+/** Doc 09 : consigne propre à une question de leçon. */
+export const asking = (consigne: NonNullable<PartTexts['consigne']>, part: LessonPart): LessonPart => ({ ...part, consigne }) as LessonPart;
+
+/** Étiquettes : « Remets les étapes de … dans l'ordre » (doc 09). */
+export const ordered = (calc: string, part: LessonPart): LessonPart => titled(`Remets les étapes de ${calc} dans l'ordre`, undefined, part);
+
+/** Lignes de la règle : ✓ vert (`ok`), ✗ rouge (`ko`) et ~ gris (`neutre`), avec leur explication éventuelle. */
+export const ok = (t: string): LessonBlock => ({ t: 'text', text: t, tone: 'ok' });
+export const ko = (t: string, note: string): LessonBlock => ({ t: 'text', text: t, tone: 'ko', note });
+export const neutre = (t: string, note: string): LessonBlock => ({ t: 'text', text: t, tone: 'neutre', note });
+export const heading = (t: string): LessonBlock => ({ t: 'heading', text: t });
+/** Bloc « Fais attention » de la règle (doc 09). */
+export const attention = (...lines: LessonBlock[]): LessonBlock[] => [heading('Fais attention'), ...lines];
 
 export const saisie = (ex: Exercise): Question => ({ kind: 'saisie', ex, promptLatex: `${toLatex(ex.expr)} = \\square` });
 export const trou = (ex: Exercise, promptLatex: string, hidden: number): Question => ({

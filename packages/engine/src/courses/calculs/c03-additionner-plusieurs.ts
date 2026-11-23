@@ -4,7 +4,7 @@ import { type Rng, pick, randInt } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, chain, chance, draw, exemple, explanation, explication,
-  is, isOpposite, lecon, makeExercise, math, operands, ordre, redraw, saisie, signed, text, trou,
+  is, isOpposite, lecon, makeExercise, math, operands, ordre, redraw, saisie, signed, text, trou, attention, ko, ok, ordered, titled
 } from './shared';
 
 const ID = 'c03-additionner-plusieurs';
@@ -131,20 +131,23 @@ export const c03: CourseDef = {
   shortTitle: 'Plusieurs relatifs',
   rule: RULE,
   parts: [
-    explication(
+    titled('Je range les positifs et les négatifs', "Les positifs d'un côté, les négatifs de l'autre.", explication(
       math('-2 + 5 + (-4)'),
       text('Positifs : 5.'),
       text('Négatifs : −2 + (−4) = −6.'),
       text('Puis 5 + (−6) = −1.'),
-    ),
-    explication(
+    )),
+    titled('Je regroupe, puis je termine', 'Positifs, puis négatifs, puis le cours 2.', explication(
       text(RULE),
       math('3 + (-3) + 3'),
-      text('positifs : 3 + 3 = 6'),
-      text('négatifs : −3'),
-      text('6 + (−3) = **3**'),
-    ),
-    lecon(ordre(ex1(7, -1, -8), ['Positifs : 7', 'Négatifs : −1 + (−8) = −9', '7 + (−9)', 'Résultat : −2'], [2, 0, 3, 1])),
+      ok('positifs : 3 + 3 = 6'),
+      ok('négatifs : −3'),
+      ok('6 + (−3) = **3**'),
+      ...attention(
+        ko('−2 + 5 + (−4) = 1', 'Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe.'),
+      ),
+    )),
+    ordered('7 + (−1) + (−8)', lecon(ordre(ex1(7, -1, -8), ['Positifs : 7', 'Négatifs : −1 + (−8) = −9', '7 + (−9)', 'Résultat : −2'], [2, 0, 3, 1]))),
     lecon(saisie(ex1(-2, 5, -4))),
     exemple(trou(ex1(6, -2, 4), '6 + (-2) + 4 \\text{ : positifs } 6 + 4 = \\square', 10)),
     exemple(trou(ex1(6, -2, 4), '6 + (-2) + 4 \\text{ : positifs } 6 + 4 = 10 \\text{ ; négatifs } -2 \\text{ ; résultat } \\square', 8)),

@@ -5,7 +5,7 @@ import { type Expr, type Op, evaluate, num, op, toLatex } from '../../math/expr'
 import { rat } from '../../math/rational';
 import { type Rng, pick, randInt, shuffle } from '../../rng';
 import type { CourseDef, ErrorDef, Exercise, Explanation, Level } from '../types';
-import { MODULE_ID, chance, exemple, explication, lecon, math, operands, redraw, signed, text } from './shared';
+import { MODULE_ID, asking, attention, chance, exemple, explication, ko, lecon, math, neutre, ok, operands, redraw, signed, text, titled } from './shared';
 
 const ID = 'c00-bien-ecrire';
 const RULE = "Un calcul s'écrit d'une seule façon correcte : il faut savoir le lire et l'écrire sans ambiguïté.";
@@ -347,27 +347,35 @@ export const c00: CourseDef = {
   shortTitle: 'Bien écrire',
   rule: RULE,
   parts: [
-    explication(math('4 \\times -3'), { t: 'anim', name: 'signes-qui-se-cognent' }, math('4 \\times (-3)')),
-    explication(
-      text('**Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met **entre parenthèses** : 4 × (−3), 5 + (−2), 7 − (−1).'),
-      text('✓ 4 × (−3)'),
-      text('✗ 4 × −3 · ✗ 5 + −2'),
-    ),
-    explication(
+    titled('Deux signes ne peuvent pas se toucher', undefined, explication(math('4 \\times -3'), { t: 'anim', name: 'signes-qui-se-cognent' }, math('4 \\times (-3)'))),
+    titled('Un négatif se met entre parenthèses', 'Après +, −, × ou ÷.', explication(
+      text('**Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met **entre parenthèses**.'),
+      ok('4 × (−3)'),
+      ok('5 + (−2)'),
+      ok('7 − (−1)'),
+      ...attention(ko('4 × −3', 'Deux signes ne se suivent jamais : 4 × (−3).')),
+    )),
+    titled('En tête, pas de parenthèses', undefined, explication(
       text("**En tête d'un calcul, pas de parenthèses** pour un négatif : −3 + 5."),
-      text('✓ −3 + 5'),
+      ok('−3 + 5'),
       // Doc 07 #8A: not wrong, only useless — shown grey, not as a red ✗.
-      { t: 'text', text: '(−3) + 5 : pas faux, mais inutile', tone: 'neutre' },
+      neutre('(−3) + 5', 'Pas faux, mais inutile : en tête, pas de parenthèses.'),
+    )),
+    titled('Le moins se met avant le nombre', undefined, explication(text("**Le signe − s'écrit avant le nombre** : −3, jamais 3−."), ok('−3'), { t: 'text', text: '3−', tone: 'ko' })),
+    titled('Une parenthèse ouverte se ferme', undefined, explication(text('**Une parenthèse ouverte se ferme** : (−3), jamais (−3 tout seul.'), ok('(−3)'), { t: 'text', text: '(−3', tone: 'ko' })),
+    asking(
+      'Classe chaque calcul : bien écrit ou mal écrit.',
+      lecon({
+        kind: 'classer',
+        exs: toClass,
+        classes: CLASSES.map(({ id, label }) => ({ id, label })),
+        expected: toClass.map(classOf),
+      }),
     ),
-    explication(text("**Le signe − s'écrit avant le nombre** : −3, jamais 3−."), text('✓ −3'), text('✗ 3−')),
-    explication(text('**Une parenthèse ouverte se ferme** : (−3), jamais (−3 tout seul.'), text('✓ (−3)'), text('✗ (−3')),
-    lecon({
-      kind: 'classer',
-      exs: toClass,
-      classes: CLASSES.map(({ id, label }) => ({ id, label })),
-      expected: toClass.map(classOf),
-    }),
-    lecon({ kind: 'erreur', ex: toFix, lines: tokensOf(toFix), wrongLine: faultAtOf(toFix), errorType: faultTypeOf(toFix) }),
+    asking(
+      "Touche l'endroit mal écrit.",
+      lecon({ kind: 'erreur', ex: toFix, lines: tokensOf(toFix), wrongLine: faultAtOf(toFix), errorType: faultTypeOf(toFix) }),
+    ),
     exemple({
       kind: 'trou',
       ex: lessonWriting(op('*', num(6), num(-2)), '6', '\\times -', '2'),

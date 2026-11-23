@@ -5,7 +5,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, SIZES, absIs, buildErrors, chance, draw, exemple, explanation, explication,
-  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, stepped, text, trou,
+  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, stepped, text, trou, attention, ko, ok, ordered, titled
 } from './shared';
 
 const ID = 'c02-additionner-signes-contraires';
@@ -103,19 +103,22 @@ export const c02: CourseDef = {
   shortTitle: 'Signes contraires',
   rule: RULE,
   parts: [
-    explication(
+    titled('Une dette, puis un gain', 'Tu dois 3 € et tu gagnes 5 €. Il te reste 2 €.', explication(
       text('Tu dois 3 € et tu gagnes 5 €. Il te reste 2 €.'),
       { t: 'number-line', from: -4, to: 3, jumps: [{ from: -3, by: 5 }], animate: true },
       text("Le calcul s'écrit"),
       math('-3 + 5 = 2'),
-    ),
-    explication(
+    )),
+    titled('Signes contraires : je soustrais', 'Je garde le signe du plus grand.', explication(
       text(RULE),
-      text('−3 + 5 → signes contraires → 5 − 3 = 2 → 5 est le plus grand, il est positif → **2**'),
-      text('4 + (−9) → signes contraires → 9 − 4 = 5 → 9 est le plus grand, il est négatif → **−5**'),
-      text("−6 + 6 → **0** (deux opposés s'annulent)"),
-    ),
-    lecon(ordre(ex1(4, -9), ['Signes contraires', '9 − 4 = 5', '9 est le plus grand : signe −', 'Résultat : −5'], [1, 3, 0, 2])),
+      ok('−3 + 5 = 5 − 3 = **2** (5 est le plus grand, il est positif)'),
+      ok('4 + (−9) = 9 − 4 = **−5** (9 est le plus grand, il est négatif)'),
+      ok("−6 + 6 = **0** (deux opposés s'annulent)"),
+      ...attention(
+        ko('3 + (−8) = 5', "Le signe du résultat, c'est celui du nombre le plus grand (sans son signe)."),
+      ),
+    )),
+    ordered('4 + (−9)', lecon(ordre(ex1(4, -9), ['Signes contraires', '9 − 4 = 5', '9 est le plus grand : signe −', 'Résultat : −5'], [1, 3, 0, 2]))),
     lecon(saisie(ex1(-7, 2))),
     lecon({
       kind: 'paires',

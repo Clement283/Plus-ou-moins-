@@ -4,7 +4,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, draw, exemple, explanation, explication, isOpposite, lecon,
-  makeExercise, math, operands, ordre, resultLine, saisie, sg, signBox, signed, signs, stepped, text, trou,
+  makeExercise, math, operands, ordre, resultLine, saisie, sg, signBox, signed, signs, stepped, text, trou, attention, ko, ok, ordered, titled
 } from './shared';
 
 const ID = 'c06-diviser-deux';
@@ -77,19 +77,22 @@ export const c06: CourseDef = {
   shortTitle: 'Diviser',
   rule: RULE,
   parts: [
-    explication(
+    titled('Diviser, c\'est la même règle', 'Bonne nouvelle : rien de nouveau à retenir.', explication(
       math('+ \\div + = +'),
       math('- \\div - = +'),
       math('+ \\div - = -'),
       math('- \\div + = -'),
       text("Bonne nouvelle : c'est la même règle !"),
-    ),
-    explication(
+    )),
+    titled("Même règle qu'en multiplication", 'Signes pareils : +. Différents : −.', explication(
       text(RULE),
-      text('−12 ÷ 4 → signes contraires → − → 12 ÷ 4 = 3 → **−3**'),
-      text('−35 ÷ (−7) → même signe → + → 35 ÷ 7 = 5 → **5**'),
-    ),
-    lecon(ordre(ex1(24, -6), ['Signes contraires → −', '24 ÷ 6 = 4', 'Résultat : −4'], [2, 0, 1])),
+      ok('−12 ÷ 4 = −(12 ÷ 4) = **−3**'),
+      ok('−35 ÷ (−7) = +(35 ÷ 7) = **5**'),
+      ...attention(
+        ko('−12 ÷ 4 = 3', 'Même règle que pour × : signes pareils → + ; différents → −.'),
+      ),
+    )),
+    ordered('24 ÷ (−6)', lecon(ordre(ex1(24, -6), ['Signes contraires → −', '24 ÷ 6 = 4', 'Résultat : −4'], [2, 0, 1]))),
     lecon(saisie(ex1(-18, -3))),
     exemple(signBox(ex1(-20, 5), false, 'regle-signes')),
     exemple(trou(ex1(-20, 5), '-20 \\div 5 \\text{ : } 20 \\div 5 = \\square', 4)),

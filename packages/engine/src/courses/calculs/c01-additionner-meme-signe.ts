@@ -4,7 +4,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, SIZES, absIs, buildErrors, chance, draw, exemple, explanation, explication,
-  isOpposite, lecon, makeExercise, math, operands, ordre, resultLine, saisie, sg, signed, stepped, text, trou, txt,
+  isOpposite, lecon, makeExercise, math, operands, ordre, resultLine, saisie, sg, signed, stepped, text, trou, txt, attention, ko, ok, ordered, titled
 } from './shared';
 
 const ID = 'c01-additionner-meme-signe';
@@ -94,19 +94,25 @@ export const c01: CourseDef = {
   shortTitle: 'Même signe',
   rule: RULE,
   parts: [
-    explication(
+    titled('Deux dettes font une plus grande dette', 'Tu dois 3 €, puis encore 5 €.', explication(
       text('Tu dois 3 €, puis encore 5 €. Tu dois 8 € en tout.'),
       { t: 'number-line', from: -9, to: 1, jumps: [{ from: 0, by: -3 }, { from: -3, by: -5 }], animate: true },
       text("Le calcul s'écrit"),
       math('-3 + (-5) = -8'),
-    ),
-    explication(
+    )),
+    titled('Même signe : j\'additionne, je garde le signe', undefined, explication(
       text(RULE),
-      text('−3 + (−5) → les deux sont négatifs → 3 + 5 = 8 → je garde le − → **−8**'),
-      text('4 + 6 → les deux sont positifs → **10**'),
-    ),
-    lecon(
-      ordre(ex1(-2, -7), ['Les deux sont négatifs', '2 + 7 = 9', 'Je garde le signe −', 'Résultat : −9'], [2, 0, 3, 1]),
+      ok('−3 + (−5) = −(3 + 5) = **−8**'),
+      ok('4 + 6 = **10**'),
+      ...attention(
+        ko('−3 + (−5) = 8', 'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !'),
+      ),
+    )),
+    ordered(
+      '−2 + (−7)',
+      lecon(
+        ordre(ex1(-2, -7), ['Les deux sont négatifs', '2 + 7 = 9', 'Je garde le signe −', 'Résultat : −9'], [2, 0, 3, 1]),
+      ),
     ),
     lecon(saisie(ex1(-2, -6))),
     exemple(trou(ex1(-4, -9), '-4 + (-9) = -(4 + \\square)', 9)),

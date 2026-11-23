@@ -56,14 +56,25 @@ export interface Explanation {
 export type LessonTone = 'ok' | 'ko' | 'neutre';
 
 export type LessonBlock =
-  | { t: 'text'; text: string; tone?: LessonTone }
+  | { t: 'text'; text: string; tone?: LessonTone; /** Explication sous la ligne (« Fais attention »). */ note?: string }
+  | { t: 'heading'; text: string }
   | { t: 'math'; latex: string; colorize?: boolean }
   | { t: 'number-line'; from: number; to: number; jumps: { from: number; by: number }[]; animate: true }
   | { t: 'anim'; name: string };
 
+/**
+ * Textes d'un écran de leçon (doc 09) : `title` remplace le titre du cours (écran d'explication) ou la consigne
+ * (écran de question), `subtitle` se met sous le titre, `consigne` remplace la consigne générique d'une question.
+ */
+export interface PartTexts {
+  title?: string;
+  subtitle?: string;
+  consigne?: string;
+}
+
 export type LessonPart =
-  | { type: 'explication'; blocks: LessonBlock[] }
-  | { type: 'question'; activity: 'lecon' | 'exemple'; question: Question };
+  | ({ type: 'explication'; blocks: LessonBlock[] } & Pick<PartTexts, 'title' | 'subtitle'>)
+  | ({ type: 'question'; activity: 'lecon' | 'exemple'; question: Question } & PartTexts);
 
 export interface CourseDef {
   id: string;

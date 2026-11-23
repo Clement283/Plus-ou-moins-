@@ -5,7 +5,7 @@ import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, chain, chance, draw, exemple, explanation, explication, is,
   isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, signBox, signed, stepped, text,
-  trou,
+  trou, attention, ko, ok, ordered, titled
 } from './shared';
 
 const ID = 'c07-multiplier-plusieurs';
@@ -89,22 +89,28 @@ export const c07: CourseDef = {
   shortTitle: 'Multiplier plusieurs',
   rule: RULE,
   parts: [
-    explication(
+    titled('Je compte les signes moins', "Deux signes −, c'est pair : le résultat est positif.", explication(
       math('-2 \\times 3 \\times (-4)'),
       { t: 'anim', name: 'compter-les-moins' },
       text("2 signes −, c'est pair, donc le résultat est positif."),
       text('Puis 2 × 3 × 4 = 24 → **24**.'),
-    ),
-    explication(
+    )),
+    titled('Pair donne +, impair donne −', 'Je compte les −, puis je multiplie.', explication(
       text(RULE),
-      text('−1 × (−5) × (−2) → 3 signes − → impair → − → 1 × 5 × 2 = 10 → **−10**'),
-      text('4 × (−3) × 2 → 1 signe − → impair → − → **−24**'),
-    ),
-    lecon(
-      ordre(
-        ex2(-2, -3, -1, 4),
-        ['Je compte les − : 3', '3 est impair → −', '2 × 3 × 1 × 4 = 24', 'Résultat : −24'],
-        [3, 1, 0, 2],
+      ok('−1 × (−5) × (−2) : 3 signes − → impair → **−10**'),
+      ok('4 × (−3) × 2 : 1 signe − → impair → **−24**'),
+      ...attention(
+        ko('−2 × 3 × (−4) = −24', 'Compte les signes − : pair → + ; impair → −.'),
+      ),
+    )),
+    ordered(
+      '−2 × (−3) × (−1) × 4',
+      lecon(
+        ordre(
+          ex2(-2, -3, -1, 4),
+          ['Je compte les − : 3', '3 est impair → −', '2 × 3 × 1 × 4 = 24', 'Résultat : −24'],
+          [3, 1, 0, 2],
+        ),
       ),
     ),
     lecon(saisie(ex1(-2, 3, -4))),

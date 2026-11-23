@@ -30,7 +30,7 @@
  *   from a generator seeded by (seed, itemId), so `answer` gives the same result for the same state.
  */
 import type { Activity, AppEvent, QuestionKind } from './events';
-import { getCourse, type CourseDef, type Exercise, type Level, type LessonBlock } from './courses';
+import { getCourse, type CourseDef, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
 import type { Outcome, Question } from './exercises/types';
 import { buildQuestion } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
@@ -54,6 +54,8 @@ export interface QuestionItem {
   courseId: string;
   activity: Activity;
   question: Question;
+  /** Titre, sous-titre et consigne de l'écran de leçon (doc 09). */
+  texts?: PartTexts;
 }
 
 export interface ExplanationItem {
@@ -62,6 +64,8 @@ export interface ExplanationItem {
   courseId: string;
   partIndex: number;
   blocks: LessonBlock[];
+  /** Titre et sous-titre de l'écran (doc 09). */
+  texts?: PartTexts;
 }
 
 export type ActivityItem = QuestionItem | ExplanationItem;
@@ -317,12 +321,21 @@ function typedSeries(course: CourseDef, n: number, rng: Rng): Question[] {
 
 // ——— Items of each activity ———
 
+/** The doc 09 texts of a part, as an optional `texts` field (nothing when the part has none). */
+function withTexts(p: LessonPart): { texts?: PartTexts } {
+  const texts: PartTexts = {};
+  if (p.title !== undefined) texts.title = p.title;
+  if (p.subtitle !== undefined) texts.subtitle = p.subtitle;
+  if (p.type === 'question' && p.consigne !== undefined) texts.consigne = p.consigne;
+  return Object.keys(texts).length > 0 ? { texts } : {};
+}
+
 /** Doc 01 §2: the course's parts in order, then its 5 end exercises. */
 export function courseRunItems(course: CourseDef, rng: Rng): ActivityItem[] {
   const parts = course.parts.map((p, i): ActivityItem =>
     p.type === 'explication'
-      ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: p.blocks }
-      : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question },
+      ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: p.blocks, ...withTexts(p) }
+      : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) },
   );
   const fin = typedSeries(course, END_EXERCISES, rng).map(
     (question, i): ActivityItem => ({ type: 'question', itemId: `fin-${i}`, courseId: course.id, activity: 'fin', question }),

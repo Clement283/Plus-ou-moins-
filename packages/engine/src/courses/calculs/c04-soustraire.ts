@@ -4,7 +4,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, SIZES, buildErrors, chance, draw, exemple, explanation, explication, is,
-  isOpposite, lecon, makeExercise, math, operands, redraw, resultLine, saisie, signed, stepped, text, toText, trou,
+  isOpposite, lecon, makeExercise, math, operands, redraw, resultLine, saisie, signed, stepped, text, toText, trou, attention, ko, neutre, ok, titled
 } from './shared';
 
 const ID = 'c04-soustraire';
@@ -67,38 +67,57 @@ export const c04: CourseDef = {
   shortTitle: 'Soustraire',
   rule: RULE,
   parts: [
-    explication(
-      text("Enlever une dette de 3 €, c'est comme gagner 3 €."),
-      math('5 - (-3) = 5 + 3 = 8'),
-      { t: 'anim', name: 'moins-moins-devient-plus' },
+    titled(
+      "Enlever une dette, c'est gagner de l'argent",
+      undefined,
+      explication(
+        text("Enlever une dette de 3 €, c'est comme gagner 3 €."),
+        math('5 - (-3) = 5 + 3 = 8'),
+        { t: 'anim', name: 'moins-moins-devient-plus' },
+      ),
     ),
-    explication(
-      text(RULE),
-      text("Je transforme, puis j'applique les cours 1 et 2 :"),
-      text('5 − (−3) = 5 + 3 = **8**'),
-      text('3 − 7 = 3 + (−7) = **−4**'),
-      text('−4 − 6 = −4 + (−6) = **−10**'),
+    titled(
+      "Soustraire, c'est ajouter l'opposé",
+      "Je transforme en addition, puis j'applique les cours 1 et 2.",
+      explication(
+        text(RULE),
+        ok('5 − (−3) = 5 + 3 = **8**'),
+        ok('3 − 7 = 3 + (−7) = **−4**'),
+        ok('−4 − 6 = −4 + (−6) = **−10**'),
+        ...attention(
+          ko('6 − (−2) = 6 − 2 = 4', 'Le signe de −2 n\'a pas changé : 6 − (−2) = 6 + 2.'),
+          neutre('(−4) − 6', 'Pas faux, mais inutile : en tête, pas de parenthèses.'),
+        ),
+      ),
     ),
-    lecon({
-      kind: 'ordre',
-      ex: ex1(5, -3),
-      tiles: [
-        { id: 't3', latex: '3' },
-        { id: 't4', latex: '-' },
-        { id: 't1', latex: '5' },
-        { id: 't2', latex: '+' },
-      ],
-      solution: ['t1', 't2', 't3'],
-      trapTile: { latex: '-', errorType: 'oppose-oublie' },
-    }),
+    titled(
+      'Réécris 5 − (−3) comme une addition',
+      "Touche les étiquettes dans l'ordre. Attention, il y en a une en trop.",
+      lecon({
+        kind: 'ordre',
+        ex: ex1(5, -3),
+        tiles: [
+          { id: 't3', latex: '3' },
+          { id: 't4', latex: '-' },
+          { id: 't1', latex: '5' },
+          { id: 't2', latex: '+' },
+        ],
+        solution: ['t1', 't2', 't3'],
+        trapTile: { latex: '-', errorType: 'oppose-oublie' },
+      }),
+    ),
     lecon(saisie(ex1(-2, -9))),
-    lecon({
-      kind: 'erreur',
-      ex: ex1(6, -2),
-      lines: ['6 - (-2)', '= 6 - 2', '= 4'],
-      wrongLine: 1,
-      errorType: 'oppose-oublie',
-    }),
+    titled(
+      'Trouve la ligne fausse',
+      'Touche la ligne où le calcul se trompe.',
+      lecon({
+        kind: 'erreur',
+        ex: ex1(6, -2),
+        lines: ['6 - (-2)', '= 6 - 2', '= 4'],
+        wrongLine: 1,
+        errorType: 'oppose-oublie',
+      }),
+    ),
     exemple(trou(ex1(6, -4), '6 - (-4) = 6 + \\square', 4)),
     exemple(trou(ex1(6, -4), '6 - (-4) = 6 + 4 = \\square', 10)),
     exemple(trou(ex1(2, 8), '2 - 8 = 2 + (\\square)', -8)),

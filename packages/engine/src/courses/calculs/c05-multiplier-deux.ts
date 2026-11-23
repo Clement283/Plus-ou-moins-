@@ -5,7 +5,7 @@ import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, chance, draw, exemple, explanation, explication, is,
   isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, signBox, signClassOf,
-  signs, stepped, text, trou,
+  signs, stepped, text, trou, asking, attention, ko, ok, ordered, titled
 } from './shared';
 
 const ID = 'c05-multiplier-deux';
@@ -117,26 +117,32 @@ export const c05: CourseDef = {
   shortTitle: 'Multiplier',
   rule: RULE,
   parts: [
-    explication(
+    titled('Deux signes pareils donnent +', 'Deux signes différents donnent −.', explication(
       math('+ \\times + = +'),
       math('- \\times - = +'),
       math('+ \\times - = -'),
       math('- \\times + = -'),
       text("Le moyen de s'en souvenir : « deux signes pareils → + ; deux signes différents → − »."),
-    ),
-    explication(
+    )),
+    titled('Je trouve le signe, puis je multiplie', 'Même signe : +. Signes contraires : −.', explication(
       text(RULE),
-      text('−3 × (−4) → même signe → + → 3 × 4 = 12 → **12**'),
-      text('6 × (−7) → signes contraires → − → 6 × 7 = 42 → **−42**'),
-    ),
-    lecon(ordre(ex1(-4, -3), ['Même signe → +', '4 × 3 = 12', 'Résultat : 12'], [1, 2, 0])),
+      ok('−3 × (−4) = +(3 × 4) = **12**'),
+      ok('6 × (−7) = −(6 × 7) = **−42**'),
+      ...attention(
+        ko('−3 × (−4) = −12', '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.'),
+      ),
+    )),
+    ordered('−4 × (−3)', lecon(ordre(ex1(-4, -3), ['Même signe → +', '4 × 3 = 12', 'Résultat : 12'], [1, 2, 0]))),
     lecon(saisie(ex1(-8, 5))),
-    lecon({
-      kind: 'classer',
-      exs: toClass,
-      classes: SIGN_CLASSES.filter((c) => c.id !== 'zero').map(({ id, label }) => ({ id, label })),
-      expected: toClass.map(signClassOf),
-    }),
+    asking(
+      'Sans calculer, le résultat est-il + ou − ?',
+      lecon({
+        kind: 'classer',
+        exs: toClass,
+        classes: SIGN_CLASSES.filter((c) => c.id !== 'zero').map(({ id, label }) => ({ id, label })),
+        expected: toClass.map(signClassOf),
+      }),
+    ),
     exemple(signBox(ex1(-5, -6), true, 'regle-signes')),
     exemple(trou(ex1(-5, -6), '-5 \\times (-6) \\text{ : } 5 \\times 6 = \\square', 30)),
     exemple(trou(ex1(-5, -6), '-5 \\times (-6) = \\square', 30)),

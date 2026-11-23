@@ -250,7 +250,7 @@ describe('Cours 0 — Bien écrire un calcul', () => {
   it('règle 2 : le contre-exemple « (−3) + 5 » est neutre (gris), pas ✗ (doc 07 #8A)', () => {
     const rule2 = c00.parts[2];
     if (rule2?.type !== 'explication') throw new Error('explication');
-    expect(rule2.blocks).toContainEqual({ t: 'text', text: '(−3) + 5 : pas faux, mais inutile', tone: 'neutre' });
+    expect(rule2.blocks).toContainEqual({ t: 'text', text: '(−3) + 5', tone: 'neutre', note: 'Pas faux, mais inutile : en tête, pas de parenthèses.' });
     expect(rule2.blocks.some((b) => b.t === 'text' && b.text.includes('✗'))).toBe(false);
   });
 
