@@ -126,6 +126,15 @@ describe('readRaw — autres lectures', () => {
     expect(readRaw(type('F3>4>F'), true)).toEqual(werr('ecriture-invalide'));
     expect(readRaw(type('(F3>4>'), true)).toEqual(werr('parenthese'));
   });
+  it('parenthèses non équilibrées autour du nombre : parenthese', () => {
+    expect(readRaw(type('((-3)'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('(-3))'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('-3))'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('-(3'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('-(F3>4>'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('F(3>4'), true)).toEqual(werr('parenthese'));
+    expect(readRaw(type('F3>-4)'), true)).toEqual(werr('parenthese'));
+  });
   it('autres erreurs', () => {
     expect(readRaw(type('3-4'), true)).toEqual(werr('moins-apres'));
     expect(readRaw(type('-3-'), true)).toEqual(werr('moins-apres'));

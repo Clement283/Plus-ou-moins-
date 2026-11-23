@@ -135,13 +135,34 @@ function shapeError(shape: string): ErrorType {
   return 'ecriture-invalide';
 }
 
+/**
+ * Doc 03 §3 `parenthese`: an opened parenthesis is not closed, or a closed one
+ * was never opened. Only when the parentheses sit where a wrap would be (before
+ * the sign/number and after it), so that "3(4" stays `ecriture-invalide`.
+ */
+function unbalancedWrap(shape: string): boolean {
+  if (!/^[(-]*(\d+|F)\)*$/.test(shape)) return false;
+  let depth = 0;
+  for (const ch of shape) {
+    depth += ch === '(' ? 1 : ch === ')' ? -1 : 0;
+    if (depth < 0) return true;
+  }
+  return depth !== 0;
+}
+
+/** shapeError, or `parenthese` when the only fault is unbalanced parentheses. */
+function sequenceError(errShape: string, wholeShape: string): ErrorType {
+  const err = shapeError(errShape);
+  return err === 'ecriture-invalide' && unbalancedWrap(wholeShape) ? 'parenthese' : err;
+}
+
 type Signed = { negative: boolean; digits: string };
 
 /** A fraction box: "-?" then digits, nothing else. */
 function readBox(tokens: readonly RawToken[]): Signed | ErrorType {
   const s = boxString(tokens);
   const m = /^(-?)(\d+)$/.exec(s);
-  return m ? { negative: m[1] === '-', digits: m[2] as string } : shapeError(s);
+  return m ? { negative: m[1] === '-', digits: m[2] as string } : sequenceError(s, s);
 }
 
 export function readRaw(input: RawInput, expectInteger: boolean): ReadResult {
@@ -157,9 +178,10 @@ export function readRaw(input: RawInput, expectInteger: boolean): ReadResult {
   }
 
   // 2. The core must be "-?" then digits, or "-?" then one fraction (no parenthesis left).
-  const shape = core.map((tok) => (tok.t === 'c' ? tok.c : 'F')).join('');
+  const shapeOf = (tokens: readonly RawToken[]) => tokens.map((tok) => (tok.t === 'c' ? tok.c : 'F')).join('');
+  const shape = shapeOf(core);
   const m = /^(-?)(\d+|F)$/.exec(shape);
-  if (!m) return writingError(shapeError(shape));
+  if (!m) return writingError(sequenceError(shape, shapeOf(input.tokens)));
   const negative = m[1] === '-';
 
   const last = core[core.length - 1] as RawToken;
