@@ -27,6 +27,7 @@
 | 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
 
 Autres décisions du 2026-11-23 :
+- Entraînement : la phrase sur les cours pas encore disponibles devient « Les cours 5 à 7 apparaîtront ici quand tu auras fini ces cours. ».
 - Le mot « rattrapage » disparaît de l'interface : la série de 5 exercices proposée quand un cours n'est pas validé s'appelle « série de validation » (bouton « Faire la série de validation », pastille « Validation, 3 sur 5 »). L'état « à rattraper » devient « à valider » (accueil, Mes cours, entraînement, page de suivi). Les compteurs de la série de validation et des exercices de fin comptent aussi les calculs qui reviennent (« 3 sur 7 »).
 - Écran « cours pas encore validé » : sous le critère des exercices de fin, « Ces exercices vérifient que tu sais calculer seule. » (au lieu de « Elle vérifie… »).
 - Après une erreur, titres sans maquette : « Tout était juste. », « Voici le bon ordre. », « Voici les bonnes paires. » (validés).
