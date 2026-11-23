@@ -279,7 +279,7 @@ S'il manque des pièges typiques, on complète avec des pièges non typiques.
 |---|---|---|---|---|
 | −3 × (−3) | 9 | 0 | début | 9 ✓ · −9 *règle des signes* · 6 *addition au lieu de multiplication* · 8 *autre* |
 | −3 × (−3) | 9 | 7 | paires de signes | 9 ✓ · −9 *règle des signes* · 6 *addition* · −6 *addition* |
-| −3 × (−3) | 9 | 7 | mélangée | 9 ✓ · −6 *addition* · 12 *autre* · 7 *autre* |
+| −3 × (−3) | 9 | 7 | mélangée | 9 ✓ · −6 *addition* · 12 *erreur de table* · 7 *autre* |
 | −3 + (−5) | −8 | 2 | début | −8 ✓ · 8 *signe oublié* · −2 *soustraction au lieu d'addition* · −7 *autre* |
 | −3 + 5 | 2 | 10 | paires de signes | 2 ✓ · −2 *signe du mauvais nombre* · 8 *addition au lieu de soustraction* · −8 *idem* |
 | 5 − (−3) | 8 | 10 | mélangée | 8 ✓ · 2 *opposé oublié* · 11 *autre* · −9 *autre* |
