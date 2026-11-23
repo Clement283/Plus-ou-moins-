@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { LessonBlock, LessonPart } from '@pom/engine';
 import { Math } from '../ui/Math';
 import { Bold } from './Bold';
@@ -36,7 +36,7 @@ function linesOf(b: Extract<LessonBlock, { t: 'text' }>): Line[] | null {
   return out;
 }
 
-function LessonLines({ lines, className, style }: { lines: Line[]; className: string; style?: object }) {
+function LessonLines({ lines, className, style }: { lines: Line[]; className: string; style?: CSSProperties }) {
   return (
     <div className={className} {...(style ? { style } : {})}>
       {lines.map((l, k) => (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { checkAnswer } from '@pom/engine';
 import { Math } from '../../ui/Math';
-import { Prompt, QFrame, type QProps } from './Frame';
+import { LessonHeading, Prompt, QFrame, type QProps } from './Frame';
 
 /** Trouver l'erreur : toutes les lignes se touchent, la ligne de départ comprise (doc 08 n° 11). */
 export function Erreur({ q, course, locked, onAnswer, header, footer, texts }: QProps<'erreur'>) {
@@ -14,10 +14,11 @@ export function Erreur({ q, course, locked, onAnswer, header, footer, texts }: Q
   const open = !locked;
   return (
     <QFrame header={header} footer={footer} locked={locked}>
-      <div className="stack stack--top" data-copie>
+      {open && texts?.title && <LessonHeading title={texts.title} subtitle={texts.subtitle} />}
+      <div className={`stack${texts?.title ? '' : ' stack--top'}`} data-copie>
         {open ? (
           <>
-            <Prompt texts={texts} fallback="Une ligne est fausse. Touche-la." cls="t-body1" />
+            {!texts?.title && <Prompt texts={texts} fallback="Une ligne est fausse. Touche-la." cls="t-body1" />}
             <div className="copy-lines">
               {q.lines.map((l, i) => (
                 <button key={i} className="copy-line" type="button" disabled={picked !== undefined} onClick={() => pick(i)}>

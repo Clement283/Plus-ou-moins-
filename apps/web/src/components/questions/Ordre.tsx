@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { checkAnswer, toLatex } from '@pom/engine';
 import { Math } from '../../ui/Math';
-import { Prompt, QFrame, ValidateFoot, type QProps } from './Frame';
+import { LessonHeading, Prompt, QFrame, ValidateFoot, type QProps } from './Frame';
 
 /** Étiquettes à ordonner (doc 03 §4) : toucher place à la fin, toucher une étiquette placée la renvoie. */
 export function Ordre({ q, course, locked, onAnswer, header, footer, texts }: QProps<'ordre'>) {
@@ -19,9 +19,7 @@ export function Ordre({ q, course, locked, onAnswer, header, footer, texts }: QP
   return (
     <QFrame header={header} footer={footer} locked={locked} foot={<ValidateFoot enabled={placed.length === size} onSubmit={submit} />}>
       {texts?.title ? (
-        <div className="stack">
-          <Prompt texts={texts} fallback="" cls="" />
-        </div>
+        <LessonHeading title={texts.title} subtitle={texts.subtitle} />
       ) : (
         <div className="q-expr q-expr--top" data-copie>
           <Prompt texts={texts} fallback="Remets les étapes dans l'ordre." cls="t-body2" />

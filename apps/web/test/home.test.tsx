@@ -207,7 +207,7 @@ describe('Entraînement', () => {
     expect(v.text()).toContain('Pratique libre sur les cours que tu as validés.');
     expect(v.$$('.tchoice .chip--selected').map((c) => c.textContent)).toEqual(['Cours 0', 'Cours 1', 'Cours 2', 'Cours 3', 'Cours 4']);
     expect(v.text()).toContain('5 cours retenus, 10 questions');
-    expect(v.text()).toContain('Les cours 5 à 7 apparaîtront ici');
+    expect(v.text()).toContain('Les cours 5 à 7 apparaîtront ici quand tu auras fini ces cours.');
     expect(v.$('.bottomnav__item.is-active')?.textContent).toBe('Entraînement');
   });
 

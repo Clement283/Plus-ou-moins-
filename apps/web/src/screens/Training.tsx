@@ -23,7 +23,7 @@ export function startTraining(choice: TrainingChoice | null): void {
 
 const COUNT = (n: number) => (n === 0 ? 'Choisis au moins un cours' : `${n} cours retenu${n > 1 ? 's' : ''}, ${TRAINING_SERIES_LENGTH} questions`);
 
-/** « Les cours 5 à 7 apparaîtront ici… » : les cours qui ne sont ni validés ni à valider. */
+/** « Les cours 5 à 7 apparaîtront ici… » : les cours pas encore commencés (doc 08). */
 function comingText(orders: number[]): string | null {
   if (orders.length === 0) return null;
   const contiguous = orders.every((o, i) => i === 0 || o === orders[i - 1]! + 1);
@@ -33,7 +33,7 @@ function comingText(orders: number[]): string | null {
       : contiguous
         ? `Les cours ${orders[0]} à ${orders[orders.length - 1]} apparaîtront`
         : `Les cours ${orders.slice(0, -1).join(', ')} et ${orders[orders.length - 1]} apparaîtront`;
-  return `${who} ici quand ${orders.length === 1 ? "tu l'auras validé ou à valider" : 'tu les auras validés ou à valider'}.`;
+  return `${who} ici quand tu auras fini ${orders.length === 1 ? 'ce cours' : 'ces cours'}.`;
 }
 
 function Foot({ mode, pool, picked }: { mode: 'tout' | 'choix'; pool: string[]; picked: string[] }) {
