@@ -207,6 +207,8 @@ Le bouton « Passer » doit-il déjà être là ?
 
 ### 18. « Il y a un mois » pour la tendance des erreurs de signe
 
+*Obsolète depuis le retrait du taux d'erreurs de signe (2026-11-23).*
+
 **Situation.** Le bloc « État » compare les erreurs de signe des 7 derniers jours avec les mêmes 7 jours **il y a un mois**. Exemple : le 22 décembre, on compare la semaine du 16 au 22 décembre avec celle du 16 au 22 novembre.
 
 - **A ★ — « Un mois » = le même jour du mois précédent.** S'il n'existe pas, comme le 31 mars, on prend le dernier jour du mois, ici le 28 février.

@@ -98,14 +98,6 @@ describe('computeDashboard — the example journal of doc 05 (cours 5, Thursday 
     expect(d.home.last30.goalDays).toBe(2);
   });
 
-  it('erreurs de signe, 7 derniers jours (6 to 12 March): 6 out of 53 calculs = 11 %', () => {
-    const s = d.home.state.signErrors;
-    expect(s.current).toMatchObject({ from: '2026-03-06', to: THU, signErrors: 6, calculs: 53 });
-    expect(Math.round(s.current.rate! * 100)).toBe(11);
-    expect(s.monthAgo).toMatchObject({ from: '2026-02-06', to: '2026-02-12', calculs: 0, rate: null });
-    expect(s.trend).toBeNull();
-  });
-
   it('cours 5 success over 14 days: (53 − 10) / 53 = 81 %, not in « À retravailler »', () => {
     expect(d.home.toRework).toEqual([]);
     const course = d.modules[0]!.courses.find((x) => x.courseId === c5)!;
@@ -241,41 +233,6 @@ describe('computeDashboard — État', () => {
     expect(computeDashboard(validate(TODAY, C(0)), TODAY).modules[0]!.done).toBe(false);
   });
 
-  it('erreurs de signe: ↘ down, → stable (less than 3 points), ↗ up; writing errors are not mixed in', () => {
-    const now = (sign: number): AppEvent[] => [
-      ...calculs(TODAY, C(5), 100, sign, sign),
-      ...calculs(TODAY, C(0), 10, 10, 0, { family: 'ecriture' }), // 110 calculs, writing errors only
-    ];
-    const before = (sign: number): AppEvent[] => calculs('2026-02-14', C(5), 100, sign, sign); // 14–20 Feb
-    const trend = (a: number, b: number) => computeDashboard([...before(b), ...now(a)], TODAY).home.state.signErrors;
-    const s = trend(11, 32);
-    expect(s.current).toMatchObject({ from: '2026-03-14', to: TODAY, signErrors: 11, calculs: 110 });
-    expect(s.monthAgo).toMatchObject({ from: '2026-02-14', to: '2026-02-20', signErrors: 32, calculs: 100 });
-    expect(s.trend).toBe('baisse');
-    expect(trend(31, 32).trend).toBe('baisse'); // 28 % vs 32 %: down 4 points
-    expect(trend(33, 32).trend).toBe('stable'); // 30 % vs 32 %: down 2 points
-    expect(trend(35, 30).trend).toBe('stable'); // 32 % vs 30 %
-    expect(trend(36, 30).trend).toBe('hausse'); // 33 % vs 30 %
-  });
-
-  it('« il y a un mois » = la même fenêtre de 7 jours, 28 jours plus tôt (doc 07 #18B)', () => {
-    const s = computeDashboard([], '2026-03-31').home.state.signErrors;
-    expect(s.current).toMatchObject({ from: '2026-03-25', to: '2026-03-31' });
-    expect(s.monthAgo).toMatchObject({ from: '2026-02-25', to: '2026-03-03' });
-    const e = [...calculs('2026-03-03', C(5), 10, 4, 4), ...calculs('2026-02-28', C(5), 10, 0, 0)];
-    expect(computeDashboard(e, '2026-03-31').home.state.signErrors.monthAgo).toMatchObject({ signErrors: 4, calculs: 20 });
-  });
-
-  it('a skipped answer and a « Simplifie » answer are not calculs', () => {
-    const events = [
-      ans({ day: TODAY, course: C(5), correct: false, unfinished: true }),
-      ans({ day: TODAY, course: C(5), correct: false, skipped: true, attempt: 3 }),
-      ans({ day: TODAY, course: C(5), activity: 'exemple', correct: false, family: 'signe' }),
-      ...calculs(TODAY, C(5), 2, 1, 1),
-    ];
-    const s = computeDashboard(events, TODAY).home.state.signErrors;
-    expect(s.current).toMatchObject({ signErrors: 1, calculs: 2, rate: 0.5 });
-  });
 });
 
 describe('computeDashboard — Erreurs les plus communes (30 days)', () => {
@@ -444,6 +401,5 @@ describe('computeDashboard — events', () => {
     const e = ans({ day: TODAY, course: C(1), ms: 60_000 });
     const d = computeDashboard([e, e], TODAY);
     expect(d.home.state.today.totalMs).toBe(60_000);
-    expect(d.home.state.signErrors.current.calculs).toBe(1);
   });
 });

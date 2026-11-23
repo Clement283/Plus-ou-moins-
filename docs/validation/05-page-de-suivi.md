@@ -1,8 +1,6 @@
 # 05 — Ta page de suivi
 
-> **Décision du porteur du projet (2026-11-23), à l'étape design :** la ligne « Erreurs de signe, 7 derniers jours » est **retirée** du bloc « État ». Les erreurs se lisent uniquement dans « Erreurs les plus communes » (28 jours). Le reste du document est inchangé.
-
-*Statut : Validé (2026-11-22) — version 4*
+*Statut : Validé (2026-11-22) — version 5. 2026-11-23 : taux d'erreurs de signe retiré (décision du porteur du projet).*
 
 Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture seule**. Elle a trois niveaux :
 1. l'**accueil** : simple, l'essentiel d'un coup d'œil ;
@@ -24,7 +22,6 @@ Tu y accèdes depuis ton téléphone avec ton propre code. Elle est en **lecture
 │  Aujourd'hui   12 / 15 min            │
 │  Série         6 jours                │
 │  Calculs       6 / 8 cours  ▸         │
-│  Erreurs de signe  11 % ↘ (32 % il y a 1 mois) │
 │                                      │
 │  RÉVISIONS PAS FAITES                │
 │  4 en attente · la plus ancienne : lundi │
@@ -55,10 +52,6 @@ Cinq blocs, pas plus.
 - **Aujourd'hui** : le temps de la journée (même calcul que sa jauge, doc 02).
 - **Série** : les jours d'affilée où l'objectif a été atteint. Si aujourd'hui n'est pas encore atteint, elle compte jusqu'à hier.
 - **Une ligne par module en cours** : cours validés sur le total. En la touchant, tu ouvres le module (§2).
-- **Erreurs de signe** : la part des calculs ratés à cause d'une erreur de signe (famille 🔴, doc 06) **sur les 7 derniers jours**, comparée aux 7 jours d'il y a un mois.
-  - ↘ en baisse ; → stable (écart de moins de 3 points) ; ↗ en hausse.
-  - C'est l'indicateur de réussite du projet.
-  - Les erreurs d'écriture (doc 03) n'y sont pas mélangées.
 
 **Révisions pas faites.** Le nombre de révisions en attente (dont la date est passée, doc 02) et la date de la plus ancienne. En touchant, tu vois la liste des cours concernés. Si tout est à jour : « Révisions à jour ✓ ».
 
@@ -132,12 +125,12 @@ Les cours pas encore commencés sont affichés « 🔒 pas commencé », et le c
 
 Journal fictif (cours 5, « multiplier ») :
 
-| Jour | Activité | Temps | Calculs | Ratés | dont erreurs de signe |
-|---|---|---|---|---|---|
-| lun. 9 mars | cours 5 + révisions | 16 min | 20 | 5 | 4 |
-| mar. 10 mars | révisions | 6 min | 9 | 2 | 1 |
-| mer. 11 mars | rien | 0 | 0 | 0 | 0 |
-| jeu. 12 mars (aujourd'hui) | révisions + entraînement | 15 min | 24 | 3 | 1 |
+| Jour | Activité | Temps | Calculs | Ratés |
+|---|---|---|---|---|
+| lun. 9 mars | cours 5 + révisions | 16 min | 20 | 5 |
+| mar. 10 mars | révisions | 6 min | 9 | 2 |
+| mer. 11 mars | rien | 0 | 0 | 0 |
+| jeu. 12 mars (aujourd'hui) | révisions + entraînement | 15 min | 24 | 3 |
 
 Ce que la page doit afficher le jeudi 12 mars :
 
@@ -146,7 +139,6 @@ Ce que la page doit afficher le jeudi 12 mars :
 | Aujourd'hui | 15 / 15 min ✓ |
 | Série | 1 jour (mercredi manqué ; lundi atteint, mardi non) |
 | Points des 4 jours | lun. ● · mar. ◐ · mer. ○ · jeu. ● |
-| Erreurs de signe, 7 derniers jours (6 au 12 mars) | 6 erreurs de signe sur 53 calculs = 11 % |
 | Taux de réussite du cours 5 (14 jours) | (53 − 10) / 53 = 81 % : pas dans « À retravailler » |
 
 Autres cas :

@@ -5,13 +5,9 @@
  *
  * Choices (technical or interpretations, see the task report):
  * - A « calcul » is a first answer (attempt 1, not « Simplifie ») in a 'fin', 'rattrapage',
- *   'revision' or 'entrainement' activity. Success rates, the sign-error rate and the error counts
+ *   'revision' or 'entrainement' activity. Success rates and the error counts
  *   are counted over calculs; a calcul is right when correct and not skipped.
- * - Windows end today and include it: 30 days = today − 29 … today, 14 days = today − 13 … today,
- *   7 days = today − 6 … today. « Les 7 jours d'il y a un mois » is the same 7-day window 28 days
- *   earlier (doc 07 #18B). The trend compares the rounded
- *   percentages the follower sees: a difference under 3 points is stable; no trend when either
- *   window has no calcul.
+ * - Windows end today and include it: 30 days = today − 29 … today, 14 days = today − 13 … today.
  * - A day is 'partiel' as soon as it has any answer or lesson part, without reaching the goal.
  * - A module is « en cours » once one of its courses is started, until all of them are validated.
  * - The course statuses are 'pas-commence' (locked or available), 'en-cours' (started), 'a-rattraper'
@@ -32,7 +28,6 @@ import { pendingReviews } from './reviews';
 import { LADDER, foldProgress, type CourseProgress } from './srs';
 import { addDays } from './time';
 
-export const SIGN_TREND_THRESHOLD_POINTS = 3;
 /** « À retravailler » below this displayed percentage (doc 07 #21A). */
 export const STRUGGLING_PERCENT = 70;
 export const STRUGGLING_MIN_ANSWERS = 5;
@@ -41,7 +36,6 @@ export const COMMON_ERRORS_MAX = 3;
 export const LISTED_ERRORS_MAX = 10;
 
 export type DayMark = 'atteint' | 'partiel' | 'rien';
-export type SignTrend = 'baisse' | 'stable' | 'hausse';
 export type DashCourseStatus = 'pas-commence' | 'en-cours' | 'a-rattraper' | 'valide';
 
 export interface DayPoint {
@@ -57,14 +51,6 @@ export interface DayPoint {
 export interface SuccessRate {
   ok: number;
   total: number;
-  rate: number | null;
-}
-
-export interface SignWindow {
-  from: string;
-  to: string;
-  signErrors: number;
-  calculs: number;
   rate: number | null;
 }
 
@@ -109,7 +95,6 @@ export interface DashboardHome {
     today: DailyTime;
     streak: number;
     modules: { moduleId: string; title: string; validated: number; total: number }[];
-    signErrors: { current: SignWindow; monthAgo: SignWindow; trend: SignTrend | null };
   };
   pendingReviews: { count: number; oldest: string | null; items: { courseId: string; title: string; due: string }[] };
   commonErrors: { top: CommonError[]; otherCount: number };
@@ -176,20 +161,6 @@ const itemKey = (e: Answer): string => `${e.activityId}|${e.courseId}|${e.prompt
 function successRate(list: Answer[]): SuccessRate {
   const ok = list.filter(isRight).length;
   return { ok, total: list.length, rate: list.length === 0 ? null : ok / list.length };
-}
-
-function signWindow(calculs: Answer[], to: string): SignWindow {
-  const from = addDays(to, -6);
-  const list = calculs.filter((e) => inWindow(e.day, from, to));
-  const signErrors = list.filter((e) => !isRight(e) && e.errorFamily === 'signe').length;
-  return { from, to, signErrors, calculs: list.length, rate: list.length === 0 ? null : signErrors / list.length };
-}
-
-function trendOf(current: SignWindow, before: SignWindow): SignTrend | null {
-  if (current.rate === null || before.rate === null) return null;
-  const diff = Math.round(current.rate * 100) - Math.round(before.rate * 100);
-  if (Math.abs(diff) < SIGN_TREND_THRESHOLD_POINTS) return 'stable';
-  return diff < 0 ? 'baisse' : 'hausse';
 }
 
 function dashStatus(c: CourseProgress): DashCourseStatus {
@@ -274,8 +245,6 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     .slice(0, TO_REWORK_MAX);
 
   const common = countErrors(wrong30);
-  const current = signWindow(calculs, today);
-  const monthAgo = signWindow(calculs, addDays(today, -28));
   const pending = pendingReviews(progress, today);
 
   const home: DashboardHome = {
@@ -287,7 +256,6 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
         const started = m.courseIds.some((id) => dashStatus(progress.courses[id]!) !== 'pas-commence');
         return started && !progress.modules[m.id]!.done;
       }).map((m) => ({ moduleId: m.id, title: m.title, validated: progress.modules[m.id]!.validated, total: progress.modules[m.id]!.total })),
-      signErrors: { current, monthAgo, trend: trendOf(current, monthAgo) },
     },
     pendingReviews: {
       count: pending.length,

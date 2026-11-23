@@ -129,7 +129,7 @@ Règles vérifiées sur 1 000 tirages : une seule réponse possible ; la répons
 
 ## 4. Trouver l'erreur
 
-**À quoi ça sert :** **se relire**. C'est exactement ce qui lui coûte des points en contrôle : la méthode est juste, mais un signe dérape.
+**À quoi ça sert :** **se relire**. C'est une erreur courante en contrôle : la méthode est juste, mais un détail dérape (par exemple un signe).
 
 **Ce qu'elle voit**
 ```

@@ -15,13 +15,13 @@
 - Tâche 13 (partie moteur) : déroulé des activités (repassages, « Passer », entraînement).
 - Tâche 14 (partie moteur) : données de la page de suivi.
 - Tâche 16 : décisions du doc 07 appliquées.
-Tests : `npm test` (moteur 510, web 9, api 9, scripts 7).
+Tests : `npm test` (moteur 506, web 9, api 9, scripts 7).
 
 ## Design (2026-11-23)
 - Design system « Cahier au propre » validé : `docs/design/design-system/` (tokens, catalogue, `concept.html`).
 - Écrans validés : accueil de l'élève (4 situations) et question de cours.
 - Décisions du porteur du projet : série affichée sur l'accueil ; prénom affiché (à ajouter aux comptes) ; fenêtre de 4 cours + barre du module à la place de la bande complète.
-- Tous les écrans de `docs/design/ecrans/` validés (consignes : `BRIEF.md`). Seule modification demandée : retirer « Erreurs de signe, 7 derniers jours » de l'accueil du suivi (fait ; doc 05 annoté). Le moteur (`packages/engine/src/dashboard.ts`) calcule encore ce taux : à retirer ou ignorer lors du codage des écrans.
+- Tous les écrans de `docs/design/ecrans/` validés (consignes : `BRIEF.md`). Seule modification demandée : retirer le taux d'erreurs de signe de l'accueil du suivi (fait ; retiré aussi du doc 05 et du moteur, `packages/engine/src/dashboard.ts`).
 - Composants créés dans les pages d'écrans, à intégrer au design system au moment du codage (voir les comptes rendus : ligne de cours repliable, calendrier de points, cases à remplir, étiquettes à classer, écran de résultat, etc.).
 
 ## Reste à faire

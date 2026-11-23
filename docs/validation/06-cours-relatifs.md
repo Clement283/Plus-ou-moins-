@@ -40,7 +40,7 @@
 - **Écriture des calculs :** un nombre négatif est entre parenthèses, sauf s'il est le premier terme : −3 + (−5), 4 × (−7).
 - **Aides visuelles des leçons :** négatifs en rouge, positifs en bleu, droite graduée animée.
 - **Erreurs reconnues :** chaque cours a sa liste. Une réponse fausse qui n'y correspond pas est classée **« autre »**, avec l'explication générale du cours. Quand une réponse pourrait correspondre à deux erreurs, on retient la première de la liste.
-- **Famille signe** 🔴 : ces erreurs comptent dans l'indicateur « erreurs de signe » de ta page de suivi (doc 05).
+- **Famille signe** 🔴 : ces erreurs comptent, comme les autres, dans « Erreurs les plus communes » de ta page de suivi (doc 05).
 - **Erreurs d'écriture** (moins après le nombre, double signe, parenthèse, écriture invalide) : communes à tous les cours (doc 03 §3), vérifiées **avant** les erreurs de calcul.
 - **Exemples guidés à compléter :** chaque case vide (▢) est une petite réponse tapée, et elles s'enchaînent dans l'ordre. Une case « signe du résultat » se remplit avec deux gros boutons « + » et « − ».
 - **Calcul-piège :** pour chaque erreur reconnue, la colonne « Calcul-piège » dit quel calcul tend ce piège, **sans sortir des nombres du niveau** (doc 01 §5).
