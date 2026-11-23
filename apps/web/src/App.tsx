@@ -4,6 +4,8 @@ import { useRoute } from './router';
 import { useSession } from './store/progress';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
+import DashModule from './screens/DashModule';
+import DashCourse from './screens/DashCourse';
 import EssaiClavier from './screens/EssaiClavier';
 import Home from './screens/Home';
 import Courses from './screens/Courses';
@@ -50,12 +52,19 @@ function StudentRoutes() {
   return <Empty name={route.name} />;
 }
 
+function FollowerRoutes() {
+  const route = useRoute();
+  if (route.name === 'suivi-module') return <DashModule key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
+  if (route.name === 'suivi-cours') return <DashCourse key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
+  return <Dashboard />;
+}
+
 export default function App() {
   const session = useSession();
   return (
     <>
       <IconSprite />
-      {session === undefined ? null : session === null ? <Login /> : session.user.role === 'suiveur' ? <Dashboard /> : <StudentRoutes />}
+      {session === undefined ? null : session === null ? <Login /> : session.user.role === 'suiveur' ? <FollowerRoutes /> : <StudentRoutes />}
     </>
   );
 }

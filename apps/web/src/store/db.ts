@@ -13,12 +13,14 @@ interface PomDB extends DBSchema {
   session: { key: string; value: Session };
   /** Cache de la progression repliée, une entrée par élève (clé = id). Simple optimisation : le repli des événements fait foi. */
   progress: { key: string; value: ProgressCache };
+  /** Page de suivi : liste des élèves ('students'), dernier élève consulté ('last') et événements par élève ('events:<id>'), lisibles hors ligne. */
+  follow: { key: string; value: unknown };
 }
 
 export type ProgressCache = { build: string; state: ProgressState };
 
 export const DB_NAME = 'pom';
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 /** Magasin de la session et clé de son unique entrée. */
 export const SESSION_STORE = 'session';
 export const SESSION_KEY = 'current';
@@ -28,6 +30,7 @@ export const DB_SCHEMA: { name: keyof PomDB & string; keyPath?: string; indexes:
   { name: 'outbox', keyPath: 'id', indexes: [{ name: 'byUser', keyPath: 'userId' }] },
   { name: SESSION_STORE, indexes: [] },
   { name: 'progress', indexes: [] },
+  { name: 'follow', indexes: [] },
 ];
 let dbPromise: Promise<IDBPDatabase<PomDB>> | null = null;
 
@@ -46,6 +49,9 @@ export function getDb(): Promise<IDBPDatabase<PomDB>> {
         }
         if (oldVersion < 3) {
           db.createObjectStore('progress');
+        }
+        if (oldVersion < 4) {
+          db.createObjectStore('follow');
         }
       },
     });

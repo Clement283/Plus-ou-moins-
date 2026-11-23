@@ -241,6 +241,33 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'bilan-faites', fixture: 'debut-de-journee', route: '#/essai/bilan?cas=faites' },
     ],
   },
+  suivi: {
+    route: '#/suivi',
+    scenarios: [
+      { name: 'elle-bloque', fixture: 'elle-bloque', fullPage: true, before: (page) => page.waitForTimeout(500) },
+      { name: 'tout-va-bien', fixture: 'tout-va-bien', fullPage: true, before: (page) => page.waitForTimeout(500) },
+      { name: 'jour-ouvert', fixture: 'elle-bloque', before: async (page) => { await page.waitForTimeout(500); await page.click('.cal__day:nth-child(15)'); } },
+      { name: 'revisions-ouvertes', fixture: 'elle-bloque', fullPage: true, before: async (page) => { await page.waitForTimeout(500); await page.click('section[aria-labelledby=hrev] summary'); } },
+      { name: 'erreur-ouverte', fixture: 'elle-bloque', fullPage: true, before: async (page) => { await page.waitForTimeout(500); await page.click('section[aria-labelledby=herr] summary'); } },
+      { name: 'deux-eleves', fixture: 'deux-eleves', before: async (page) => { await page.waitForTimeout(500); await page.click('button.who'); await page.waitForSelector('[role=dialog]'); } },
+    ],
+  },
+  'suivi-module': {
+    route: '#/suivi/u-lea/module/calculs',
+    scenarios: [
+      { name: 'elle-bloque', fixture: 'elle-bloque', ready: '.crow', before: (page) => page.waitForTimeout(300) },
+      { name: 'tout-va-bien', fixture: 'tout-va-bien', ready: '.crow', before: (page) => page.waitForTimeout(300) },
+    ],
+  },
+  'suivi-cours': {
+    route: '#/suivi/u-lea/cours/c04-soustraire',
+    scenarios: [
+      { name: 'a-valider', fixture: 'elle-bloque', ready: '.chead', fullPage: true },
+      { name: 'valide-qui-coince', fixture: 'elle-bloque', route: '#/suivi/u-lea/cours/c03-additionner-plusieurs', ready: '.chead', fullPage: true },
+      { name: 'en-cours', fixture: 'tout-va-bien', ready: '.chead', fullPage: true },
+      { name: 'valide', fixture: 'tout-va-bien', route: '#/suivi/u-lea/cours/c03-additionner-plusieurs', ready: '.chead', fullPage: true },
+    ],
+  },
   questions: {
     route: '#/essai/questions?type=saisie',
     scenarios: [

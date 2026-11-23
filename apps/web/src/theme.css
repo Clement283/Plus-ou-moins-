@@ -813,3 +813,18 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 /* Leçons (doc 09) : sous-titre d'un écran et titre « Fais attention » */
 .lesson-sub{color:var(--muted)}
 .lesson-attention{margin-top:var(--sp-4)}
+
+/* ---- Page de suivi (tâche 27) : compléments aux composants de suivi.html, tokens uniquement (remplacent ses styles en ligne) ---- */
+.who--static{cursor:default;margin:0}
+.appbar--follow{padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)}
+.card--list{padding:0;gap:0;overflow:hidden}
+.card--flat{padding:0;gap:0;box-shadow:none}
+.card--flat .fact{padding:var(--sp-8) var(--sp-16)}
+.crow-bleed{margin:0 calc(-1 * var(--sp-16))}
+.chead__text{min-width:0;display:grid;gap:var(--sp-8)}
+.chead__state{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-4) var(--sp-8)}
+.chead__state b{color:var(--on-surface);font-weight:600}
+.sr-only{position:absolute;left:-9999px}
+.who-list{display:grid}
+.who-list .ico{color:var(--primary-ink)}
+.ico-success{color:var(--success)}

@@ -27,7 +27,7 @@ export async function clearSession(): Promise<void> {
 }
 
 /** Jeton refusé par le serveur (révoqué) : on efface la session, l'appli revient à la connexion. */
-async function dropSessionIf401(e: unknown): Promise<void> {
+export async function dropSessionIf401(e: unknown): Promise<void> {
   if (e instanceof ApiError && e.status === 401) await clearSession();
 }
 

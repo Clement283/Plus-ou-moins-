@@ -28,17 +28,21 @@ export const SCENARIO_NAMES = [
   'debut-du-module',
   'elle-bloque',
   'tout-va-bien',
+  'deux-eleves',
 ] as const;
 export type ScenarioName = (typeof SCENARIO_NAMES)[number];
 
 export const LEA: User = { id: 'u-lea', name: 'Léa', role: 'eleve' };
 export const CLAIRE: User = { id: 'u-claire', name: 'Claire', role: 'suiveur' };
+export const HUGO: User = { id: 'u-hugo', name: 'Hugo', role: 'eleve' };
 
 const MODULE = MODULES[0]!;
 const COURSES = MODULE.courseIds;
 const MIN = 60_000;
 
 // --- constructeurs d'événements ------------------------------------------
+
+const WRITING_ERRORS = ['moins-apres', 'parenthese', 'signes-colles'];
 
 class Log {
   events: AppEvent[] = [];
@@ -86,7 +90,7 @@ class Log {
       correct: opts.correct,
       unfinished: false,
       errorType,
-      errorFamily: errorType ? 'signe' : null,
+      errorFamily: errorType ? (WRITING_ERRORS.includes(errorType) ? 'ecriture' : 'signe') : null,
       attempt: 1,
       skipped: false,
       durationMs: opts.durationMs,
@@ -97,12 +101,12 @@ class Log {
     this.push(day, this.tick(day, 10), { kind: 'activity_end', activityId, activity, moduleId: MODULE.id, courseId, completed });
   }
 
-  /** Un cours : leçon, exemples, puis les 5 exercices de fin ; `finOk` bonnes réponses sur les 5. */
-  courseRun(day: string, courseId: string, finOk = 5): void {
+  /** Un cours : leçon, exemples, puis les 5 exercices de fin ; `finOk` bonnes réponses sur les 5, les ratés avec les erreurs de `errors` à tour de rôle. */
+  courseRun(day: string, courseId: string, finOk = 5, errors: string[] = []): void {
     const id = `run-${courseId}-${day}`;
     this.lessonParts(day, courseId, id);
     for (let i = 0; i < 7; i++) this.answer(day, courseId, id, i < 4 ? 'lecon' : 'exemple', i, { correct: true, durationMs: 50_000 });
-    for (let i = 0; i < 5; i++) this.answer(day, courseId, id, 'fin', 7 + i, { correct: i < finOk, durationMs: 50_000 });
+    for (let i = 0; i < 5; i++) this.answer(day, courseId, id, 'fin', 7 + i, { correct: i < finOk, durationMs: 50_000, errorType: errors.length ? errors[(i - finOk) % errors.length] : undefined });
     this.end(day, courseId, id, 'fin');
   }
 
@@ -114,10 +118,10 @@ class Log {
   }
 
   /** Du temps d'entraînement (`minutes` au total) sur un cours validé. */
-  training(day: string, courseId: string, minutes: number, correct = (_: number) => true): void {
+  training(day: string, courseId: string, minutes: number, correct = (_: number) => true, errorType = 'signe-inverse'): void {
     const id = `ent-${day}-${courseId}`;
     const n = Math.round((minutes * MIN) / 40_000);
-    for (let i = 0; i < n; i++) this.answer(day, courseId, id, 'entrainement', i, { correct: correct(i), durationMs: 40_000, errorType: 'signe-inverse' });
+    for (let i = 0; i < n; i++) this.answer(day, courseId, id, 'entrainement', i, { correct: correct(i), durationMs: 40_000, errorType });
     this.end(day, courseId, id, 'entrainement');
   }
 }
@@ -166,27 +170,38 @@ export function scenario(name: ScenarioName): Fixture {
       log.review(day(1), c(0), 3);
       break;
     case 'elle-bloque':
-    case 'tout-va-bien': {
-      const stuck = name === 'elle-bloque';
-      for (const [i, back] of [[0, 12], [1, 11], [2, 9], [3, 7], [4, 6]] as [number, number][]) log.courseRun(day(back), c(i), i === 4 && stuck ? 4 : 5);
+    case 'tout-va-bien':
+    case 'deux-eleves': {
+      const stuck = name !== 'tout-va-bien';
+      // Cours 0 à 3 validés ; le cours 4 est à valider (elle bloque) ou à peine commencé (tout va bien).
+      for (const [i, back] of [[0, 17], [1, 16], [2, 14], [3, 12]] as [number, number][]) log.courseRun(day(back), c(i));
       if (stuck) {
-        // Cours 4 : deux révisions ratées d'affilée, puis un entraînement où 3 réponses sur 8 sont justes.
-        log.review(day(4), c(4), 1);
-        log.review(day(3), c(4), 0);
+        // Cours 4 : 3 exercices de fin justes sur 5 hier. Cours 3 : deux révisions ratées d'affilée. Pas de révision pour les cours 0 à 2.
+        log.review(day(8), c(3), 3);
+        log.review(day(5), c(3), 1);
+        log.review(day(4), c(3), 0);
+        for (let back = 10; back >= 2; back -= 2) log.training(day(back), c(back % 3), 16);
         log.training(day(2), c(4), 5, (i) => i < 3);
-        log.training(day(1), c(1), 16);
-        log.training(TODAY, c(2), 6);
+        log.courseRun(day(1), c(4), 3, ['signe-inverse', 'oppose-oublie']);
+        log.training(TODAY, c(3), 9);
       } else {
-        for (let back = 5; back >= 1; back--) log.training(day(back), c(back % 4), 16);
-        for (const i of [0, 1, 2]) log.review(day(2), c(i), 3);
-        log.training(TODAY, c(3), 16);
+        for (let back = 10; back >= 1; back--) log.training(day(back), c(back % 4), 16, (i) => i % 7 !== 3, back % 3 === 0 ? 'oppose-oublie' : 'signe-inverse');
+        log.training(day(4), c(1), 3, (i) => i !== 0, 'moins-apres');
+        for (const i of [0, 1, 2, 3]) log.review(day(1), c(i), 3);
+        log.lessonParts(day(2), c(4), `run-${c(4)}-${day(2)}`, 2);
+        log.training(TODAY, c(3), 17);
       }
-      return {
-        user: CLAIRE,
-        events: [],
-        students: [{ id: LEA.id, name: LEA.name }],
-        studentEvents: { [LEA.id]: log.events },
-      };
+      const students = [{ id: LEA.id, name: LEA.name }];
+      const studentEvents: Record<string, AppEvent[]> = { [LEA.id]: log.events };
+      if (name === 'deux-eleves') {
+        // Hugo : un seul cours validé, quelques jours d'entraînement.
+        const hugo = new Log(HUGO.id);
+        hugo.courseRun(day(6), c(0));
+        for (let back = 3; back >= 1; back--) hugo.training(day(back), c(0), 10);
+        students.push({ id: HUGO.id, name: HUGO.name });
+        studentEvents[HUGO.id] = hugo.events;
+      }
+      return { user: CLAIRE, events: [], students, studentEvents };
     }
   }
   return { user: LEA, events: log.events };
