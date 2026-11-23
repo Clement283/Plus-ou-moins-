@@ -40,14 +40,22 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .legend b{color:var(--on-surface)}
 .backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
 #themeSel{position:fixed;top:14px;right:max(14px,env(safe-area-inset-right,0px));z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.pagebar{display:contents}
+@media (max-width:700px){
+  body{padding-top:16px}
+  .pagebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;width:100%}
+  .backlink,#themeSel{position:static}
+}
 .questions{max-width:620px;width:100%;margin-top:28px;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-16) var(--sp-20)}
-.questions ol{padding-left:20px;display:grid;gap:8px;font-size:15px;color:var(--muted);margin-top:8px}
+.questions p{font-size:15px;color:var(--muted);margin-top:8px;line-height:1.6}
 .questions b{color:var(--on-surface)}
 </style>
 </head>
 <body>
+<div class="pagebar">
 <a class="backlink" href="index.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Retour au design system</a>
 <select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
@@ -99,7 +107,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
     <div class="device">
       <main class="scrollbody">
         <header class="top">
-          <h1 class="t-h2">Bonjour !</h1>
+          <h1 class="t-h2">Bonjour Léa !</h1>
           <span class="streak" aria-label="6 jours d'affilée avec l'objectif atteint"><svg class="ico"><use href="#i-flame"/></svg>6 jours</span>
         </header>
 
@@ -133,7 +141,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
       </div>
       <div class="q-body">
         <div class="row" style="justify-content:space-between">
-          <span class="chip chip--module">Cours 4 · Exercice 2 sur 5</span>
+          <span class="chip chip--module">Cours 4, exercice 2 sur 5</span>
         </div>
         <div class="q-expr">
           <p class="t-body2">Calcule.</p>
@@ -152,15 +160,11 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
   </div>
 </div>
 
-<p class="legend">L'accueil est une pile calme : <b>droite graduée</b> (signature), <b>carte forte indigo</b> pour les révisions (la seule de l'écran), <b>carte blanche</b> pour le prochain cours, <b>barre du bas</b>. La question retire la navigation : <b>barre d'étapes</b>, le <b>calcul en grand</b> au centre, le <b>champ de réponse</b> et le <b>clavier maths</b> qui remonte du bas.</p>
+<p class="legend">L'accueil est une pile calme : <b>droite graduée</b> (signature), <b>carte forte indigo</b> pour les révisions (la seule de l'écran), <b>carte blanche</b> pour le prochain cours (bouton à contour tant qu'il reste des révisions, noir ensuite), <b>progression du module</b> avec une fenêtre de 4 cours, <b>barre du bas</b>. La question retire la navigation : <b>barre d'étapes</b>, le <b>calcul en grand</b> au centre, le <b>champ de réponse</b> et le <b>clavier maths</b> qui remonte du bas.</p>
 
 <div class="questions">
-  <h2 class="t-h5">Questions pour toi avant de valider l'accueil</h2>
-  <ol>
-    <li><b>La série « 6 jours ».</b> Le doc 05 la prévoit sur ta page de suivi. Je la propose aussi sur l'accueil de l'élève, pour la motiver. On la garde ?</li>
-    <li><b>Le prénom.</b> L'accueil dit « Bonjour ! ». Les comptes n'ont pas de prénom pour l'instant : on en ajoute un pour écrire « Bonjour Léa ! » ?</li>
-    <li><b>La bande des 8 cours</b> sous le prochain cours. Elle double un peu « Mes cours », mais montre d'un coup d'œil où elle en est. On la garde ?</li>
-  </ol>
+  <h2 class="t-h5">Décisions</h2>
+  <p>Décisions prises : série gardée sur l'accueil, prénom ajouté (Léa est un exemple), bande des cours remplacée par une vue qui reste lisible quand le module a beaucoup de cours.</p>
 </div>
 
 <script>
@@ -168,34 +172,36 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
   var star = '<svg class="ico"><use href="#i-star"/></svg>', starE = '<svg class="ico is-empty"><use href="#i-star"/></svg>';
   function stars(n){ var s=''; for(var i=0;i<3;i++) s += i<n ? star : starE; return '<span class="rating rating--sm" aria-label="'+n+' étoile'+(n>1?'s':'')+'">'+s+'</span>'; }
   function strip(retry){
-    var h='', st=[3,2,2,1];
-    st.forEach(function(n,i){ h+='<div class="course-chip"><b>'+i+'</b>'+stars(n)+'</div>'; });
-    h += retry ? '<div class="course-chip is-retry"><b>4</b></div>' : '<div class="course-chip is-todo"><b>4</b></div>';
-    for(var j=5;j<8;j++) h+='<div class="course-chip is-locked"><b>'+j+'</b></div>';
+    var lbl = retry ? 'à rattraper' : 'à faire';
+    var h = '<div class="course-chip"><b>2</b>'+stars(2)+'</div><div class="course-chip"><b>3</b>'+stars(1)+'</div>'+
+      '<div class="course-chip '+(retry?'is-retry':'is-todo')+'"><b>4</b>'+lbl+'</div>'+
+      '<div class="course-chip is-locked"><b>5</b><svg class="ico ico--sm" style="color:var(--subtle)"><use href="#i-lock"/></svg></div>';
     return '<div class="strip"><div class="strip-head"><span class="t-h6">Module Calculs</span><span class="t-caption">4 cours sur 8 validés</span></div>'+
-           '<div class="course-strip" aria-label="Cours 0 à 3 validés, cours 4 '+(retry?'à rattraper':'à faire')+', 5 à 7 verrouillés">'+h+'</div></div>';
+           '<div class="progress progress--module" style="--v:50%"><i></i></div>'+
+           '<div class="course-window" role="group" aria-label="Cours 2 et 3 validés, cours 4 '+lbl+', cours 5 verrouillé">'+h+'</div>'+
+           '<a class="link t-body2" href="#" style="justify-self:start">Voir tous mes cours</a></div>';
   }
   var icoRev='<svg class="ico ico--sm"><use href="#i-review"/></svg>', icoChk='<svg class="ico ico--sm"><use href="#i-check"/></svg>';
-  var courseNormal = '<div class="course-head"><span class="course-num" aria-hidden="true">4</span><div style="min-width:0">'+
+  function courseNormal(cls){ return '<div class="course-head"><span class="course-num" aria-hidden="true">4</span><div style="min-width:0">'+
     '<div class="t-subtitle2" style="color:var(--secondary-ink)">Prochain cours</div><h3 class="t-h4">Soustraire, c\'est ajouter l\'opposé</h3>'+
     '<p class="t-body2 math" style="margin-top:4px">5 − (−3) = 5 + 3</p></div></div>'+
-    '<button class="btn btn--ink btn--block" type="button">Commencer le cours 4</button>';
-  var courseRetry = '<div class="course-head"><span class="course-num is-retry" aria-hidden="true">4</span><div style="min-width:0">'+
+    '<button class="btn '+cls+' btn--block" type="button">Commencer le cours 4</button>'; }
+  function courseRetry(cls){ return '<div class="course-head"><span class="course-num is-retry" aria-hidden="true">4</span><div style="min-width:0">'+
     '<div class="t-subtitle2" style="color:var(--error-ink)">Cours à rattraper</div><h3 class="t-h4">Soustraire, c\'est ajouter l\'opposé</h3>'+
     '<p class="t-body2" style="margin-top:4px">5 exercices. Avec 4 justes, le cours est validé.</p></div></div>'+
-    '<div style="display:grid;gap:4px"><button class="btn btn--ink btn--block" type="button">Faire le rattrapage</button>'+
-    '<button class="btn btn--text" type="button" style="justify-self:center">Relire la leçon</button></div>';
+    '<div style="display:grid;gap:4px"><button class="btn '+cls+' btn--block" type="button">Faire le rattrapage</button>'+
+    '<button class="btn btn--text" type="button" style="justify-self:center">Relire la leçon</button></div>'; }
   function feature(title, meta, btn){ return '<div class="card card--feature"><span class="card__eyebrow">'+icoRev+'Révisions du jour</span><h2 class="t-h3">'+title+'</h2><p class="card__meta">'+meta+'</p><button class="btn btn--inverse btn--block" type="button" style="margin-top:12px">'+btn+'</button></div>'; }
   var S = {
     matin:{note:'Elle ouvre l\'appli le matin : 5 cours sont à réviser aujourd\'hui.',min:0,text:'Objectif du jour : 15 minutes.',
-      rev:feature('5 révisions à faire','15 questions, environ 5 minutes','Réviser'),course:courseNormal+strip()},
+      rev:feature('5 révisions à faire','15 questions, environ 5 minutes','Réviser'),course:courseNormal('btn--outlined')+strip()},
     encore:{note:'Elle a fait une séance de 5 révisions. Il reste 2 cours dus (doc 02 : « Encore des révisions »).',min:8,text:'Encore 7 minutes pour ton objectif.',
-      rev:feature('Encore 2 révisions','6 questions, environ 2 minutes','Encore des révisions'),course:courseNormal+strip()},
+      rev:feature('Encore 2 révisions','6 questions, environ 2 minutes','Encore des révisions'),course:courseNormal('btn--outlined')+strip()},
     atteint:{note:'Plus aucun cours dû et 22 minutes faites : la carte devient « Révisions faites » et propose l\'entraînement.',min:22,text:'Objectif atteint ! 7 minutes en plus.',goal:true,
       rev:'<div class="card card--done"><span class="card__eyebrow">'+icoChk+'Révisions faites</span><h2 class="t-h4">Tout est révisé pour aujourd\'hui</h2><p class="card__meta">Pour continuer, entraîne-toi sur les cours de ton choix.</p><button class="btn btn--outlined btn--block" type="button" style="margin-top:12px">S\'entraîner</button></div>',
-      course:courseNormal+strip()},
+      course:courseNormal('btn--ink')+strip()},
     rattrapage:{note:'Le cours 4 n\'a pas été validé hier : le rattrapage remplace « Prochain cours » (doc 01 §2).',min:3,text:'Encore 12 minutes pour ton objectif.',
-      rev:feature('3 révisions à faire','9 questions, environ 3 minutes','Réviser'),course:courseRetry+strip(true)}
+      rev:feature('3 révisions à faire','9 questions, environ 3 minutes','Réviser'),course:courseRetry('btn--outlined')+strip(true)}
   };
   function show(k){
     var e=S[k];
