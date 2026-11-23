@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import {
   WRITING_TITLE, answer, createActivity, current, endEvent, explanationDone, feedbackFor, getCourse, isDone, skip, toLatex,
-  type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type Question, type Rng,
+  type Activity, type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type Question, type Rng,
 } from '@pom/engine';
 import { FeedbackPanel } from '../components/Feedback';
 import { LessonPartScreen } from '../components/LessonPart';
@@ -25,6 +25,12 @@ export const NOTE_FIRST = 'Un calcul du même genre reviendra plus loin, et celu
 export const NOTE_AGAIN = 'Ce calcul reviendra encore à la fin.';
 const SUB_CHIP = { 'meme-type': 'Même genre que ton erreur', repetition: "Le calcul raté tout à l'heure" } as const;
 
+/** Première réponse à un calcul de l'activité (celles qui comptent dans la note), gardée en mémoire. */
+export interface FirstAnswer {
+  activity: Activity;
+  correct: boolean;
+}
+
 export interface ChipPosition {
   /** Rang de l'étape affichée (à partir de 1) et nombre d'étapes, rajoutées après une erreur comprises. */
   n: number;
@@ -41,7 +47,7 @@ export interface ActivityScreenProps {
   /** Si présent, la croix demande confirmation avec ces textes. */
   confirmQuit?: { title: string; body: string };
   /** Fin de l'activité : `completed` est faux quand l'élève quitte avant la fin ; `results` : une valeur par étape faite. */
-  onEnd: (state: ActivityState, completed: boolean, results: StepResult[]) => void;
+  onEnd: (state: ActivityState, completed: boolean, results: StepResult[], firsts: FirstAnswer[]) => void;
   /** Petit bouton à droite de la pastille (« Relire la leçon ») : ouvre autre chose, donc quitte l'activité (avec confirmation si `confirmQuit`). */
   chipAction?: { label: string; onSelect: () => void; confirm?: { title: string; body: string } };
   /** Tirage des calculs « du même genre » (défaut : Math.random) et identifiant de l'activité (défaut : UUID). */
@@ -60,6 +66,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const [state, setState] = useState<ActivityState>(() => createActivity(kind, items, { activityId: activityId ?? crypto.randomUUID(), rng: rng ?? Math.random }));
   const [view, setView] = useState<View>(() => ({ phase: 'ask', step: current(state)!, notice: null }));
   const [results, setResults] = useState<StepResult[]>([]);
+  const firsts = useRef<FirstAnswer[]>([]);
   const [shown, setShown] = useState(0); // une valeur par étape affichée : fait repartir le chronomètre
   const [asking, setAsking] = useState<'close' | 'action' | null>(null);
   const timer = useStepTimer(shown);
@@ -87,7 +94,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const advance = (s: ActivityState, res: StepResult[] = results) => {
     if (isDone(s)) {
       save(endEvent(s));
-      onEnd(s, true, res);
+      onEnd(s, true, res, firsts.current);
     } else show(s);
   };
 
@@ -98,6 +105,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     const ms = timer.read();
     const feedback = feedbackFor(getCourse(step.item.courseId), step.question, a, o);
     const before = results.length + state.queue.length;
+    if (step.role === 'original' && step.attempt === 1) firsts.current.push({ activity: step.item.activity, correct: o.correct });
     const r = answer(state, o, ms);
     save(r.event);
     if (o.unfinished) {
@@ -136,7 +144,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const quit = (after?: () => void) => {
     save({ ...endEvent(state), completed: false });
     if (after) after();
-    else onEnd(state, false, results);
+    else onEnd(state, false, results, firsts.current);
   };
 
   // --- barre du haut ---

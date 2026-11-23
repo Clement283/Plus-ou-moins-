@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { getCourse, num, op, rat, seededRng, type ActivityItem, type Question } from '@pom/engine';
+import { getCourse, resultOfTally, num, op, rat, seededRng, type ActivityItem, type Question } from '@pom/engine';
 
-const h = vi.hoisted(() => ({ events: [] as any[], items: [] as any[], listeners: new Set<() => void>(), fixed: null as any }));
+const h = vi.hoisted(() => ({ events: [] as any[], items: [] as any[], record: null as any, listeners: new Set<() => void>(), fixed: null as any }));
 vi.mock('../src/store/sync', () => ({
-  recordEvent: vi.fn(async (e: any) => {
+  recordEvent: vi.fn(h.record = async (e: any) => {
     h.events.push({ ...e, id: `e${h.events.length}`, userId: 'u1', at: Date.UTC(2026, 10, 22, 11) + h.events.length, day: '2026-11-22' });
     h.listeners.forEach((l) => l());
   }),
@@ -157,6 +157,35 @@ describe('cours : résultat', () => {
     await settle();
     expect(h.events.at(-1)).toMatchObject({ kind: 'activity_end', completed: false });
     expect(window.location.hash).toBe('#/cours');
+  });
+});
+
+describe('cours : 12 étapes', () => {
+  it('11 bonnes réponses sur 12, dont 5 exercices de fin justes sur 5', () => {
+    const t = mount(
+      <RunResultView variant="cours" courseId={C04.id} results={['ok', 'ok', 'ok', 'ok', 'ko', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok']} result={resultOfTally({ first: 12, ok: 11, fin: 5, finOk: 5 }, C04.id)} />,
+    );
+    expect(t.text()).toContain('Cours 4 validé');
+    expect(t.text()).toContain('11 bonnes réponses sur 12, dont 5 exercices de fin justes sur 5.');
+  });
+
+  it('enregistrement en échec : la croix reste, puis le résultat en mémoire après 3 s', async () => {
+    const { recordEvent } = await import('../src/store/sync');
+    vi.mocked(recordEvent).mockRejectedValue(new Error('hors ligne'));
+    vi.useFakeTimers();
+    h.items = series('fin');
+    const t = mount(<CourseScreen courseId={C04.id} rng={seededRng(1)} />);
+    t.play(RIGHT);
+    await act(async () => void (await Promise.resolve()));
+    expect(t.text()).not.toContain('Cours 4 validé');
+    expect(t.btn('Fermer')).toBeTruthy();
+    fireEvent.click(t.btn('Fermer')!);
+    expect(window.location.hash).toBe('#/cours');
+    await act(async () => void vi.advanceTimersByTime(3100));
+    expect(t.text()).toContain('Cours 4 validé');
+    expect(t.text()).toContain('5 bonnes réponses sur 5, dont 5 exercices de fin justes sur 5.');
+    vi.useRealTimers();
+    vi.mocked(recordEvent).mockImplementation(h.record);
   });
 });
 

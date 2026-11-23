@@ -51,6 +51,13 @@ export interface ModuleProgress {
 }
 
 /** First answers of one activity for one course. */
+/** The validation rule of a course run or rattrapage (doc 01 §2) : 80 % overall and 4 of 5 end exercises; a rattrapage needs 4 of 5. */
+export function validationOf(t: { first: number; ok: number; fin: number; finOk: number }): { percent: boolean; fin: boolean; validated: boolean } {
+  const percent = t.ok * 5 >= t.first * 4;
+  const fin = t.finOk >= 4;
+  return { percent, fin, validated: t.fin > 0 ? percent && fin : t.ok >= 4 };
+}
+
 export interface RunTally {
   first: number;
   ok: number;
@@ -223,8 +230,7 @@ function step(s: ProgressState, e: AppEvent): void {
       if (tally.fin === END_COUNT) {
         tally.done = true;
         if (c.status === 'valide') break;
-        // at least 80 % overall, and at least 4 of the 5 end exercises
-        if (tally.ok * 5 >= tally.first * 4 && tally.finOk >= 4) validate(c, e.day);
+        if (validationOf(tally).validated) validate(c, e.day);
         else c.status = 'a-rattraper';
       }
       break;
@@ -232,7 +238,7 @@ function step(s: ProgressState, e: AppEvent): void {
       if (tally.first === RATTRAPAGE_COUNT) {
         tally.done = true;
         if (c.status === 'valide') break;
-        if (tally.ok >= 4) validate(c, e.day);
+        if (validationOf({ ...tally, fin: 0 }).validated) validate(c, e.day);
         else c.status = 'a-rattraper';
       }
       break;

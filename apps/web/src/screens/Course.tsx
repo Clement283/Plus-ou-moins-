@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
-import { courseRunItems, getCourse, rattrapageItems, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
+import { useEffect, useMemo, useState } from 'react';
+import { courseRunItems, getCourse, rattrapageItems, resultOfTally, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
 import { go } from '../router';
 import { useProgress } from '../store/progress';
 import type { StepResult } from '../ui/Stepper';
-import { ActivityScreen, type ChipPosition } from './Activity';
+import { AppBar } from '../ui/AppBar';
+import { ActivityScreen, type ChipPosition, type FirstAnswer } from './Activity';
 import { RunResultView } from './CourseResult';
 
 /**
@@ -29,22 +30,49 @@ function courseChip(courseId: string) {
   };
 }
 
-/** Attend que le repli des événements contienne la série terminée, puis affiche le résultat (pas de flash). */
-function Finished({ variant, courseId, activityId, results, onRetry }: { variant: 'cours' | 'rattrapage'; courseId: string; activityId: string; results: StepResult[]; onRetry?: () => void }) {
+/** Délai (ms) après lequel on affiche le résultat calculé en mémoire si le repli des événements n'a pas suivi. */
+export const FOLD_WAIT_MS = 3000;
+
+interface Ended {
+  results: StepResult[];
+  firsts: FirstAnswer[];
+}
+
+/** Résultat d'après les premières réponses gardées en mémoire par le déroulé (même règle : `resultOfTally`). */
+function memoryResult(courseId: string, firsts: FirstAnswer[]): RunResult {
+  const fin = firsts.filter((f) => f.activity === 'fin');
+  return resultOfTally({ first: firsts.length, ok: firsts.filter((f) => f.correct).length, fin: fin.length, finOk: fin.filter((f) => f.correct).length }, courseId);
+}
+
+/**
+ * Attend que le repli des événements contienne la série terminée, puis affiche le résultat (pas de flash).
+ * Pendant l'attente la croix reste là ; si le repli ne suit pas (enregistrement en échec), on prend le résultat en mémoire.
+ */
+function Finished({ variant, courseId, activityId, ended, onRetry }: { variant: 'cours' | 'rattrapage'; courseId: string; activityId: string; ended: Ended; onRetry?: () => void }) {
   const progress = useProgress();
+  const [late, setLate] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setLate(true), FOLD_WAIT_MS);
+    return () => clearTimeout(t);
+  }, []);
   const run = progress.journal.runs[`${activityId}|${courseId}`];
-  let result: RunResult | null = null;
-  if (run?.done) result = runResult(progress, activityId, courseId);
-  if (!result) return <main className="app-body app-body--grow" data-screen="resultat" />;
-  return <RunResultView variant={variant} courseId={courseId} result={result} results={results} onRetry={onRetry} />;
+  const result = run?.done ? runResult(progress, activityId, courseId) : late ? memoryResult(courseId, ended.firsts) : null;
+  if (!result) {
+    return (
+      <main className="app-body app-body--grow" data-screen="resultat" style={{ padding: 0, gap: 0 }}>
+        <AppBar onClose={() => go('#/cours')} closeLabel="Fermer" />
+      </main>
+    );
+  }
+  return <RunResultView variant={variant} courseId={courseId} result={result} results={ended.results} onRetry={onRetry} />;
 }
 
 export function CourseScreen({ courseId, rng }: { courseId: string; rng?: Rng }) {
   const course = getCourse(courseId);
   const items = useMemo(() => courseRunItems(course, rng ?? Math.random), [course, rng]);
   const [activityId] = useState(() => crypto.randomUUID());
-  const [ended, setEnded] = useState<StepResult[] | null>(null);
-  if (ended) return <Finished variant="cours" courseId={courseId} activityId={activityId} results={ended} />;
+  const [ended, setEnded] = useState<Ended | null>(null);
+  if (ended) return <Finished variant="cours" courseId={courseId} activityId={activityId} ended={ended} />;
   return (
     <ActivityScreen
       kind="cours"
@@ -54,7 +82,7 @@ export function CourseScreen({ courseId, rng }: { courseId: string; rng?: Rng })
       confirmQuit={QUIT_COURSE}
       activityId={activityId}
       {...(rng ? { rng } : {})}
-      onEnd={(_, completed, results) => (completed ? setEnded(results) : go('#/cours'))}
+      onEnd={(_, completed, results, firsts) => (completed ? setEnded({ results, firsts: [...firsts] }) : go('#/cours'))}
     />
   );
 }
@@ -64,13 +92,13 @@ export function RattrapageScreen({ courseId, rng }: { courseId: string; rng?: Rn
   const [series, setSeries] = useState(0);
   const items = useMemo(() => rattrapageItems(course, rng ?? Math.random), [course, rng, series]); // eslint-disable-line react-hooks/exhaustive-deps
   const [activityId, setActivityId] = useState(() => crypto.randomUUID());
-  const [ended, setEnded] = useState<StepResult[] | null>(null);
+  const [ended, setEnded] = useState<Ended | null>(null);
   const retry = () => {
     setSeries((n) => n + 1);
     setActivityId(crypto.randomUUID());
     setEnded(null);
   };
-  if (ended) return <Finished variant="rattrapage" courseId={courseId} activityId={activityId} results={ended} onRetry={retry} />;
+  if (ended) return <Finished variant="rattrapage" courseId={courseId} activityId={activityId} ended={ended} onRetry={retry} />;
   return (
     <ActivityScreen
       key={activityId}
@@ -82,7 +110,7 @@ export function RattrapageScreen({ courseId, rng }: { courseId: string; rng?: Rn
       chipAction={{ label: 'Relire la leçon', onSelect: () => go({ name: 'relire', id: courseId }), confirm: QUIT_RATTRAPAGE }}
       activityId={activityId}
       {...(rng ? { rng } : {})}
-      onEnd={(_, completed, results) => (completed ? setEnded(results) : go('#/cours'))}
+      onEnd={(_, completed, results, firsts) => (completed ? setEnded({ results, firsts: [...firsts] }) : go('#/cours'))}
     />
   );
 }

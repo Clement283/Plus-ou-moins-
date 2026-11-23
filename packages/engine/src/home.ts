@@ -17,7 +17,7 @@ import { dailyTime, type DailyTime } from './daily';
 import { streakOf } from './dashboard';
 import type { AppEvent } from './events';
 import { REVIEW_SESSION_COURSES, pendingReviews } from './reviews';
-import type { CourseStatus, ProgressState } from './srs';
+import { validationOf, type CourseStatus, type ProgressState } from './srs';
 import { diffDays } from './time';
 
 export const QUESTIONS_PER_REVIEW_COURSE = 3;
@@ -106,11 +106,9 @@ export interface RunResult {
   firstReviewInHours: 48;
 }
 
-/** The result of a finished course run or rattrapage (doc 01 §2), from the journal's tally. */
-export function runResult(state: ProgressState, activityId: string, courseId: string): RunResult {
-  const t = state.journal.runs[`${activityId}|${courseId}`];
-  if (!t) throw new Error(`Activité inconnue : ${activityId}`);
-  const validated = t.fin > 0 ? t.ok * 5 >= t.first * 4 && t.finOk >= 4 : t.ok >= 4;
+/** The result shown for a tally (pure: also used from the first answers kept in memory by the runner). */
+export function resultOfTally(t: { first: number; ok: number; fin: number; finOk: number }, courseId: string): RunResult {
+  const validated = validationOf(t).validated;
   const m = MODULES.find((x) => x.courseIds.includes(courseId));
   const next = m ? (m.courseIds[m.courseIds.indexOf(courseId) + 1] ?? null) : null;
   return {
@@ -123,6 +121,13 @@ export function runResult(state: ProgressState, activityId: string, courseId: st
     nextCourseId: validated ? next : null,
     firstReviewInHours: 48,
   };
+}
+
+/** The result of a finished course run or rattrapage (doc 01 §2), from the journal's tally. */
+export function runResult(state: ProgressState, activityId: string, courseId: string): RunResult {
+  const t = state.journal.runs[`${activityId}|${courseId}`];
+  if (!t) throw new Error(`Activité inconnue : ${activityId}`);
+  return resultOfTally(t, courseId);
 }
 
 export interface ReviewLine {

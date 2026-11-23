@@ -1,4 +1,4 @@
-import { MODULES, getCourse, type RunResult } from '@pom/engine';
+import { MODULES, getCourse, validationOf, type RunResult } from '@pom/engine';
 import { go } from '../router';
 import { AppBar } from '../ui/AppBar';
 import { Icon } from '../ui/Icon';
@@ -114,8 +114,7 @@ export function RunResultView({ variant, courseId, result, results, onRetry }: R
     );
   }
 
-  const okPercent = result.ok * 5 >= result.first * 4;
-  const okFin = result.finOk >= 4;
+  const { percent: okPercent, fin: okFin } = validationOf(result);
   return (
     <main className="app-body app-body--grow" data-screen="resultat" style={{ padding: 0, gap: 0 }}>
       {bar}
