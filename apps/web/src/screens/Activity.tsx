@@ -105,9 +105,9 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     const ms = timer.read();
     const feedback = feedbackFor(getCourse(step.item.courseId), step.question, a, o);
     const before = results.length + state.queue.length;
-    if (step.role === 'original' && step.attempt === 1) firsts.current.push({ activity: step.item.activity, correct: o.correct });
     const r = answer(state, o, ms);
     save(r.event);
+    if (!o.unfinished && step.role === 'original' && step.attempt === 1) firsts.current.push({ activity: step.item.activity, correct: o.correct });
     if (o.unfinished) {
       timer.reset();
       setView({ phase: 'ask', step, notice: feedback });
@@ -128,6 +128,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     const before = results.length + state.queue.length;
     const r = skip(state, timer.read());
     save(r.event);
+    if (view.step.role === 'original' && view.step.attempt === 1) firsts.current.push({ activity: view.step.item.activity, correct: false });
     setState(r.state);
     setResults((x) => [...x, 'ko']);
     setView({ phase: 'skipped', step: view.step, total: before });

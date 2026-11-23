@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { getCourse, num, op, rat, seededRng, type ActivityItem, type ActivityKind, type ActivityState, type Question } from '@pom/engine';
+import { foldProgress, getCourse, num, op, rat, seededRng, type ActivityItem, type ActivityKind, type ActivityState, type Question } from '@pom/engine';
 
 const recorded: any[] = [];
 vi.mock('../src/store/sync', () => ({ recordEvent: vi.fn(async (e: unknown) => void recorded.push(e)) }));
@@ -63,6 +63,51 @@ function setup(items: ActivityItem[], extra: Partial<React.ComponentProps<typeof
 }
 
 const answers = () => recorded.filter((e) => e.kind === 'answer');
+
+/** Les premières réponses gardées en mémoire donnent le même décompte que le repli des événements. */
+function tallyCheck(t: { ends: unknown[] }, firsts: { activity: string; correct: boolean }[]) {
+  const events = recorded.map((e, i) => ({ ...e, id: `e${i}`, userId: 'u', at: 1000 + i, day: '2026-11-22' }));
+  const run = Object.values(foldProgress(events).journal.runs)[0]!;
+  const fin = firsts.filter((f) => f.activity === 'fin');
+  expect({ first: firsts.length, ok: firsts.filter((f) => f.correct).length, fin: fin.length, finOk: fin.filter((f) => f.correct).length }).toEqual({ first: run.first, ok: run.ok, fin: run.fin, finOk: run.finOk });
+  return t;
+}
+
+describe('ActivityScreen : premières réponses en mémoire', () => {
+  it('Simplifie puis juste : une seule première réponse', () => {
+    const division = { ...ex(-12, 4, -3), expr: op('/', num(-12), num(4)) };
+    const item: ActivityItem = { type: 'question', itemId: 'fin-0', courseId: C05.id, activity: 'fin', question: { kind: 'saisie', ex: division, promptLatex: '\\frac{-12}{4}' } as Question };
+    let firsts: { activity: string; correct: boolean }[] = [];
+    const t = setup([item], { onEnd: (_s, _c, _r, f) => void (firsts = [...f]) });
+    fireEvent.click(t.btn('fraction')!);
+    fireEvent.click(t.btn('moins')!);
+    t.type('12');
+    fireEvent.click(t.btn('case suivante')!);
+    t.type('4');
+    fireEvent.click(t.btn('Valider')!); // Simplifie
+    for (let i = 0; i < 8; i++) fireEvent.click(t.btn('effacer')!);
+    fireEvent.click(t.btn('moins')!);
+    t.submit('3');
+    t.next();
+    expect(firsts).toEqual([{ activity: 'fin', correct: true }]);
+    tallyCheck(t, firsts);
+  });
+
+  it('calcul passé après plusieurs échecs : une première réponse fausse', () => {
+    let firsts: { activity: string; correct: boolean }[] = [];
+    const t = setup([qItem(0, 3, 4)], { onEnd: (_s, _c, _r, f) => void (firsts = [...f]) });
+    t.submit('1');
+    t.next();
+    t.submit('0');
+    t.next();
+    t.submit('1');
+    t.next();
+    fireEvent.click(t.btn('Passer')!);
+    t.next();
+    expect(firsts).toEqual([{ activity: 'fin', correct: false }]);
+    tallyCheck(t, firsts);
+  });
+});
 
 describe('ActivityScreen', () => {
   it('une erreur au 2e calcul : total 7, le même genre en 5e position, la répétition à la fin', () => {
