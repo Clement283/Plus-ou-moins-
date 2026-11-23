@@ -25,6 +25,9 @@
 | 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
 
 Autres décisions du 2026-11-23 :
+- Après une erreur, titres sans maquette : « Tout était juste. », « Voici le bon ordre. », « Voici les bonnes paires. » (validés).
+- « Trouver l'erreur » quand tout était juste : seule la ligne touchée passe en rouge ; l'explication dit « Tout était juste. ».
+- Vrai ou faux et étiquettes : aucune marque verte ou rouge sur la question corrigée, comme la maquette ; la correction est dans l'explication.
 - Connexion : si le serveur répond par une erreur (autre qu'un code inconnu), message distinct « Le serveur ne répond pas. Réessaie dans un moment. » avec « Réessayer ».
 - Connexion : « Entrer » reste grisé tant que le champ est vide.
 - Case « signe du résultat » des exemples guidés : consigne « Quel est le signe du résultat ? ».
