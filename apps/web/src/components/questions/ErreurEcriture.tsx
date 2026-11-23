@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { checkAnswer } from '@pom/engine';
 import { Math } from '../../ui/Math';
-import { QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, type QProps } from './Frame';
 
 /** Trouver l'erreur d'écriture (cours 0) : le calcul en morceaux touchables, ou « Tout est bien écrit ». */
-export function ErreurEcriture({ q, course, locked, onAnswer, header, footer }: QProps<'erreur'>) {
+export function ErreurEcriture({ q, course, locked, onAnswer, header, footer, texts }: QProps<'erreur'>) {
   const [picked, setPicked] = useState<number | null | undefined>(undefined);
   const pick = (line: number | null) => {
     if (locked || picked !== undefined) return;
@@ -19,7 +19,7 @@ export function ErreurEcriture({ q, course, locked, onAnswer, header, footer }: 
   return (
     <QFrame header={header} footer={footer} locked={locked}>
       <div className="stack stack--top">
-        <p className="t-body1">Touche l'endroit mal écrit.</p>
+        <Prompt texts={texts} fallback="Touche l'endroit mal écrit." cls="t-body1" />
         <div className="tags" data-copie>
           {q.lines.map((piece, i) => (
             <button key={i} className={`tag tag--piece${mark(i)}`} type="button" disabled={locked || picked !== undefined} onClick={() => pick(i)}>

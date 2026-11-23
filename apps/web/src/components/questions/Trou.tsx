@@ -1,13 +1,13 @@
 import { Keypad } from '../Keypad';
 import { RawInputContent } from '../RawInputView';
 import { Math } from '../../ui/Math';
-import { QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, type QProps } from './Frame';
 import { useRawAnswer } from './useRawAnswer';
 
 const HOLE = '\\square';
 
 /** Compléter le trou : la case du calcul est le champ de réponse. */
-export function Trou({ q, course, locked, onAnswer, header, footer, notice }: QProps<'trou'>) {
+export function Trou({ q, course, locked, onAnswer, header, footer, notice, texts }: QProps<'trou'>) {
   const r = useRawAnswer(course, q, locked, onAnswer);
   const at = q.promptLatex.indexOf(HOLE);
   const before = at < 0 ? '' : q.promptLatex.slice(0, at);
@@ -16,7 +16,7 @@ export function Trou({ q, course, locked, onAnswer, header, footer, notice }: QP
   return (
     <QFrame header={header} footer={footer} notice={notice} locked={locked} foot={<Keypad onKey={r.press} onSubmit={r.submit} canSubmit={r.can} />}>
       <div className="q-expr" data-copie>
-        <p className="t-body2">Complète.</p>
+        <Prompt texts={texts} fallback="Complète." cls="t-body2" />
         <p className="t-math-xl">
           {before && <Math latex={`${before}{}\\,`} />}
           <span className={cls} aria-label="Case à remplir">

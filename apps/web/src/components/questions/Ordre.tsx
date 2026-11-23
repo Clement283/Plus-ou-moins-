@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { checkAnswer, toLatex } from '@pom/engine';
 import { Math } from '../../ui/Math';
-import { QFrame, ValidateFoot, type QProps } from './Frame';
+import { Prompt, QFrame, ValidateFoot, type QProps } from './Frame';
 
 /** Étiquettes à ordonner (doc 03 §4) : toucher place à la fin, toucher une étiquette placée la renvoie. */
-export function Ordre({ q, course, locked, onAnswer, header, footer }: QProps<'ordre'>) {
+export function Ordre({ q, course, locked, onAnswer, header, footer, texts }: QProps<'ordre'>) {
   const [placed, setPlaced] = useState<string[]>([]);
   const size = q.solution.length;
   const toggle = (id: string) => {
@@ -18,12 +18,18 @@ export function Ordre({ q, course, locked, onAnswer, header, footer }: QProps<'o
   const tile = (id: string) => q.tiles.find((t) => t.id === id)!;
   return (
     <QFrame header={header} footer={footer} locked={locked} foot={<ValidateFoot enabled={placed.length === size} onSubmit={submit} />}>
-      <div className="q-expr q-expr--top" data-copie>
-        <p className="t-body2">Remets les étapes dans l'ordre.</p>
-        <p className="t-math">
-          <Math latex={toLatex(q.ex.expr)} />
-        </p>
-      </div>
+      {texts?.title ? (
+        <div className="stack">
+          <Prompt texts={texts} fallback="" cls="" />
+        </div>
+      ) : (
+        <div className="q-expr q-expr--top" data-copie>
+          <Prompt texts={texts} fallback="Remets les étapes dans l'ordre." cls="t-body2" />
+          <p className="t-math">
+            <Math latex={toLatex(q.ex.expr)} />
+          </p>
+        </div>
+      )}
       <div className="stack">
         <p className="t-subtitle2">Ta réponse</p>
         <div className="slots" data-copie>

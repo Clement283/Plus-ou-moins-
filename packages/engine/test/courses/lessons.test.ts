@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getCourse } from '../../src';
+import { courseRunItems, getCourse, seededRng } from '../../src';
 import type { LessonBlock, LessonPart } from '../../src';
 
 /** Doc 09 : titre et sous-titre de chaque écran de leçon, dans l'ordre des `parts` (null = pas de titre, la consigne reste). */
@@ -173,5 +173,15 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
     expect(tone(3, 'ko')).toEqual(['3−']);
     expect(tone(4, 'ok')).toEqual(['(−3)']);
     expect(tone(4, 'ko')).toEqual(['(−3']);
+  });
+});
+
+describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité', () => {
+  it('courseRunItems porte titre, sous-titre et consigne', () => {
+    const items = courseRunItems(getCourse('c04-soustraire'), seededRng(1));
+    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: "Soustraire, c'est ajouter l'opposé" } });
+    expect(items[2]).toMatchObject({ type: 'question', texts: { title: 'Réécris 5 − (−3) comme une addition' } });
+    expect(items[5]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
+    expect(items[3]).not.toHaveProperty('texts');
   });
 });

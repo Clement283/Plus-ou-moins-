@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import {
   WRITING_TITLE, answer, createActivity, current, endEvent, explanationDone, feedbackFor, getCourse, isDone, skip, toLatex,
-  type Activity, type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type Question, type Rng,
+  type Activity, type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type PartTexts, type Question, type Rng,
 } from '@pom/engine';
 import { FeedbackPanel } from '../components/Feedback';
 import { LessonPartScreen } from '../components/LessonPart';
@@ -248,7 +248,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     return frame(
       <LessonPartScreen
         key={shown}
-        part={{ type: 'explication', blocks: step.item.blocks }}
+        part={{ type: 'explication', blocks: step.item.blocks, ...(step.item.texts?.title ? { title: step.item.texts.title } : {}), ...(step.item.texts?.subtitle ? { subtitle: step.item.texts.subtitle } : {}) }}
         title={course.title}
         header={<span className="chip chip--module">{chip(step, pos)}</span>}
         onNext={onLessonNext}
@@ -275,6 +275,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
         course={course}
         locked={view.phase === 'feedback'}
         onAnswer={onAnswer}
+        texts={textsOf(step)}
         header={chips(step, subChip(step))}
         footer={footer}
         notice={view.phase === 'ask' && view.notice ? <FeedbackPanel feedback={view.notice} /> : undefined}
@@ -288,4 +289,14 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
       )}
     </>,
   );
+}
+
+/**
+ * Titre, sous-titre et consigne de l'écran de leçon (doc 09). Le titre parle du calcul de la leçon : sur le « même
+ * type » posé après une erreur (autre calcul), seule la consigne reste.
+ */
+function textsOf(step: Extract<CurrentStep, { type: 'question' }>): PartTexts | undefined {
+  const t = step.item.texts;
+  if (!t || step.question === step.item.question) return t;
+  return t.consigne === undefined ? undefined : { consigne: t.consigne };
 }

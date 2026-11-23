@@ -220,6 +220,45 @@ describe('LessonPartScreen', () => {
   });
 });
 
+describe('LessonPartScreen : titre, sous-titre et « Fais attention » (doc 09)', () => {
+  const part: Extract<LessonPart, { type: 'explication' }> = {
+    type: 'explication',
+    title: "Soustraire, c'est ajouter l'opposé",
+    subtitle: "Je transforme en addition, puis j'applique les cours 1 et 2.",
+    blocks: [
+      { t: 'text', text: '5 − (−3) = 5 + 3 = **8**', tone: 'ok' },
+      { t: 'heading', text: 'Fais attention' },
+      { t: 'text', text: '6 − (−2) = 6 − 2 = 4', tone: 'ko', note: "Le signe de −2 n'a pas changé : 6 − (−2) = 6 + 2." },
+      { t: 'text', text: '(−4) − 6', tone: 'neutre', note: 'Pas faux, mais inutile : en tête, pas de parenthèses.' },
+    ],
+  };
+
+  it('le titre de l\'écran remplace le titre du cours, le sous-titre est dessous', () => {
+    const { container } = render(<LessonPartScreen part={part} onNext={() => undefined} title="Soustraire" />);
+    expect(container.querySelector('h1')!.textContent).toBe("Soustraire, c'est ajouter l'opposé");
+    const sub = container.querySelector('h1 + p.t-body2')!;
+    expect(sub.textContent).toBe("Je transforme en addition, puis j'applique les cours 1 et 2.");
+  });
+
+  it('sans titre d\'écran : le titre du cours', () => {
+    const { container } = render(<LessonPartScreen part={{ type: 'explication', blocks: [] }} onNext={() => undefined} title="Soustraire" />);
+    expect(container.querySelector('h1')!.textContent).toBe('Soustraire');
+    expect(container.querySelector('h1 + p.t-body2')).toBeNull();
+  });
+
+  it('ligne ✓ verte, titre « Fais attention » (h2), ✗ rouge et ~ gris avec leur explication', () => {
+    const { container } = render(<LessonPartScreen part={part} onNext={() => undefined} />);
+    expect(container.querySelector('.lesson-line--ok')!.textContent).toContain('5 − (−3) = 5 + 3 = 8');
+    expect(container.querySelector('h2.t-h6')!.textContent).toBe('Fais attention');
+    const ko = container.querySelector('.lesson-line--ko.lesson-line--stack')!;
+    expect(ko.querySelector('.lesson-line__mark')!.textContent).toBe('✗');
+    expect(ko.querySelector('.lesson-line__note')!.textContent).toBe("Le signe de −2 n'a pas changé : 6 − (−2) = 6 + 2.");
+    const n = container.querySelector('.lesson-line--neutral.lesson-line--stack')!;
+    expect(n.querySelector('.lesson-line__mark')!.textContent).toBe('~');
+    expect(n.querySelector('.lesson-line__note')!.textContent).toBe('Pas faux, mais inutile : en tête, pas de parenthèses.');
+  });
+});
+
 describe('colorizeLatex', () => {
   it('enveloppe les nombres signés, laisse les opérateurs', () => {
     expect(colorizeLatex('5 - (-3)')).toBe('\\htmlClass{pos}{5} - (\\htmlClass{neg}{-3})');

@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { checkAnswer, checkParts } from '@pom/engine';
 import { Math } from '../../ui/Math';
 import { calcLatex } from './calc';
-import { QFrame, ValidateFoot, type QProps } from './Frame';
+import { Prompt, QFrame, ValidateFoot, type QProps } from './Frame';
 
 /**
  * Classer : toucher le calcul puis la case. Le calcul qu'on touche dans une case retourne en haut ; seule la
  * première case où il a été rangé compte. « Valider » s'active quand tout est rangé.
  */
-export function Classer({ q, course, locked, onAnswer, header, footer }: QProps<'classer'>) {
+export function Classer({ q, course, locked, onAnswer, header, footer, texts }: QProps<'classer'>) {
   const n = q.exs.length;
   const [sel, setSel] = useState<number | null>(null);
   const [first, setFirst] = useState<(string | null)[]>(() => Array(n).fill(null));
@@ -36,7 +36,7 @@ export function Classer({ q, course, locked, onAnswer, header, footer }: QProps<
   return (
     <QFrame header={header} footer={footer} locked={locked} foot={<ValidateFoot enabled={now.every((b) => b !== null)} onSubmit={submit} />}>
       <div className="stack stack--top" data-copie>
-        <p className="t-body1">Range chaque calcul.</p>
+        <Prompt texts={texts} fallback="Range chaque calcul." cls="t-body1" />
         {!locked && (
           <div className="tags">
             {q.exs.map((e, i) =>

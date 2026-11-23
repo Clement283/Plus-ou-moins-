@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Answer, CourseDef, Outcome, Question } from '@pom/engine';
+import type { Answer, CourseDef, Outcome, PartTexts, Question } from '@pom/engine';
 import { Classer } from './Classer';
 import { Erreur } from './Erreur';
 import { ErreurEcriture } from './ErreurEcriture';
@@ -24,6 +24,8 @@ export interface QuestionViewProps {
   footer?: ReactNode;
   /** Sous le champ de réponse tant que la question reste ouverte (types à saisie : retour « Simplifie »). */
   notice?: ReactNode;
+  /** Titre, sous-titre et consigne de l'écran de leçon (doc 09). */
+  texts?: PartTexts;
 }
 
 /**
@@ -31,8 +33,8 @@ export interface QuestionViewProps {
  * de correction sur place. Ni explication ni « Continuer » : c'est l'écran appelant qui les pose (`footer`).
  * À remonter avec une `key` par question : la saisie en cours appartient au composant.
  */
-export function QuestionView({ question: q, course, locked, onAnswer, header, footer, notice }: QuestionViewProps) {
-  const common = { course, locked, onAnswer, header, footer, notice };
+export function QuestionView({ question: q, course, locked, onAnswer, header, footer, notice, texts }: QuestionViewProps) {
+  const common = { course, locked, onAnswer, header, footer, notice, texts };
   switch (q.kind) {
     case 'saisie': return <Saisie q={q} {...common} />;
     case 'trou': return <Trou q={q} {...common} />;

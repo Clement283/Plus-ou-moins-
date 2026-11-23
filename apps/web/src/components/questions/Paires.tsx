@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { checkAnswer, checkParts } from '@pom/engine';
 import { Math } from '../../ui/Math';
-import { QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, type QProps } from './Frame';
 
 /** La paire fausse reste rouge ce temps-là (ms), puis redevient touchable. */
 const FLASH_MS = 800;
@@ -18,7 +18,7 @@ interface State {
 const START: State = { l: null, r: null, pairs: [], doneL: [], doneR: [], flash: null };
 
 /** Relier les paires : toucher un calcul puis son résultat. Une paire juste se grise, une fausse clignote et reste à relier. */
-export function Paires({ q, course, locked, onAnswer, header, footer }: QProps<'paires'>) {
+export function Paires({ q, course, locked, onAnswer, header, footer, texts }: QProps<'paires'>) {
   const [s, setS] = useState<State>(START);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -62,7 +62,7 @@ export function Paires({ q, course, locked, onAnswer, header, footer }: QProps<'
   return (
     <QFrame header={header} footer={footer} locked={locked}>
       <div className="stack stack--top">
-        <p className="t-body1">Relie chaque calcul à son résultat.</p>
+        <Prompt texts={texts} fallback="Relie chaque calcul à son résultat." cls="t-body1" />
         <div className="pairs" data-copie>
           {col('l', q.left)}
           {col('r', q.right.map((r) => r.latex))}

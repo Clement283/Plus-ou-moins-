@@ -459,3 +459,23 @@ describe('Calculs en Lexend', () => {
     expect(css).toMatch(/--font-math:'Lexend'/);
   });
 });
+
+describe('titre, sous-titre et consigne d\'un écran de leçon (doc 09)', () => {
+  const withTexts = (q: Question, texts: { title?: string; subtitle?: string; consigne?: string }) => {
+    const view = render(<QuestionView question={q} course={C05} locked={false} onAnswer={() => undefined} texts={texts} />);
+    return view.container;
+  };
+
+  it('un titre devient le h1, le sous-titre est dessous, la consigne générique disparaît', () => {
+    const c = withTexts(ordre, { title: 'Remets les étapes de −3 × (−4) dans l\'ordre', subtitle: 'Touche les étiquettes.' });
+    expect(c.querySelector('h1.t-h3')!.textContent).toBe("Remets les étapes de −3 × (−4) dans l'ordre");
+    expect(c.querySelector('h1 + p.t-body2')!.textContent).toBe('Touche les étiquettes.');
+    expect(c.textContent).not.toContain("Remets les étapes dans l'ordre.");
+  });
+
+  it('une consigne remplace la consigne générique', () => {
+    expect(withTexts(trou, { consigne: "Complète, une case après l'autre." }).textContent).toContain("Complète, une case après l'autre.");
+    expect(withTexts(classer, { consigne: 'Sans calculer, le résultat est-il + ou − ?' }).textContent).toContain('Sans calculer, le résultat est-il + ou − ?');
+    expect(withTexts(erreur, { title: 'Trouve la ligne fausse', subtitle: 'Touche la ligne où le calcul se trompe.' }).textContent).not.toContain('Une ligne est fausse.');
+  });
+});

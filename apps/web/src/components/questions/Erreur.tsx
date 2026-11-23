@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { checkAnswer } from '@pom/engine';
 import { Math } from '../../ui/Math';
-import { QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, type QProps } from './Frame';
 
 /** Trouver l'erreur : toutes les lignes se touchent, la ligne de départ comprise (doc 08 n° 11). */
-export function Erreur({ q, course, locked, onAnswer, header, footer }: QProps<'erreur'>) {
+export function Erreur({ q, course, locked, onAnswer, header, footer, texts }: QProps<'erreur'>) {
   const [picked, setPicked] = useState<number | null | undefined>(undefined);
   const pick = (line: number | null) => {
     if (locked || picked !== undefined) return;
@@ -17,7 +17,7 @@ export function Erreur({ q, course, locked, onAnswer, header, footer }: QProps<'
       <div className="stack stack--top" data-copie>
         {open ? (
           <>
-            <p className="t-body1">Une ligne est fausse. Touche-la.</p>
+            <Prompt texts={texts} fallback="Une ligne est fausse. Touche-la." cls="t-body1" />
             <div className="copy-lines">
               {q.lines.map((l, i) => (
                 <button key={i} className="copy-line" type="button" disabled={picked !== undefined} onClick={() => pick(i)}>

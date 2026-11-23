@@ -233,6 +233,14 @@ describe('ActivityScreen', () => {
     expect(t.ends[0]![1]).toBe(false);
   });
 
+  it('une partie de leçon avec titre et sous-titre (doc 09) : le titre de l\'écran remplace celui du cours', () => {
+    const part = C05.parts.find((p) => p.type === 'explication')!;
+    const item: ActivityItem = { type: 'explication', itemId: 'partie-0', courseId: C05.id, partIndex: 0, blocks: (part as any).blocks, texts: { title: 'Deux signes pareils donnent +', subtitle: 'Deux signes différents donnent −.' } };
+    const t = setup([item, qItem(0, 3, 4)], {}, 'cours');
+    expect(t.$('h1')!.textContent).toBe('Deux signes pareils donnent +');
+    expect(t.$('h1 + p')!.textContent).toBe('Deux signes différents donnent −.');
+  });
+
   it('une partie de leçon : titre du cours, « Suivant », lesson_part_done avec la durée', () => {
     vi.useFakeTimers();
     const part = C05.parts.find((p) => p.type === 'explication')!;

@@ -809,3 +809,7 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .list-item__trail .is-ok{color:var(--on-success-container);display:flex}
 .list-item__trail .is-ko{color:var(--on-error-container);display:flex}
 .bilan-day .progress i.is-goal{background:var(--goal)}
+
+/* Leçons (doc 09) : sous-titre d'un écran et titre « Fais attention » */
+.lesson-sub{color:var(--muted)}
+.lesson-attention{margin-top:var(--sp-4)}
