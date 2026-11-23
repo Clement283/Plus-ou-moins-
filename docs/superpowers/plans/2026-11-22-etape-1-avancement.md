@@ -1,0 +1,34 @@
+# Étape 1 — Avancement (pour reprendre dans une autre session)
+
+*Mis à jour le 2026-11-23.* Plan : `docs/superpowers/plans/2026-11-22-etape-1-relatifs.md`. Documents validés : `docs/validation/01` à `07` (le 07 complète et prime sur 01–06).
+
+## Fait (construit, testé, relu tâche par tâche)
+- Tâche 3 : monorepo, maths exactes.
+- Tâche 4 : journal d'événements, jour de Paris.
+- Tâche 5 : serveur Cloudflare Worker + D1 (connexion par code, journal idempotent, routes suiveur), script de création de comptes.
+- Tâche 6 (partie données) : appli web `apps/web` — IndexedDB, file d'attente hors ligne, synchro, cache par utilisateur. **Pas d'écran.**
+- Tâche 7 (partie moteur) : saisie brute avec fraction empilée, lecture et erreurs d'écriture.
+- Tâche 8 : module « Calculs », Cours 0 à 7.
+- Tâche 9 : fabrication et correction des 8 types d'exercices.
+- Tâche 11 : répétition espacée (échelle A–H), validation, rattrapage.
+- Tâche 12 : liste des révisions, séances, temps du jour.
+- Tâche 13 (partie moteur) : déroulé des activités (repassages, « Passer », entraînement).
+- Tâche 14 (partie moteur) : données de la page de suivi.
+- Tâche 16 : décisions du doc 07 appliquées.
+Tests : `npm test` (moteur 510, web 9, api 9, scripts 7).
+
+## Reste à faire
+1. **Étape design, avec validation du porteur du projet avant tout code d'écran** (directive du porteur du projet). Première maquette : `docs/design/maquette-accueil-eleve.html` (+ captures). Écrans à concevoir : connexion, accueil élève, mes cours / module, cours (leçon, exemples, exercices de fin, résultat, rattrapage), révisions, entraînement, retour sur erreur, clavier maths, les 8 types d'exercices, page de suivi (accueil, module, cours). Icônes de l'appli (PWA).
+2. Écrans (parties UI des tâches 6, 7, 10, 13, 14) une fois le design validé.
+3. Tâche 15 : déploiement Cloudflare (accès au compte du porteur du projet requis) et comptes réels.
+4. Relecture finale de toute la branche.
+
+## Points à reporter dans les écrans
+- Erreur d'écriture « 3−4 » : message « Ta réponse doit être un seul nombre. » (doc 07 n° 1).
+- Bloc de leçon `tone: 'neutre'` affiché en gris (doc 07 n° 8).
+- Page de suivi : état « à rattraper » distinct ; `ModuleView.done`.
+- Connexion : le code est insensible aux majuscules/espaces (choix technique annoncé).
+- Pas encore d'icônes PWA ; pas de gestion spéciale d'un jeton expiré (401).
+
+## Petits points différés (non bloquants)
+Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en O(n) par événement, « 3−(4) » encore « moins après » (proposé : écriture invalide, en attente du porteur du projet), quelques tests à resserrer.
