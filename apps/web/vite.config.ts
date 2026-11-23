@@ -12,7 +12,7 @@ export default defineConfig({
         name: 'Plus ou moins',
         short_name: 'Plus ou moins',
         lang: 'fr',
-        description: 'Les maths du collège, un peu chaque jour',
+        description: 'Entraîne-toi, un peu chaque jour',
         display: 'standalone',
         start_url: '/',
         scope: '/',
