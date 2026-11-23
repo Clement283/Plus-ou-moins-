@@ -421,6 +421,14 @@ describe('computeDashboard — what the follower sees on a course to catch up or
     expect(computeDashboard(events, '2026-03-12').courses[C(4)]!.failedRun).toEqual({ kind: 'rattrapage', day: '2026-03-10', ok: 2, total: 5 });
   });
 
+  it('a common error lists the courses it happened in, in course order', () => {
+    const events = [
+      ...calculs('2026-03-10', C(4), 2, 2, 2, { activity: 'revision', activityId: 'r4' }),
+      ...calculs('2026-03-10', C(3), 1, 1, 1, { activity: 'revision', activityId: 'r3' }),
+    ];
+    expect(computeDashboard(events, '2026-03-12').home.commonErrors.top[0]!.courseIds).toEqual([C(3), C(4)]);
+  });
+
   it('no failed run for a validated, in-progress or untouched course; startedOn is the first lesson or exercise day', () => {
     const events = [
       ...validate('2026-03-05', C(0)),

@@ -70,6 +70,8 @@ export interface CommonError {
   errorType: string;
   family: ErrorFamily;
   count: number;
+  /** Courses where this error happened over the 28 days, in course order. */
+  courseIds: string[];
   calculs: WrongCalcul[];
 }
 
@@ -308,7 +310,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
       top: common
         .filter((x) => x.family !== 'autre')
         .slice(0, COMMON_ERRORS_MAX)
-        .map((x) => ({ errorType: x.errorType, family: x.family, count: x.count, calculs: x.latest.slice(0, LISTED_ERRORS_MAX).map(wrongCalcul) })),
+        .map((x) => ({ errorType: x.errorType, family: x.family, count: x.count, courseIds: [...new Set(x.latest.map((e) => e.courseId))].sort((a, b) => courseRank.get(a)! - courseRank.get(b)!), calculs: x.latest.slice(0, LISTED_ERRORS_MAX).map(wrongCalcul) })),
       otherCount: common.filter((x) => x.family === 'autre').reduce((n, x) => n + x.count, 0),
     },
     toRework,
