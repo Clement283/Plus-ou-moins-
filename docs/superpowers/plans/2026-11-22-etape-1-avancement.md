@@ -40,6 +40,11 @@ Tests : `npm test` (moteur 506, web 9, api 9, scripts 7).
 ## Petits points différés (non bloquants)
 Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en O(n) par événement, « 3−(4) » encore « moins après » (proposé : écriture invalide, en attente du porteur du projet), quelques tests à resserrer.
 
+## Écrans (2026-11-23)
+- Plan mis à jour (version 3) : phase D, tâches 17 à 28, qui remplace les parties UI des tâches 6, 7, 10, 13, 14.
+- Décisions 16 à 19 ajoutées au doc 08 (cours quitté, relire, pas de déconnexion, module terminé).
+- Exécution : superpowers:subagent-driven-development, revue téléphone avec ui-design-review:ui-review.
+
 ## Reprendre : développement des écrans (nouvelle session)
 1. Lire ce fichier, le plan, `docs/validation/01` à `08` (08 et 07 priment), `docs/design/design-system/README.md` et `docs/design/ecrans/BRIEF.md` + les pages d'écrans.
 2. Mettre à jour le plan (superpowers:writing-plans) : remplacer les parties UI des tâches 6, 7, 10, 13, 14 par des tâches d'écrans qui suivent les maquettes validées et le design system (tokens dans `apps/web/src/theme.css`), en s'appuyant sur les fonctions du moteur déjà construites (`@pom/engine` : buildQuestion/checkAnswer, readRaw/pressKey, createActivity/answer/skip, nextReviewSession, trainingSeries, foldProgress/applyEvent, dailyTime, computeDashboard) et sur `apps/web/src/store/sync.ts`.

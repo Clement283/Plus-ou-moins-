@@ -1,6 +1,6 @@
 # 08 — Décisions sur les écrans
 
-*Statut : validé (2026-11-23). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
+*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
 
 | # | Question | Décision |
 |---|---|---|
@@ -19,6 +19,10 @@
 | 13 | Toutes les périodes du suivi sur 28 jours ? | **Oui, les 4 dernières semaines** (doc 05, version 6). |
 | 14 | Cours à la fois « à rattraper » et ⚠ sur le suivi | **Le ⚠ et « À retravailler » ne concernent que les cours validés.** Un cours pas encore validé affiche seulement « à rattraper ». La règle des 70 % reste sur les **14 derniers jours** (difficulté récente). |
 | 15 | Plusieurs élèves : le prénom ouvre une liste en volet en bas d'écran ? | **Oui.** |
+| 16 | Cours quitté au milieu (croix en haut) | **Il recommence au début.** Une confirmation s'affiche : « Quitter le cours ? Tu le reprendras depuis le début. » [Quitter] [Continuer]. Les réponses déjà données comptent dans le temps du jour, pas dans la note du cours. |
+| 17 | « Relire la leçon » (Mes cours, rattrapage) | **Lecture sans rien compter** : la leçon complète (explications et questions de leçon, qu'elle peut faire), mais rien n'est enregistré, pas même le temps. |
+| 18 | Bouton de déconnexion | **Pas de bouton en V1**, comme sur les maquettes. |
+| 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
 
 Autres décisions du 2026-11-23 :
 - Le taux d'erreurs de signe est retiré partout (moteur, doc 05). Le suivi montre les erreurs les plus communes.
