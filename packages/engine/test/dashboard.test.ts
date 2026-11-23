@@ -403,6 +403,38 @@ describe('computeDashboard — course view (§3)', () => {
   });
 });
 
+describe('computeDashboard — what the follower sees on a course to catch up or in progress', () => {
+  it('a failed end-of-course run: its score and day (« 3 sur 5 aux exercices de fin, le 21 novembre »)', () => {
+    const events = [...calculs('2026-03-09', C(4), 5, 2, 0, { activity: 'fin', activityId: 'run4' })];
+    const d = computeDashboard(events, '2026-03-12');
+    expect(d.courses[C(4)]!.status).toBe('a-rattraper');
+    expect(d.courses[C(4)]!.failedRun).toEqual({ kind: 'fin', day: '2026-03-09', ok: 3, total: 5 });
+    expect(d.modules[0]!.courses[4]!.failedRun).toEqual({ kind: 'fin', day: '2026-03-09', ok: 3, total: 5 });
+    expect(d.courses[C(4)]!.startedOn).toBe('2026-03-09');
+  });
+
+  it('after a failed rattrapage, the latest failed run is the rattrapage', () => {
+    const events = [
+      ...calculs('2026-03-09', C(4), 5, 2, 0, { activity: 'fin', activityId: 'run4' }),
+      ...calculs('2026-03-10', C(4), 5, 3, 0, { activity: 'rattrapage', activityId: 'rat4' }),
+    ];
+    expect(computeDashboard(events, '2026-03-12').courses[C(4)]!.failedRun).toEqual({ kind: 'rattrapage', day: '2026-03-10', ok: 2, total: 5 });
+  });
+
+  it('no failed run for a validated, in-progress or untouched course; startedOn is the first lesson or exercise day', () => {
+    const events = [
+      ...validate('2026-03-05', C(0)),
+      ans({ day: '2026-03-06', course: C(1), activity: 'lecon', activityId: 'run1' }),
+      ans({ day: '2026-03-08', course: C(1), activity: 'lecon', activityId: 'run1' }),
+    ];
+    const d = computeDashboard(events, '2026-03-12');
+    expect(d.courses[C(0)]!.failedRun).toBeNull();
+    expect(d.courses[C(1)]!.failedRun).toBeNull();
+    expect(d.courses[C(1)]!.startedOn).toBe('2026-03-06');
+    expect(d.courses[C(2)]!.startedOn).toBeNull();
+  });
+});
+
 describe('computeDashboard — events', () => {
   it('ignores duplicate event ids', () => {
     const TODAY = '2026-03-20';

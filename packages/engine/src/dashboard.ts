@@ -101,6 +101,14 @@ export interface DashboardHome {
   toRework: ToRework[];
 }
 
+/** The last end-of-course run (or rattrapage) that did not validate a course: « 3 sur 5 aux exercices de fin, le 21 novembre ». */
+export interface FailedRun {
+  kind: 'fin' | 'rattrapage';
+  day: string;
+  ok: number;
+  total: number;
+}
+
 export interface ModuleCourse {
   courseId: string;
   title: string;
@@ -110,6 +118,10 @@ export interface ModuleCourse {
   level: 1 | 2 | 3 | null;
   success28: SuccessRate;
   nextReview: string | null;
+  /** First day of a lesson part or course answer, null when untouched. */
+  startedOn: string | null;
+  /** Only for a course to catch up: its latest failed validation run. */
+  failedRun: FailedRun | null;
   /** ⚠: same conditions as « À retravailler » (validated courses only). */
   struggling: boolean;
   failedTwiceInARow: boolean;
@@ -137,6 +149,8 @@ export interface CourseView {
   step: string | null;
   validatedOn: string | null;
   nextReview: string | null;
+  startedOn: string | null;
+  failedRun: FailedRun | null;
   reviews: { day: string; ok: boolean }[];
   errors28: ErrorCount[];
   lastErrors: WrongCalcul[];
@@ -251,6 +265,27 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     .sort((a, b) => (a.success14.rate ?? 2) - (b.success14.rate ?? 2) || courseRank.get(a.courseId)! - courseRank.get(b.courseId)!)
     .slice(0, TO_REWORK_MAX);
 
+  // First day of each course, and the latest failed validation run of each course to catch up.
+  const startedOn = new Map<string, string>();
+  const runs = new Map<string, { courseId: string; kind: 'fin' | 'rattrapage'; day: string; ok: number; total: number }>();
+  for (const e of all) {
+    if (e.kind === 'activity_end') continue;
+    if (e.kind === 'lesson_part_done' || e.activity === 'lecon' || e.activity === 'exemple' || e.activity === 'fin')
+      if (!startedOn.has(e.courseId)) startedOn.set(e.courseId, e.day);
+    if (isCalcul(e) && (e.activity === 'fin' || e.activity === 'rattrapage')) {
+      const run = runs.get(e.activityId) ?? { courseId: e.courseId, kind: e.activity, day: e.day, ok: 0, total: 0 };
+      run.total++;
+      if (isRight(e)) run.ok++;
+      run.day = e.day;
+      runs.set(e.activityId, run); // Map keeps insertion order: the last run of a course is the latest started
+    }
+  }
+  const failedRunOf = (id: string, status: DashCourseStatus): FailedRun | null => {
+    if (status !== 'a-rattraper') return null;
+    const last = [...runs.values()].filter((r) => r.courseId === id && r.total >= 5).pop();
+    return last ? { kind: last.kind, day: last.day, ok: last.ok, total: last.total } : null;
+  };
+
   const common = countErrors(wrong28);
   const pending = pendingReviews(progress, today);
 
@@ -296,6 +331,8 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
         level: c.level,
         success28: successRate(calculs28.filter((e) => e.courseId === id)),
         nextReview: c.nextReview,
+        startedOn: startedOn.get(id) ?? null,
+        failedRun: failedRunOf(id, dashStatus(c)),
         struggling: struggling.has(id),
         failedTwiceInARow: c.failedTwiceInARow,
       };
@@ -319,6 +356,8 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
         step: c.step === null ? null : LADDER[c.step]!.step,
         validatedOn: c.validatedOn,
         nextReview: c.nextReview,
+        startedOn: startedOn.get(id) ?? null,
+        failedRun: failedRunOf(id, dashStatus(c)),
         reviews: c.reviewHistory.map((r) => ({ ...r })),
         errors28: countErrors(wrong28.filter((e) => e.courseId === id)).map(({ errorType, family, count }) => ({ errorType, family, count })),
         lastErrors: wrongOfCourse.slice(-LISTED_ERRORS_MAX).reverse().map(wrongCalcul),
