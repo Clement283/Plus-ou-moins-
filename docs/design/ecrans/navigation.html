@@ -197,11 +197,11 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 <p class="legend"><b>Connexion :</b> un seul champ, sans barre du bas. Le code s'affiche en majuscules espacées, mais « k7m2 9qxp » est accepté tel quel. <b>Mes cours :</b> une ligne par cours, avec son état (validé et étoiles, à faire, à rattraper, verrouillé). Toucher un cours ouvre ses actions, dont « Relire la leçon ». <b>Entraînement :</b> « Tout mélangé » ou une sélection de cours validés, par séries de 10 questions. Il ne change jamais les révisions, et on ne révise pas un cours en avance : les révisions restent sur l'accueil.</p>
 
 <div class="questions">
-  <h2 class="t-h5">Questions pour toi</h2>
+  <h2 class="t-h5">Décisions</h2>
   <ol>
-    <li><b>Cours à rattraper en entraînement.</b> Je l'ai laissé hors de la liste tant qu'il n'est pas validé (le rattrapage est fait pour ça). Faut-il plutôt l'autoriser, puisque le doc 01 dit qu'on peut retravailler un cours qui coince ?</li>
-    <li><b>Relire un cours verrouillé.</b> Les docs disent « relire une leçon à tout moment » sans parler des cours verrouillés. J'ai choisi de ne pas les ouvrir : leur leçon n'est visible qu'après le déblocage du cours précédent. C'est bon ?</li>
-    <li><b>Longueur de l'entraînement.</b> J'ai gardé une série fixe de 10 questions, sans réglage, avec les niveaux 1, 2 et 3 mélangés (décision 15). Elle peut en refaire une autre tout de suite. Est-ce assez simple, ou veux-tu aussi un choix de longueur ?</li>
+    <li><b>1.</b> Un cours à rattraper peut être choisi en entraînement, avec son état « À rattraper ».</li>
+    <li><b>2.</b> Un cours verrouillé reste fermé : sa leçon n'est pas visible.</li>
+    <li><b>3.</b> Entraînement : série fixe de 10 questions, niveaux mélangés, pas de choix de longueur.</li>
   </ol>
 </div>
 
@@ -278,9 +278,10 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 
   /* ---------- 3. Entraînement ---------- */
   var DONE=[[0,3],[1,3],[2,2],[3,1]]; /* cours validés et leurs étoiles */
+  var RETRY=[[4,0]]; /* cours à rattraper : choisissable (décision 1) */
   var N3={
     tout:'Par défaut, « Tout mélangé » : les 4 cours validés servent à la série de 10 questions.',
-    choix:'Elle choisit ses cours : ici les cours 1 et 3. Le bouton dit combien de cours sont retenus.',
+    choix:'Elle choisit ses cours : ici les cours 1 et 3. Le Cours 4, à rattraper, est aussi dans la liste et peut être coché (décision 1). Le bouton dit combien de cours sont retenus.',
     aucun:'Aucun cours coché : le bouton est grisé et dit pourquoi.',
     vide:'Aucun cours validé : rien à travailler, et un renvoi vers « Mes cours ».'
   };
@@ -307,12 +308,14 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
       n=DONE.length;
       h+='<section class="stack" aria-label="Cours retenus"><h2 class="t-h6">Cours retenus</h2><div class="tchoice">'+DONE.map(function(d){return '<span class="chip chip--selected">Cours '+d[0]+'</span>';}).join('')+'</div></section>';
     } else {
-      n=DONE.filter(function(d){return sel[d[0]];}).length;
+      n=DONE.concat(RETRY).filter(function(d){return sel[d[0]];}).length;
       h+='<section class="stack"><h2 class="t-h6">Choisis les cours à travailler</h2><div class="list">'+DONE.map(function(d){
         return '<label class="list-item"><span class="check"><input type="checkbox" data-c="'+d[0]+'"'+(sel[d[0]]?' checked':'')+' aria-label="Cours '+d[0]+'"></span><span class="list-item__text"><span class="list-item__title">Cours '+d[0]+', '+lc(COURSES[d[0]])+'</span></span><span class="list-item__trail">'+stars(d[1])+'</span></label>';
+      }).join('')+RETRY.map(function(d){
+        return '<label class="list-item"><span class="check"><input type="checkbox" data-c="'+d[0]+'"'+(sel[d[0]]?' checked':'')+' aria-label="Cours '+d[0]+', à rattraper"></span><span class="list-item__text"><span class="list-item__title">Cours '+d[0]+', '+lc(COURSES[d[0]])+'</span><span class="status status--retry">'+ico('i-review','ico--sm')+'À rattraper</span></span></label>';
       }).join('')+'</div></section>';
     }
-    h+='<p class="t-caption">Les cours 4 à 7 apparaîtront ici quand tu les auras validés. L\'entraînement ne change pas tes révisions : un cours se révise le jour prévu, sur l\'accueil.</p>';
+    h+='<p class="t-caption">Les cours 5 à 7 apparaîtront ici quand tu les auras validés ou à rattraper. L\'entraînement ne change pas tes révisions : un cours se révise le jour prévu, sur l\'accueil.</p>';
     b.innerHTML=h;
     var label = n===0 ? 'Choisis au moins un cours' : (n===1 ? '1 cours retenu, 10 questions' : n+' cours retenus, 10 questions');
     f.innerHTML='<p class="t-caption" style="text-align:center">'+label+'</p><button class="btn btn--contained btn--block" type="button"'+(n===0?' disabled':'')+'>Commencer l\'entraînement</button>';
