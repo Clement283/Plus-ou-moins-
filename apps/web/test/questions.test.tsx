@@ -440,3 +440,12 @@ describe('Aucune couleur sur les calculs', () => {
     for (const z of zone) for (const el of [z, ...z.querySelectorAll<HTMLElement>('*')]) expect(el.getAttribute('style') ?? '').not.toMatch(/(^|[;\s])color\s*:/);
   });
 });
+
+describe('Calculs en Lexend', () => {
+  it('theme.css met les glyphes KaTeX en --font-math (Lexend) et garde les fractions empilées', async () => {
+    const { readFileSync } = await import('node:fs');
+    const css = readFileSync('src/theme.css', 'utf8');
+    expect(css).toMatch(/\.katex \.mord[^{]*\{[^}]*font-family:var\(--font-math\)/);
+    expect(css).toMatch(/--font-math:'Lexend'/);
+  });
+});

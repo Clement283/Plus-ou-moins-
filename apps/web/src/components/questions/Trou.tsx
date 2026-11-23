@@ -18,13 +18,13 @@ export function Trou({ q, course, locked, onAnswer, header, footer }: QProps<'tr
       <div className="q-expr" data-copie>
         <p className="t-body2">Complète.</p>
         <p className="t-math-xl">
-          {before && <Math latex={`${before}\\;`} />}
+          {before && <Math latex={`${before}{}\\,`} />}
           <span className={cls} aria-label="Case à remplir">
             <span className="hole__in">
               <RawInputContent input={r.input} typing={r.state === 'neutre' && !locked} />
             </span>
           </span>
-          {after && <Math latex={`\\;${after}`} />}
+          {after && <Math latex={`\\ ${after}`} />}
         </p>
       </div>
     </QFrame>
