@@ -45,7 +45,9 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .who .ico{color:var(--muted)}
 .kicker{font:600 14px var(--font-body);color:var(--muted)}
 .ro{display:inline-flex;align-items:center;gap:var(--sp-4);font:500 13px var(--font-body);color:var(--on-muted-surface);background:var(--muted-surface);border-radius:var(--r-full);padding:var(--sp-4) var(--sp-12)}
+.scrollbody>*{flex:none}
 .block{display:grid;gap:var(--sp-12)}
+.block__head .t-caption{white-space:nowrap}
 .block__head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-8)}
 
 /* 28 jours : un point par jour */
@@ -71,7 +73,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .fact__value{font:600 17px var(--font-body);color:var(--on-surface);display:flex;align-items:center;gap:var(--sp-8);text-align:right;font-variant-numeric:tabular-nums}
 .fact__sub{font:400 13px var(--font-body);color:var(--muted);font-weight:400}
 .fact__stack{display:grid;justify-items:end}
-.trend{display:inline-flex;align-items:center;gap:var(--sp-4);color:var(--success);font:600 14px var(--font-body)}
+.trend{white-space:nowrap;display:inline-flex;align-items:center;gap:var(--sp-4);color:var(--success);font:600 14px var(--font-body)}
 .trend.is-up{color:var(--error-ink)}
 .trend.is-flat{color:var(--muted)}
 .fact .chev{color:var(--subtle)}
@@ -294,7 +296,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
       [1,'Additionner deux nombres de même signe','ok',3,3,95,'en attente depuis jeudi','',false],
       [2,'Additionner deux nombres de signes contraires','ok',2,2,88,'en attente depuis vendredi','',false],
       [3,'Additionner plusieurs relatifs','ok',2,2,74,'en attente depuis mardi','2 révisions ratées d\'affilée',true],
-      [4,'Soustraire, c\'est ajouter l\'opposé','retry',0,0,58,'','Fin de cours ratée : 3 sur 5, il en faut 4',true],
+      [4,'Soustraire, c\'est ajouter l\'opposé','retry',0,0,58,'','fin de cours ratée, 3 sur 5 alors qu\'il en faut 4',true],
       [5,'Multiplier deux relatifs','none'],[6,'Diviser deux relatifs','none'],[7,'Multiplier plusieurs relatifs','none']
     ],
     bien:[

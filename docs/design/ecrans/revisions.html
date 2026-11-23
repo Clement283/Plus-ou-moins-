@@ -24,6 +24,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .col .label{font:600 14px var(--font-body);color:var(--on-surface);text-align:center}
 .device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
 .scrollbody{flex:1;overflow:auto;padding:var(--sp-8) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--sp-16)}
+.scrollbody>*{flex:none}
 .legend{max-width:620px;margin-top:28px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
 .legend b{color:var(--on-surface)}
 .backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
@@ -61,9 +62,10 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .walk__t{font:400 16px/1.45 var(--font-body);color:var(--on-surface)}
 .walk__m{display:block;margin-top:var(--sp-4);font:500 22px var(--font-math);font-variant-numeric:tabular-nums;white-space:nowrap}
 /* bilan */
+.dev .list-item{min-height:56px;padding:var(--sp-8) var(--sp-12)}
 .bilan-head{display:grid;justify-items:center;gap:var(--sp-8);text-align:center;padding-top:var(--sp-8)}
-.bilan-badge{width:64px;height:64px;border-radius:var(--r-full);display:grid;place-items:center;background:var(--success-container);color:var(--on-success-container)}
-.bilan-badge .ico{--icon-size:32px}
+.bilan-badge{width:48px;height:48px;border-radius:var(--r-full);display:grid;place-items:center;background:var(--success-container);color:var(--on-success-container)}
+.bilan-badge .ico{--icon-size:28px}
 .bilan-day{display:grid;gap:var(--sp-4)}
 .bilan-day .row{justify-content:space-between}
 .bilan-day .is-goal{color:var(--on-success-container);font-weight:600}
@@ -295,22 +297,22 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
   function course(n,title,score,next,ok){
     return '<div class="list-item"><span class="course-num" style="width:40px;height:40px;font-size:18px'+(ok?'':';background:var(--error-container);color:var(--on-error-container)')+'" aria-hidden="true">'+n+'</span>'+
       '<div class="list-item__text"><div class="list-item__title" style="font-size:16px">'+title+'</div><div class="list-item__sub">'+score+', '+next+'</div></div>'+
-      '<span class="list-item__trail">'+(ok?'<span class="chip chip--success">'+ic('check')+'Réussi</span>':'<span class="chip chip--error">À revoir</span>')+'</span></div>';
+      '<span class="list-item__trail">'+(ok?'<span style="color:var(--on-success-container)" aria-label="Réussi">'+ic('check-circle')+'</span>':'<span style="color:var(--on-error-container)" aria-label="À revoir">'+ic('x-circle')+'</span>')+'</span></div>';
   }
   var S4=[
     {k:'encore',t:'Il reste des cours dus',note:'Séance de 5 cours terminée, 2 cours encore dus : « Encore des révisions » lance la séance suivante (doc 02 §3). Elle peut aussi s\'arrêter.',
      r:function(){ return device(
        '<div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)"><button class="icon-btn" type="button" aria-label="Fermer">'+ic('close')+'</button><span class="appbar__title">Bilan de la séance</span></div>',
-       '<div class="bilan-head"><span class="bilan-badge">'+ic('check-circle')+'</span><h2 class="t-h3">Séance terminée</h2><p class="t-body1">13 questions sur 15 justes du premier coup.</p></div>'+
+       '<div class="bilan-head"><span class="bilan-badge">'+ic('check-circle')+'</span><h2 class="t-h3">Séance terminée</h2><p class="t-body1">13 sur 15 justes du premier coup.</p></div>'+
        '<div class="bilan-day"><div class="row"><span class="t-h6">Aujourd\'hui</span><span class="t-body2 math">11 / 15 min</span></div><div class="progress" style="--v:73%"><i></i></div></div>'+
-       '<div class="list">'+course(1,'Additionner deux nombres de même signe','3 sur 3','revient dans 1 semaine',1)+course(2,'Additionner deux nombres de signes contraires','3 sur 3','revient dans 2 jours',1)+course(3,'Additionner plusieurs relatifs','3 sur 3','revient dans 1 mois',1)+course(4,'Soustraire, c\'est ajouter l\'opposé','2 sur 3','revient demain',0)+course(5,'Multiplier deux relatifs','2 sur 3','revient demain',0)+'</div>',
+       '<div class="list">'+course(1,'Même signe','3 sur 3','revient dans 1 semaine',1)+course(2,'Signes contraires','3 sur 3','revient dans 2 jours',1)+course(3,'Plusieurs relatifs','3 sur 3','revient dans 1 mois',1)+course(4,'Soustraire','2 sur 3','revient demain',0)+course(5,'Multiplier','2 sur 3','revient demain',0)+'</div>',
        '<div class="foot"><p class="t-caption">2 cours dus, 6 questions, environ 2 minutes.</p><button class="btn btn--contained btn--block" type="button">Encore des révisions</button><button class="btn btn--text" type="button">Revenir à l\'accueil</button></div>'); }},
     {k:'faites',t:'Plus aucun cours dû',note:'Dernière séance : plus aucun cours dû. La carte devient « Révisions faites » et propose l\'entraînement (doc 02 §5). Ici, l\'objectif des 15 minutes est aussi atteint.',
      r:function(){ return device(
        '<div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)"><button class="icon-btn" type="button" aria-label="Fermer">'+ic('close')+'</button><span class="appbar__title">Bilan de la séance</span></div>',
-       '<div class="bilan-head"><span class="bilan-badge">'+ic('check-circle')+'</span><h2 class="t-h3">Séance terminée</h2><p class="t-body1">5 questions sur 6 justes du premier coup.</p></div>'+
+       '<div class="bilan-head"><span class="bilan-badge">'+ic('check-circle')+'</span><h2 class="t-h3">Séance terminée</h2><p class="t-body1">5 sur 6 justes du premier coup.</p></div>'+
        '<div class="bilan-day"><div class="row"><span class="t-h6">Aujourd\'hui</span><span class="t-body2 math">16 / 15 min</span></div><div class="progress" style="--v:100%"><i style="background:var(--goal)"></i></div><p class="t-body2 is-goal">Objectif atteint !</p></div>'+
-       '<div class="list">'+course(6,'Diviser deux relatifs','3 sur 3','revient dans 1 semaine',1)+course(7,'Multiplier plusieurs relatifs','2 sur 3','revient demain',0)+'</div>'+
+       '<div class="list">'+course(6,'Diviser','3 sur 3','revient dans 1 semaine',1)+course(7,'Multiplier plusieurs','2 sur 3','revient demain',0)+'</div>'+
        '<div class="card card--done"><span class="card__eyebrow">'+ic('check','ico--sm')+' Révisions faites</span><h3 class="t-h4">Tout est révisé pour aujourd\'hui</h3><p class="card__meta">Pour continuer, entraîne-toi sur les cours de ton choix.</p><button class="btn btn--outlined btn--block" type="button" style="margin-top:12px">S\'entraîner</button></div>',
        '<div class="foot"><button class="btn btn--text" type="button">Revenir à l\'accueil</button></div>'); }}
   ];

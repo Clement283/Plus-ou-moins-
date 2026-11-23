@@ -23,7 +23,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
 .col .label{font:600 14px var(--font-body);color:var(--muted)}
 .device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
-.scrollbody{flex:1;overflow:auto;padding:var(--sp-20) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--gap-section)}
+.scrollbody{flex:1;min-height:0;overflow:auto;padding:var(--sp-20) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--gap-section)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
 .legend{max-width:620px;margin-top:28px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
 .legend b{color:var(--on-surface)}
@@ -270,7 +270,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
     $('modBar').style.setProperty('--v',(n/8*100)+'%');
     $('modText').textContent=n+' cours sur 8 validés';
     $('modBadge').innerHTML = n===8 ? '<span class="chip chip--success">'+ico('i-check')+'Module terminé</span>' : '';
-    var sb=$('courseList').closest('.scrollbody'), op=$('courseList').querySelector('details[open]'); sb.scrollTop=0; if(op&&k!=='debut'){ sb.scrollTop=Math.max(0,op.offsetTop-sb.offsetTop-120); }
+    var sb=$('courseList').closest('.scrollbody'), op=$('courseList').querySelector('details[open]'); sb.scrollTop=0; if(op&&k!=='debut'){ sb.scrollTop=Math.max(0,op.getBoundingClientRect().top-sb.getBoundingClientRect().top-100); }
     $('note2').textContent=e.note; pressed('data-s2',k);
   }
   document.querySelectorAll('[data-s2]').forEach(function(b){ b.addEventListener('click',function(){ s2(b.getAttribute('data-s2')); }); });
