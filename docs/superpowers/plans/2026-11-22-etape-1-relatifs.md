@@ -643,7 +643,7 @@ feedbackFor(course: CourseDef, q: Question, a: Answer, o: Outcome): Feedback
 
 **Interfaces :** Consumes `RawInput`, `pressKey`, `rawToLatex`, `canSubmit`, `emptyRaw`. Produces `<Keypad onKey={(k: Key) => void} onSubmit canSubmit />`, `<RawInputView input placeholder="Ta réponse" state?: 'neutre'|'juste'|'faux'|'note' />` (fraction empilée, curseur visible dans la case active, aucune couleur sur la saisie en cours).
 
-- [ ] **Étape 1 : écrire les tests qui échouent.** Disposition exacte (7 8 9 ⌫ / 4 5 6 − / 1 2 3 ▭/▭ / ( 0 ) → / Valider sur toute la largeur) ; chaque ligne « Touches → Affiché » du tableau d'exemples du doc 03 en tapant au clavier rendu ; Valider inactif sur champ vide et sur fraction vide (doc 07 n° 4) ; 13e caractère sans effet (fraction : la barre ne compte pas) ; aucun `<input>` qui ouvrirait le clavier natif (`inputMode="none"` si un élément focalisable existe).
+- [ ] **Étape 1 : écrire les tests qui échouent.** Disposition exacte (7 8 9 ⌫ / 4 5 6 − / 1 2 3 ▭/▭ / ( 0 ) → / Valider sur toute la largeur) ; chaque ligne « Touches → Affiché » du tableau d'exemples du doc 03 en tapant au clavier rendu ; Valider inactif sur champ vide, actif sur une fraction vide, qui est alors comptée « écriture invalide » (doc 07 n° 4, choix B) ; 13e caractère sans effet (fraction : la barre ne compte pas) ; aucun `<input>` qui ouvrirait le clavier natif (`inputMode="none"` si un élément focalisable existe).
 - [ ] **Étape 2 :** `npm test -w web`. Attendu : ÉCHEC.
 - [ ] **Étape 3 : implémenter.**
 - [ ] **Étape 4 :** `npm test -w web`. Attendu : SUCCÈS.
