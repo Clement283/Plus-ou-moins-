@@ -25,6 +25,7 @@ export const SCENARIO_NAMES = [
   'objectif-atteint',
   'cours-a-rattraper',
   'module-termine',
+  'debut-du-module',
   'elle-bloque',
   'tout-va-bien',
 ] as const;
@@ -55,7 +56,7 @@ class Log {
   private push<T extends object>(day: string, seconds: number, body: T): void {
     const [y, m, d] = day.split('-').map(Number) as [number, number, number];
     const at = Date.UTC(y, m - 1, d, 16, 0, 0) + seconds * 1000;
-    this.events.push({ id: `${this.userId}-${String(++this.n).padStart(4, '0')}`, userId: this.userId, at, day: parisDay(at), ...body } as AppEvent);
+    this.events.push({ id: `${this.userId}-${String(++this.n).padStart(4, '0')}`, userId: this.userId, at, day: parisDay(at), ...body } as unknown as AppEvent);
   }
 
   lessonParts(day: string, courseId: string, activityId: string, parts = 3, durationMs = 2 * MIN): void {
@@ -134,13 +135,16 @@ export function scenario(name: ScenarioName): Fixture {
   const log = new Log(LEA.id);
   const c = (i: number) => COURSES[i]!;
   switch (name) {
+    case 'debut-du-module':
+      // aucun cours commencé : seul le cours 0 est ouvert, rien à réviser ni à travailler.
+      break;
     case 'debut-de-journee':
       base(log);
       break;
     case 'apres-une-seance':
       // 3 des 5 révisions faites ce matin (8 minutes) : il en reste 2.
       base(log);
-      for (const i of [0, 1, 2]) log.review(TODAY, c(i), 3, 53_000);
+      for (const i of [0, 1, 2]) log.review(TODAY, c(i), 3, 54_000);
       break;
     case 'objectif-atteint':
       // les 5 révisions (10 minutes) puis 12 minutes d'entraînement : 22 minutes.

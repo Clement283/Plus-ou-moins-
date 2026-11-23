@@ -789,3 +789,18 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .is-static .anim-enc--a,.is-static .anim-enc--b{box-shadow:inset 0 0 0 2px var(--primary)}
 .is-static .circled{box-shadow:inset 0 0 0 2px var(--error-ink)}
 .nl .number-line__num{font:400 13px var(--font-body)}
+
+/* Composants des écrans : accueil, mes cours, entraînement (tâche 25) — petits utilitaires à la place des style="" des maquettes */
+.min-w0{min-width:0}
+.mt-4{margin-top:var(--sp-4)}
+.ink-error{color:var(--error-ink)}
+.ink-secondary{color:var(--secondary-ink)}
+.ink-subtle{color:var(--subtle)}
+.stack-tight{display:grid;gap:var(--sp-4)}
+.self-center{justify-self:center}
+.self-start{justify-self:start}
+.t-center{text-align:center}
+.row--between{justify-content:space-between}
+.row--wrap{gap:var(--sp-8);flex-wrap:wrap}
+/* pied d'écran collé en bas : barre d'action éventuelle puis barre de navigation */
+.app-foot{position:sticky;bottom:0;margin-top:auto;z-index:2}

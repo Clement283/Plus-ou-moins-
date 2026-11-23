@@ -5,6 +5,9 @@ import { useSession } from './store/progress';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
 import EssaiClavier from './screens/EssaiClavier';
+import Home from './screens/Home';
+import Courses from './screens/Courses';
+import Training, { TrainingSeries } from './screens/Training';
 import { CourseScreen, RattrapageScreen, RelireScreen } from './screens/Course';
 
 const ESSAI = import.meta.env.DEV || import.meta.env.VITE_ESSAI === '1';
@@ -36,6 +39,10 @@ function StudentRoutes() {
   if (route.name === 'cours-detail') return <CourseScreen key={route.id} courseId={route.id} />;
   if (route.name === 'rattrapage') return <RattrapageScreen key={route.id} courseId={route.id} />;
   if (route.name === 'relire') return <RelireScreen key={route.id} courseId={route.id} />;
+  if (route.name === 'accueil') return <Home />;
+  if (route.name === 'cours') return <Courses />;
+  if (route.name === 'entrainement') return <Training />;
+  if (route.name === 'entrainement-serie') return <TrainingSeries key="serie" />;
   return <Empty name={route.name} />;
 }
 

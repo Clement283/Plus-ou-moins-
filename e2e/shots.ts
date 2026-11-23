@@ -203,6 +203,29 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'rattrapage-3-sur-5', fixture: 'debut-de-journee', route: '#/essai/cours?cas=rattrapage-ko' },
     ],
   },
+  accueil: {
+    route: '#/',
+    scenarios: (['debut-de-journee', 'apres-une-seance', 'objectif-atteint', 'cours-a-rattraper', 'module-termine'] as const).map((fixture): Shot => ({ name: fixture, fixture, before: (page) => page.waitForTimeout(500) })),
+  },
+  'mes-cours': {
+    route: '#/cours',
+    scenarios: [
+      { name: 'debut-du-module', fixture: 'debut-du-module', before: (page) => page.waitForTimeout(500) },
+      { name: 'en-cours', fixture: 'debut-de-journee', before: (page) => page.waitForTimeout(500) },
+      { name: 'en-cours-valide-ouvert', fixture: 'debut-de-journee', before: async (page) => { await page.waitForTimeout(500); await page.click('details.crow:nth-of-type(2) summary'); } },
+      { name: 'a-rattraper', fixture: 'cours-a-rattraper', before: (page) => page.waitForTimeout(500) },
+      { name: 'module-termine', fixture: 'module-termine', before: async (page) => { await page.waitForTimeout(500); await page.click('details.crow:nth-of-type(3) summary'); } },
+    ],
+  },
+  entrainement: {
+    route: '#/entrainement',
+    scenarios: [
+      { name: 'tout-melange', fixture: 'debut-de-journee', before: (page) => page.waitForTimeout(500) },
+      { name: 'cours-choisis', fixture: 'cours-a-rattraper', before: async (page) => { await page.waitForTimeout(500); await page.click('button:text-is("Mes cours")'); await page.click('input[aria-label="Cours 1"]'); await page.click('input[aria-label="Cours 3"]'); } },
+      { name: 'aucun-choisi', fixture: 'cours-a-rattraper', before: async (page) => { await page.waitForTimeout(500); await page.click('button:text-is("Mes cours")'); } },
+      { name: 'rien-a-travailler', fixture: 'debut-du-module', before: (page) => page.waitForTimeout(500) },
+    ],
+  },
   questions: {
     route: '#/essai/questions?type=saisie',
     scenarios: [
@@ -297,7 +320,7 @@ async function mockApi(page: Page, data: Fixture | null): Promise<void> {
 }
 
 /** Écrit la session dans IndexedDB avant de charger l'appli ; le schéma vient de apps/web/src/store/db.ts. */
-const SEED_HTML = (session: Session) => `<!doctype html><title>seed</title><script>
+const SEED_HTML = (session: Session) => `<!doctype html><meta charset="utf-8"><title>seed</title><script>
 const schema = ${JSON.stringify(DB_SCHEMA)};
 const req = indexedDB.open(${JSON.stringify(DB_NAME)}, ${DB_VERSION});
 req.onupgradeneeded = () => {
@@ -356,7 +379,7 @@ async function main(): Promise<number> {
             await page.clock.setFixedTime(NOW);
             await mockApi(page, data);
             if (data) {
-              await page.route(`${preview.url}/__seed`, (r: any) => r.fulfill({ contentType: 'text/html', body: SEED_HTML({ token: 'tok', user: data.user }) }));
+              await page.route(`${preview.url}/__seed`, (r: any) => r.fulfill({ contentType: 'text/html; charset=utf-8', body: SEED_HTML({ token: 'tok', user: data.user }) }));
               await page.goto(`${preview.url}/__seed`);
               await page.waitForFunction(() => document.title.startsWith('seed') && document.title !== 'seed');
               if ((await page.title()) !== 'seeded') throw new Error('session non écrite');
