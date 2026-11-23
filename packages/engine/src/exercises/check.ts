@@ -5,7 +5,7 @@ import { type Rational, eqRat, neg, ratToString } from '../math/rational';
 import { diagnose } from '../courses';
 import type { CourseDef } from '../courses/types';
 import type { Answer, Outcome, Question } from './types';
-import { familyOf, signError } from './build/common';
+import { familyOf, signError } from '../courses/errors-util';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -74,6 +74,8 @@ export function checkParts(course: CourseDef, q: Question, a: Answer): Outcome[]
       return d ? wrong(d.errorType, d.family, given, expected) : right(given, expected);
     });
   if (q.kind === 'classer' && 'classes' in a) {
+    if (a.classes.length !== q.expected.length)
+      throw new Error(`Réponse incomplète : ${a.classes.length} calculs rangés sur ${q.expected.length}`);
     const label = (id: string | undefined): string => q.classes.find((c) => c.id === id)?.label ?? id ?? '';
     const sign = signError(course)?.id ?? 'autre';
     return q.expected.map((id, i) => judge(course, a.classes[i] === id, sign, label(a.classes[i]), label(id)));
@@ -127,18 +129,21 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
     }
 
     case 'paires': {
-      const parts = checkParts(course, q, a);
       if (!('pairs' in a)) return mismatch(q);
+      const parts = checkParts(course, q, a);
       const firstWrong = parts.find((p) => !p.correct);
       const matched = new Set(a.pairs.filter((_, i) => parts[i]?.correct).map(([l]) => l));
+      // the exercise ends when every calculation has its result
+      if (matched.size !== q.exs.length)
+        throw new Error(`Réponse incomplète : ${matched.size} paires justes sur ${q.exs.length}`);
       const show = (pairs: [number, number][]): string =>
         pairs.map(([l, r]) => `${q.left[l] ?? ''} → ${q.right[r]?.latex ?? ''}`).join(SEP);
       const solution = q.exs.map((e, l): [number, number] => [l, q.right.findIndex((r) => eqRat(r.value, e.answer))]);
-      const correct = !firstWrong && matched.size === q.exs.length;
-      return judge(course, correct, firstWrong?.errorType ?? 'autre', show(a.pairs), show(solution));
+      return judge(course, !firstWrong, firstWrong?.errorType ?? 'autre', show(a.pairs), show(solution));
     }
 
     case 'classer': {
+      if (!('classes' in a)) return mismatch(q);
       const parts = checkParts(course, q, a);
       const firstWrong = parts.find((p) => !p.correct);
       const given = parts.map((p) => p.given).join(SEP);

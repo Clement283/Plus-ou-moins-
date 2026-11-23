@@ -33,6 +33,17 @@ export interface ErrorDef {
    * diagnosed as this very error (values caught by an earlier error of the list are dropped).
    */
   wrongValues(ex: Exercise): Rational[];
+  /**
+   * « Trouver l'erreur »: the model resolution of `ex` written the way a student making this very
+   * error writes it, ending on `wrong` (one of `wrongValues(ex)`). `wrongLine` is its first wrong
+   * line; the next lines carry the error on. null when `wrong` cannot come from this error alone.
+   */
+  wrongResolution?(ex: Exercise, wrong: Rational): WrongResolution | null;
+}
+
+export interface WrongResolution {
+  lines: string[];
+  wrongLine: number;
 }
 
 /** Colours and animations are allowed here (lessons and error explanations only). */

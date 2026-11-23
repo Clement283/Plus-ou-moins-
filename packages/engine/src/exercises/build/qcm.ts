@@ -4,7 +4,7 @@ import { type Rng, pick, shuffle } from '../../rng';
 import { diagnose } from '../../courses';
 import type { CourseDef, Exercise } from '../../courses/types';
 import type { BuildCtx, Question } from '../types';
-import { drawExercise, valueLatex } from './common';
+import { drawExercise, retry, valueLatex } from './common';
 
 export type Formula = 'debut' | 'paires-signes' | 'melangee';
 
@@ -71,18 +71,11 @@ function nonTypicalTrap(course: CourseDef, ex: Exercise, used: Rational[], rng: 
   return null;
 }
 
-/** The 3 traps of the formula, in their doc order (before the shuffle). */
-export function trapsFor(course: CourseDef, ex: Exercise, formula: Formula, rng: Rng): Trap[] {
+/** The 3 traps of the formula, in their doc order (before the shuffle); null when `ex` has not enough. */
+export function trapsFor(course: CourseDef, ex: Exercise, formula: Formula, rng: Rng): Trap[] | null {
   const typical = typicalTraps(course, ex, rng);
   const out: Trap[] = [];
   const used = (): Rational[] => [ex.answer, ...out.map((t) => t.value)];
-  const fill = (): void => {
-    while (out.length < TRAPS) {
-      const t = nonTypicalTrap(course, ex, used(), rng);
-      if (!t) throw new Error("Impossible de fabriquer l'exercice");
-      out.push(t);
-    }
-  };
   if (formula === 'paires-signes') {
     // the answer, its opposite, another number and its opposite (a typical size first)
     const r = ex.answer;
@@ -93,12 +86,16 @@ export function trapsFor(course: CourseDef, ex: Exercise, formula: Formula, rng:
       typicalSizes.length > 0
         ? pick(rng, typicalSizes)
         : sizeOf((nonTypicalTrap(course, ex, [r, neg(r)], rng) ?? { value: rat(0) }).value);
-    if (!fresh(other)) throw new Error("Impossible de fabriquer l'exercice");
+    if (!fresh(other)) return null;
     for (const v of [neg(r), other, neg(other)]) out.push({ value: v, errorType: errorTypeOf(course, ex, v) });
     return out;
   }
   out.push(...typical.slice(0, formula === 'debut' ? 2 : 1));
-  fill();
+  while (out.length < TRAPS) {
+    const t = nonTypicalTrap(course, ex, used(), rng);
+    if (!t) return null;
+    out.push(t);
+  }
   return out;
 }
 
@@ -106,17 +103,35 @@ export function trapsFor(course: CourseDef, ex: Exercise, formula: Formula, rng:
 export const formulaOn = (formula: Formula, ex: Exercise): Formula =>
   formula === 'paires-signes' && ex.answer.n === 0 ? 'melangee' : formula;
 
-/** The QCM of `ex` with this formula. */
-export function qcmFor(course: CourseDef, ex: Exercise, formula: Formula, rng: Rng): Question {
-  const f = formulaOn(formula, ex);
-  const choices = shuffle(rng, [
-    { value: ex.answer, errorType: null as string | null },
-    ...trapsFor(course, ex, f, rng),
-  ]).map((c) => ({ value: c.value, latex: valueLatex(c.value), errorType: c.errorType }));
+/** The QCM of `ex` with this formula and these traps. */
+function qcmWith(ex: Exercise, f: Formula, traps: Trap[], rng: Rng): Question {
+  const choices = shuffle(rng, [{ value: ex.answer, errorType: null as string | null }, ...traps]).map((c) => ({ value: c.value, latex: valueLatex(c.value), errorType: c.errorType }));
   return { kind: 'qcm', ex, choices, correctIndex: choices.findIndex((c) => c.errorType === null), formula: f };
 }
 
+/** The QCM of `ex` with this formula; throws when `ex` has not enough traps. */
+export function qcmFor(course: CourseDef, ex: Exercise, formula: Formula, rng: Rng): Question {
+  const f = formulaOn(formula, ex);
+  const traps = trapsFor(course, ex, f, rng);
+  if (!traps) throw new Error("Impossible de fabriquer l'exercice");
+  return qcmWith(ex, f, traps, rng);
+}
+
+/** A calculation of the course with the formula's 3 traps (redrawn when it has not enough). */
+export function drawWithTraps(course: CourseDef, ctx: BuildCtx): { ex: Exercise; formula: Formula; traps: Trap[] } {
+  const formula = formulaFor(ctx.timesSeen, ctx.rng);
+  const drawn = retry(
+    () => {
+      const ex = drawExercise(course, ctx);
+      const f = formulaOn(formula, ex);
+      return { ex, formula: f, traps: trapsFor(course, ex, f, ctx.rng) };
+    },
+    (d) => d.traps !== null,
+  );
+  return { ...drawn, traps: drawn.traps ?? [] };
+}
+
 export function buildQcm(course: CourseDef, ctx: BuildCtx): Question {
-  const ex = drawExercise(course, ctx);
-  return qcmFor(course, ex, formulaFor(ctx.timesSeen, ctx.rng), ctx.rng);
+  const { ex, formula, traps } = drawWithTraps(course, ctx);
+  return qcmWith(ex, formula, traps, ctx.rng);
 }

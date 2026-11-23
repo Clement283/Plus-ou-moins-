@@ -43,6 +43,7 @@ describe('Classer (doc 04 §6)', () => {
       [true, null],
       [true, null],
     ]);
+    expect(() => checkAnswer(C(5), q, { classes: placed.slice(0, 3) })).toThrow(/incomplète/);
     // Cours 4: its first sign error
     const q4 = classerFor(C(4), ['5 − (−3)', '3 − 7', '−4 − 6', '2 − 1'].map((d) => exOf(C(4), d)));
     if (q4.kind !== 'classer') throw new Error('kind');

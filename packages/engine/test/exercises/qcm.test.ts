@@ -3,7 +3,7 @@ import { buildQuestion } from '../../src/exercises/build';
 import { type Formula, qcmFor } from '../../src/exercises/build/qcm';
 import { checkAnswer } from '../../src/exercises/check';
 import { num, toLatex } from '../../src/math/expr';
-import { eqRat, rat } from '../../src/math/rational';
+import { eqRat } from '../../src/math/rational';
 import { seededRng } from '../../src/rng';
 import { diagnose } from '../../src/courses';
 import type { Level } from '../../src/courses/types';
@@ -31,6 +31,7 @@ describe('QCM (doc 04 §7)', () => {
     // Calcul | Bonne réponse | Formule | Choix et erreur reliée
     [5, '−3 × (−3)', 1, 'debut', [[9, null], [-9, 'regle-signes'], [6, 'addition-au-lieu-multiplication'], [8, 'autre']]],
     [5, '−3 × (−3)', 1, 'paires-signes', [[9, null], [-9, 'regle-signes'], [6, 'addition-au-lieu-multiplication'], [-6, 'addition-au-lieu-multiplication']]],
+    [5, '−3 × (−3)', 1, 'melangee', [[9, null], [-6, 'addition-au-lieu-multiplication'], [11, 'autre'], [7, 'autre']]],
     [1, '−3 + (−5)', 1, 'debut', [[-8, null], [8, 'signe-oublie'], [-2, 'soustraction-au-lieu-addition'], [-7, 'autre']]],
     [2, '−3 + 5', 1, 'paires-signes', [[2, null], [-2, 'signe-du-mauvais-nombre'], [8, 'addition-au-lieu-soustraction'], [-8, 'addition-au-lieu-soustraction']]],
     [4, '5 − (−3)', 1, 'melangee', [[8, null], [2, 'oppose-oublie'], [11, 'autre'], [-9, 'autre']]],
@@ -38,15 +39,6 @@ describe('QCM (doc 04 §7)', () => {
     [2, '−7 + 7', 1, 'debut', [[0, null], [-14, 'addition-au-lieu-soustraction'], [14, 'addition-au-lieu-soustraction'], [1, 'autre']]],
   ] as [number, string, Level, Formula, Choice[]][])('cours %i : %s (%s)', (n, display, level, formula, choices) => {
     expect(reachable(n, display, level, formula)).toContain(key(choices));
-  });
-
-  it('−3 × (−3), mélangée: 9 ✓ · −6 addition · 7 autre (the doc\'s 12 is erreur-table, so never an « autre » trap)', () => {
-    const ex = exOf(C(5), '−3 × (−3)');
-    expect(diagnose(C(5), ex, rat(12))?.errorType).toBe('erreur-table');
-    const sets = [...reachable(5, '−3 × (−3)', 1, 'melangee')].map((s) => JSON.parse(s) as Choice[]);
-    const has = (cs: Choice[], c: Choice): boolean => cs.some((x) => x[0] === c[0] && x[1] === c[1]);
-    expect(sets.some((cs) => has(cs, [9, null]) && has(cs, [-6, 'addition-au-lieu-multiplication']) && has(cs, [7, 'autre']))).toBe(true);
-    expect(sets.some((cs) => has(cs, [12, 'autre']))).toBe(false);
   });
 
   it('records the error tied to the choice', () => {

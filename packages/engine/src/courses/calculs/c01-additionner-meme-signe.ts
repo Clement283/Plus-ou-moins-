@@ -4,7 +4,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, SIZES, absIs, buildErrors, chance, draw, exemple, explanation, explication,
-  isOpposite, lecon, makeExercise, math, operands, ordre, resultLine, saisie, signed, text, trou, txt,
+  isOpposite, lecon, makeExercise, math, operands, ordre, resultLine, saisie, sg, signed, stepped, text, trou, txt,
 } from './shared';
 
 const ID = 'c01-additionner-meme-signe';
@@ -32,6 +32,11 @@ const errors = buildErrors(
       text: () => 'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !',
       draw: (level, rng) => sum(level, -draw(rng, SIZES[level]), -draw(rng, SIZES[level])),
       sample: (ex) => -ex.answer.n,
+      // −3 + (−5) = +(3 + 5) = 8
+      wrongLines: (ex, w) => {
+        const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
+        return w === -ex.answer.n ? stepped(ex, `${sg(w)}(${a} + ${b})`, w) : null;
+      },
     },
     {
       id: 'soustraction-au-lieu-addition',
@@ -60,6 +65,15 @@ const errors = buildErrors(
       alsoWrong: (ex) => {
         const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
         return [Math.abs(a - b), -Math.abs(a - b)];
+      },
+      // −3 + (−5) = −(5 − 3) = −2: the sign kept, the sizes subtracted
+      wrongLines: (ex, w) => {
+        const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
+        const [big, small] = a >= b ? [a, b] : [b, a];
+        const r = ex.answer.n;
+        return Math.abs(w) === big - small && (w === 0 || Math.sign(w) === Math.sign(r))
+          ? stepped(ex, `${sg(r)}(${big} - ${small})`, w)
+          : null;
       },
     },
   ],

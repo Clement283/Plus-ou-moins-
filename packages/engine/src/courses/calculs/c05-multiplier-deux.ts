@@ -4,8 +4,8 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, chance, draw, exemple, explanation, explication, is,
-  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, signBox, signClassOf,
-  signs, text, trou,
+  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, signBox, signClassOf,
+  signs, stepped, text, trou,
 } from './shared';
 
 const ID = 'c05-multiplier-deux';
@@ -45,6 +45,11 @@ const errors = buildErrors(
       text: () => '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.',
       draw: (level, rng) => drawProduct(level, rng, SIZES[level], [true, true]),
       sample: (ex) => -ex.answer.n,
+      // −3 × (−4) = −(3 × 4) = −12
+      wrongLines: (ex, w) => {
+        const [a, b] = sizes(ex);
+        return w === -ex.answer.n ? stepped(ex, `${sg(w)}(${a} \\times ${b})`, w) : null;
+      },
     },
     {
       id: 'addition-au-lieu-multiplication',
@@ -59,6 +64,15 @@ const errors = buildErrors(
       alsoWrong: (ex) => {
         const [a, b] = sizes(ex);
         return [a + b, -(a + b)];
+      },
+      // −3 × (−4) = −3 + (−4) = −7, or = +(3 + 4) = 7 (the sign rule kept, the sizes added)
+      wrongLines: (ex, w) => {
+        const [x, y] = operands(ex.expr) as [number, number];
+        const [a, b] = sizes(ex);
+        if (w === x + y) return stepped(ex, toLatex(op('+', num(x), num(y))), w);
+        return Math.abs(w) === a + b && Math.sign(w) === Math.sign(ex.answer.n)
+          ? stepped(ex, `${sg(w)}(${a} + ${b})`, w)
+          : null;
       },
     },
     {
@@ -80,6 +94,12 @@ const errors = buildErrors(
       alsoWrong: (ex) => {
         const r = ex.answer.n;
         return sizes(ex).flatMap((x) => [r + Math.sign(r) * x, r - Math.sign(r) * x]);
+      },
+      // −3 × (−4) = +(3 × 4) = 16: the sign is right, the table wrong
+      wrongLines: (ex, w) => {
+        const [a, b] = sizes(ex);
+        const r = ex.answer.n;
+        return w !== r && Math.sign(w) === Math.sign(r) ? stepped(ex, `${sg(r)}(${a} \\times ${b})`, w) : null;
       },
     },
   ],

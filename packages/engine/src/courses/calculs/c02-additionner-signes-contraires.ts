@@ -5,7 +5,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, SIZES, absIs, buildErrors, chance, draw, exemple, explanation, explication,
-  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, text, trou,
+  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, stepped, text, trou,
 } from './shared';
 
 const ID = 'c02-additionner-signes-contraires';
@@ -58,6 +58,11 @@ const errors = buildErrors(
         return contrary(level, rng, Math.max(p, q), Math.min(p, q));
       },
       sample: (ex) => -ex.answer.n,
+      // −3 + 5 = −(5 − 3) = −2
+      wrongLines: (ex, w) => {
+        const [big, small] = bigSmall(ex);
+        return ex.answer.n !== 0 && w === -ex.answer.n ? stepped(ex, `${sg(w)}(${big} - ${small})`, w) : null;
+      },
     },
     {
       id: 'addition-au-lieu-soustraction',
@@ -74,6 +79,14 @@ const errors = buildErrors(
       },
       sample: (ex) => bigSmall(ex)[0] + bigSmall(ex)[1],
       alsoWrong: (ex) => [-(bigSmall(ex)[0] + bigSmall(ex)[1])],
+      // −3 + 5 = +(5 + 3) = 8: the sign rule kept, the sizes added
+      wrongLines: (ex, w) => {
+        const [big, small] = bigSmall(ex);
+        const r = ex.answer.n;
+        return Math.abs(w) === big + small && (r === 0 || Math.sign(w) === Math.sign(r))
+          ? stepped(ex, `${sg(w)}(${big} + ${small})`, w)
+          : null;
+      },
     },
   ],
   resolution,

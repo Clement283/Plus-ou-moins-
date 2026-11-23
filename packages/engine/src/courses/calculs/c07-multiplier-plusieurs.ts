@@ -4,7 +4,8 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, chain, chance, draw, exemple, explanation, explication, is,
-  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, signBox, signed, text, trou,
+  isOpposite, lecon, makeExercise, math, operands, ordre, redraw, resultLine, saisie, sg, signBox, signed, stepped, text,
+  trou,
 } from './shared';
 
 const ID = 'c07-multiplier-plusieurs';
@@ -45,6 +46,11 @@ const errors = buildErrors(
       draw: (level, rng) =>
         product(level, redraw(() => drawFactors(level, rng, MAX[level]), (xs) => [2, 4].includes(negatives(xs)))),
       sample: (ex) => -ex.answer.n,
+      // −2 × 3 × (−4) = −(2 × 3 × 4) = −24
+      wrongLines: (ex, w) => {
+        const xs = operands(ex.expr).map(Math.abs);
+        return w === -ex.answer.n ? stepped(ex, `${sg(w)}(${xs.join(' \\times ')})`, w) : null;
+      },
     },
     {
       id: 'addition-au-lieu-multiplication',
@@ -57,6 +63,15 @@ const errors = buildErrors(
       alsoWrong: (ex) => {
         const sizes = operands(ex.expr).reduce((s, x) => s + Math.abs(x), 0);
         return [sizes, -sizes];
+      },
+      // −2 × 3 × (−4) = −2 + 3 + (−4) = −3, or = +(2 + 3 + 4) = 9 (the sign rule kept, the sizes added)
+      wrongLines: (ex, w) => {
+        const xs = operands(ex.expr);
+        if (w === sum(ex)) return stepped(ex, toLatex(chain('+', xs)), w);
+        const abs = xs.map(Math.abs);
+        return Math.abs(w) === abs.reduce((s, x) => s + x, 0) && Math.sign(w) === Math.sign(ex.answer.n)
+          ? stepped(ex, `${sg(w)}(${abs.join(' + ')})`, w)
+          : null;
       },
     },
   ],

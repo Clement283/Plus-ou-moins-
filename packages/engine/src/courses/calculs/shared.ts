@@ -3,7 +3,7 @@ import { type Expr, evaluate, num, op, toLatex } from '../../math/expr';
 import { type Rational, eqRat, rat } from '../../math/rational';
 import { type Rng, pick, randInt } from '../../rng';
 import type { ErrorFamily } from '../../events';
-import type { CourseDef, ErrorDef, Exercise, Explanation, LessonBlock, Level, LessonPart } from '../types';
+import type { CourseDef, ErrorDef, Exercise, Explanation, LessonBlock, Level, LessonPart, WrongResolution } from '../types';
 import type { Question } from '../../exercises/types';
 
 /** Number sizes of courses 1, 2 and 4: 1–9, tens, hundreds. */
@@ -133,6 +133,24 @@ export interface ErrorSpec {
   sample(ex: Exercise): number;
   /** Other wrong answers of this error on `ex`. */
   alsoWrong?(ex: Exercise): number[];
+  /** The resolution lines of a student making this error and finding `wrong`; null if it does not fit. */
+  wrongLines?(ex: Exercise, wrong: number): string[] | null;
+}
+
+/** Sign written before a parenthesis: « − » for a negative, « + » otherwise. */
+export const sg = (x: number): string => (x < 0 ? '-' : '+');
+
+/** The calculation, one step line, then the (wrong) result. */
+export const stepped = (ex: Exercise, step: string, result: number): string[] => [
+  toLatex(ex.expr),
+  `= ${step}`,
+  `= ${toLatex(num(result))}`,
+];
+
+/** Wrong lines against the model: the first line that differs (never the calculation itself). */
+export function against(right: string[], lines: string[]): WrongResolution | null {
+  const wrongLine = lines.findIndex((l, i) => l !== right[i]);
+  return wrongLine > 0 ? { lines, wrongLine } : null;
 }
 
 /**
@@ -154,6 +172,14 @@ export function buildErrors(specs: ErrorSpec[], resolution: (ex: Exercise) => st
       [...new Set([s.sample(ex), ...(s.alsoWrong?.(ex) ?? [])])]
         .filter((x) => diagnosedAs(s.id, ex, x))
         .map((x) => rat(x)),
+    ...(s.wrongLines
+      ? {
+          wrongResolution: (ex: Exercise, wrong: Rational) => {
+            const lines = wrong.d === 1 ? s.wrongLines?.(ex, wrong.n) : null;
+            return lines ? against(resolution(ex), lines) : null;
+          },
+        }
+      : {}),
   }));
   return errors;
 }

@@ -4,7 +4,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, SIZES, buildErrors, chance, draw, exemple, explanation, explication, is,
-  isOpposite, lecon, makeExercise, math, operands, redraw, resultLine, saisie, signed, text, toText, trou,
+  isOpposite, lecon, makeExercise, math, operands, redraw, resultLine, saisie, signed, stepped, text, toText, trou,
 } from './shared';
 
 const ID = 'c04-soustraire';
@@ -34,6 +34,9 @@ const errors = buildErrors(
       // a smaller than b, e.g. 3 − 8
       draw: (level, rng) => redraw(() => generate(level, rng), (ex) => ex.answer.n < 0),
       sample: (ex) => -ex.answer.n,
+      // 3 − 7 = 3 + (−7) = 4: the transformation is right, the final sign wrong
+      wrongLines: (ex, w) =>
+        ex.answer.n !== 0 && w === -ex.answer.n ? stepped(ex, toLatex(asAddition(ex)), w) : null,
     },
     {
       id: 'oppose-oublie',
@@ -43,6 +46,12 @@ const errors = buildErrors(
       // b negative, e.g. 6 − (−4)
       draw: (level, rng) => diff(level, someSigned(level, rng), -draw(rng, SIZES[level])),
       sample: (ex) => operands(ex.expr).reduce((s, x) => s + x, 0),
+      // 5 − (−3) = 5 − 3 = 2 ; 3 − 7 = 3 + 7 = 10: the sign of b not changed
+      wrongLines: (ex, w) => {
+        const [a, b] = operands(ex.expr) as [number, number];
+        if (w !== a + b) return null;
+        return stepped(ex, toLatex(b < 0 ? op('-', num(a), num(-b)) : op('+', num(a), num(b))), w);
+      },
     },
   ],
   resolution,

@@ -4,7 +4,7 @@ import type { Rng } from '../../rng';
 import type { CourseDef, Exercise, Level } from '../types';
 import {
   MODULE_ID, SIGN_CLASSES, absIs, buildErrors, draw, exemple, explanation, explication, isOpposite, lecon,
-  makeExercise, math, operands, ordre, resultLine, saisie, signBox, signed, signs, text, trou,
+  makeExercise, math, operands, ordre, resultLine, saisie, sg, signBox, signed, signs, stepped, text, trou,
 } from './shared';
 
 const ID = 'c06-diviser-deux';
@@ -40,6 +40,11 @@ const errors = buildErrors(
       text: () => 'Même règle que pour × : signes pareils → + ; différents → −.',
       draw: (level, rng) => drawDivision(level, rng, QUOTIENT[level], [true, true]),
       sample: (ex) => -ex.answer.n,
+      // −12 ÷ 4 = +(12 ÷ 4) = 3
+      wrongLines: (ex, w) => {
+        const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
+        return w === -ex.answer.n ? stepped(ex, `${sg(w)}(${a} \\div ${b})`, w) : null;
+      },
     },
     {
       id: 'multiplication-au-lieu-division',
@@ -50,6 +55,13 @@ const errors = buildErrors(
       draw: (level, rng) => drawDivision(level, rng, [QUOTIENT[level][0], QUOTIENT[level][0] + 2], signs(rng)),
       sample: (ex) => operands(ex.expr).reduce((p, x) => p * x, 1),
       alsoWrong: (ex) => [-operands(ex.expr).reduce((p, x) => p * x, 1)],
+      // −12 ÷ 4 = −(12 × 4) = −48: the sign rule kept, the sizes multiplied
+      wrongLines: (ex, w) => {
+        const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
+        return Math.abs(w) === a * b && Math.sign(w) === Math.sign(ex.answer.n)
+          ? stepped(ex, `${sg(w)}(${a} \\times ${b})`, w)
+          : null;
+      },
     },
   ],
   resolution,

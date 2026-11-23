@@ -33,18 +33,21 @@ const totals = (ex: Exercise): [number, number] => {
 };
 const sizeSum = (ex: Exercise): number => operands(ex.expr).reduce((s, x) => s + Math.abs(x), 0);
 
-function resolution(ex: Exercise): string[] {
-  const xs = operands(ex.expr);
-  const [p, n] = totals(ex);
+/** The calculation, its terms `xs` grouped (positives then negatives), their two totals, then `result`. */
+function grouping(ex: Exercise, xs: number[], result: number): string[] {
+  const p = xs.filter((x) => x > 0).reduce((s, x) => s + x, 0);
+  const n = xs.filter((x) => x < 0).reduce((s, x) => s + x, 0);
   const bodies = [
     toLatex(ex.expr),
     toLatex(chain('+', [...xs.filter((x) => x > 0), ...xs.filter((x) => x < 0)])),
-    toLatex(op('+', num(p), num(n))),
-    toLatex(num(ex.answer)),
+    ...(p !== 0 && n !== 0 ? [toLatex(op('+', num(p), num(n)))] : []),
+    toLatex(num(result)),
   ];
   // an already grouped calculation does not repeat its first line
   return bodies.filter((b, i) => i === 0 || b !== bodies[i - 1]).map((b, i) => (i === 0 ? b : `= ${b}`));
 }
+
+const resolution = (ex: Exercise): string[] => grouping(ex, operands(ex.expr), ex.answer.n);
 
 /** The smallest size of the level, for a term that is easy to forget (doc: 1 or −1). */
 const smallest = (level: Level): number => RANGE[level][0];
@@ -67,6 +70,9 @@ const errors = buildErrors(
           },
         ),
       sample: (ex) => -ex.answer.n,
+      // … = 5 + (−6) = 1: only the final sign is wrong
+      wrongLines: (ex, w) =>
+        ex.answer.n !== 0 && w === -ex.answer.n ? [...resolution(ex).slice(0, -1), `= ${toLatex(num(w))}`] : null,
     },
     {
       id: 'tout-additionne',
@@ -77,6 +83,14 @@ const errors = buildErrors(
         redraw(() => generate(level, rng), (ex) => operands(ex.expr).filter((x) => x < 0).length >= 2),
       sample: sizeSum,
       alsoWrong: (ex) => [-sizeSum(ex)],
+      // … = 5 + (−2) + (−4) = −(5 + 6) = −11: the negatives added to the positives, the winner's sign kept
+      wrongLines: (ex, w) => {
+        const [p, n] = totals(ex);
+        const r = ex.answer.n;
+        if (w !== (r < 0 ? -sizeSum(ex) : sizeSum(ex))) return null;
+        const step = r < 0 ? `-(${p} + ${-n})` : `${p} + ${-n}`;
+        return [...resolution(ex).slice(0, -2), `= ${step}`, `= ${toLatex(num(w))}`];
+      },
     },
     {
       id: 'terme-oublie',
@@ -96,6 +110,12 @@ const errors = buildErrors(
       // the term of smallest size forgotten (a trap has one of the level's smallest size)
       sample: (ex) => ex.answer.n - (operands(ex.expr).sort((x, y) => Math.abs(x) - Math.abs(y))[0] as number),
       alsoWrong: (ex) => operands(ex.expr).map((t) => ex.answer.n - t),
+      // −2 + 5 + (−4) = −2 + (−4) = −6: the regrouping drops a term
+      wrongLines: (ex, w) => {
+        const xs = operands(ex.expr);
+        const k = xs.findIndex((t) => ex.answer.n - t === w);
+        return k < 0 ? null : grouping(ex, xs.filter((_, i) => i !== k), w);
+      },
     },
   ],
   resolution,

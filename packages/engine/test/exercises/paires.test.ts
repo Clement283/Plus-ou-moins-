@@ -40,8 +40,9 @@ describe('Relier les paires (doc 04 §5)', () => {
     const o = checkAnswer(C(5), q, { pairs: [[0, at(-12)], ...right] });
     expect([o.correct, o.errorType, o.errorFamily]).toEqual([false, 'regle-signes', 'signe']);
     expect(checkParts(C(5), q, { pairs: [[0, at(-12)], ...right] }).map((p) => p.correct)).toEqual([false, true, true, true, true]);
-    // not finished: not right
-    expect(checkAnswer(C(5), q, { pairs: right.slice(0, 3) }).correct).toBe(false);
+    // not finished: not an answer to the exercise
+    expect(() => checkAnswer(C(5), q, { pairs: right.slice(0, 3) })).toThrow(/incomplète/);
+    expect(() => checkAnswer(C(5), q, { pairs: [[0, at(-12)]] })).toThrow(/incomplète/);
   });
 
   it('1 000 draws per course: 4 calculations of the course, 4 results all different', () => {

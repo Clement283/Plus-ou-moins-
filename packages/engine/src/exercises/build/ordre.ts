@@ -2,18 +2,19 @@
 import { pick, shuffle } from '../../rng';
 import type { CourseDef, Exercise } from '../../courses/types';
 import type { BuildCtx, Question } from '../types';
-import { drawExercise, errorOf, retry } from './common';
-import { wrongResolution } from './erreur';
+import { errorOf } from '../../courses/errors-util';
+import { drawExercise, retry } from './common';
+import { resolutionWith } from './erreur';
 
 /** A trap tile from the 3rd time on this course (seen twice already). */
 const TRAP_FROM_TIMES_SEEN = 2;
 
-/** A wrong last line « = w » produced by an error of the course (the asked one when given). */
+/** The wrong result line « = w » of a resolution showing an error of the course (the asked one when given). */
 function trapTiles(course: CourseDef, ctx: BuildCtx, ex: Exercise, lines: string[]): { latex: string; errorType: string }[] {
   const asked = errorOf(course, ctx.trapErrorType);
   return (asked ? [asked] : course.errors).flatMap((error) =>
     error.wrongValues(ex).flatMap((w) => {
-      const wrong = wrongResolution(course, ex, w);
+      const wrong = resolutionWith(course, error, ex, w);
       const latex = wrong?.lines[wrong.lines.length - 1];
       // never a tile that is also right or already there
       return latex !== undefined && !lines.includes(latex) ? [{ latex, errorType: error.id }] : [];
