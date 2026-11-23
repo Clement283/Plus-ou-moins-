@@ -39,3 +39,9 @@ Tests : `npm test` (moteur 506, web 9, api 9, scripts 7).
 
 ## Petits points différés (non bloquants)
 Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en O(n) par événement, « 3−(4) » encore « moins après » (proposé : écriture invalide, en attente du porteur du projet), quelques tests à resserrer.
+
+## Reprendre : développement des écrans (nouvelle session)
+1. Lire ce fichier, le plan, `docs/validation/01` à `08` (08 et 07 priment), `docs/design/design-system/README.md` et `docs/design/ecrans/BRIEF.md` + les pages d'écrans.
+2. Mettre à jour le plan (superpowers:writing-plans) : remplacer les parties UI des tâches 6, 7, 10, 13, 14 par des tâches d'écrans qui suivent les maquettes validées et le design system (tokens dans `apps/web/src/theme.css`), en s'appuyant sur les fonctions du moteur déjà construites (`@pom/engine` : buildQuestion/checkAnswer, readRaw/pressKey, createActivity/answer/skip, nextReviewSession, trainingSeries, foldProgress/applyEvent, dailyTime, computeDashboard) et sur `apps/web/src/store/sync.ts`.
+3. Exécuter avec superpowers:subagent-driven-development (un assistant code, un autre vérifie), relecture visuelle sur téléphone avec le plugin UI Design Review.
+4. Puis tâche 15 (déploiement Cloudflare, accès du porteur du projet via le formulaire de secrets) et relecture finale de toute la branche.
