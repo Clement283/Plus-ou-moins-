@@ -3,6 +3,7 @@ import { useRoute } from './router';
 import { useSession } from './store/progress';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
+import EssaiClavier from './screens/EssaiClavier';
 
 /** Écran élève encore absent : composant vide temporaire (remplacé par les tâches 23 à 25). */
 function Empty({ name }: { name: string }) {
@@ -11,7 +12,10 @@ function Empty({ name }: { name: string }) {
 
 function StudentRoutes() {
   const route = useRoute();
-  if (route.name === 'essai') return import.meta.env.DEV ? <Empty name={`essai-${route.what}`} /> : <Empty name="accueil" />;
+  if (route.name === 'essai') {
+    if (!(import.meta.env.DEV || import.meta.env.VITE_ESSAI === '1')) return <Empty name="accueil" />;
+    return route.what === 'clavier' ? <EssaiClavier /> : <Empty name={`essai-${route.what}`} />;
+  }
   return <Empty name={route.name} />;
 }
 

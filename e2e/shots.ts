@@ -55,6 +55,13 @@ async function typeCode(page: Page, code: string, submit = false): Promise<void>
   if (submit) await page.click('button[type=submit]');
 }
 
+/** Touche les touches du clavier maths, dans l'ordre (libellé affiché ou aria-label). */
+async function tapKeys(page: Page, ...labels: string[]): Promise<void> {
+  for (const l of labels) await page.click(`.keypad button[aria-label="${l}"], .keypad button:text-is("${l}")`);
+  // Le curseur clignote : on le fige (visible) pour que la capture soit stable.
+  await page.addStyleTag({ content: '.answer__caret{animation:none!important}' });
+}
+
 /** Registre des écrans : les tâches d'écran y ajoutent une entrée. */
 export const SCREENS: Record<string, ScreenDef> = {
   login: {
@@ -75,6 +82,16 @@ export const SCREENS: Record<string, ScreenDef> = {
       },
     ],
   },
+  clavier: {
+    route: '#/essai/clavier',
+    scenarios: [
+      { name: 'rien-ecrit', fixture: 'debut-de-journee', before: (page) => tapKeys(page) },
+      { name: 'nombre-negatif', fixture: 'debut-de-journee', before: (page) => tapKeys(page, '−', '8') },
+      { name: 'fraction-en-cours', fixture: 'debut-de-journee', before: (page) => tapKeys(page, 'fraction', '−', '1', '2', 'case suivante') },
+      { name: 'fraction-finie', fixture: 'debut-de-journee', before: (page) => tapKeys(page, 'fraction', '−', '1', '2', 'case suivante', '4', 'case suivante') },
+      { name: 'fraction-vide-validee', fixture: 'debut-de-journee', before: async (page) => { await tapKeys(page, 'fraction', 'Valider'); } },
+    ],
+  },
 };
 
 // --- serveur ---------------------------------------------------------------
@@ -92,7 +109,7 @@ function freePort(): Promise<number> {
 
 async function startPreview(): Promise<{ url: string; stop: () => void }> {
   if (!process.env.SHOTS_NO_BUILD) {
-    const b = spawnSync('npm', ['run', 'build', '-w', 'web'], { cwd: ROOT, stdio: 'inherit' });
+    const b = spawnSync('npm', ['run', 'build', '-w', 'web'], { cwd: ROOT, stdio: 'inherit', env: { ...process.env, VITE_ESSAI: '1' } }); // les pages d'essai (#/essai/...) ne sont compilées que pour les captures
     if (b.status !== 0) throw new Error('La construction de apps/web a échoué.');
   }
   const port = await freePort();
