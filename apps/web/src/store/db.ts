@@ -1,5 +1,5 @@
 import { openDB, deleteDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { AppEvent } from '@pom/engine';
+import type { AppEvent, ProgressState } from '@pom/engine';
 import type { User } from '../api';
 
 export type Session = { token: string; user: User };
@@ -11,14 +11,18 @@ interface PomDB extends DBSchema {
   outbox: { key: string; value: AppEvent; indexes: { byUser: string } };
   /** Une seule entrée, clé 'current'. */
   session: { key: string; value: Session };
+  /** Cache de la progression repliée, une entrée par élève (clé = id). Simple optimisation : le repli des événements fait foi. */
+  progress: { key: string; value: ProgressCache };
 }
+
+export type ProgressCache = { build: string; state: ProgressState };
 
 const NAME = 'pom';
 let dbPromise: Promise<IDBPDatabase<PomDB>> | null = null;
 
 export function getDb(): Promise<IDBPDatabase<PomDB>> {
   if (!dbPromise) {
-    const p = openDB<PomDB>(NAME, 2, {
+    const p = openDB<PomDB>(NAME, 3, {
       upgrade(db, oldVersion, _newVersion, tx) {
         if (oldVersion < 1) {
           db.createObjectStore('events', { keyPath: 'id' });
@@ -28,6 +32,9 @@ export function getDb(): Promise<IDBPDatabase<PomDB>> {
         if (oldVersion < 2) {
           tx.objectStore('events').createIndex('byUser', 'userId');
           tx.objectStore('outbox').createIndex('byUser', 'userId');
+        }
+        if (oldVersion < 3) {
+          db.createObjectStore('progress');
         }
       },
     });

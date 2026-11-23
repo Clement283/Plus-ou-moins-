@@ -30,6 +30,14 @@ export async function clearSession(): Promise<void> {
 // --- abonnés (useEvents) ---------------------------------------------------
 
 const listeners = new Set<() => void>();
+/** Abonnement aux changements locaux (session, événements enregistrés). Renvoie la fonction de désabonnement. */
+export function onChange(fn: () => void): () => void {
+  listeners.add(fn);
+  return () => {
+    listeners.delete(fn);
+  };
+}
+
 function notify(): void {
   listeners.forEach((l) => l());
 }
