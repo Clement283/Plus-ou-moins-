@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from 'react';
 import { ApiError, login } from '../api';
 import { setSession } from '../store/sync';
+import { go } from '../router';
 import { Icon } from '../ui/Icon';
 
 type Status = 'repos' | 'envoi' | 'inconnu' | 'hors';
@@ -57,6 +58,7 @@ export default function Login() {
     setStatus('envoi');
     try {
       const { token, user } = await login(raw);
+      go(user.role === 'suiveur' ? { name: 'suivi' } : { name: 'accueil' });
       await setSession({ token, user });
     } catch (err) {
       setStatus(err instanceof ApiError && err.status === 0 ? 'hors' : 'inconnu');
@@ -86,7 +88,7 @@ export default function Login() {
               className="field__code"
               type="text"
               autoComplete="off"
-              autoCapitalize="characters"
+              autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
               placeholder="K7M2 9QXP"

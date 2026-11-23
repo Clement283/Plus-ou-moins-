@@ -40,7 +40,7 @@ describe('Connexion', () => {
     expect(container.querySelector('.mark')?.textContent).toBe('+ −');
     expect(button().textContent).toBe('Entrer');
     expect(button().disabled).toBe(true);
-    expect(field().getAttribute('autocapitalize')).toBe('characters');
+    expect(field().getAttribute('autocapitalize')).toBe('off');
     expect(field().getAttribute('autocomplete')).toBe('off');
     expect(field().getAttribute('spellcheck')).toBe('false');
     expect(container.querySelector('nav, .bottom-nav')).toBeNull();
@@ -107,5 +107,18 @@ describe('Connexion', () => {
     await screen.findByText(/n'existe pas/);
     type('abcde');
     expect(screen.queryByText(/n'existe pas/)).toBeNull();
+  });
+
+  it.each([
+    ['eleve', '#/cours', '#/'],
+    ['suiveur', '#/cours', '#/suivi'],
+  ] as const)('après connexion (%s) : le hash passe à %s', async (role, stale, expected) => {
+    stubLogin(() => json({ token: 'tok', user: { ...USER, role } }));
+    window.location.hash = stale;
+    render(<Login />);
+    type('k7m2 9qxp');
+    await act(async () => fireEvent.click(button()));
+    await waitFor(async () => expect(await getSession()).toBeDefined());
+    expect(window.location.hash).toBe(expected);
   });
 });
