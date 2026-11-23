@@ -6,3 +6,5 @@ export * from './events';
 export * from './input/raw';
 export * from './courses';
 export type { Answer, BuildCtx, Outcome, Question } from './exercises/types';
+export { buildQuestion } from './exercises/build';
+export { checkAnswer, checkParts } from './exercises/check';

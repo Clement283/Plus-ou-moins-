@@ -1,4 +1,4 @@
-// Question, answer and outcome types (Task 9 interfaces). Builders and checking live in Task 9.
+// Question, answer and outcome types. Builders: ./build; checking: ./check.
 import type { ErrorFamily } from '../events';
 import type { RawInput } from '../input/raw';
 import type { Rational } from '../math/rational';
@@ -36,6 +36,11 @@ export interface BuildCtx {
   trapErrorType?: string;
 }
 
+/**
+ * - `pairs` (« Relier les paires »): every pair she tried, in order, wrong ones included;
+ * - `classes` (« Classer »): `classes[i]` = the box where she first put calculation i.
+ * Both tell the first try, so the exercise is right only if everything was right at once.
+ */
 export type Answer =
   | { raw: RawInput }
   | { choice: number }
