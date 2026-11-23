@@ -23,6 +23,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
 .col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
 .col .label{font:600 14px var(--font-body);color:var(--muted)}
 .device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.scrollbody>*{flex:none}
 .scrollbody{flex:1;min-height:0;overflow:auto;padding:var(--sp-20) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--gap-section)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
 .legend{max-width:620px;margin-top:28px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
@@ -318,6 +319,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
     b.querySelectorAll('[data-mode]').forEach(function(x){ x.addEventListener('click',function(){ mode=x.getAttribute('data-mode'); pressed('data-s3', mode==='tout'?'tout':(Object.keys(sel).length?'choix':'aucun')); draw(false); }); });
     b.querySelectorAll('[data-c]').forEach(function(x){ x.addEventListener('change',function(){ if(x.checked) sel[x.getAttribute('data-c')]=true; else delete sel[x.getAttribute('data-c')]; pressed('data-s3', Object.keys(sel).length?'choix':'aucun'); $('note3').textContent=N3[Object.keys(sel).length?'choix':'aucun']; var m=Object.keys(sel).length; f.innerHTML='<p class="t-caption" style="text-align:center">'+(m===0?'Choisis au moins un cours':(m===1?'1 cours retenu, 10 questions':m+' cours retenus, 10 questions'))+'</p><button class="btn btn--contained btn--block" type="button"'+(m===0?' disabled':'')+'>Commencer l\'entraînement</button>'; }); });
   }
+  document.querySelectorAll('[data-s3]').forEach(function(b){ b.addEventListener('click',function(){ s3(b.getAttribute('data-s3')); }); });
   s1('vide'); s2('encours'); s3('tout');
 })();
 </script>
