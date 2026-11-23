@@ -25,7 +25,7 @@ Tests : `npm test` (moteur 506, web 9, api 9, scripts 7).
 - Composants créés dans les pages d'écrans, à intégrer au design system au moment du codage (voir les comptes rendus : ligne de cours repliable, calendrier de points, cases à remplir, étiquettes à classer, écran de résultat, etc.).
 
 ## Reste à faire
-1. **Étape design** : écrans validés (voir ci-dessus). Reste : icônes de l'appli (PWA), et répondre aux « Questions pour toi » en bas de chaque page d'écran avant de coder l'écran concerné.
+1. **Étape design** : écrans validés (voir ci-dessus). Icône de l'appli validée (option A « ± », fichiers dans `apps/web/public/icons/`, manifeste branché). Reste : répondre aux « Questions pour toi » en bas de chaque page d'écran avant de coder l'écran concerné.
 2. Écrans (parties UI des tâches 6, 7, 10, 13, 14) une fois le design validé.
 3. Tâche 15 : déploiement Cloudflare (accès au compte du porteur du projet requis) et comptes réels.
 4. Relecture finale de toute la branche.
