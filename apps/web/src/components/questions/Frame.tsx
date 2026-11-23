@@ -11,18 +11,21 @@ export type QProps<K extends Question['kind']> = {
   header?: ReactNode;
   /** En bas une fois la question verrouillée (explication et « Continuer », posés par l'écran). */
   footer?: ReactNode;
+  /** Sous le champ de réponse, question encore ouverte (retour « Simplifie »). */
+  notice?: ReactNode;
 };
 
 /**
  * Cadre commun d'une question : le corps (`.q-body`) puis, en bas, le clavier ou « Valider » tant qu'elle est ouverte,
  * le pied de l'écran (`footer`) une fois verrouillée.
  */
-export function QFrame({ header, footer, locked, foot, children }: { header?: ReactNode; footer?: ReactNode; locked: boolean; foot?: ReactNode; children: ReactNode }) {
+export function QFrame({ header, footer, locked, foot, notice, children }: { header?: ReactNode; footer?: ReactNode; locked: boolean; foot?: ReactNode; notice?: ReactNode; children: ReactNode }) {
   return (
     <>
       <div className="q-body">
         {header}
         {children}
+        {!locked && notice}
       </div>
       {locked ? footer && <div className="q-foot">{footer}</div> : foot}
     </>

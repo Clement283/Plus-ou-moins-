@@ -22,6 +22,8 @@ export interface QuestionViewProps {
   header?: ReactNode;
   /** En bas une fois verrouillée (explication, « Continuer »). Remplace le clavier ou « Valider ». */
   footer?: ReactNode;
+  /** Sous le champ de réponse tant que la question reste ouverte (types à saisie : retour « Simplifie »). */
+  notice?: ReactNode;
 }
 
 /**
@@ -29,8 +31,8 @@ export interface QuestionViewProps {
  * de correction sur place. Ni explication ni « Continuer » : c'est l'écran appelant qui les pose (`footer`).
  * À remonter avec une `key` par question : la saisie en cours appartient au composant.
  */
-export function QuestionView({ question: q, course, locked, onAnswer, header, footer }: QuestionViewProps) {
-  const common = { course, locked, onAnswer, header, footer };
+export function QuestionView({ question: q, course, locked, onAnswer, header, footer, notice }: QuestionViewProps) {
+  const common = { course, locked, onAnswer, header, footer, notice };
   switch (q.kind) {
     case 'saisie': return <Saisie q={q} {...common} />;
     case 'trou': return <Trou q={q} {...common} />;
