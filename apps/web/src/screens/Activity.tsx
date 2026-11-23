@@ -231,7 +231,8 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const footer =
     view.phase === 'feedback' ? (
       <>
-        <FeedbackPanel feedback={view.feedback} note={view.note ?? undefined} />
+        <FeedbackPanel feedback={view.feedback} />
+        {view.note && <p className="t-caption">{view.note}</p>}
         <button className="btn btn--contained btn--block" type="button" onClick={() => advance(state)}>
           Continuer
         </button>

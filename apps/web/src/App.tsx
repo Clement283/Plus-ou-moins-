@@ -10,6 +10,7 @@ const ESSAI = import.meta.env.DEV || import.meta.env.VITE_ESSAI === '1';
 /** Page d'essai chargée à la demande : absente du paquet de production (la condition est connue à la construction). */
 const EssaiQuestions = ESSAI ? lazy(() => import('./screens/EssaiQuestions')) : null;
 const EssaiRetour = ESSAI ? lazy(() => import('./screens/EssaiRetour')) : null;
+const EssaiActivite = ESSAI ? lazy(() => import('./screens/EssaiActivite')) : null;
 const EssaiLecon = ESSAI ? lazy(() => import('./screens/EssaiLecon')) : null;
 
 /** Écran élève encore absent : composant vide temporaire (remplacé par les tâches 23 à 25). */
@@ -25,6 +26,7 @@ function StudentRoutes() {
     if (EssaiQuestions && route.what.split('?')[0] === 'questions') return <Suspense fallback={null}><EssaiQuestions /></Suspense>;
     if (EssaiRetour && route.what.split('?')[0] === 'retour') return <Suspense fallback={null}><EssaiRetour /></Suspense>;
     if (EssaiLecon && route.what.split('?')[0] === 'lecon') return <Suspense fallback={null}><EssaiLecon /></Suspense>;
+    if (EssaiActivite && route.what.split('?')[0] === 'activite') return <Suspense fallback={null}><EssaiActivite /></Suspense>;
     return <Empty name={`essai-${route.what}`} />;
   }
   return <Empty name={route.name} />;

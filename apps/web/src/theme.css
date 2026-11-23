@@ -554,6 +554,7 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 /* ---- exercices (exercices.html) ---- */
 .q-body.is-scroll{overflow:auto}
 .q-foot{display:grid;gap:var(--gap-related);padding:0 var(--layout-gutter) var(--sp-16)}
+.q-foot>.t-caption{text-align:center}
 .q-body .answer{flex:none}
 .answer .frac .is-slot{min-width:32px}
 .hole{display:inline-grid;place-items:center;min-width:64px;height:64px;vertical-align:middle;border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 2px var(--primary);margin:0 var(--sp-4)}

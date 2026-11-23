@@ -67,6 +67,19 @@ async function freezeCaret(page: Page): Promise<void> {
   await page.addStyleTag({ content: '.answer__caret{animation:none!important}' });
 }
 
+/**
+ * Joue la séance d'essai « activite » : un nombre = toucher le choix de ce rang, 'c' = « Continuer », 'p' = « Passer ».
+ * Séance : Q0 (−3 × (−4), mal répondue avec le choix 4), Q1, Q2, puis le « même genre », Q3 et la répétition de Q0.
+ */
+async function play(page: Page, moves: (number | 'c' | 'p')[]): Promise<void> {
+  for (const m of moves) {
+    if (m === 'c') await page.click('button:text-is("Continuer")');
+    else if (m === 'p') await page.click('button:text-is("Passer")');
+    else await page.click(`.choice-grid .choice:nth-child(${m})`);
+    await page.waitForTimeout(80);
+  }
+}
+
 /** Registre des écrans : les tâches d'écran y ajoutent une entrée. */
 export const SCREENS: Record<string, ScreenDef> = {
   login: {
@@ -139,6 +152,21 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'c07-compter-les-moins', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c07&part=0', before: (page) => page.waitForTimeout(4000) },
       { name: 'c01-droite-graduee-finale', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c01&part=0', before: async (page) => { await page.waitForSelector('.number-line[data-state="final"]', { timeout: 6000 }); await page.waitForTimeout(1200); } },
       { name: 'c02-droite-graduee-finale', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c02&part=0', before: async (page) => { await page.waitForSelector('.number-line[data-state="final"]', { timeout: 6000 }); await page.waitForTimeout(1200); } },
+    ],
+  },
+  activite: {
+    route: '#/essai/activite?cas=revision',
+    scenarios: [
+      { name: 'question', fixture: 'debut-de-journee', before: (page) => play(page, []) },
+      { name: 'qcm-rate', fixture: 'debut-de-journee', before: (page) => play(page, [4]) },
+      { name: 'meme-genre', fixture: 'debut-de-journee', before: (page) => play(page, [4, 'c', 2, 'c', 2, 'c']) },
+      { name: 'repetition', fixture: 'debut-de-journee', before: (page) => play(page, [4, 'c', 2, 'c', 2, 'c', 1, 'c', 2, 'c']) },
+      { name: 'echec2', fixture: 'debut-de-journee', before: (page) => play(page, [4, 'c', 2, 'c', 2, 'c', 1, 'c', 2, 'c', 4]) },
+      { name: 'troisieme-passer', fixture: 'debut-de-journee', before: (page) => play(page, [4, 'c', 2, 'c', 2, 'c', 1, 'c', 2, 'c', 4, 'c']) },
+      { name: 'apres-passer', fixture: 'debut-de-journee', before: (page) => play(page, [4, 'c', 2, 'c', 2, 'c', 1, 'c', 2, 'c', 4, 'c', 'p']) },
+      { name: 'quitter', fixture: 'debut-de-journee', before: async (page) => { await page.click('.appbar .icon-btn'); await page.waitForSelector('[role=dialog]'); } },
+      { name: 'simplifie', fixture: 'debut-de-journee', route: '#/essai/activite?cas=simplifie', before: async (page) => { await tapKeys(page, 'fraction', '−', '1', '2', 'case suivante', '4', 'Valider'); await page.waitForSelector('.alert--info'); } },
+      { name: 'mal-ecrite', fixture: 'debut-de-journee', route: '#/essai/activite?cas=ecriture', before: async (page) => { await tapKeys(page, '8', '−', 'Valider'); await page.waitForSelector('.alert--error'); } },
     ],
   },
   questions: {
