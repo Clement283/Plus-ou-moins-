@@ -345,15 +345,23 @@ export function reviewItems(session: ReviewSession): QuestionItem[] {
   return session.items.map(({ courseId, question }, i) => ({ type: 'question', itemId: `revision-${i}`, courseId, activity: 'revision', question }));
 }
 
+/** Doc 08 #1: the courses that can be trained are the validated ones and those to catch up (course order). */
+export function trainingPool(state: ProgressState): string[] {
+  return Object.values(state.courses)
+    .filter((c) => c.status === 'valide' || c.status === 'a-rattraper')
+    .map((c) => c.courseId);
+}
+
 /**
- * Doc 03 §5: a series of 10 questions on the validated courses (« tout mélangé »: a random validated
- * course for each question) or on one chosen validated course; any kind the course can build, at
+ * Doc 03 §5, doc 08 #1 and #3: a series of 10 questions on the trainable courses (validated or to
+ * catch up; « tout mélangé »: a random one for each question) or on the chosen ones (one or several);
+ * any kind the course can build, at
  * a level drawn uniformly among 1, 2 and 3 for each question (doc 07 #15B, not the course's level). Never changes the schedule (srs ignores 'entrainement').
  */
-export function trainingSeries(state: ProgressState, choice: 'tout' | { courseId: string }, rng: Rng): QuestionItem[] {
-  const validated = Object.values(state.courses).filter((c) => c.status === 'valide').map((c) => c.courseId);
-  const pool = choice === 'tout' ? validated : validated.filter((id) => id === choice.courseId);
-  if (pool.length === 0) throw new Error(choice === 'tout' ? 'Aucun cours validé' : `Cours non validé : ${choice.courseId}`);
+export function trainingSeries(state: ProgressState, choice: 'tout' | { courseIds: string[] }, rng: Rng): QuestionItem[] {
+  const trainable = trainingPool(state);
+  const pool = choice === 'tout' ? trainable : trainable.filter((id) => choice.courseIds.includes(id));
+  if (pool.length === 0) throw new Error(choice === 'tout' ? 'Aucun cours à travailler' : `Cours non disponible : ${choice.courseIds.join(', ')}`);
   return Array.from({ length: TRAINING_SERIES_LENGTH }, (_, i) => {
     const courseId = pick(rng, pool);
     const course = getCourse(courseId);

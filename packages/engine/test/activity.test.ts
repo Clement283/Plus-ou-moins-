@@ -22,6 +22,7 @@ import {
   rattrapageItems,
   reviewItems,
   skip,
+  trainingPool,
   trainingSeries,
   type ActivityItem,
   type ActivityState,
@@ -560,7 +561,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
   it('un cours au choix : uniquement ce cours (niveaux mélangés, pas celui du cours)', () => {
     const { state } = validatedState([C1, C5]);
     const leveled: ProgressState = { ...state, courses: { ...state.courses, [C5]: { ...state.courses[C5]!, step: 3, level: LADDER[3].level } } };
-    const items = trainingSeries(leveled, { courseId: C5 }, seededRng(1));
+    const items = trainingSeries(leveled, { courseIds: [C5] }, seededRng(1));
     expect(items).toHaveLength(10);
     expect(items.every((x) => x.courseId === C5)).toBe(true);
   });
@@ -584,7 +585,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
 
   it('cours non validé ou aucun cours validé : erreur', () => {
     const { state } = validatedState([C1]);
-    expect(() => trainingSeries(state, { courseId: C5 }, seededRng(1))).toThrow();
+    expect(() => trainingSeries(state, { courseIds: [C5] }, seededRng(1))).toThrow();
     expect(() => trainingSeries(foldProgress([]), 'tout', seededRng(1))).toThrow();
   });
 
@@ -596,5 +597,33 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
     const { events } = play(s, Object.fromEntries(items.map((x) => [`${x.itemId}:original`, [ko()]])));
     const after = foldProgress([...before, ...stamp(events, addDays(DAY, 2))]);
     expect(after.courses[C5]).toMatchObject({ step: 0, nextReview: addDays(DAY, 2), reviewHistory: [] });
+  });
+});
+
+describe('entraînement : cours à rattraper et sélection (doc 08 n° 1 et 3)', () => {
+  it('trainingPool : cours validés et à rattraper, dans l’ordre des cours', () => {
+    const { state } = validatedState([IDS[0]!, IDS[1]!, IDS[2]!]);
+    const c3 = IDS[3]!;
+    const withC3: ProgressState = { ...state, courses: { ...state.courses, [c3]: { ...state.courses[c3]!, status: 'a-rattraper' } } };
+    expect(trainingPool(withC3)).toEqual(IDS.slice(0, 4));
+    expect(trainingPool(state)).toEqual(IDS.slice(0, 3));
+  });
+  it('un cours à rattraper : 10 questions de ce cours', () => {
+    const { state } = validatedState([IDS[0]!]);
+    const c3 = IDS[3]!;
+    const withC3: ProgressState = { ...state, courses: { ...state.courses, [c3]: { ...state.courses[c3]!, status: 'a-rattraper' } } };
+    const items = trainingSeries(withC3, { courseIds: [c3] }, seededRng(1));
+    expect(items).toHaveLength(10);
+    expect(items.every((x) => x.courseId === c3)).toBe(true);
+  });
+  it('plusieurs cours choisis : uniquement ces cours ; « tout » inclut les cours à rattraper', () => {
+    const { state } = validatedState([C0, C1, C5]);
+    const items = trainingSeries(state, { courseIds: [C0, C5] }, seededRng(2));
+    expect(new Set(items.map((x) => x.courseId))).toEqual(new Set([C0, C5]));
+    const c3 = IDS[3]!;
+    const withC3: ProgressState = { ...state, courses: { ...state.courses, [c3]: { ...state.courses[c3]!, status: 'a-rattraper' } } };
+    const seen = new Set<string>();
+    for (let seed = 0; seed < 40; seed++) for (const x of trainingSeries(withC3, 'tout', seededRng(seed))) seen.add(x.courseId);
+    expect(seen.has(c3)).toBe(true);
   });
 });

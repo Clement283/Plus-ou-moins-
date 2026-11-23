@@ -187,6 +187,13 @@ function countErrors(wrong: Answer[]): (ErrorCount & { latest: Answer[] })[] {
   return [...byType.values()].sort((a, b) => b.count - a.count || b.latest[0]!.at - a.latest[0]!.at);
 }
 
+/** Doc 05 §1: consecutive days with the daily goal reached, ending today (or yesterday while today is not done). */
+export function streakOf(events: AppEvent[], today: string): number {
+  let streak = 0;
+  for (let day = dailyTime(events, today).goalReached ? today : addDays(today, -1); dailyTime(events, day).goalReached; day = addDays(day, -1)) streak++;
+  return streak;
+}
+
 export function computeDashboard(events: AppEvent[], today: string): Dashboard {
   const progress = foldProgress(events);
   const all = progress.journal.events; // sorted by time, without duplicate ids
@@ -226,8 +233,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
     return { day, mark, totalMs, reviewMs, courseMs, trainingMs };
   });
   const todayTime = dailyTime(all, today);
-  let streak = 0;
-  for (let day = todayTime.goalReached ? today : addDays(today, -1); dailyTime(all, day).goalReached; day = addDays(day, -1)) streak++;
+  const streak = streakOf(all, today);
 
   // Per course: the 14-day success and « en difficulté ».
   const struggling = new Map<string, ToRework>();

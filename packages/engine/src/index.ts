@@ -13,3 +13,5 @@ export * from './dashboard';
 export type { Answer, BuildCtx, Outcome, Question } from './exercises/types';
 export { buildQuestion } from './exercises/build';
 export { checkAnswer, checkParts } from './exercises/check';
+export * from './home';
+export * from './feedback';
