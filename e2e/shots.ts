@@ -62,6 +62,11 @@ async function tapKeys(page: Page, ...labels: string[]): Promise<void> {
   await page.addStyleTag({ content: '.answer__caret{animation:none!important}' });
 }
 
+/** Fige le curseur de saisie (visible) pour que la capture soit stable. */
+async function freezeCaret(page: Page): Promise<void> {
+  await page.addStyleTag({ content: '.answer__caret{animation:none!important}' });
+}
+
 /** Registre des écrans : les tâches d'écran y ajoutent une entrée. */
 export const SCREENS: Record<string, ScreenDef> = {
   login: {
@@ -90,6 +95,37 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'fraction-en-cours', fixture: 'debut-de-journee', before: (page) => tapKeys(page, 'fraction', '−', '1', '2', 'case suivante') },
       { name: 'fraction-finie', fixture: 'debut-de-journee', before: (page) => tapKeys(page, 'fraction', '−', '1', '2', 'case suivante', '4', 'case suivante') },
       { name: 'fraction-vide-validee', fixture: 'debut-de-journee', before: async (page) => { await tapKeys(page, 'fraction', 'Valider'); } },
+    ],
+  },
+  questions: {
+    route: '#/essai/questions?type=saisie',
+    scenarios: [
+      ...(['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'signe', 'ecriture', 'qcm-ecriture'] as const).map((type): Shot => ({
+        name: type,
+        fixture: 'debut-de-journee',
+        route: `#/essai/questions?type=${type}`,
+        before: freezeCaret,
+      })),
+      { name: 'trou-tape', fixture: 'debut-de-journee', route: '#/essai/questions?type=trou', before: (page) => tapKeys(page, '−', '1', '2') },
+      { name: 'ordre-place', fixture: 'debut-de-journee', route: '#/essai/questions?type=ordre', before: async (page) => { await page.click('.tags .tag:nth-child(4)'); await page.click('.tags .tag:nth-child(2)'); } },
+      { name: 'paires-touche', fixture: 'debut-de-journee', route: '#/essai/questions?type=paires', before: async (page) => { await page.click('.pairs__col:first-child .tag:nth-child(1)'); } },
+      { name: 'classer-touche', fixture: 'debut-de-journee', route: '#/essai/questions?type=classer', before: async (page) => { await page.click('.stack > .tags > .tag:nth-child(1)'); } },
+      { name: 'corrige-qcm', fixture: 'debut-de-journee', route: '#/essai/questions?type=qcm', before: async (page) => { await page.click('.choice:nth-child(1)'); await page.waitForSelector('.choice.is-correct'); } },
+      { name: 'corrige-erreur', fixture: 'debut-de-journee', route: '#/essai/questions?type=erreur', before: async (page) => { await page.click('.copy-line:nth-child(3)'); await page.waitForSelector('.lesson-line--ko'); } },
+      {
+        name: 'corrige-classer',
+        fixture: 'debut-de-journee',
+        route: '#/essai/questions?type=classer',
+        before: async (page) => {
+          // −2 × 3 dans Résultat −, puis les trois autres dans Résultat + (7 × (−1) est mal rangé)
+          for (const bin of [2, 1, 1, 1]) {
+            await page.click('.stack > .tags > .tag:nth-child(1)');
+            await page.click(`.bin:nth-child(${bin}) .t-h6`);
+          }
+          await page.click('.q-foot .btn');
+          await page.waitForSelector('.tag.is-wrong');
+        },
+      },
     ],
   },
 };

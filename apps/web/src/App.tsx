@@ -1,9 +1,14 @@
+import { lazy, Suspense } from 'react';
 import { IconSprite } from './ui/icons';
 import { useRoute } from './router';
 import { useSession } from './store/progress';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
 import EssaiClavier from './screens/EssaiClavier';
+
+const ESSAI = import.meta.env.DEV || import.meta.env.VITE_ESSAI === '1';
+/** Page d'essai chargée à la demande : absente du paquet de production (la condition est connue à la construction). */
+const EssaiQuestions = ESSAI ? lazy(() => import('./screens/EssaiQuestions')) : null;
 
 /** Écran élève encore absent : composant vide temporaire (remplacé par les tâches 23 à 25). */
 function Empty({ name }: { name: string }) {
@@ -13,8 +18,10 @@ function Empty({ name }: { name: string }) {
 function StudentRoutes() {
   const route = useRoute();
   if (route.name === 'essai') {
-    if (!(import.meta.env.DEV || import.meta.env.VITE_ESSAI === '1')) return <Empty name="accueil" />;
-    return route.what === 'clavier' ? <EssaiClavier /> : <Empty name={`essai-${route.what}`} />;
+    if (!ESSAI) return <Empty name="accueil" />;
+    if (route.what === 'clavier') return <EssaiClavier />;
+    if (EssaiQuestions && route.what.split('?')[0] === 'questions') return <Suspense fallback={null}><EssaiQuestions /></Suspense>;
+    return <Empty name={`essai-${route.what}`} />;
   }
   return <Empty name={route.name} />;
 }

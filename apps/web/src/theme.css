@@ -712,3 +712,16 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .backdrop--fixed{position:fixed;z-index:100;border-radius:0}
 .backdrop--sheet{place-items:end stretch}
 .sheet{background:var(--surface);color:var(--on-surface);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:var(--sp-24) var(--layout-gutter) calc(var(--sp-24) + env(safe-area-inset-bottom,0px));box-shadow:var(--elev-3);display:grid;gap:var(--sp-12);max-height:85vh;overflow:auto}
+
+/* ---- Questions (tâche 21) : compléments aux composants de exercices.html, tokens uniquement ---- */
+.q-expr--top{flex:none;padding-top:var(--sp-16)}
+.stack--top{margin-top:var(--sp-8)}
+.hole__in{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-4);font-size:inherit}
+.hole .frac .is-slot{min-width:32px}
+.hole--error{box-shadow:inset 0 0 0 2px var(--error);background:var(--error-container)}
+.hole--success{box-shadow:inset 0 0 0 2px var(--success);background:var(--success-container)}
+.tag--piece{padding:0 var(--sp-8);min-width:var(--target-min)}
+.choice--sign{font-size:48px;min-height:88px}
+/* Un grand calcul tient dans la largeur du téléphone : il rétrécit un peu et peut passer à la ligne après un signe. */
+.q-expr .t-math-xl{font-size:clamp(28px,9.5vw,40px);white-space:normal;text-wrap:balance}
+.hole__in{padding:0 var(--sp-8)}

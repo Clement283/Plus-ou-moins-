@@ -18,17 +18,8 @@ function Box({ tokens, active, showCaret }: { tokens: readonly RawToken[]; activ
   );
 }
 
-/**
- * Champ de réponse : affiche exactement ce qui est tapé, comme sur une copie (fraction empilée).
- * Rendu en React plutôt qu'avec KaTeX (`rawToLatex`) : le LaTeX ne porte pas le curseur ni la case active.
- * Le curseur n'apparaît que pendant la saisie (état « neutre »). Aucune couleur sur les caractères.
- */
-export function RawInputView({ input, placeholder = 'Ta réponse', state = 'neutre' }: { input: RawInput; placeholder?: string; state?: RawInputState }) {
-  const typing = state === 'neutre';
-  const cls = ['answer', input.tokens.length === 0 ? 'answer--empty' : '', state === 'faux' ? 'answer--error' : '', state === 'juste' ? 'answer--success' : '']
-    .filter(Boolean)
-    .join(' ');
-
+/** Contenu d'un champ de réponse (caractères, fractions empilées, curseur), sans cadre : sert au champ et à la case d'un trou. */
+export function RawInputContent({ input, placeholder, typing }: { input: RawInput; placeholder?: string; typing: boolean }) {
   const nodes: ReactNode[] = [];
   let run = '';
   const flush = (k: number) => {
@@ -54,11 +45,26 @@ export function RawInputView({ input, placeholder = 'Ta réponse', state = 'neut
 
   const lastTok = input.tokens[input.tokens.length - 1];
   const caretAtRoot = typing && (input.cursor === 'root' || lastTok?.t !== 'frac');
+  return (
+    <>
+      {input.tokens.length === 0 ? placeholder && <span>{placeholder}</span> : nodes}
+      {caretAtRoot && <Caret />}
+    </>
+  );
+}
 
+/**
+ * Champ de réponse : affiche exactement ce qui est tapé, comme sur une copie (fraction empilée).
+ * Rendu en React plutôt qu'avec KaTeX (`rawToLatex`) : le LaTeX ne porte pas le curseur ni la case active.
+ * Le curseur n'apparaît que pendant la saisie (état « neutre »). Aucune couleur sur les caractères.
+ */
+export function RawInputView({ input, placeholder = 'Ta réponse', state = 'neutre' }: { input: RawInput; placeholder?: string; state?: RawInputState }) {
+  const cls = ['answer', input.tokens.length === 0 ? 'answer--empty' : '', state === 'faux' ? 'answer--error' : '', state === 'juste' ? 'answer--success' : '']
+    .filter(Boolean)
+    .join(' ');
   return (
     <div className={cls} aria-label={placeholder}>
-      {input.tokens.length === 0 ? <span>{placeholder}</span> : nodes}
-      {caretAtRoot && <Caret />}
+      <RawInputContent input={input} placeholder={placeholder} typing={state === 'neutre'} />
     </div>
   );
 }
