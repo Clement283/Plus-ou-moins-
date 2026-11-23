@@ -1,6 +1,6 @@
 # 07 — Décisions en attente (version détaillée)
 
-*Statut : décisions 1 à 19 prises par le porteur du projet (2026-11-23) ; 20 et 21 en attente*
+*Statut : Validé (2026-11-23) — décisions 1 à 21 prises par le porteur du projet*
 
 ## Décisions du porteur du projet
 
@@ -11,8 +11,8 @@
 | 3 | A | 10 | A | 17 | A |
 | 4 | **B** (Valider possible, « écriture invalide ») | 11 | A | 18 | **B** (28 jours) |
 | 5 | A | 12 | A | 19 | B |
-| 6 | A | 13 | A, précisé ci-dessous | 20 | *en attente* |
-| 7 | A | 14 | A | 21 | *en attente* |
+| 6 | A | 13 | A, précisé ci-dessous | 20 | A |
+| 7 | A | 14 | A | 21 | A |
 
 **Précision sur le n° 13 :** la règle vaut pour **chaque calcul séparément**. Si elle rate plusieurs calculs plusieurs fois, chacun de ces calculs, raté 2 fois, peut être passé : le bouton « Passer » n'est pas limité à un seul calcul par activité.
 
