@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins · Navigation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../design-system/styles.css">
+<script src="../design-system/theme.js"></script>
+<style>
+/* habillage de la page uniquement, les ÉCRANS n'utilisent que les classes de styles.css et les extensions ci-dessous */
+body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.head{max-width:680px;text-align:center;margin-bottom:20px}
+.head h1{font:700 26px var(--font-display);color:var(--on-surface)}
+.head p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.6}
+.states{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.states button{border:0;background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px var(--font-body);cursor:pointer;box-shadow:inset 0 0 0 1px var(--border)}
+.states button[aria-pressed="true"]{background:var(--on-surface);color:var(--surface);font-weight:600;box-shadow:none}
+.state-note{font-size:14px;color:var(--muted);text-align:center;min-height:4.2em;line-height:1.5}
+.three{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:100%}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
+.col .label{font:600 14px var(--font-body);color:var(--muted)}
+.device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.scrollbody{flex:1;overflow:auto;padding:var(--sp-20) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--gap-section)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
+.legend{max-width:620px;margin-top:28px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
+.legend b{color:var(--on-surface)}
+.backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
+#themeSel{position:fixed;top:14px;right:max(14px,env(safe-area-inset-right,0px));z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.pagebar{display:contents}
+@media (max-width:700px){
+  body{padding-top:16px}
+  .pagebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;width:100%}
+  .backlink,#themeSel{position:static}
+}
+.questions{max-width:620px;width:100%;margin-top:28px;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-16) var(--sp-20)}
+.questions ol{margin:8px 0 0 20px;font-size:15px;color:var(--muted);line-height:1.6;display:grid;gap:8px}
+.questions b{color:var(--on-surface)}
+
+/* ===== Extensions proposées au design system (tokens uniquement) ===== */
+/* connexion */
+.login{flex:1;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-major);padding:var(--sp-24) var(--layout-gutter)}
+.mark{width:64px;height:64px;border-radius:var(--r-lg);background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font:700 28px var(--font-display);letter-spacing:.04em}
+.login__intro{display:grid;gap:var(--sp-8)}
+.login__form{display:grid;gap:var(--sp-16)}
+.field__help .ico{vertical-align:-3px;margin-right:var(--sp-4)}
+/* ligne de cours repliable (Mes cours) */
+.crow + .crow{border-top:1px solid var(--border-faint)}
+.crow > summary,.crow > .crow__static{list-style:none;display:flex;align-items:center;gap:var(--sp-12);min-height:72px;padding:var(--sp-12) var(--sp-16);cursor:pointer;color:var(--on-surface)}
+.crow > .crow__static{cursor:default}
+.crow > summary::-webkit-details-marker{display:none}
+.crow .course-num{width:44px;height:44px;font-size:20px}
+.course-num.is-done{background:var(--success-container);color:var(--on-success-container)}
+.course-num.is-locked{background:var(--muted-surface);color:var(--on-muted-surface)}
+.crow__chev{color:var(--muted);transition:transform var(--dur-base) var(--ease);flex:none}
+.crow[open] .crow__chev{transform:rotate(90deg)}
+.crow__body{padding:0 var(--sp-16) var(--sp-16);display:grid;gap:var(--sp-8)}
+.crow.is-locked .list-item__title{color:var(--subtle)}
+.status{display:inline-flex;align-items:center;gap:var(--sp-8);font:600 14px/1.4 var(--font-body);color:var(--muted)}
+.status--todo{color:var(--secondary-ink)}
+.status--retry{color:var(--error-ink)}
+.status--done{color:var(--on-success-container)}
+.module-head{display:grid;gap:var(--sp-8)}
+/* entraînement */
+.tchoice{display:flex;flex-wrap:wrap;gap:var(--sp-8)}
+.footbar{padding:var(--sp-12) var(--layout-gutter) var(--sp-12);display:grid;gap:var(--sp-8);background:var(--bg);border-top:1px solid var(--border-faint)}
+.empty{display:grid;gap:var(--sp-12);justify-items:start;padding:var(--sp-24) var(--sp-20)}
+</style>
+</head>
+<body>
+<div class="pagebar">
+<a class="backlink" href="../design-system/concept.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Retour aux écrans concept</a>
+<select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7.5 12h9M12 7.5v9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.7L16 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2-1.5"/><path d="M2 8.8a15 15 0 0 1 4.2-2.6"/><path d="M22 8.8a15 15 0 0 0-11.3-3.8"/><path d="M2 2l20 20"/></symbol>
+</svg>
+
+<div class="head">
+  <h1>Connexion, mes cours et entraînement</h1>
+  <p>Trois écrans composés avec les composants du design system. Maquettes à valider ; rien n'est codé. Les boutons au-dessus de chaque écran changent sa situation.</p>
+</div>
+
+<div class="three">
+  <!-- ============ ÉCRAN 1 : CONNEXION ============ -->
+  <div class="col">
+    <div class="label">1. Connexion par code</div>
+    <div class="states" role="group" aria-label="Situation de la connexion">
+      <button type="button" data-s1="vide" aria-pressed="true">Au départ</button>
+      <button type="button" data-s1="saisi" aria-pressed="false">Code tapé</button>
+      <button type="button" data-s1="inconnu" aria-pressed="false">Code inconnu</button>
+      <button type="button" data-s1="hors" aria-pressed="false">Hors ligne</button>
+    </div>
+    <p class="state-note" id="note1"></p>
+    <div class="device">
+      <main class="login">
+        <div class="mark" aria-hidden="true">+ −</div>
+        <div class="login__intro">
+          <h1 class="t-h2">Plus ou moins</h1>
+          <p class="t-body1">Entre ton code pour retrouver tes cours.</p>
+        </div>
+        <div id="offline"></div>
+        <form class="login__form" onsubmit="return false" novalidate>
+          <div class="field">
+            <label class="field__label" for="code">Ton code</label>
+            <div class="field__box" id="codeBox"><input id="code" class="field__code" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="K7M2 9QXP" aria-describedby="codeHelp"></div>
+            <p class="field__help" id="codeHelp" aria-live="polite"></p>
+          </div>
+          <button class="btn btn--contained btn--block" type="submit" id="go">Entrer</button>
+        </form>
+        <p class="t-caption">Tu n'as pas de code ? Demande-le à la personne qui te suit.</p>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ÉCRAN 2 : MES COURS ============ -->
+  <div class="col">
+    <div class="label">2. Mes cours, module Calculs</div>
+    <div class="states" role="group" aria-label="Situation du module">
+      <button type="button" data-s2="debut" aria-pressed="false">Début du module</button>
+      <button type="button" data-s2="encours" aria-pressed="true">En cours</button>
+      <button type="button" data-s2="retry" aria-pressed="false">À rattraper</button>
+      <button type="button" data-s2="fini" aria-pressed="false">Module terminé</button>
+    </div>
+    <p class="state-note" id="note2"></p>
+    <div class="device">
+      <main class="scrollbody">
+        <header class="top"><h1 class="t-h2">Mes cours</h1></header>
+        <section class="module-head" aria-label="Module Calculs">
+          <div class="row" style="justify-content:space-between"><span class="t-h5">Module Calculs</span><span id="modBadge"></span></div>
+          <div class="progress progress--module" id="modBar"><i></i></div>
+          <p class="t-body2" id="modText"></p>
+        </section>
+        <section class="list" id="courseList" aria-label="Cours du module Calculs"></section>
+      </main>
+      <nav class="bottomnav" aria-label="Navigation">
+        <a class="bottomnav__item" href="#"><svg class="ico"><use href="#i-home"/></svg>Accueil</a>
+        <a class="bottomnav__item is-active" href="#" aria-current="page"><svg class="ico"><use href="#i-book"/></svg>Mes cours</a>
+        <a class="bottomnav__item" href="#"><svg class="ico"><use href="#i-practice"/></svg>Entraînement</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ============ ÉCRAN 3 : ENTRAÎNEMENT ============ -->
+  <div class="col">
+    <div class="label">3. Entraînement</div>
+    <div class="states" role="group" aria-label="Situation de l'entraînement">
+      <button type="button" data-s3="tout" aria-pressed="true">Tout mélangé</button>
+      <button type="button" data-s3="choix" aria-pressed="false">Cours choisis</button>
+      <button type="button" data-s3="aucun" aria-pressed="false">Aucun choisi</button>
+      <button type="button" data-s3="vide" aria-pressed="false">Rien à travailler</button>
+    </div>
+    <p class="state-note" id="note3"></p>
+    <div class="device">
+      <main class="scrollbody" id="trainBody"></main>
+      <div class="footbar" id="trainFoot"></div>
+      <nav class="bottomnav" aria-label="Navigation">
+        <a class="bottomnav__item" href="#"><svg class="ico"><use href="#i-home"/></svg>Accueil</a>
+        <a class="bottomnav__item" href="#"><svg class="ico"><use href="#i-book"/></svg>Mes cours</a>
+        <a class="bottomnav__item is-active" href="#" aria-current="page"><svg class="ico"><use href="#i-practice"/></svg>Entraînement</a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<p class="legend"><b>Connexion :</b> un seul champ, sans barre du bas. Le code s'affiche en majuscules espacées, mais « k7m2 9qxp » est accepté tel quel. <b>Mes cours :</b> une ligne par cours, avec son état (validé et étoiles, à faire, à rattraper, verrouillé). Toucher un cours ouvre ses actions, dont « Relire la leçon ». <b>Entraînement :</b> « Tout mélangé » ou une sélection de cours validés, par séries de 10 questions. Il ne change jamais les révisions, et on ne révise pas un cours en avance : les révisions restent sur l'accueil.</p>
+
+<div class="questions">
+  <h2 class="t-h5">Questions pour toi</h2>
+  <ol>
+    <li><b>Cours à rattraper en entraînement.</b> Je l'ai laissé hors de la liste tant qu'il n'est pas validé (le rattrapage est fait pour ça). Faut-il plutôt l'autoriser, puisque le doc 01 dit qu'on peut retravailler un cours qui coince ?</li>
+    <li><b>Relire un cours verrouillé.</b> Les docs disent « relire une leçon à tout moment » sans parler des cours verrouillés. J'ai choisi de ne pas les ouvrir : leur leçon n'est visible qu'après le déblocage du cours précédent. C'est bon ?</li>
+    <li><b>Longueur de l'entraînement.</b> J'ai gardé une série fixe de 10 questions, sans réglage, avec les niveaux 1, 2 et 3 mélangés (décision 15). Elle peut en refaire une autre tout de suite. Est-ce assez simple, ou veux-tu aussi un choix de longueur ?</li>
+  </ol>
+</div>
+
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function pressed(attr, k){ document.querySelectorAll('['+attr+']').forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute(attr)===k)); }); }
+  var star='<svg class="ico"><use href="#i-star"/></svg>', starE='<svg class="ico is-empty"><use href="#i-star"/></svg>';
+  function stars(n){ var s=''; for(var i=0;i<3;i++) s+=i<n?star:starE; return '<span class="rating" aria-label="'+n+' étoile'+(n>1?'s':'')+' sur 3">'+s+'</span>'; }
+  var ico=function(id,cls){ return '<svg class="ico'+(cls?' '+cls:'')+'"><use href="#'+id+'"/></svg>'; };
+
+  /* ---------- 1. Connexion ---------- */
+  var N1={
+    vide:'Premier affichage : un champ, un bouton. Le clavier s\'ouvre sur le champ.',
+    saisi:'Elle tape « k7m2 9qxp » en minuscules et avec une espace : l\'appli l\'accepte, sans rien lui demander de corriger.',
+    inconnu:'Le code n\'existe pas : le champ passe en rouge du prof et le message dit quoi faire. Rien n\'est effacé.',
+    hors:'Pas de réseau : on ne peut pas vérifier le code. Le message l\'explique et le bouton devient « Réessayer ».'
+  };
+  var HELP='Les majuscules et les espaces n\'ont pas d\'importance.';
+  function s1(k){
+    var box=$('codeBox'), inp=$('code'), help=$('codeHelp');
+    box.classList.toggle('is-error', k==='inconnu');
+    help.classList.toggle('is-error', k==='inconnu');
+    inp.value = (k==='saisi'||k==='inconnu'||k==='hors') ? (k==='inconnu'?'k7m2 9qxq':'k7m2 9qxp') : '';
+    if(k==='inconnu'){ help.innerHTML=ico('i-x-circle','ico--sm')+'Ce code n\'existe pas. Vérifie les lettres et les chiffres, puis réessaie.'; inp.setAttribute('aria-invalid','true'); }
+    else { help.textContent=HELP; inp.removeAttribute('aria-invalid'); }
+    $('offline').innerHTML = k==='hors' ? '<div class="alert alert--neutral" role="status">'+ico('i-wifi-off')+'<div class="alert__title">Pas de connexion</div><div>Pour entrer, ton téléphone doit être connecté à internet. Ensuite, l\'appli marche aussi sans connexion.</div></div>' : '';
+    $('go').textContent = k==='hors' ? 'Réessayer' : 'Entrer';
+    $('note1').textContent=N1[k]; pressed('data-s1',k);
+  }
+  document.querySelectorAll('[data-s1]').forEach(function(b){ b.addEventListener('click',function(){ s1(b.getAttribute('data-s1')); }); });
+
+  /* ---------- 2. Mes cours ---------- */
+  var COURSES=[
+    'Bien écrire un calcul','Additionner deux nombres de même signe','Additionner deux nombres de signes contraires','Additionner plusieurs relatifs',
+    'Soustraire, c\'est ajouter l\'opposé','Multiplier deux relatifs','Diviser deux relatifs','Multiplier plusieurs relatifs'];
+  var D='done', T='todo', R='retry', L='lock';
+  var S2={
+    debut:{note:'Aucun cours commencé : seul le Cours 0 est ouvert, les autres sont verrouillés.',st:[T,L,L,L,L,L,L,L],stars:[],open:0},
+    encours:{note:'Cours 0 à 3 validés avec leurs étoiles, le Cours 4 est à faire. Les cours 5 à 7 attendent.',st:[D,D,D,D,T,L,L,L],stars:[3,3,2,1],open:4},
+    retry:{note:'Elle a fini le Cours 4 sans le valider : il passe en « à rattraper » (doc 07 n° 19), avec le rattrapage et la leçon à portée de main.',st:[D,D,D,D,R,L,L,L],stars:[3,3,2,1],open:4},
+    fini:{note:'Les 8 cours sont validés : le module est terminé et reçoit un badge (doc 07 n° 17). Toutes les leçons restent lisibles.',st:[D,D,D,D,D,D,D,D],stars:[3,3,2,3,2,2,1,1],open:2}
+  };
+  function row(i,st,stars,open){
+    var title=COURSES[i], num='<span class="course-num is-'+st+'" aria-hidden="true">'+i+'</span>', sub, body='', trail;
+    if(st===D){
+      sub='<span class="status status--done">'+ico('i-check-circle','ico--sm')+'Validé</span>'+stars_(stars);
+      body='<button class="btn btn--outlined btn--block" type="button">'+ico('i-eye')+'Relire la leçon</button><p class="t-caption">Relire ne change ni tes étoiles ni tes révisions.</p>';
+    } else if(st===T){
+      sub='<span class="status status--todo">À faire</span>';
+      body='<button class="btn btn--ink btn--block" type="button">Commencer le cours '+i+'</button><p class="t-caption">Le cours se termine par 5 exercices. Il te faut 4 justes pour le valider.</p>';
+    } else if(st===R){
+      sub='<span class="status status--retry">'+ico('i-review','ico--sm')+'À rattraper</span>';
+      body='<button class="btn btn--outlined btn--block" type="button">Faire le rattrapage</button><button class="btn btn--text" type="button" style="justify-self:center">Relire la leçon</button><p class="t-caption">5 exercices, 4 justes pour valider. Tu peux recommencer autant de fois que tu veux.</p>';
+    } else {
+      sub='<span class="status">'+ico('i-lock','ico--sm')+'Verrouillé</span><span class="t-caption">Valide le cours '+(i-1)+' pour l\'ouvrir.</span>';
+      return '<div class="crow is-locked"><div class="crow__static">'+num+'<div class="list-item__text"><span class="list-item__title">Cours '+i+', '+lc(title)+'</span>'+sub+'</div></div></div>';
+    }
+    return '<details class="crow"'+(open?' open':'')+'><summary>'+num+'<div class="list-item__text"><span class="list-item__title">Cours '+i+', '+lc(title)+'</span><span class="row" style="gap:var(--sp-8);flex-wrap:wrap">'+sub+'</span></div>'+ico('i-chevron-right','crow__chev')+'</summary><div class="crow__body">'+body+'</div></details>';
+  }
+  function stars_(n){ return stars(n); }
+  function lc(t){ return t.charAt(0).toLowerCase()+t.slice(1); }
+  function s2(k){
+    var e=S2[k], n=e.st.filter(function(x){return x===D;}).length, h='';
+    e.st.forEach(function(st,i){ h+=row(i,st,e.stars[i],i===e.open); });
+    $('courseList').innerHTML=h;
+    $('modBar').style.setProperty('--v',(n/8*100)+'%');
+    $('modText').textContent=n+' cours sur 8 validés';
+    $('modBadge').innerHTML = n===8 ? '<span class="chip chip--success">'+ico('i-check')+'Module terminé</span>' : '';
+    var sb=$('courseList').closest('.scrollbody'), op=$('courseList').querySelector('details[open]'); sb.scrollTop=0; if(op&&k!=='debut'){ sb.scrollTop=Math.max(0,op.offsetTop-sb.offsetTop-120); }
+    $('note2').textContent=e.note; pressed('data-s2',k);
+  }
+  document.querySelectorAll('[data-s2]').forEach(function(b){ b.addEventListener('click',function(){ s2(b.getAttribute('data-s2')); }); });
+
+  /* ---------- 3. Entraînement ---------- */
+  var DONE=[[0,3],[1,3],[2,2],[3,1]]; /* cours validés et leurs étoiles */
+  var N3={
+    tout:'Par défaut, « Tout mélangé » : les 4 cours validés servent à la série de 10 questions.',
+    choix:'Elle choisit ses cours : ici les cours 1 et 3. Le bouton dit combien de cours sont retenus.',
+    aucun:'Aucun cours coché : le bouton est grisé et dit pourquoi.',
+    vide:'Aucun cours validé : rien à travailler, et un renvoi vers « Mes cours ».'
+  };
+  var mode='tout', sel={1:true,3:true};
+  function s3(k){
+    var empty = k==='vide';
+    mode = k==='tout' ? 'tout' : 'choix';
+    if(k==='choix') sel={1:true,3:true};
+    if(k==='aucun') sel={};
+    draw(empty); $('note3').textContent=N3[k]; pressed('data-s3',k);
+  }
+  function draw(empty){
+    var b=$('trainBody'), f=$('trainFoot'), h;
+    h='<header class="top"><h1 class="t-h2">Entraînement</h1></header>';
+    if(empty){
+      b.innerHTML=h+'<section class="card empty"><h2 class="t-h4">Rien à travailler pour l\'instant</h2><p class="t-body2">L\'entraînement s\'ouvre dès que tu as validé un cours.</p><button class="btn btn--outlined" type="button">Aller aux cours</button></section>';
+      f.style.display='none'; return;
+    }
+    f.style.display='';
+    h+='<p class="t-body2">Pratique libre sur les cours que tu as validés. Les questions mélangent les trois niveaux.</p>';
+    h+='<div class="toggle-group" role="group" aria-label="Quoi travailler"><button class="toggle'+(mode==='tout'?' is-selected':'')+'" type="button" data-mode="tout" aria-pressed="'+(mode==='tout')+'">Tout mélangé</button><button class="toggle'+(mode==='choix'?' is-selected':'')+'" type="button" data-mode="choix" aria-pressed="'+(mode==='choix')+'">Mes cours</button></div>';
+    var n;
+    if(mode==='tout'){
+      n=DONE.length;
+      h+='<section class="stack" aria-label="Cours retenus"><h2 class="t-h6">Cours retenus</h2><div class="tchoice">'+DONE.map(function(d){return '<span class="chip chip--selected">Cours '+d[0]+'</span>';}).join('')+'</div></section>';
+    } else {
+      n=DONE.filter(function(d){return sel[d[0]];}).length;
+      h+='<section class="stack"><h2 class="t-h6">Choisis les cours à travailler</h2><div class="list">'+DONE.map(function(d){
+        return '<label class="list-item"><span class="check"><input type="checkbox" data-c="'+d[0]+'"'+(sel[d[0]]?' checked':'')+' aria-label="Cours '+d[0]+'"></span><span class="list-item__text"><span class="list-item__title">Cours '+d[0]+', '+lc(COURSES[d[0]])+'</span></span><span class="list-item__trail">'+stars(d[1])+'</span></label>';
+      }).join('')+'</div></section>';
+    }
+    h+='<p class="t-caption">Les cours 4 à 7 apparaîtront ici quand tu les auras validés. L\'entraînement ne change pas tes révisions : un cours se révise le jour prévu, sur l\'accueil.</p>';
+    b.innerHTML=h;
+    var label = n===0 ? 'Choisis au moins un cours' : (n===1 ? '1 cours retenu, 10 questions' : n+' cours retenus, 10 questions');
+    f.innerHTML='<p class="t-caption" style="text-align:center">'+label+'</p><button class="btn btn--contained btn--block" type="button"'+(n===0?' disabled':'')+'>Commencer l\'entraînement</button>';
+    b.querySelectorAll('[data-mode]').forEach(function(x){ x.addEventListener('click',function(){ mode=x.getAttribute('data-mode'); pressed('data-s3', mode==='tout'?'tout':(Object.keys(sel).length?'choix':'aucun')); draw(false); }); });
+    b.querySelectorAll('[data-c]').forEach(function(x){ x.addEventListener('change',function(){ if(x.checked) sel[x.getAttribute('data-c')]=true; else delete sel[x.getAttribute('data-c')]; pressed('data-s3', Object.keys(sel).length?'choix':'aucun'); $('note3').textContent=N3[Object.keys(sel).length?'choix':'aucun']; var m=Object.keys(sel).length; f.innerHTML='<p class="t-caption" style="text-align:center">'+(m===0?'Choisis au moins un cours':(m===1?'1 cours retenu, 10 questions':m+' cours retenus, 10 questions'))+'</p><button class="btn btn--contained btn--block" type="button"'+(m===0?' disabled':'')+'>Commencer l\'entraînement</button>'; }); });
+  }
+  s1('vide'); s2('encours'); s3('tout');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins, écrans de révisions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../design-system/styles.css">
+<script src="../design-system/theme.js"></script>
+<style>
+/* habillage de la page uniquement : les écrans n'utilisent que les classes de styles.css, plus quelques composants listés dans le compte rendu */
+body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.head{max-width:680px;text-align:center;margin-bottom:20px}
+.head h1{font:700 26px var(--font-display);color:var(--on-surface)}
+.head p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.6}
+.states{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.states button{border:0;background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px var(--font-body);cursor:pointer;box-shadow:inset 0 0 0 1px var(--border);min-height:36px}
+.states button[aria-pressed="true"]{background:var(--on-surface);color:var(--surface);font-weight:600;box-shadow:none}
+.state-note{font-size:14px;color:var(--muted);text-align:center;max-width:52ch;min-height:4.2em;line-height:1.5}
+.two{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:100%}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
+.col .label{font:600 14px var(--font-body);color:var(--on-surface);text-align:center}
+.device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.scrollbody{flex:1;overflow:auto;padding:var(--sp-8) var(--layout-gutter) var(--sp-16);display:flex;flex-direction:column;gap:var(--sp-16)}
+.legend{max-width:620px;margin-top:28px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
+.legend b{color:var(--on-surface)}
+.backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
+#themeSel{position:fixed;top:14px;right:max(14px,env(safe-area-inset-right,0px));z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.pagebar{display:contents}
+@media (max-width:700px){
+  body{padding-top:16px}
+  .pagebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;width:100%}
+  .backlink,#themeSel{position:static}
+}
+.questions{max-width:620px;width:100%;margin-top:28px;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-16) var(--sp-20)}
+.questions ol{margin:8px 0 0;padding-left:20px;font-size:15px;color:var(--muted);line-height:1.6;display:grid;gap:8px}
+.questions b{color:var(--on-surface)}
+.questions p{font-size:15px;color:var(--muted);margin-top:8px;line-height:1.6}
+
+/* ---- composants propres à ces écrans (tokens uniquement) ---- */
+.chips{display:flex;flex-wrap:wrap;gap:var(--sp-8)}
+.expr{display:grid;justify-items:center;gap:var(--sp-4);text-align:center;padding:var(--sp-8) 0}
+.expr--tall{flex:1;align-content:center}
+.dev .choice{gap:var(--sp-8)}
+.dev .choice .ico{--icon-size:22px}
+.dev .choice:disabled{cursor:default}
+.foot{display:grid;gap:var(--sp-8);padding:var(--sp-12) var(--layout-gutter) var(--sp-16);background:var(--bg);justify-items:stretch}
+.foot .t-caption{text-align:center}
+.foot .btn--text{justify-self:center;min-height:var(--target-min)}
+/* résolution : les lignes d'un calcul corrigé, écrites comme sur une copie */
+.resolution{background:var(--surface);border-radius:var(--r-md);padding:var(--sp-12) var(--sp-16);display:grid;gap:var(--sp-4);font:500 22px/1.35 var(--font-math);font-variant-numeric:tabular-nums;color:var(--on-surface);box-shadow:inset 0 0 0 1px var(--border-faint)}
+.resolution .is-last{font-weight:700}
+.hl{background:var(--primary-container);color:var(--on-primary-container);border-radius:var(--r-xs);padding:0 var(--sp-4)}
+.resolution-label{font:600 14px var(--font-body);color:var(--muted)}
+/* correction pas à pas après « Passer » */
+.walk{display:grid;gap:var(--sp-12);list-style:none;margin:0;padding:0}
+.walk li{display:grid;grid-template-columns:32px 1fr;gap:var(--sp-12);align-items:start;background:var(--surface);border-radius:var(--r-md);padding:var(--sp-12) var(--sp-16) var(--sp-12) var(--sp-12);box-shadow:inset 0 0 0 1px var(--border-faint)}
+.walk__n{width:32px;height:32px;border-radius:var(--r-full);display:grid;place-items:center;background:var(--primary-container);color:var(--on-primary-container);font:600 15px var(--font-body)}
+.walk__t{font:400 16px/1.45 var(--font-body);color:var(--on-surface)}
+.walk__m{display:block;margin-top:var(--sp-4);font:500 22px var(--font-math);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* bilan */
+.bilan-head{display:grid;justify-items:center;gap:var(--sp-8);text-align:center;padding-top:var(--sp-8)}
+.bilan-badge{width:64px;height:64px;border-radius:var(--r-full);display:grid;place-items:center;background:var(--success-container);color:var(--on-success-container)}
+.bilan-badge .ico{--icon-size:32px}
+.bilan-day{display:grid;gap:var(--sp-4)}
+.bilan-day .row{justify-content:space-between}
+.bilan-day .is-goal{color:var(--on-success-container);font-weight:600}
+</style>
+</head>
+<body>
+<div class="pagebar">
+<a class="backlink" href="../design-system/concept.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Retour aux écrans concept</a>
+<select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7.5 12h9M12 7.5v9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.7L16 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+</svg>
+<div class="head">
+  <h1>Séance de révisions</h1>
+  <p>Trois écrans : la question en cours, le retour après une erreur, la fin de séance. Maquettes statiques à valider ; rien n'est codé.</p>
+</div>
+
+<div class="two">
+  <!-- 1. QUESTION EN COURS -->
+  <div class="col">
+    <div class="label">1. Question en cours</div>
+    <div class="states" style="visibility:hidden" aria-hidden="true"><button type="button">.</button></div>
+    <p class="state-note">Question 6 sur 15, entremêlée avec les autres cours. Elle touche un choix, puis valide.</p>
+    <div class="device dev" id="dev1"></div>
+  </div>
+
+  <!-- 2. RETOUR SUR ERREUR -->
+  <div class="col">
+    <div class="label">2. Retour sur une erreur</div>
+    <div class="states" id="sw2" role="group" aria-label="Étapes du retour sur erreur"></div>
+    <p class="state-note" id="note2"></p>
+    <div class="device dev" id="dev2"></div>
+  </div>
+
+  <!-- 2 bis. ERREURS D'ÉCRITURE -->
+  <div class="col">
+    <div class="label">2 bis. Réponse mal écrite</div>
+    <div class="states" id="sw3" role="group" aria-label="Cas d'écriture"></div>
+    <p class="state-note" id="note3"></p>
+    <div class="device dev" id="dev3"></div>
+  </div>
+
+  <!-- 3. FIN DE SÉANCE -->
+  <div class="col">
+    <div class="label">3. Fin de séance</div>
+    <div class="states" id="sw4" role="group" aria-label="Fin de séance"></div>
+    <p class="state-note" id="note4"></p>
+    <div class="device dev" id="dev4"></div>
+  </div>
+</div>
+
+<p class="legend"><b>Séance :</b> le nom du cours n'est pas affiché, elle doit reconnaître seule la règle (doc 02 §3). <b>Après une erreur :</b> bonne réponse et explication, puis le calcul du même genre 3 questions plus loin, puis le même calcul à la fin. À partir du 2e échec, un petit « Passer » discret, qui mène à la correction pas à pas. <b>Réponse mal écrite :</b> l'écriture est vérifiée avant le calcul (doc 03 §3). <b>Fin :</b> bilan par cours, puis « Encore des révisions » ou « Révisions faites » avec l'entraînement. Le compteur des étapes grandit quand des questions sont ajoutées.</p>
+
+<div class="questions">
+  <h2 class="t-h5">Questions pour toi</h2>
+  <ol>
+    <li><b>Le calcul revenu à la fin, en réponse écrite ou en QCM ?</b> Le doc 03 limite les révisions à des formats rapides, mais en QCM elle peut gagner au hasard et « Passer » perd son sens. J'ai montré la réponse écrite pour ce passage, ce qui permet aussi de voir les erreurs d'écriture.</li>
+    <li><b>Le compteur grandit-il ?</b> Après une erreur, deux questions s'ajoutent (« question 9 sur 17 »). Je l'ai montré tel quel, par honnêteté. L'autre choix : garder « 15 questions » et afficher les ajouts comme « à revoir ».</li>
+    <li><b>Où apparaît « Passer » ?</b> Je l'ai mis sur l'écran de retour après le 2e échec, sous « Continuer ». Alternative : seulement quand le calcul revient une 3e fois. Après « Passer », elle lit la correction puis continue, sans retaper la réponse.</li>
+  </ol>
+</div>
+
+<script>
+(function(){
+  var M='−';
+  function ic(id,cls){ return '<svg class="ico'+(cls?' '+cls:'')+'"><use href="#i-'+id+'"/></svg>'; }
+  function stepper(total,cur,errs,label){
+    var h='';
+    for(var i=1;i<=total;i++){
+      var c='stepper__step';
+      if(errs.indexOf(i)>-1) c+=' is-error'; else if(i<cur) c+=' is-done'; else if(i===cur) c+=' is-current';
+      h+='<span class="'+c+'"></span>';
+    }
+    return '<div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)"><button class="icon-btn" type="button" aria-label="Quitter la séance">'+ic('close')+'</button><div class="stepper" style="flex:1" aria-label="'+label+'">'+h+'</div></div>';
+  }
+  function stepperDone(total,errs,label){ /* question terminée : la dernière étape prend sa couleur */
+    var h='';
+    for(var i=1;i<=total;i++){ h+='<span class="stepper__step '+(errs.indexOf(i)>-1?'is-error':'is-done')+'"></span>'; }
+    return '<div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)"><button class="icon-btn" type="button" aria-label="Quitter la séance">'+ic('close')+'</button><div class="stepper" style="flex:1" aria-label="'+label+'">'+h+'</div></div>';
+  }
+  function chip(txt,cls){ return '<span class="chip'+(cls?' '+cls:'')+'">'+txt+'</span>'; }
+  var revChip=function(n,t){ return chip(ic('review','ico--sm')+' Révisions, question '+n+' sur '+t); };
+  function choice(txt,st){
+    var c='choice'+(st==='sel'?' is-selected':st==='ok'?' is-correct':st==='ko'?' is-wrong':'');
+    var i=st==='ok'?ic('check-circle'):st==='ko'?ic('x-circle'):'';
+    return '<button class="'+c+'" type="button"'+(st==='sel'||!st?'':' disabled')+'>'+i+'<span class="math">'+txt+'</span></button>';
+  }
+  function alertBox(kind,icon,title,body){
+    return '<div class="alert alert--'+kind+'" role="status">'+ic(icon)+'<div class="alert__title">'+title+'</div>'+(body?'<div>'+body+'</div>':'')+'</div>';
+  }
+  function res(lines,label){
+    var h=(label?'<div class="resolution-label">'+label+'</div>':'');
+    h+='<div class="resolution" aria-label="Résolution">';
+    lines.forEach(function(l,i){ h+='<div'+(i===lines.length-1?' class="is-last"':'')+'>'+l+'</div>'; });
+    return h+'</div>';
+  }
+  function device(top,main,foot){ return top+'<main class="scrollbody">'+main+'</main>'+(foot||''); }
+  var keypad='<div class="keypad" style="border-radius:var(--r-lg) var(--r-lg) 0 0">'+
+    '<button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button><button class="key key--fn" type="button" aria-label="Effacer">'+ic('backspace')+'</button>'+
+    '<button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button><button class="key key--sign" type="button" aria-label="moins">'+M+'</button>'+
+    '<button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button><button class="key key--fn" type="button" aria-label="fraction"><span class="frac-icon"><i></i><span></span><i></i></span></button>'+
+    '<button class="key" type="button">(</button><button class="key" type="button">0</button><button class="key" type="button">)</button><button class="key key--fn" type="button" aria-label="case suivante">'+ic('arrow-right')+'</button>'+
+    '<button class="key key--submit" type="button" style="grid-column:span 4">Valider</button></div>';
+  function frac(n,d){ return '<span class="frac"><span>'+n+'</span><span>'+d+'</span></span>'; }
+
+  /* ---------- 1. question en cours ---------- */
+  var sel=null;
+  function render1(){
+    var opts=[M+'7','12','11',M+'12'];
+    var ch=opts.map(function(o){ return '<button class="choice'+(o===sel?' is-selected':'')+'" type="button" data-v="'+o+'" aria-pressed="'+(o===sel)+'"><span class="math">'+o+'</span></button>'; }).join('');
+    document.getElementById('dev1').innerHTML=device(
+      stepper(15,6,[],'Question 6 sur 15'),
+      '<div class="chips">'+revChip(6,15)+'</div>'+
+      '<div class="expr expr--tall"><p class="t-body2">Choisis la bonne réponse.</p><p class="t-math-xl">'+M+'3 × ('+M+'4)</p></div>'+
+      '<div class="choice-grid" role="group" aria-label="Choix">'+ch+'</div>',
+      '<div class="foot"><button class="btn btn--contained btn--block" type="button"'+(sel?'':' disabled')+'>Valider</button></div>');
+    document.querySelectorAll('#dev1 .choice').forEach(function(b){ b.addEventListener('click',function(){ sel=b.getAttribute('data-v'); render1(); }); });
+  }
+  sel=M+'12'; render1();
+
+  /* ---------- 2. retour sur erreur ---------- */
+  var S2=[
+    {k:'qcm',t:'QCM raté',note:'Elle a répondu '+M+'12. Elle voit la bonne réponse et l\'explication (doc 01 §6, doc 06 : « règle des signes »). Le calcul du même genre et le même calcul sont ajoutés à la séance.',
+     r:function(){ return device(stepperDone(15,[6],'Question 6 sur 15, ratée'),
+       '<div class="chips">'+revChip(6,15)+'</div>'+
+       '<div class="expr"><p class="t-math">'+M+'3 × ('+M+'4)</p></div>'+
+       '<div class="choice-grid">'+choice(M+'7','')+choice('12','ok')+choice('11','')+choice(M+'12','ko')+'</div>'+
+       alertBox('error','x-circle','Pas tout à fait. La bonne réponse est 12.','Deux signes pareils donnent +, deux signes différents donnent '+M+'. Ici, '+M+'3 et '+M+'4 sont tous les deux négatifs.')+
+       res([M+'3 × ('+M+'4)','= +(3 × 4)','= 12'],'Étape par étape'),
+       '<div class="foot"><p class="t-caption">Un calcul du même genre reviendra plus loin, et celui-ci à la fin.</p><button class="btn btn--contained btn--block" type="button">Continuer</button></div>'); }},
+    {k:'vf',t:'Vrai ou faux raté',note:'Format « Vrai ou faux » (doc 04 §8) : elle a répondu « Vrai » à un résultat faux. L\'erreur reliée au piège est enregistrée.',
+     r:function(){ return device(stepperDone(15,[9],'Question 9 sur 15, ratée'),
+       '<div class="chips">'+revChip(9,15)+'</div>'+
+       '<div class="expr"><p class="t-body2">Vrai ou faux ?</p><p class="t-math-xl">'+M+'3 × ('+M+'4) = '+M+'12</p></div>'+
+       '<div class="choice-grid">'+choice('Vrai','ko')+choice('Faux','ok')+'</div>'+
+       alertBox('error','x-circle','Pas tout à fait. C\'était faux.',M+'3 × ('+M+'4) vaut 12, et pas '+M+'12. Deux signes pareils donnent +.')+
+       res([M+'3 × ('+M+'4)','= +(3 × 4)','= 12'],'Étape par étape'),
+       '<div class="foot"><p class="t-caption">Un calcul du même genre reviendra plus loin, et celui-ci à la fin.</p><button class="btn btn--contained btn--block" type="button">Continuer</button></div>'); }},
+    {k:'voisin',t:'Calcul du même genre',note:'3 questions plus loin : un calcul du même type (même cours, même niveau, même piège), un seul par erreur de départ (doc 07 n° 12).',
+     r:function(){ return device(stepper(17,9,[6],'Question 9 sur 17'),
+       '<div class="chips">'+revChip(9,17)+chip('Même genre que ton erreur','chip--neutral')+'</div>'+
+       '<div class="expr expr--tall"><p class="t-body2">Choisis la bonne réponse.</p><p class="t-math-xl">'+M+'6 × ('+M+'2)</p></div>'+
+       '<div class="choice-grid">'+choice('8','')+choice(M+'12','')+choice('10','')+choice('12','')+'</div>',
+       '<div class="foot"><button class="btn btn--contained btn--block" type="button" disabled>Valider</button></div>'); }},
+    {k:'fin',t:'Même calcul à la fin',note:'Tout à la fin, exactement le même calcul. Ici en réponse écrite (voir la question 1 plus bas). Elle tape encore '+M+'12.',
+     r:function(){ return device(stepper(17,17,[6],'Question 17 sur 17'),
+       '<div class="chips">'+revChip(17,17)+chip('Le calcul raté tout à l\'heure','chip--neutral')+'</div>'+
+       '<div class="expr expr--tall"><p class="t-body2">Calcule.</p><p class="t-math-xl">'+M+'3 × ('+M+'4)</p></div>'+
+       '<div class="answer" aria-label="Ta réponse"><span class="math">'+M+'12</span><span class="answer__caret"></span></div>',
+       keypad); }},
+    {k:'echec2',t:'2e échec, Passer',note:'Raté une 2e fois : le petit bouton « Passer » apparaît, discret, sous « Continuer ». Sans « Passer », le calcul revient encore à la fin (doc 01 §6).',
+     r:function(){ return device(stepperDone(17,[6,17],'Question 17 sur 17, ratée'),
+       '<div class="chips">'+revChip(17,17)+chip('Le calcul raté tout à l\'heure','chip--neutral')+'</div>'+
+       '<div class="expr"><p class="t-math">'+M+'3 × ('+M+'4)</p></div>'+
+       '<div class="answer answer--error" aria-label="Ta réponse"><span class="math">'+M+'12</span></div>'+
+       alertBox('error','x-circle','Pas encore. La bonne réponse est 12.','Deux signes pareils donnent +. Ici, les deux nombres sont négatifs, donc le résultat est positif.')+
+       res([M+'3 × ('+M+'4)','= +(3 × 4)','= 12'],'Étape par étape'),
+       '<div class="foot"><p class="t-caption">Ce calcul reviendra encore à la fin.</p><button class="btn btn--contained btn--block" type="button">Continuer</button><button class="btn btn--text" type="button">Passer</button></div>'); }},
+    {k:'passe',t:'Après « Passer »',note:'Elle a passé : correction étape par étape. Le calcul est compté raté et « passé » pour le suivi (doc 01 §6). Elle continue sans retaper.',
+     r:function(){ return device(stepperDone(17,[6,17],'Question 17 sur 17, passée'),
+       '<div class="chips">'+revChip(17,17)+chip('Calcul passé','chip--neutral')+'</div>'+
+       '<div class="expr"><h2 class="t-h5">On le fait ensemble</h2><p class="t-math">'+M+'3 × ('+M+'4)</p></div>'+
+       '<ol class="walk">'+
+       '<li><span class="walk__n">1</span><div><div class="walk__t">Regarde les signes. '+M+'3 et '+M+'4 ont le même signe, tous les deux '+M+'. Le résultat est positif.</div><span class="walk__m"><span class="hl">+</span>(3 × 4)</span></div></li>'+
+       '<li><span class="walk__n">2</span><div><div class="walk__t">Multiplie les nombres sans leur signe.</div><span class="walk__m">3 × 4 = 12</span></div></li>'+
+       '<li><span class="walk__n">3</span><div><div class="walk__t">Écris le résultat, avec le signe trouvé.</div><span class="walk__m"><span class="hl">+</span>12 = 12</span></div></li>'+
+       '</ol>',
+       '<div class="foot"><p class="t-caption">Ce calcul est compté comme raté.</p><button class="btn btn--contained btn--block" type="button">Continuer</button></div>'); }}
+  ];
+
+  /* ---------- 2 bis. réponse mal écrite ---------- */
+  function typed(o){
+    var total=17, top=(o.kind==='ok')?stepperDone(total,[],'Question 17 sur 17, juste'):(o.kind==='pending'?stepper(total,17,[6],'Question 17 sur 17'):stepperDone(total,[6,17],'Question 17 sur 17, ratée'));
+    var ans='<div class="answer'+(o.kind==='ko'?' answer--error':o.kind==='ok'?' answer--success':'')+'" aria-label="Ta réponse"><span class="math">'+o.ans+'</span>'+(o.kind==='pending'?'<span class="answer__caret"></span>':'')+'</div>';
+    var al=o.kind==='ko'?alertBox('error','x-circle',o.title,o.body+'<br><b>La bonne réponse est '+o.good+'.</b>'):
+           o.kind==='ok'?alertBox('success','check-circle',o.title,''):
+           alertBox('info','info',o.title,o.body);
+    var main='<div class="chips">'+chip(ic('review','ico--sm')+' Réponse écrite')+'</div>'+
+      '<div class="expr"><p class="t-body2">Calcule.</p><p class="t-math-xl">'+o.calc+'</p></div>'+ans+al;
+    if(o.kind==='pending') return top+'<main class="scrollbody">'+main+'</main>'+keypad;
+    return device(top,main,'<div class="foot"><button class="btn btn--contained btn--block" type="button">Continuer</button></div>');
+  }
+  var S3=[
+    {k:'a',t:'8'+M,note:'« moins-apres » (doc 03 §3). Comptée fausse, avec son explication. Elle avait le bon résultat, mais mal écrit.',
+     o:{kind:'ko',calc:M+'3 + ('+M+'5)',ans:'8'+M,title:'Réponse mal écrite',body:'Le signe moins s\'écrit <b>avant</b> le nombre : '+M+'8.',good:M+'8'}},
+    {k:'b',t:'3'+M+'4',note:'Doc 07 n° 1 : elle valide un calcul pas fini. Comptée fausse, « écriture invalide ».',
+     o:{kind:'ko',calc:M+'2 + 5 + ('+M+'4)',ans:'3'+M+'4',title:'Réponse mal écrite',body:'Ta réponse doit être un seul nombre.',good:M+'1'}},
+    {k:'c',t:'('+M+'3',note:'« parenthese » (doc 03 §3) : parenthèse ouverte jamais fermée.',
+     o:{kind:'ko',calc:M+'8 + 5',ans:'('+M+'3',title:'Réponse mal écrite',body:'Une parenthèse ouverte doit être fermée, et une parenthèse fermée doit avoir été ouverte.',good:M+'3'}},
+    {k:'d',t:')'+M+'3',note:'Doc 07 n° 5 : parenthèse fermante en tête, message plus précis.',
+     o:{kind:'ko',calc:M+'8 + 5',ans:')'+M+'3',title:'Réponse mal écrite',body:'Une parenthèse fermée doit avoir été ouverte.',good:M+'3'}},
+    {k:'e',t:M+M+'3',note:'« double-signe » (doc 03 §3).',
+     o:{kind:'ko',calc:M+'8 + 5',ans:M+M+'3',title:'Réponse mal écrite',body:'Il y a deux signes moins à la suite. Un nombre n\'a qu\'un signe : '+M+'3 ou 3.',good:M+'3'}},
+    {k:'f',t:M+'07',note:'Doc 07 n° 3 : le zéro inutile n\'est pas une erreur. Comptée juste, avec un petit message.',
+     o:{kind:'ok',calc:M+'3 + ('+M+'4)',ans:M+'07',title:'Juste ! On écrit simplement '+M+'7.'}},
+    {k:'g',t:'fraction',note:'Fraction pas simplifiée (doc 03 §3) : pas compté faux. Elle corrige et valide encore, le clavier reste là.',
+     o:{kind:'pending',calc:M+'12 ÷ 4',ans:frac(M+'12','4'),title:'Le calcul n\'est pas fini : simplifie.',body:'Ce n\'est pas compté faux. Corrige ta réponse et valide encore.'}}
+  ];
+
+  /* ---------- 3. fin de séance ---------- */
+  function course(n,title,score,next,ok){
+    return '<div class="list-item"><span class="course-num" style="width:40px;height:40px;font-size:18px'+(ok?'':';background:var(--error-container);color:var(--on-error-container)')+'" aria-hidden="true">'+n+'</span>'+
+      '<div class="list-item__text"><div class="list-item__title" style="font-size:16px">'+title+'</div><div class="list-item__sub">'+score+', '+next+'</div></div>'+
+      '<span class="list-item__trail">'+(ok?'<span class="chip chip--success">'+ic('check')+'Réussi</span>':'<span class="chip chip--error">À revoir</span>')+'</span></div>';
+  }
+  var S4=[
+    {k:'encore',t:'Il reste des cours dus',note:'Séance de 5 cours terminée, 2 cours encore dus : « Encore des révisions » lance la séance suivante (doc 02 §3). Elle peut aussi s\'arrêter.',
+     r:function(){ return device(
+       '<div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)"><button class="icon-btn" type="button" aria-label="Fermer">'+ic('close')+'</button><span class="appbar__title">Bilan de la séance</span></div>',
+       '<div class="bilan-head"><span class="bilan-badge">'+ic('check-circle')+'</span><h2 class="t-h3">Séance terminée</h2><p class="t-body1">13 questions sur 15 justes du premier coup.</p></div>'+
+       '<div class="bilan-day"><div class="row"><span class="t-h6">Aujourd\'hui</span><span class="t-body2 math">11 / 15 min</span></div><div class="progress" style="--v:73%"><i></i></div></div>'+
+       '<div class="list">'+course(1,'Additionner deux nombres de même signe','3 sur 3','revient dans 1 semaine',1)+course(2,'Additionner deux nombres de signes contraires','3 sur 3','revient dans 2 jours',1)+course(3,'Additionner plusieurs relatifs','3 sur 3','revient dans 1 mois',1)+course(4,'Soustraire, c\'est ajouter l\'opposé','2 sur 3','revient demain',0)+course(5,'Multiplier deux relatifs','2 sur 3','revient demain',0)+'</div>',
+       '<div class="foot"><p class="t-caption">2 cours dus, 6 questions, environ 2 minutes.</p><button class="btn btn--contained btn--block" type="button">Encore des révisions</button><button class="btn btn--text" type="button">Revenir à l\'accueil</button></div>'); }},
+    {k:'faites',t:'Plus aucun cours dû',note:'Dernière séance : plus aucun cours dû. La carte devient « Révisions faites » et propose l\'entraînement (doc 02 §5). Ici, l\'objectif des 15 minutes est aussi atteint.',
+     r:function(){ return device(
+       '<div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)"><button class="icon-btn" type="button" aria-label="Fermer">'+ic('close')+'</button><span class="appbar__title">Bilan de la séance</span></div>',
+       '<div class="bilan-head"><span class="bilan-badge">'+ic('check-circle')+'</span><h2 class="t-h3">Séance terminée</h2><p class="t-body1">5 questions sur 6 justes du premier coup.</p></div>'+
+       '<div class="bilan-day"><div class="row"><span class="t-h6">Aujourd\'hui</span><span class="t-body2 math">16 / 15 min</span></div><div class="progress" style="--v:100%"><i style="background:var(--goal)"></i></div><p class="t-body2 is-goal">Objectif atteint !</p></div>'+
+       '<div class="list">'+course(6,'Diviser deux relatifs','3 sur 3','revient dans 1 semaine',1)+course(7,'Multiplier plusieurs relatifs','2 sur 3','revient demain',0)+'</div>'+
+       '<div class="card card--done"><span class="card__eyebrow">'+ic('check','ico--sm')+' Révisions faites</span><h3 class="t-h4">Tout est révisé pour aujourd\'hui</h3><p class="card__meta">Pour continuer, entraîne-toi sur les cours de ton choix.</p><button class="btn btn--outlined btn--block" type="button" style="margin-top:12px">S\'entraîner</button></div>',
+       '<div class="foot"><button class="btn btn--text" type="button">Revenir à l\'accueil</button></div>'); }}
+  ];
+
+  function wire(swId,noteId,devId,S,make){
+    var sw=document.getElementById(swId), note=document.getElementById(noteId), dev=document.getElementById(devId);
+    sw.innerHTML=S.map(function(s){ return '<button type="button" data-k="'+s.k+'" aria-pressed="false">'+s.t+'</button>'; }).join('');
+    function show(k){
+      var s=S.filter(function(x){ return x.k===k; })[0];
+      dev.innerHTML=make(s); note.textContent=s.note;
+      sw.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-pressed',String(b.getAttribute('data-k')===k)); });
+    }
+    sw.querySelectorAll('button').forEach(function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-k')); }); });
+    show(S[0].k);
+  }
+  wire('sw2','note2','dev2',S2,function(s){ return s.r(); });
+  wire('sw3','note3','dev3',S3,function(s){ return typed(s.o); });
+  wire('sw4','note4','dev4',S4,function(s){ return s.r(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins · Écrans du cours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../design-system/styles.css">
+<script src="../design-system/theme.js"></script>
+<style>
+/* habillage de la page uniquement : les ÉCRANS n'utilisent que les classes de styles.css, plus quelques ajouts listés dans le compte rendu */
+body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.head{max-width:680px;text-align:center;margin-bottom:20px}
+.head h1{font:700 26px var(--font-display);color:var(--on-surface)}
+.head p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.6}
+.group{width:100%;display:flex;flex-direction:column;align-items:center;margin-top:28px}
+.group > h2{font:600 18px var(--font-display);color:var(--on-surface);text-align:center}
+.group > p{font-size:14px;color:var(--muted);text-align:center;max-width:56ch;margin:6px 0 16px;line-height:1.6}
+.two{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:100%}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
+.col .label{font:600 14px var(--font-body);color:var(--muted);text-align:center}
+.device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.states{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.states button{border:0;background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px var(--font-body);cursor:pointer;box-shadow:inset 0 0 0 1px var(--border)}
+.states button[aria-pressed="true"]{background:var(--on-surface);color:var(--surface);font-weight:600;box-shadow:none}
+.legend{max-width:620px;margin-top:28px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
+.legend b{color:var(--on-surface)}
+.backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
+#themeSel{position:fixed;top:14px;right:max(14px,env(safe-area-inset-right,0px));z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.pagebar{display:contents}
+@media (max-width:700px){
+  body{padding-top:16px}
+  .pagebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;width:100%}
+  .backlink,#themeSel{position:static}
+}
+.questions{max-width:620px;width:100%;margin-top:28px;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-16) var(--sp-20)}
+.questions p{font-size:15px;color:var(--muted);margin-top:8px;line-height:1.6}
+.questions b{color:var(--on-surface)}
+
+/* ---- écrans de cours ---- */
+.q-body{flex:1;display:flex;flex-direction:column;padding:var(--sp-8) var(--layout-gutter) var(--sp-16);gap:var(--gap-section)}
+.q-expr{flex:1;display:grid;place-content:center;justify-items:center;gap:var(--sp-8);text-align:center}
+.c-body{flex:1;overflow:auto;display:flex;flex-direction:column;padding:var(--sp-8) var(--layout-gutter) var(--sp-16);gap:var(--gap-section)}
+.c-foot{display:grid;gap:var(--sp-4);padding:var(--sp-8) var(--layout-gutter) var(--sp-16)}
+.c-appbar{padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)}
+/* ajouts proposés au design system (tokens uniquement) */
+.neg{color:var(--error-ink);font-weight:600}
+.pos{color:var(--primary-ink);font-weight:600}
+.enclosed{box-shadow:inset 0 0 0 2px var(--primary);border-radius:var(--r-xs);padding:0 var(--sp-4);margin:0 var(--sp-2)}
+.lesson-line--stack{flex-wrap:wrap}
+.lesson-line--stack .lesson-line__note{flex-basis:100%;margin-left:calc(18px + var(--sp-12));padding-left:0;white-space:normal}
+.slot{display:inline-grid;place-items:center;min-width:48px;height:48px;padding:0 var(--sp-8);border-radius:var(--r-sm);background:var(--surface-sunken);box-shadow:inset 0 0 0 2px var(--border);font:500 28px var(--font-math)}
+.slot.is-active{box-shadow:inset 0 0 0 2px var(--primary);background:var(--surface)}
+.slot.is-filled{background:var(--primary-container);color:var(--on-primary-container);box-shadow:none}
+.tile-bank{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-8)}
+.tile-bank .choice{min-height:64px}
+.tile-bank .choice:disabled{opacity:.4;cursor:default}
+.rating--xl .ico{--icon-size:48px}
+.rating--xl{gap:var(--sp-8)}
+.result{flex:1;display:flex;flex-direction:column;gap:var(--gap-section);padding:var(--sp-16) var(--layout-gutter);overflow:auto}
+.result__hero{display:grid;justify-items:center;gap:var(--sp-8);text-align:center;padding:var(--sp-8) 0}
+.tick{display:flex;gap:var(--sp-12);align-items:center;font:400 16px/1.4 var(--font-body)}
+.tick .ico{flex:none;color:var(--success)}
+.tick .ico.is-lock{color:var(--subtle)}
+</style>
+</head>
+<body>
+<div class="pagebar">
+<a class="backlink" href="../design-system/concept.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Retour aux écrans concept</a>
+<select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7.5 12h9M12 7.5v9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.7L16 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+</svg>
+
+<div class="head">
+  <h1>Le déroulé d'un cours : exemple du cours 4</h1>
+  <p>Soustraire, c'est ajouter l'opposé. Une leçon, un exemple guidé, 5 exercices de fin, puis le résultat. Pendant le cours, pas de barre du bas : la barre d'étapes compte les 12 étapes (5 de leçon, 2 exemples guidés, 5 exercices).</p>
+</div>
+
+<!-- ============ 1. LEÇON ============ -->
+<section class="group" aria-labelledby="g1">
+  <h2 id="g1">1. La leçon</h2>
+  <p>Une idée par écran. Dans la leçon seulement, les négatifs sont en rouge et les positifs en bleu (doc 06).</p>
+  <div class="two">
+
+    <div class="col"><div class="label">Explication avec une image (étape 1)</div>
+      <div class="device">
+        <div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Quitter le cours"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" style="flex:1" data-stepper="12:1"></div></div>
+        <div class="c-body">
+          <div class="row"><span class="chip chip--module">Cours 4, leçon</span></div>
+          <h1 class="t-h3">Enlever une dette, c'est gagner de l'argent</h1>
+          <p class="t-body1">Tu as 5&nbsp;€. On t'enlève une dette de 3&nbsp;€ : tu n'as plus rien à devoir, c'est comme si on te donnait 3&nbsp;€.</p>
+          <div class="paper" style="padding:var(--sp-20);display:grid;gap:var(--sp-12);justify-items:center;text-align:center">
+            <p class="t-math"><span>5</span> <span class="enclosed">−&nbsp;(<span class="neg">−</span></span><span class="neg">3</span>)</p>
+            <svg class="ico ico--lg" style="color:var(--primary-ink)" aria-hidden="true"><use href="#i-arrow-down"/></svg>
+            <p class="t-math"><span>5</span> <span class="enclosed">+</span> <span class="pos">3</span> = <b>8</b></p>
+            <p class="t-body2" style="color:var(--muted)">Le « − (− » devient un « + ».</p>
+          </div>
+        </div>
+        <div class="c-foot"><button class="btn btn--contained btn--block" type="button">Suivant</button></div>
+      </div></div>
+
+    <div class="col"><div class="label">La règle, avec ses exemples (étape 2)</div>
+      <div class="device">
+        <div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Quitter le cours"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" style="flex:1" data-stepper="12:2"></div></div>
+        <div class="c-body">
+          <div class="row"><span class="chip chip--module">Cours 4, leçon</span></div>
+          <h1 class="t-h3">Soustraire, c'est ajouter l'opposé</h1>
+          <p class="t-body2" style="color:var(--muted)">Je transforme en addition, puis j'applique les cours 1 et 2.</p>
+          <div class="stack" style="gap:var(--sp-8)">
+            <div class="lesson-line lesson-line--ok"><span class="lesson-line__mark">✓</span><span>5 − (−3) = 5 + 3 = <b>8</b></span></div>
+            <div class="lesson-line lesson-line--ok"><span class="lesson-line__mark">✓</span><span>3 − 7 = 3 + (−7) = <b>−4</b></span></div>
+            <div class="lesson-line lesson-line--ok"><span class="lesson-line__mark">✓</span><span>−4 − 6 = −4 + (−6) = <b>−10</b></span></div>
+          </div>
+          <h2 class="t-h6" style="margin-top:var(--sp-4)">Fais attention</h2>
+          <div class="stack" style="gap:var(--sp-8)">
+            <div class="lesson-line lesson-line--ko lesson-line--stack"><span class="lesson-line__mark">✗</span><span>6 − (−2) = 6 − 2 = 4</span><span class="lesson-line__note">Le signe de −2 n'a pas changé : 6 − (−2) = 6 + 2.</span></div>
+            <div class="lesson-line lesson-line--neutral lesson-line--stack"><span class="lesson-line__mark">~</span><span>(−4) − 6</span><span class="lesson-line__note">Pas faux, mais inutile : en tête, pas de parenthèses.</span></div>
+          </div>
+        </div>
+        <div class="c-foot"><button class="btn btn--contained btn--block" type="button">Suivant</button></div>
+      </div></div>
+
+    <div class="col"><div class="label">Question de leçon guidée (étape 3)</div>
+      <div class="device">
+        <div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Quitter le cours"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" style="flex:1" data-stepper="12:3"></div></div>
+        <div class="c-body">
+          <div class="row"><span class="chip chip--module">Cours 4, leçon</span></div>
+          <h1 class="t-h3">Réécris 5 − (−3) comme une addition</h1>
+          <p class="t-body2" style="color:var(--muted)">Touche les étiquettes dans l'ordre. Attention, il y en a une en trop.</p>
+          <div class="answer" style="justify-content:flex-start;gap:var(--sp-8)" aria-label="Ta réponse"><span class="slot is-filled">5</span><span class="slot is-filled">+</span><span class="slot is-active"></span></div>
+          <div class="tile-bank" aria-label="Étiquettes">
+            <button class="choice" type="button" disabled>5</button><button class="choice" type="button" disabled>+</button><button class="choice" type="button">3</button><button class="choice" type="button">−</button>
+          </div>
+          <div style="flex:1"></div>
+          <button class="btn btn--text" type="button" style="justify-self:center;align-self:center">Effacer</button>
+        </div>
+        <div class="c-foot"><button class="btn btn--contained btn--block" type="button" disabled>Valider</button></div>
+      </div></div>
+
+  </div>
+</section>
+
+<!-- ============ 2. EXEMPLE GUIDÉ ============ -->
+<section class="group" aria-labelledby="g2">
+  <h2 id="g2">2. L'exemple guidé</h2>
+  <p>Chaque case vide est une petite réponse tapée. Les cases s'enchaînent dans l'ordre (doc 06).</p>
+  <div class="two">
+    <div class="col"><div class="label">Exemple guidé à compléter (étape 6)</div>
+      <div class="device">
+        <div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Quitter le cours"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" style="flex:1" data-stepper="12:6"></div></div>
+        <div class="q-body">
+          <div class="row"><span class="chip chip--module">Cours 4, exemple guidé 1 sur 2</span></div>
+          <div class="q-expr">
+            <p class="t-body2">Complète, une case après l'autre.</p>
+            <p class="t-math-xl" style="font-size:34px">6 − (−4)</p>
+            <p class="t-math" style="display:flex;gap:var(--sp-8);align-items:center">= 6 + <span class="slot is-filled">4</span></p>
+            <p class="t-math" style="display:flex;gap:var(--sp-8);align-items:center">= <span class="slot is-active"><span class="answer__caret" style="height:28px"></span></span></p>
+          </div>
+        </div>
+        <div data-keypad></div>
+      </div></div>
+
+    <!-- ============ 3. EXERCICE DE FIN (écran validé de concept.html) ============ -->
+    <div class="col"><div class="label">Exercice de fin, réponse tapée (étape 9, écran validé)</div>
+      <div class="device">
+        <div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)">
+          <button class="icon-btn" type="button" aria-label="Quitter le cours"><svg class="ico"><use href="#i-close"/></svg></button>
+          <div class="stepper" style="flex:1" aria-label="Question 9 sur 12">
+            <span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-error"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-done"></span><span class="stepper__step is-current"></span><span class="stepper__step"></span><span class="stepper__step"></span><span class="stepper__step"></span>
+          </div>
+        </div>
+        <div class="q-body">
+          <div class="row" style="justify-content:space-between">
+            <span class="chip chip--module">Cours 4, exercice 2 sur 5</span>
+          </div>
+          <div class="q-expr">
+            <p class="t-body2">Calcule.</p>
+            <p class="t-math-xl">5 − (−3) + (−4)</p>
+          </div>
+          <div class="answer" aria-label="Ta réponse"><span class="math">4</span><span class="answer__caret"></span></div>
+        </div>
+        <div data-keypad></div>
+      </div></div>
+  </div>
+</section>
+
+<!-- ============ 4. RÉSULTAT ============ -->
+<section class="group" aria-labelledby="g4">
+  <h2 id="g4">3. Le résultat du cours</h2>
+  <p>Cours validé : au moins 80 % de bonnes réponses sur tout le cours et au moins 4 exercices de fin justes sur 5 (doc 01 §2). Les deux cas, côte à côte.</p>
+  <div class="two">
+    <div class="col"><div class="label">Cours validé</div>
+      <div class="device" id="dev-ok"></div></div>
+    <div class="col"><div class="label">Cours non validé</div>
+      <div class="device" id="dev-ko"></div></div>
+  </div>
+</section>
+
+<!-- ============ 5. RATTRAPAGE ============ -->
+<section class="group" aria-labelledby="g5">
+  <h2 id="g5">4. Le rattrapage</h2>
+  <p>Série de 5 exercices, réponse tapée, validée à 4 sur 5. Elle peut la recommencer autant de fois que nécessaire et relire la leçon quand elle veut.</p>
+  <div class="two">
+    <div class="col"><div class="label">Série de rattrapage (exercice 3 sur 5)</div>
+      <div class="device">
+        <div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Quitter le rattrapage"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" style="flex:1" data-stepper="5:3:2"></div></div>
+        <div class="q-body">
+          <div class="row" style="justify-content:space-between">
+            <span class="chip chip--module">Rattrapage, 3 sur 5</span>
+            <button class="btn btn--text btn--sm" type="button" style="padding:0 var(--sp-8);white-space:nowrap"><svg class="ico ico--sm"><use href="#i-book"/></svg>Relire la leçon</button>
+          </div>
+          <div class="q-expr">
+            <p class="t-body2">Calcule.</p>
+            <p class="t-math-xl">−4 − (−7)</p>
+          </div>
+          <div class="answer" aria-label="Ta réponse"><span class="math">3</span><span class="answer__caret"></span></div>
+        </div>
+        <div data-keypad></div>
+      </div></div>
+
+    <div class="col"><div class="label">Résultat du rattrapage</div>
+      <div class="states" id="rattStates" role="group" aria-label="Résultat du rattrapage">
+        <button type="button" data-r="ok" aria-pressed="true">4 sur 5</button>
+        <button type="button" data-r="ko" aria-pressed="false">3 sur 5</button>
+      </div>
+      <div class="device" id="dev-ratt"></div></div>
+  </div>
+</section>
+
+<p class="legend">Les écrans de leçon et les exemples guidés ont la même <b>barre d'étapes</b> que les exercices, sans <b>barre du bas</b>. Les couleurs ne servent à expliquer que dans la leçon : <b>✓ vert</b>, <b>✗ rouge du prof</b> et <b>gris</b> pour « pas faux, mais inutile ». L'exercice de fin est l'écran question validé, repris tel quel. Pour le résultat, <b>vert</b> pour ce qui est acquis, <b>rouge</b> pour ce qui manque, et un seul bouton principal.</p>
+
+<div class="questions">
+  <h2 class="t-h5">Questions pour toi</h2>
+  <p><b>1.</b> Pour la première révision, on écrit « dans 48 heures » ou la date, « mercredi 25 novembre » ? J'ai mis la date, plus concrète.</p>
+  <p><b>2.</b> Quand le cours n'est pas validé, on montre les chiffres (10 sur 12, 83 %, 3 exercices sur 5) ? J'ai mis les chiffres, avec le critère qui manque en rouge.</p>
+  <p><b>3.</b> Les docs ne disent pas si le rattrapage de 5 exercices repose sur de nouveaux calculs à chaque fois. J'ai supposé que oui, et que « Relire la leçon » reste toujours un petit bouton discret.</p>
+</div>
+
+<script>
+(function(){
+  function stepper(total, cur, err){
+    var errs = String(err||'').split(',').filter(Boolean).map(Number), h='';
+    for(var i=1;i<=total;i++){
+      var c='stepper__step';
+      if(errs.indexOf(i)>-1) c+=' is-error'; else if(cur===0||i<cur) c+=' is-done'; else if(i===cur) c+=' is-current';
+      h+='<span class="'+c+'"></span>';
+    }
+    return h;
+  }
+  document.querySelectorAll('[data-stepper]').forEach(function(el){
+    var p=el.getAttribute('data-stepper').split(':'), total=+p[0], cur=+p[1];
+    el.innerHTML=stepper(total,cur,p[2]);
+    el.setAttribute('aria-label','Étape '+cur+' sur '+total);
+  });
+  var keypad='<div class="keypad" style="border-radius:var(--r-lg) var(--r-lg) 0 0">'+
+    '<button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button><button class="key key--fn" type="button" aria-label="Effacer"><svg class="ico"><use href="#i-backspace"/></svg></button>'+
+    '<button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button><button class="key key--sign" type="button" aria-label="moins">−</button>'+
+    '<button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button><button class="key key--fn" type="button" aria-label="fraction"><span class="frac-icon"><i></i><span></span><i></i></span></button>'+
+    '<button class="key" type="button">(</button><button class="key" type="button">0</button><button class="key" type="button">)</button><button class="key key--fn" type="button" aria-label="case suivante"><svg class="ico"><use href="#i-arrow-right"/></svg></button>'+
+    '<button class="key key--submit" type="button" style="grid-column:span 4">Valider</button></div>';
+  document.querySelectorAll('[data-keypad]').forEach(function(el){ el.outerHTML=keypad; });
+
+  var close='<div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" style="flex:1" ';
+  var starsBig='<span class="rating rating--xl" aria-label="1 étoile sur 3"><svg class="ico"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg><svg class="ico is-empty"><use href="#i-star"/></svg></span>';
+  var okI='<svg class="ico"><use href="#i-check-circle"/></svg>', lockI='<svg class="ico is-lock"><use href="#i-lock"/></svg>', clockI='<svg class="ico" style="color:var(--primary-ink)"><use href="#i-clock"/></svg>';
+  function validated(title, sub, bar){
+    return close+'data-s="'+bar+'"></div></div><div class="result">'+
+      '<div class="result__hero">'+starsBig+'<h1 class="t-h2">'+title+'</h1><p class="t-body1" style="color:var(--muted)">'+sub+'</p></div>'+
+      '<div class="card" style="gap:var(--sp-12)">'+
+        '<div class="tick">'+okI+'<span>Le cours 5, « Multiplier deux relatifs », est débloqué.</span></div>'+
+        '<div class="tick">'+okI+'<span>Tu gagnes la 1re étoile du cours 4.</span></div>'+
+        '<div class="tick">'+clockI+'<span>Première révision dans 48 heures, mercredi 25 novembre.</span></div>'+
+      '</div><div style="flex:1"></div>'+
+      '<button class="btn btn--contained btn--block" type="button">Commencer le cours 5</button>'+
+      '<button class="btn btn--text" type="button" style="justify-self:center;align-self:center">Retour à l\'accueil</button></div>';
+  }
+  var okErr='5', koErr='5,9,11';
+  function fill(id, html, total, cur, err){
+    var d=document.getElementById(id); d.innerHTML=html;
+    var s=d.querySelector('[data-s]'); s.innerHTML=stepper(total,0,err); s.className='stepper'; s.style.flex='1';
+    s.setAttribute('aria-label',total+' étapes terminées');
+  }
+  fill('dev-ok', validated('Cours 4 validé','11 bonnes réponses sur 12, dont 5 exercices de fin justes sur 5.','12'), 12, 0, okErr);
+
+  var ko='<div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" data-s="1"></div></div><div class="result">'+
+    '<div class="result__hero"><span class="course-num is-retry" aria-hidden="true">4</span><h1 class="t-h2">Le cours 4 n\'est pas encore validé</h1></div>'+
+    '<p class="t-body2" style="color:var(--muted)">Pour valider un cours, il faut réussir deux choses.</p><div class="stack" style="gap:var(--sp-8)">'+
+      '<div class="alert alert--success"><svg class="ico"><use href="#i-check-circle"/></svg><div class="alert__title">80 % sur tout le cours</div><div>Tu as 10 bonnes réponses sur 12, soit 83 %.</div></div>'+
+      '<div class="alert alert--error"><svg class="ico"><use href="#i-x-circle"/></svg><div class="alert__title">4 exercices de fin sur 5</div><div>Tu en as réussi 3. Elle vérifie que tu sais calculer seule.</div></div>'+
+    '</div>'+
+    '<p class="t-body2" style="color:var(--muted)">Pas besoin de refaire la leçon : fais 5 exercices, et avec 4 justes le cours est validé. Tu peux recommencer autant que nécessaire.</p>'+
+    '<div style="flex:1"></div>'+
+    '<button class="btn btn--contained btn--block" type="button">Faire le rattrapage</button>'+
+    '<button class="btn btn--text" type="button" style="justify-self:center;align-self:center">Relire la leçon</button></div>';
+  fill('dev-ko', ko, 12, 0, koErr);
+
+  function ratt(k){
+    var html;
+    if(k==='ok'){
+      html=validated('Cours 4 validé','Rattrapage réussi : 4 exercices justes sur 5.','5');
+      fill('dev-ratt', html, 5, 0, '2');
+    } else {
+      html='<div class="appbar c-appbar"><button class="icon-btn" type="button" aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button><div class="stepper" data-s="1"></div></div><div class="result">'+
+        '<div class="result__hero"><span class="course-num is-retry" aria-hidden="true">4</span><h1 class="t-h2">3 sur 5, il en faut 4</h1><p class="t-body1" style="color:var(--muted)">Ce n\'est pas encore ça, mais tu peux recommencer autant de fois que nécessaire.</p></div>'+
+        '<div class="tick"><svg class="ico is-lock"><use href="#i-lock"/></svg><span>Le cours 5 se débloque quand le cours 4 est validé.</span></div>'+
+        '<div style="flex:1"></div>'+
+        '<button class="btn btn--contained btn--block" type="button">Refaire une série de 5</button>'+
+        '<button class="btn btn--text" type="button" style="justify-self:center;align-self:center">Relire la leçon</button></div>';
+      fill('dev-ratt', html, 5, 0, '2,4');
+    }
+    document.querySelectorAll('[data-r]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-r')===k)); });
+  }
+  document.querySelectorAll('[data-r]').forEach(function(b){ b.addEventListener('click', function(){ ratt(b.getAttribute('data-r')); }); });
+  ratt('ok');
+})();
+</script>
+</body>
+</html>

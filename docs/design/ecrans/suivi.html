@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plus ou moins · Page de suivi du parent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../design-system/styles.css">
+<script src="../design-system/theme.js"></script>
+<style>
+/* habillage de la page de maquettes */
+body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;align-items:center}
+.head{max-width:680px;text-align:center;margin-bottom:20px}
+.head h1{font:700 26px var(--font-display);color:var(--on-surface)}
+.head p{color:var(--muted);font-size:15px;margin-top:8px;line-height:1.6}
+.states{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:8px}
+.states button{border:0;background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px var(--font-body);cursor:pointer;box-shadow:inset 0 0 0 1px var(--border)}
+.states button[aria-pressed="true"]{background:var(--on-surface);color:var(--surface);font-weight:600;box-shadow:none}
+.state-note{font-size:14px;color:var(--muted);text-align:center;max-width:52ch;margin:0 auto 20px;min-height:2.8em}
+.two{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:100%}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(375px,100%)}
+.col .label{font:600 14px var(--font-body);color:var(--muted)}
+.device{position:relative;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.scrollbody{flex:1;overflow:auto;padding:var(--sp-20) var(--layout-gutter) var(--sp-24);display:flex;flex-direction:column;gap:var(--gap-section)}
+.legend{max-width:620px;margin-top:20px;font-size:14px;color:var(--muted);line-height:1.7;text-align:center}
+.legend b{color:var(--on-surface)}
+.backlink{position:fixed;top:14px;left:max(14px,env(safe-area-inset-left,0px));z-index:50;display:inline-flex;align-items:center;gap:6px;font:600 14px var(--font-body);text-decoration:none;color:var(--primary-ink);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
+#themeSel{position:fixed;top:14px;right:max(14px,env(safe-area-inset-right,0px));z-index:50;font:600 13px var(--font-body);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--muted)}
+.pagebar{display:contents}
+@media (max-width:700px){
+  body{padding-top:16px}
+  .pagebar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;width:100%}
+  .backlink,#themeSel{position:static}
+}
+.questions{max-width:620px;width:100%;margin-top:28px;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-16) var(--sp-20)}
+.questions p,.questions li{font-size:15px;color:var(--muted);margin-top:8px;line-height:1.6}
+.questions ol{padding-left:var(--sp-20)}
+.questions b{color:var(--on-surface)}
+
+/* ---- composants propres au suivi (tokens uniquement) ---- */
+.top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
+.who{display:inline-flex;align-items:center;gap:var(--sp-4);min-height:var(--target-min);padding:0 var(--sp-8) 0 0;border:0;background:none;color:var(--on-surface);font:700 26px var(--font-display);cursor:pointer}
+.who .ico{color:var(--muted)}
+.kicker{font:600 14px var(--font-body);color:var(--muted)}
+.ro{display:inline-flex;align-items:center;gap:var(--sp-4);font:500 13px var(--font-body);color:var(--on-muted-surface);background:var(--muted-surface);border-radius:var(--r-full);padding:var(--sp-4) var(--sp-12)}
+.block{display:grid;gap:var(--sp-12)}
+.block__head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-8)}
+
+/* 28 jours : un point par jour */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);justify-items:center}
+.cal__wd{font:500 12px var(--font-body);color:var(--muted);padding-bottom:var(--sp-4)}
+.cal__day{width:100%;min-height:var(--target-min);display:grid;place-items:center;border:0;background:none;padding:0;cursor:pointer;border-radius:var(--r-sm)}
+.dot{display:inline-block;width:22px;height:22px;border-radius:var(--r-full);box-sizing:border-box;border:2px solid var(--tick)}
+.dot--full{background:var(--goal);border-color:var(--goal)}
+.dot--half{border-color:var(--goal);background:linear-gradient(90deg,var(--goal) 50%,transparent 50%)}
+.cal__day[aria-pressed="true"]{background:var(--primary-container)}
+.cal__day.is-today .dot{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
+.cal__key{display:flex;flex-wrap:wrap;gap:var(--sp-4) var(--sp-16);font:400 13px var(--font-body);color:var(--muted)}
+.cal__key span{display:inline-flex;align-items:center;gap:var(--sp-8)}
+.cal__key .dot{width:14px;height:14px;border-width:2px}
+.dayinfo{background:var(--surface-sunken);border-radius:var(--r-md);padding:var(--sp-12) var(--sp-16);display:grid;gap:var(--sp-2)}
+.dayinfo b{font:600 15px var(--font-body);color:var(--on-surface)}
+
+/* lignes d'état */
+.facts{display:grid}
+.fact{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-12);min-height:var(--target-min);padding:var(--sp-8) 0;color:var(--on-surface);text-decoration:none;background:none;border:0;border-top:1px solid var(--border-faint);width:100%;font:inherit;text-align:left}
+.fact:first-child{border-top:0}
+.fact__label{font:500 16px var(--font-body);color:var(--on-surface)}
+.fact__value{font:600 17px var(--font-body);color:var(--on-surface);display:flex;align-items:center;gap:var(--sp-8);text-align:right;font-variant-numeric:tabular-nums}
+.fact__sub{font:400 13px var(--font-body);color:var(--muted);font-weight:400}
+.fact__stack{display:grid;justify-items:end}
+.trend{display:inline-flex;align-items:center;gap:var(--sp-4);color:var(--success);font:600 14px var(--font-body)}
+.trend.is-up{color:var(--error-ink)}
+.trend.is-flat{color:var(--muted)}
+.fact .chev{color:var(--subtle)}
+
+/* accordéons (révisions, erreurs) */
+.acc{border-top:1px solid var(--border-faint)}
+.acc:first-of-type{border-top:0}
+.acc>summary{list-style:none;display:flex;align-items:center;gap:var(--sp-12);min-height:var(--target-min);padding:var(--sp-8) 0;cursor:pointer}
+.acc>summary::-webkit-details-marker{display:none}
+.acc__rank{width:28px;height:28px;border-radius:var(--r-full);background:var(--error-container);color:var(--on-error-container);display:grid;place-items:center;font:600 14px var(--font-body);flex:none}
+.acc__text{flex:1;min-width:0;display:grid}
+.acc__title{font:600 16px/1.3 var(--font-body);color:var(--on-surface)}
+.acc__sub{font:400 13px var(--font-body);color:var(--muted)}
+.acc__n{font:600 15px var(--font-body);color:var(--on-surface);white-space:nowrap}
+.acc>summary .chev{color:var(--subtle);transition:transform var(--dur-base) var(--ease)}
+.acc[open]>summary .chev{transform:rotate(90deg)}
+.acc__body{padding:0 0 var(--sp-12)}
+.errs{display:grid;gap:var(--sp-8);list-style:none;padding:0;margin:0}
+.err{background:var(--surface-sunken);border-radius:var(--r-md);padding:var(--sp-12);display:grid;gap:var(--sp-4)}
+.err__top{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-8)}
+.err__expr{font:500 19px var(--font-math);color:var(--on-surface);font-variant-numeric:tabular-nums;white-space:nowrap}
+.err p{font:400 14px/1.45 var(--font-body);color:var(--muted)}
+.err p b{font-weight:600;color:var(--on-surface);font-variant-numeric:tabular-nums;white-space:nowrap}
+.err p b.is-good{color:var(--success)}
+.err p b.is-wrong{color:var(--error-ink)}
+.err .chip{height:26px;font-size:13px;justify-self:start;margin-top:var(--sp-2)}
+.list-note{font:400 13px var(--font-body);color:var(--muted);padding-top:var(--sp-8)}
+.empty{display:flex;align-items:center;gap:var(--sp-12);color:var(--on-success-container);background:var(--success-container);border-radius:var(--r-md);padding:var(--sp-12) var(--sp-16);font:600 16px var(--font-body)}
+.empty .ico{flex:none}
+
+/* à retravailler et module : lignes de cours */
+.crow{display:flex;align-items:center;gap:var(--sp-12);padding:var(--sp-12) var(--sp-16);min-height:72px;background:none;border:0;border-top:1px solid var(--border-faint);width:100%;font:inherit;text-align:left;color:var(--on-surface);cursor:pointer;text-decoration:none}
+.crow:first-child{border-top:0}
+.crow.is-locked{cursor:default}
+.cnum{width:40px;height:40px;border-radius:var(--r-sm);flex:none;display:grid;place-items:center;background:var(--secondary-container);color:var(--on-secondary-container);font:700 19px var(--font-display)}
+.cnum.is-retry{background:var(--error-container);color:var(--on-error-container)}
+.cnum.is-locked{background:var(--muted-surface);color:var(--subtle)}
+.cnum.is-going{background:var(--surface);color:var(--on-secondary-container);box-shadow:inset 0 0 0 2px var(--secondary)}
+.crow__text{flex:1;min-width:0;display:grid;gap:var(--sp-2)}
+.crow__title{font:600 16px/1.3 var(--font-body)}
+.crow.is-locked .crow__title{color:var(--subtle)}
+.crow__meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-4) var(--sp-8);font:400 14px var(--font-body);color:var(--muted)}
+.crow__note{font:400 13px/1.4 var(--font-body);color:var(--muted)}
+.crow__note.is-warn{color:var(--error-ink);font-weight:600}
+.crow__trail{display:flex;align-items:center;gap:var(--sp-4);color:var(--subtle);flex:none}
+.warn{color:var(--error-ink)}
+.pct{font:600 14px var(--font-body);color:var(--on-surface);font-variant-numeric:tabular-nums}
+.pct.is-low{color:var(--error-ink)}
+.state{display:inline-flex;align-items:center;height:22px;padding:0 var(--sp-8);border-radius:var(--r-full);font:600 12px var(--font-body);background:var(--success-container);color:var(--on-success-container)}
+.state--retry{background:var(--error-container);color:var(--on-error-container)}
+.state--going{background:var(--primary-container);color:var(--on-primary-container)}
+.state--none{background:var(--muted-surface);color:var(--on-muted-surface)}
+
+/* écran cours */
+.chead{display:flex;gap:var(--sp-12);align-items:flex-start}
+.cfacts{display:grid;gap:var(--sp-4);font:400 15px/1.5 var(--font-body);color:var(--muted)}
+.cfacts b{font-weight:600;color:var(--on-surface)}
+.revs{display:flex;flex-wrap:wrap;gap:var(--sp-8)}
+.revs .chip{height:36px}
+.bars{display:grid;gap:var(--sp-12)}
+.bar{display:grid;grid-template-columns:1fr auto;gap:var(--sp-4) var(--sp-8);align-items:center}
+.bar__label{font:500 15px var(--font-body);color:var(--on-surface)}
+.bar__n{font:600 15px var(--font-body);color:var(--on-surface);font-variant-numeric:tabular-nums}
+.bar__track{grid-column:1/-1;height:8px;border-radius:var(--r-full);background:var(--surface-sunken);overflow:hidden}
+.bar__track i{display:block;height:100%;width:var(--v);background:var(--error);border-radius:var(--r-full)}
+.bar__track i.is-other{background:var(--subtle)}
+.appbar .appbar__sub{font:400 13px var(--font-body);color:var(--muted);padding-right:var(--sp-12);white-space:nowrap}
+.appbar__title{font-size:17px}
+</style>
+</head>
+<body>
+<div class="pagebar">
+<a class="backlink" href="../design-system/concept.html"><svg class="ico ico--sm"><use href="#i-back"/></svg> Retour au design system</a>
+<select id="themeSel" title="Thème" aria-label="Thème"><option value="">Clair</option><option value="dark">Sombre</option></select>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M7.5 12h9M12 7.5v9"/></symbol>
+  <symbol id="i-review" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.7L16 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1.2 2.5 2.3 2.5C11 7.5 11 5 12 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-more-v" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-backspace" viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M17 9.5l-5 5M12 9.5l5 5"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M22 17l-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+  <symbol id="i-trend-up" viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+</svg>
+
+
+<div class="head">
+  <h1>Page de suivi du parent</h1>
+  <p>Trois niveaux, en lecture seule, sur téléphone : l'accueil, un module, un cours. Maquettes statiques à valider ; rien n'est codé. Les données sont fictives (Léa, dimanche 22 novembre).</p>
+</div>
+
+<div class="states" role="group" aria-label="Situation de Léa">
+  <button type="button" data-state="coince" aria-pressed="true">Elle bloque sur un cours</button>
+  <button type="button" data-state="bien" aria-pressed="false">Tout va bien</button>
+</div>
+<p class="state-note" id="stateNote"></p>
+
+<div class="two">
+  <!-- ============ NIVEAU 1 : ACCUEIL ============ -->
+  <div class="col" id="s1">
+    <div class="label">1. Accueil</div>
+    <div class="device">
+      <main class="scrollbody" id="home"></main>
+    </div>
+  </div>
+
+  <!-- ============ NIVEAU 2 : MODULE ============ -->
+  <div class="col" id="s2">
+    <div class="label">2. Module Calculs</div>
+    <div class="device">
+      <div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)">
+        <a class="icon-btn" href="#s1" aria-label="Retour à l'accueil"><svg class="ico"><use href="#i-back"/></svg></a>
+        <span class="appbar__title">Calculs</span>
+        <span class="appbar__sub" id="modCount"></span>
+      </div>
+      <main class="scrollbody" id="module"></main>
+    </div>
+  </div>
+
+  <!-- ============ NIVEAU 3 : COURS ============ -->
+  <div class="col" id="s3">
+    <div class="label">3. Cours</div>
+    <div class="device">
+      <div class="appbar" style="padding:var(--sp-8) var(--sp-16) 0 var(--sp-4)">
+        <a class="icon-btn" href="#s2" aria-label="Retour au module Calculs"><svg class="ico"><use href="#i-back"/></svg></a>
+        <span class="appbar__title" id="cTitle"></span>
+      </div>
+      <main class="scrollbody" id="course"></main>
+    </div>
+  </div>
+</div>
+
+<p class="legend">Une seule couleur par idée. <b>Vert</b> pour l'objectif atteint et les calculs justes, <b>rouge du prof</b> pour ce qui coince (⚠, erreurs, cours à rattraper), <b>corail</b> pour le module Calculs, <b>indigo</b> pour la sélection. Le suivi n'a pas la barre du bas de l'élève : on avance en touchant une ligne, on revient avec la flèche en haut à gauche. Les périodes sont de <b>28 jours</b> (doc 07 n° 18), la tendance compare les 7 derniers jours avec les 7 jours d'il y a 4 semaines. Touche un point du calendrier pour voir le détail du jour, une révision ou une erreur pour déplier sa liste. Les boutons du haut changent la situation de Léa.</p>
+
+<div class="questions">
+  <h2 class="t-h5">Questions pour toi</h2>
+  <ol>
+    <li><b>28 jours partout ?</b> Le doc 05 parle de 30 jours pour le calendrier, les erreurs communes et le taux de réussite des cours. J'ai tout passé à 28 jours pour rester cohérent avec le n° 18 (4 lignes de 7 points, une par semaine). C'est ok ?</li>
+    <li><b>Un cours à rattraper qui a aussi un ⚠.</b> Le cours 4 cumule l'état « à rattraper » et le ⚠ (réussite sous 70 %). J'ai gardé les deux, l'état d'abord. Tu préfères un seul signal ?</li>
+    <li><b>Plusieurs élèves.</b> Le prénom en haut ouvre la liste des élèves. Je l'ai dessiné comme un simple bouton sans le déplier. Une liste en bas de l'écran (feuille) te convient ?</li>
+  </ol>
+</div>
+
+<script>
+(function(){
+  var MINUS = '−';
+  function ico(id, cls){ return '<svg class="ico'+(cls?' '+cls:'')+'" aria-hidden="true"><use href="#'+id+'"/></svg>'; }
+  function stars(n){ var s=''; for(var i=0;i<3;i++) s += '<svg class="ico'+(i<n?'':' is-empty')+'"><use href="#i-star"/></svg>'; return '<span class="rating rating--sm" role="img" aria-label="'+n+' étoile'+(n>1?'s':'')+' sur 3">'+s+'</span>'; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  function m(s){ return String(s).replace(/-/g, MINUS); }
+
+  /* ---------- calendrier : 28 jours, du lundi 26 octobre au dimanche 22 novembre ---------- */
+  var BASE = Date.UTC(2026,9,26);
+  var PAT = { coince:'npggngg'+'ggpngpg'+'gggpngg'+'gpggggp', bien:'npggngg'+'ggpngpg'+'gggpngg'+'gpggggg' };
+  var TODAY_MIN = { coince:9, bien:17 };
+  function dayLabel(i){ return new Date(BASE+i*864e5).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'}); }
+  function minutes(i, c, st){
+    if(i===27) return TODAY_MIN[st];
+    if(c==='g') return 15+(i*7)%9;
+    if(c==='p') return 3+(i*5)%10;
+    return 0;
+  }
+  function streak(p){ var i=27, n=0; if(p[i]!=='g') i--; while(i>=0 && p[i]==='g'){ n++; i--; } return n; }
+
+  /* ---------- données ---------- */
+  var ERR_SIGNE = [
+    ['21/11','cours 4','14 − 27','13','−13',''],
+    ['21/11','cours 4','6 − 15','9','−9',''],
+    ['20/11','cours 4','3 − 8','5','−5','raté 3 fois, passé'],
+    ['17/11','cours 4','2 − 9','7','−7',''],
+    ['15/11','cours 3','3 + (−8) + 2','3','−3',''],
+    ['15/11','cours 3','−12 + 5 + (−4)','11','−11',''],
+    ['14/11','cours 3','13 + (−28) + 9','6','−6',''],
+    ['12/11','cours 4','4 − 11','7','−7',''],
+    ['10/11','cours 3','−2 + 5 + (−6)','3','−3','']
+  ];
+  var ERR_OPPOSE = [
+    ['21/11','cours 4','12 − (−6)','6','18',''],
+    ['20/11','cours 4','9 − (−2)','7','11',''],
+    ['19/11','cours 4','5 − (−3)','2','8',''],
+    ['12/11','cours 4','6 − (−4)','2','10','']
+  ];
+  var ERR_ECRIT = [
+    ['18/11','cours 2','−3 + (−5)','8−','−8',''],
+    ['11/11','cours 1','−7 + (−2)','9−','−9','']
+  ];
+  var COMMON = [
+    {t:'Signe inversé', sub:'dans les cours 3 et 4', n:9, l:ERR_SIGNE},
+    {t:'Opposé oublié', sub:'dans le cours 4', n:4, l:ERR_OPPOSE},
+    {t:'Moins après le nombre', sub:'erreur d\'écriture, cours 1 et 2', n:2, l:ERR_ECRIT}
+  ];
+
+  /* modules : [num, titre, état, étoiles, niveau, taux, prochaine, note, ⚠] */
+  var MOD = {
+    coince:[
+      [0,'Bien écrire un calcul','ok',3,3,97,'prochaine révision mercredi 25 novembre','',false],
+      [1,'Additionner deux nombres de même signe','ok',3,3,95,'en attente depuis jeudi','',false],
+      [2,'Additionner deux nombres de signes contraires','ok',2,2,88,'en attente depuis vendredi','',false],
+      [3,'Additionner plusieurs relatifs','ok',2,2,74,'en attente depuis mardi','2 révisions ratées d\'affilée',true],
+      [4,'Soustraire, c\'est ajouter l\'opposé','retry',0,0,58,'','Fin de cours ratée : 3 sur 5, il en faut 4',true],
+      [5,'Multiplier deux relatifs','none'],[6,'Diviser deux relatifs','none'],[7,'Multiplier plusieurs relatifs','none']
+    ],
+    bien:[
+      [0,'Bien écrire un calcul','ok',3,3,97,'prochaine révision mercredi 25 novembre','',false],
+      [1,'Additionner deux nombres de même signe','ok',3,3,95,'prochaine révision samedi 28 novembre','',false],
+      [2,'Additionner deux nombres de signes contraires','ok',2,2,88,'prochaine révision lundi 23 novembre','',false],
+      [3,'Additionner plusieurs relatifs','ok',3,3,91,'prochaine révision lundi 23 novembre','',false],
+      [4,'Soustraire, c\'est ajouter l\'opposé','going',0,0,0,'','Leçon commencée vendredi, pas encore terminée',false],
+      [5,'Multiplier deux relatifs','none'],[6,'Diviser deux relatifs','none'],[7,'Multiplier plusieurs relatifs','none']
+    ]
+  };
+  function validated(st){ return MOD[st].filter(function(r){return r[2]==='ok';}).length; }
+
+  /* détail de cours : état, lignes de dates, révisions, erreurs, dernières erreurs */
+  function cdet(st, n){
+    var r = MOD[st][n], title = r[1];
+    var d = {num:n, title:title, stars:r[3], niv:r[4], taux:r[5], warn:r[8], revs:[], errs:[], last:[], state:r[2]};
+    var ok = function(x){return [x,true];}, ko = function(x){return [x,false];};
+    if(n===0){ d.etape='H'; d.facts=['Validé le <b>29 octobre</b>','Prochaine révision : <b>mercredi 25 novembre</b>']; d.revs=[ok('31/10'),ok('02/11'),ok('09/11'),ok('16/11')]; d.etape='D'; }
+    if(n===1){ d.etape='D'; d.facts=['Validé le <b>30 octobre</b>', st==='coince'?'Prochaine révision : <b>en attente depuis jeudi 19 novembre</b>':'Prochaine révision : <b>samedi 28 novembre</b>']; d.revs=[ok('01/11'),ok('03/11'),ok('10/11'),ok('17/11')]; }
+    if(n===2){ d.etape='B'; d.facts=['Validé le <b>1er novembre</b>', st==='coince'?'Prochaine révision : <b>en attente depuis vendredi 20 novembre</b>':'Prochaine révision : <b>lundi 23 novembre</b>']; d.revs=[ok('03/11'),ok('05/11'),ok('11/11'),ok('18/11')]; d.errs=[['Moins après le nombre',1]]; d.last=ERR_ECRIT.slice(0,1); }
+    if(n===3){
+      if(st==='coince'){
+        d.etape='B'; d.facts=['Validé le <b>3 novembre</b>','Prochaine révision : <b>en attente depuis mardi 17 novembre</b>'];
+        d.revs=[ok('05/11'),ok('07/11'),ko('14/11'),ko('15/11')];
+        d.errs=[['Signe inversé',4],['Autre',1]];
+        d.last=[ERR_SIGNE[4],ERR_SIGNE[5],ERR_SIGNE[6],ERR_SIGNE[8],['12/11','cours 3','8 + (−3) + (−2)','4','3','']];
+        d.last.sort(function(a,b){return 0;});
+      } else {
+        d.etape='E'; d.facts=['Validé le <b>3 novembre</b>','Prochaine révision : <b>lundi 23 novembre</b>'];
+        d.revs=[ok('05/11'),ok('07/11'),ok('14/11'),ok('16/11')];
+        d.errs=[['Signe inversé',4],['Autre',1]];
+        d.last=[ERR_SIGNE[4],ERR_SIGNE[5],ERR_SIGNE[6],ERR_SIGNE[8],['12/11','cours 3','8 + (−3) + (−2)','4','3','']];
+      }
+    }
+    if(n===4){
+      if(st==='coince'){
+        d.etape=null; d.facts=['Pas encore validé : <b>3 sur 5</b> aux exercices de fin, le 21 novembre','Le rattrapage lui est proposé'];
+        d.errs=[['Signe inversé',5],['Opposé oublié',4]];
+        d.last=[ERR_SIGNE[0],ERR_SIGNE[1],ERR_SIGNE[2],ERR_OPPOSE[0],ERR_OPPOSE[1],ERR_OPPOSE[2],ERR_SIGNE[3],ERR_SIGNE[7],ERR_OPPOSE[3]];
+      } else {
+        d.etape=null; d.facts=['Cours en cours d\'apprentissage','Leçon commencée vendredi, exercices de fin pas encore faits']; d.errs=[]; d.last=[];
+      }
+    }
+    return d;
+  }
+  var NAMES = {coince:'Elle bloque sur le cours 4 : fin de cours ratée, et le cours 3 a raté 2 révisions d\'affilée.', bien:'Objectif du jour atteint, révisions à jour, aucun cours en difficulté.'};
+
+  /* ---------- rendu : détail d'un cours (niveau 3) ---------- */
+  function errLi(e){
+    return '<li class="err"><div class="err__top"><span class="err__expr">'+esc(m(e[2]))+'</span><span class="t-caption">'+e[0]+', '+e[1]+'</span></div>'+
+      '<p>Elle a répondu <b class="is-wrong">'+esc(m(e[3]))+'</b>, la bonne réponse est <b class="is-good">'+esc(m(e[4]))+'</b>.</p>'+
+      (e[5]?'<span class="chip chip--neutral">'+esc(e[5])+'</span>':'')+'</li>';
+  }
+  function renderCourse(st, n){
+    var d = cdet(st, n), h = '', head;
+    document.getElementById('cTitle').textContent = 'Cours '+n+', '+d.title;
+    var cls = d.state==='retry' ? ' is-retry' : (d.state==='going' ? ' is-going' : '');
+    var stateChip = d.state==='retry' ? '<span class="state state--retry">à rattraper</span>' : d.state==='going' ? '<span class="state state--going">en cours</span>' : '<span class="state">validé</span>';
+    var rating = d.state==='ok' ? stars(d.stars)+'<span class="t-body2">niveau actuel <b style="color:var(--on-surface)">'+d.niv+'</b>, étape <b style="color:var(--on-surface)">'+d.etape+'</b></span>' : '<span class="t-body2">Pas encore de niveau ni d\'étoile</span>';
+    h += '<section class="block"><div class="chead"><span class="course-num'+cls+'" aria-hidden="true">'+n+'</span><div style="min-width:0;display:grid;gap:var(--sp-8)"><h2 class="t-h4">'+esc(d.title)+'</h2><div class="row" style="flex-wrap:wrap;gap:var(--sp-4) var(--sp-8)">'+stateChip+rating+'</div></div></div>';
+    h += '<div class="cfacts">'+d.facts.map(function(f){return '<p>'+f+'</p>';}).join('')+(d.state==='ok'?'<p>Réussite sur 28 jours : <b>'+d.taux+' %</b></p>':'')+'</div>';
+    if(d.warn || d.state==='retry'){
+      var why = d.state==='retry' ? 'Sa réussite sur 14 jours est sous 70 % (58 %).' : 'Elle a raté 2 révisions d\'affilée, le cours est redescendu à l\'étape B.';
+      h += '<div class="alert alert--error">'+ico('i-warning')+'<span class="alert__title">Cours qui coince</span><span>'+why+'</span></div>';
+    }
+    h += '</section>';
+    h += '<section class="card block"><h3 class="t-h5">Révisions</h3>';
+    if(d.revs.length) h += '<div class="revs" role="list">'+d.revs.map(function(r){ return '<span role="listitem" class="chip '+(r[1]?'chip--success':'chip--error')+'">'+ico(r[1]?'i-check':'i-x-circle','ico--sm')+r[0]+'<span class="sr" style="position:absolute;left:-9999px">'+(r[1]?' réussie':' ratée')+'</span></span>'; }).join('')+'</div><p class="t-caption">Une révision est réussie avec 3 calculs justes sur 3.</p>';
+    else h += '<p class="t-body2">Aucune révision pour l\'instant : le cours n\'est pas validé.</p>';
+    h += '</section>';
+    h += '<section class="card block"><h3 class="t-h5">Ses erreurs sur 28 jours</h3>';
+    if(d.errs.length){
+      var mx = Math.max.apply(null,d.errs.map(function(e){return e[1];}));
+      h += '<div class="bars">'+d.errs.map(function(e){ return '<div class="bar"><span class="bar__label">'+e[0]+'</span><span class="bar__n">'+e[1]+'</span><div class="bar__track" aria-hidden="true"><i class="'+(e[0]==='Autre'?'is-other':'')+'" style="--v:'+Math.round(e[1]/mx*100)+'%"></i></div></div>'; }).join('')+'</div>';
+    } else h += '<p class="t-body2">Aucune erreur sur 28 jours.</p>';
+    h += '</section>';
+    h += '<section class="card block"><h3 class="t-h5">Dernières erreurs du cours</h3>';
+    if(d.last.length) h += '<ul class="errs">'+d.last.map(errLi).join('')+'</ul>'+(d.last.length>=9?'<p class="list-note">Les 10 dernières erreurs au plus. Ici, il y en a '+d.last.length+'.</p>':'');
+    else h += '<p class="t-body2">Rien à montrer.</p>';
+    h += '</section>';
+    document.getElementById('course').innerHTML = h;
+    document.getElementById('course').scrollTop = 0;
+  }
+
+  /* ---------- rendu : module (niveau 2) ---------- */
+  function renderModule(st){
+    var rows = MOD[st], v = validated(st), h = '';
+    document.getElementById('modCount').textContent = v+' / 8 cours validés';
+    h += '<div class="block"><div class="progress progress--module" style="--v:'+(v/8*100)+'%" role="img" aria-label="'+v+' cours validés sur 8"><i></i></div></div><div class="card" style="padding:0;gap:0;overflow:hidden">';
+    rows.forEach(function(r){
+      var n=r[0], t=r[1], s=r[2];
+      if(s==='none'){
+        h += '<div class="crow is-locked"><span class="cnum is-locked" aria-hidden="true">'+n+'</span><div class="crow__text"><span class="crow__title">'+esc(t)+'</span><span class="crow__meta"><span class="state state--none">pas commencé</span>'+ico('i-lock','ico--sm')+'</span></div></div>';
+        return;
+      }
+      var cn = s==='retry' ? ' is-retry' : (s==='going' ? ' is-going' : '');
+      var meta = '';
+      if(s==='ok') meta = '<span class="state">validé</span>'+stars(r[3])+'<span>niveau '+r[4]+'</span><span class="pct'+(r[8]?' is-low':'')+'">'+r[5]+' %</span>';
+      if(s==='retry') meta = '<span class="state state--retry">à rattraper</span><span class="pct is-low">'+r[5]+' %</span>';
+      if(s==='going') meta = '<span class="state state--going">en cours</span>';
+      var notes = '';
+      if(r[8]) notes += '<span class="crow__note is-warn">Cours qui coince'+(r[7]?' : '+r[7]:'')+'</span>';
+      else if(r[7]) notes += '<span class="crow__note">'+r[7]+'</span>';
+      if(r[6]) notes += '<span class="crow__note">'+r[6]+'</span>';
+      h += '<button type="button" class="crow" data-course="'+n+'"><span class="cnum'+cn+'" aria-hidden="true">'+n+'</span><div class="crow__text"><span class="crow__title">'+esc(t)+'</span><span class="crow__meta">'+meta+'</span>'+notes+'</div><span class="crow__trail">'+(r[8]?ico('i-warning','ico--sm warn'):'')+ico('i-chevron-right','ico--sm')+'</span></button>';
+    });
+    h += '</div><p class="t-caption">La réussite compte les exercices, les révisions et l\'entraînement des 28 derniers jours. Les questions de leçon et les exemples guidés ne comptent pas.</p>';
+    document.getElementById('module').innerHTML = h;
+  }
+
+  /* ---------- rendu : accueil (niveau 1) ---------- */
+  var selDay = 27;
+  function renderHome(st){
+    var p = PAT[st], goalDays = p.split('g').length-1, sr = streak(p), tm = TODAY_MIN[st], h = '';
+    var coince = st==='coince';
+    h += '<header class="top"><div><div class="kicker">Suivi</div><button class="who" type="button" aria-label="Changer d\'élève, Léa">Léa'+ico('i-chevron-down')+'</button></div><span class="ro">'+ico('i-eye','ico--sm')+'Lecture seule</span></header>';
+
+    /* bloc 1 : 28 jours */
+    h += '<section class="card block" aria-labelledby="h28"><h2 class="t-h5" id="h28">28 derniers jours</h2><div class="cal" role="group" aria-label="Un point par jour">';
+    ['L','M','M','J','V','S','D'].forEach(function(w){ h += '<span class="cal__wd" aria-hidden="true">'+w+'</span>'; });
+    for(var i=0;i<28;i++){
+      var c = p[i], lab = c==='g'?'objectif atteint':(c==='p'?'un peu d\'activité':'rien');
+      h += '<button type="button" class="cal__day'+(i===27?' is-today':'')+'" data-day="'+i+'" aria-pressed="'+(i===selDay)+'" aria-label="'+dayLabel(i)+', '+lab+'"><span class="dot '+(c==='g'?'dot--full':(c==='p'?'dot--half':''))+'"></span></button>';
+    }
+    h += '</div><div class="cal__key"><span><i class="dot dot--full"></i>15 minutes atteintes</span><span><i class="dot dot--half"></i>un peu</span><span><i class="dot"></i>rien</span></div>';
+    h += '<p class="t-body1"><b>Objectif atteint '+goalDays+' jours sur 28</b></p><div class="dayinfo" id="dayinfo" aria-live="polite"></div></section>';
+
+    /* bloc 2 : état */
+    h += '<section class="card block" aria-labelledby="hetat"><h2 class="t-h5" id="hetat">État</h2><div class="facts">';
+    h += '<div class="fact"><span class="fact__label">Aujourd\'hui</span><span class="fact__value">'+tm+' / 15 min'+(tm>=15?ico('i-check-circle','ico--sm" style="color:var(--success)'):'')+'</span></div>';
+    h += '<div class="fact"><span class="fact__label">Série</span><span class="fact__value">'+sr+' jours</span></div>';
+    h += '<button type="button" class="fact" data-goto="s2"><span class="fact__label">Calculs</span><span class="fact__value">'+validated(st)+' / 8 cours'+ico('i-chevron-right','ico--sm chev')+'</span></button>';
+    h += '<div class="fact"><span class="fact__label">Erreurs de signe<br><span class="fact__sub">7 derniers jours</span></span><span class="fact__value"><span class="fact__stack"><span>11 %</span><span class="fact__sub">32 % il y a 4 semaines</span></span><span class="trend">'+ico('i-trend-down','ico--sm')+'en baisse</span></span></div>';
+    h += '</div></section>';
+
+    /* bloc 3 : révisions */
+    h += '<section class="card block" aria-labelledby="hrev"><h2 class="t-h5" id="hrev">Révisions pas faites</h2>';
+    if(coince){
+      h += '<details class="acc"><summary><span class="acc__text"><span class="acc__title">3 en attente</span><span class="acc__sub">la plus ancienne : mardi</span></span>'+ico('i-chevron-right','ico--sm chev')+'</summary><div class="acc__body"><div class="card card--outlined" style="padding:0;gap:0;box-shadow:none"><div class="fact" style="padding:var(--sp-8) var(--sp-16)"><span class="fact__label">Cours 3, additionner plusieurs relatifs</span><span class="fact__sub">depuis mardi</span></div><div class="fact" style="padding:var(--sp-8) var(--sp-16)"><span class="fact__label">Cours 1, même signe</span><span class="fact__sub">depuis jeudi</span></div><div class="fact" style="padding:var(--sp-8) var(--sp-16)"><span class="fact__label">Cours 2, signes contraires</span><span class="fact__sub">depuis vendredi</span></div></div></div></details>';
+    } else h += '<div class="empty">'+ico('i-check-circle')+'Révisions à jour</div>';
+    h += '</section>';
+
+    /* bloc 4 : erreurs communes */
+    h += '<section class="card block" aria-labelledby="herr"><div class="block__head"><h2 class="t-h5" id="herr">Erreurs les plus communes</h2><span class="t-caption">28 jours</span></div><div>';
+    COMMON.forEach(function(c,i){
+      h += '<details class="acc"><summary><span class="acc__rank">'+(i+1)+'</span><span class="acc__text"><span class="acc__title">'+c.t+'</span><span class="acc__sub">'+c.sub+'</span></span><span class="acc__n">'+c.n+' fois</span>'+ico('i-chevron-right','ico--sm chev')+'</summary><div class="acc__body"><ul class="errs">'+c.l.map(errLi).join('')+'</ul>'+(c.l.length>=9?'<p class="list-note">Ses 10 derniers calculs ratés de ce type au plus. Ici, il y en a '+c.l.length+'.</p>':'')+'</div></details>';
+    });
+    h += '</div><p class="t-caption">Les erreurs « autre » qui reviennent souvent apparaissent ici pour que tu puisses les signaler.</p></section>';
+
+    /* bloc 5 : à retravailler */
+    h += '<section class="card block" aria-labelledby="hret"><h2 class="t-h5" id="hret">À retravailler</h2>';
+    if(coince){
+      h += '<div style="margin:0 calc(-1*var(--sp-16))">';
+      [[4,'Soustraire, c\'est ajouter l\'opposé','58 %','à rattraper, réussite sur 14 jours sous 70 %','retry'],[3,'Additionner plusieurs relatifs','74 %','2 révisions ratées d\'affilée','']].forEach(function(r){
+        h += '<button type="button" class="crow" data-course="'+r[0]+'"><span class="cnum'+(r[4]?' is-retry':'')+'" aria-hidden="true">'+r[0]+'</span><div class="crow__text"><span class="crow__title">Cours '+r[0]+', '+esc(r[1])+'</span><span class="crow__meta"><span class="pct is-low">'+r[2]+'</span></span><span class="crow__note is-warn">'+r[3]+'</span></div><span class="crow__trail">'+ico('i-warning','ico--sm warn')+ico('i-chevron-right','ico--sm')+'</span></button>';
+      });
+      h += '</div>';
+    } else h += '<div class="empty">'+ico('i-check-circle')+'Rien à retravailler en ce moment</div>';
+    h += '</section>';
+
+    document.getElementById('home').innerHTML = h;
+    showDay(st, selDay);
+  }
+  function showDay(st, i){
+    selDay = i;
+    var c = PAT[st][i], mn = minutes(i,c,st), box = document.getElementById('dayinfo');
+    document.querySelectorAll('.cal__day').forEach(function(b){ b.setAttribute('aria-pressed', String(+b.getAttribute('data-day')===i)); });
+    var d = dayLabel(i); d = d.charAt(0).toUpperCase()+d.slice(1);
+    if(mn===0){ box.innerHTML = '<b>'+d+'</b><span class="t-body2">Rien ce jour-là.</span>'; return; }
+    var rev = Math.round(mn*.4), cou = Math.round(mn*.4), ent = mn-rev-cou;
+    box.innerHTML = '<b>'+d+(i===27?' (aujourd\'hui)':'')+', '+mn+' min</b><span class="t-body2">Révisions '+rev+' min, cours '+cou+' min, entraînement '+ent+' min.</span>';
+  }
+
+  /* ---------- pilotage ---------- */
+  var state = 'coince', curCourse = null;
+  function render(){
+    document.getElementById('stateNote').textContent = NAMES[state];
+    renderHome(state); renderModule(state);
+    renderCourse(state, curCourse===null ? (state==='coince'?4:3) : curCourse);
+    document.querySelectorAll('[data-state]').forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-state')===state)); });
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-state],[data-day],[data-course],[data-goto]');
+    if(!t) return;
+    if(t.hasAttribute('data-state')){ state = t.getAttribute('data-state'); curCourse = null; selDay = 27; render(); return; }
+    if(t.hasAttribute('data-day')){ showDay(state, +t.getAttribute('data-day')); return; }
+    if(t.hasAttribute('data-course')){ curCourse = +t.getAttribute('data-course'); renderCourse(state, curCourse); jump('s3'); return; }
+    if(t.hasAttribute('data-goto')){ jump(t.getAttribute('data-goto')); }
+  });
+  function jump(id){
+    var el = document.getElementById(id);
+    if(window.matchMedia('(max-width:1150px)').matches && el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  render();
+})();
+</script>
+</body>
+</html>
