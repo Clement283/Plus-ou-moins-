@@ -117,6 +117,11 @@ export function propertyChecks(
       expect(ex.level).toBe(level);
       expect(evaluate(ex.expr)).toEqual(ex.answer);
       expect(fits(ex, level), `${toLatex(ex.expr)} (niveau ${level})`).toBe(true);
+      for (const err of course.errors)
+        for (const w of err.wrongValues(ex)) {
+          expect(w, `${err.id} on ${toLatex(ex.expr)}`).not.toEqual(ex.answer);
+          expect(diagnose(course, ex, w)?.errorType, `${err.id}: ${toLatex(ex.expr)} → ${w.n}`).toBe(err.id);
+        }
     }
     for (const err of course.errors) {
       const spec = traps[err.id] as TrapSpec;
@@ -128,6 +133,7 @@ export function propertyChecks(
         expect(fits(ex, level), shown).toBe(true);
         expect(spec.holds(ex), shown).toBe(true);
         expect(diagnose(course, ex, rat(spec.wrong(ex)))?.errorType, shown).toBe(err.id);
+        expect(err.wrongValues(ex), shown).toContainEqual(rat(spec.wrong(ex)));
       }
     }
   }

@@ -4,6 +4,8 @@ import type { Exercise, Level } from '../../src/courses/types';
 import type { Question } from '../../src/exercises/types';
 import { type Expr, toLatex } from '../../src/math/expr';
 import { seededRng } from '../../src/rng';
+import { rat } from '../../src/math/rational';
+import { diagnose } from '../../src/courses';
 import { DRAWS, LEVELS, TOLERANCE, opsOf, parseCalc, tex } from './helpers';
 
 const tokens = (ex: Exercise): string[] => ex.meta?.tokens as string[];
@@ -66,6 +68,11 @@ describe('Cours 0 — Bien écrire un calcul', () => {
     it('−6 − (−2 × 4 : touches « (−2 × 4 » → juste', () => {
       expect(c00.customCheck?.(erreurOf(row4), { line: 2 })).toMatchObject({ correct: true, errorType: null });
     });
+  });
+
+  it('diagnose does not apply (no numeric answer)', () => {
+    const ex = c00.generate(1, seededRng(9));
+    expect(diagnose(c00, ex, rat(5))).toBeNull();
   });
 
   it('(−3) + 5 is never a fault', () => {
@@ -132,7 +139,7 @@ describe('Cours 0 — Bien écrire un calcul', () => {
           if (err.id === 'signes-colles') expect(piece).toMatch(/^\\(times|div) -$/);
           if (err.id === 'moins-apres') expect(faultAt(ex)).toBe(0);
           if (err.id === 'parenthese') expect(piece).toMatch(/^\(/);
-          expect(err.detect(ex, ex.answer)).toBe(true);
+          expect(err.wrongValues(ex)).toEqual([]);
         }
   });
 
@@ -189,6 +196,7 @@ describe('Cours 0 — Bien écrire un calcul', () => {
           expect(q.classes.map((k) => k.id)).toEqual(['bien', 'mal']);
           expect(q.expected).toEqual(q.exs.map((e) => (faultAt(e) === null ? 'bien' : 'mal')));
           expect(new Set(q.expected).size).toBe(2);
+          expect(new Set(q.exs.map((e) => joinPieces(tokens(e)))).size).toBe(4);
         }
       }
       const q = c00.customQuestion?.('classer', ctx(1, 6));

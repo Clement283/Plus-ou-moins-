@@ -54,6 +54,10 @@ const errors = buildErrors(
       // small factors (1 to 3)
       draw: (level, rng) => product(level, drawFactors(level, rng, 3)),
       sample: sum,
+      alsoWrong: (ex) => {
+        const sizes = operands(ex.expr).reduce((s, x) => s + Math.abs(x), 0);
+        return [sizes, -sizes];
+      },
     },
   ],
   resolution,

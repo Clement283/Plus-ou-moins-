@@ -56,6 +56,10 @@ const errors = buildErrors(
       text: () => "Ici, c'est une **multiplication** : × et pas +.",
       draw: (level, rng) => drawProduct(level, rng, SMALL[level], signs(rng)),
       sample: (ex) => operands(ex.expr).reduce((s, x) => s + x, 0),
+      alsoWrong: (ex) => {
+        const [a, b] = sizes(ex);
+        return [a + b, -(a + b)];
+      },
     },
     {
       id: 'erreur-table',
@@ -73,6 +77,10 @@ const errors = buildErrors(
       // « les tables qu'elle a ratées » needs her history: here any table without 1.
       draw: (level, rng) => redraw(() => generate(level, rng), (ex) => sizes(ex).every((x) => x >= 2)),
       sample: (ex) => ex.answer.n + Math.sign(ex.answer.n) * (sizes(ex)[0] as number),
+      alsoWrong: (ex) => {
+        const r = ex.answer.n;
+        return sizes(ex).flatMap((x) => [r + Math.sign(r) * x, r - Math.sign(r) * x]);
+      },
     },
   ],
   resolution,

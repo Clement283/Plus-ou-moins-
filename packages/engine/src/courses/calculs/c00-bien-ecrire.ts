@@ -5,7 +5,7 @@ import { type Expr, type Op, evaluate, num, op, toLatex } from '../../math/expr'
 import { rat } from '../../math/rational';
 import { type Rng, pick, randInt, shuffle } from '../../rng';
 import type { CourseDef, ErrorDef, Exercise, Explanation, Level } from '../types';
-import { MODULE_ID, chance, exemple, explication, lecon, math, redraw, signed, text } from './shared';
+import { MODULE_ID, chance, exemple, explication, lecon, math, operands, redraw, signed, text } from './shared';
 
 const ID = 'c00-bien-ecrire';
 const RULE = "Un calcul s'écrit d'une seule façon correcte : il faut savoir le lire et l'écrire sans ambiguïté.";
@@ -150,10 +150,6 @@ function flat(items: (Expr | Op)[]): Expr {
   return e;
 }
 
-function leaves(e: Expr): number[] {
-  return e.k === 'num' ? [e.v.n] : e.k === 'op' ? [...leaves(e.a), ...leaves(e.b)] : leaves(e.a);
-}
-
 function draft(level: Level, rng: Rng): Expr {
   const n = (): Expr => num(digit(rng));
   if (level === 1) return op(anyOp(rng), n(), n());
@@ -170,7 +166,7 @@ function wellWritten(level: Level, rng: Rng): Expr {
   return redraw(
     () => draft(level, rng),
     (e) => {
-      if (!leaves(e).some((x) => x < 0)) return false;
+      if (!operands(e).some((x) => x < 0)) return false;
       try {
         evaluate(e);
         return true;
@@ -222,6 +218,7 @@ function writingError(id: FaultType, explanation: string, trap: ErrorDef['trap']
     detect: (ex) => faultTypeOf(ex) === id,
     explain: (ex) => corrected(ex, explanation),
     trap,
+    wrongValues: () => [], // no numeric answer
   };
 }
 
@@ -291,7 +288,8 @@ function customQuestion(kind: QuestionKind, ctx: BuildCtx): Question | null {
   if (kind === 'classer') {
     const exs = redraw(
       () => Array.from({ length: 4 }, () => generate(level, rng)),
-      (list) => new Set(list.map(classOf)).size === 2,
+      // both boxes used, and 4 different writings (doc 04 §0: no duplicate)
+      (list) => new Set(list.map(classOf)).size === 2 && new Set(list.map((e) => joinPieces(tokensOf(e)))).size === 4,
     );
     return { kind: 'classer', exs, classes: CLASSES.map(({ id, label }) => ({ id, label })), expected: exs.map(classOf) };
   }

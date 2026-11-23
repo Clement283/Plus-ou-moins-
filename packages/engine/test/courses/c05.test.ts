@@ -49,6 +49,15 @@ describe('Cours 5 — Multiplier deux relatifs', () => {
     checkDiagnosis(c05, '3 × 4', -9, 'autre');
   });
 
+  it('wrongValues', () => {
+    const ex = exOf(c05, '−3 × (−4)');
+    expect(c05.errors.map((e) => e.wrongValues(ex).map((r) => r.n).sort((x, y) => x - y))).toEqual([
+      [-12],
+      [-7, 7],
+      [8, 9, 15, 16],
+    ]);
+  });
+
   it('résolution type', () => {
     expect(c05.resolution(exOf(c05, '−3 × (−4)'))).toEqual(['−3 × (−4)', '= +(3 × 4)', '= 12'].map(tex));
     expect(c05.resolution(exOf(c05, '6 × (−7)'))).toEqual(['6 \\times (-7)', '= -(6 \\times 7)', '= -42']);

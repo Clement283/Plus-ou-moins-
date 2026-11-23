@@ -73,6 +73,7 @@ const errors = buildErrors(
         return contrary(level, rng, p, q, true);
       },
       sample: (ex) => bigSmall(ex)[0] + bigSmall(ex)[1],
+      alsoWrong: (ex) => [-(bigSmall(ex)[0] + bigSmall(ex)[1])],
     },
   ],
   resolution,

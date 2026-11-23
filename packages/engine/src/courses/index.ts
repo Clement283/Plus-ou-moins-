@@ -23,14 +23,15 @@ export function getModule(id: string): ModuleDef {
 
 /**
  * The recognised error of a wrong answer: the first matching error of the course's list,
- * otherwise « autre ». null when the answer is right.
+ * otherwise « autre ». null when the answer is right, and null for a course that checks its
+ * own questions (`customCheck`, e.g. Cours 0, whose exercises have no numeric answer).
  */
 export function diagnose(
   course: CourseDef,
   ex: Exercise,
   given: Rational,
 ): { errorType: string; family: ErrorFamily } | null {
-  if (eqRat(given, ex.answer)) return null;
+  if (course.customCheck || eqRat(given, ex.answer)) return null;
   const err = course.errors.find((e) => e.detect(ex, given));
   return err ? { errorType: err.id, family: err.family } : { errorType: 'autre', family: 'autre' };
 }

@@ -28,6 +28,11 @@ export interface ErrorDef {
   detect(ex: Exercise, given: Rational): boolean;
   explain(ex: Exercise): Explanation;
   trap(level: Level, rng: Rng): Exercise;
+  /**
+   * The wrong answer(s) this error produces on `ex`: each differs from `ex.answer` and is
+   * diagnosed as this very error (values caught by an earlier error of the list are dropped).
+   */
+  wrongValues(ex: Exercise): Rational[];
 }
 
 /** Colours and animations are allowed here (lessons and error explanations only). */

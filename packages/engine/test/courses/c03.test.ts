@@ -39,6 +39,11 @@ describe('Cours 3 — Additionner plusieurs relatifs', () => {
     [4, 'autre'],
   ])('−2 + 5 + (−4) = −1 : %i → %s', (given, errorType) => checkDiagnosis(c03, '−2 + 5 + (−4)', given, errorType));
 
+  it('wrongValues: 1 (the −2 forgotten) is caught first by signe-inverse', () => {
+    const ex = exOf(c03, '−2 + 5 + (−4)');
+    expect(c03.errors.map((e) => e.wrongValues(ex).map((r) => r.n).sort((x, y) => x - y))).toEqual([[1], [-11, 11], [-6, 3]]);
+  });
+
   it('résolution type', () => {
     expect(c03.resolution(exOf(c03, '−2 + 5 + (−4)'))).toEqual(
       ['−2 + 5 + (−4)', '= 5 + (−2) + (−4)', '= 5 + (−6)', '= −1'].map(tex),

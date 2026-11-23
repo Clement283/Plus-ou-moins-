@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MODULES, diagnose, getCourse, getModule } from '../../src';
-import { rat } from '../../src/math/rational';
+import { neg, rat } from '../../src/math/rational';
+import { seededRng } from '../../src/rng';
 import { exOf } from './helpers';
 
 describe('Module « Calculs »', () => {
@@ -50,10 +51,17 @@ describe('Module « Calculs »', () => {
     expect(diagnose(c, ex, rat(-15, 2))).toEqual({ errorType: 'autre', family: 'autre' });
   });
 
-  it('every non-zero opposite answer is the sign error (🔴) of courses 1–7', () => {
+  it('courses 1–7: the opposite of a non-zero answer is the course\'s sign error (🔴)', () => {
+    const rng = seededRng(808);
     for (const id of getModule('calculs').courseIds.slice(1)) {
       const c = getCourse(id);
-      expect(c.errors[0]?.family).toBe('signe');
+      const signError = c.errors.find((e) => e.family === 'signe');
+      for (const level of [1, 2, 3] as const)
+        for (let i = 0; i < 1000; i++) {
+          const ex = c.generate(level, rng);
+          if (ex.answer.n === 0) continue;
+          expect(diagnose(c, ex, neg(ex.answer))).toEqual({ errorType: signError?.id, family: 'signe' });
+        }
     }
   });
 });

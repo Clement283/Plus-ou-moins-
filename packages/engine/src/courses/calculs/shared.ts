@@ -129,8 +129,10 @@ export interface ErrorSpec {
   text(ex: Exercise): string;
   /** A calculation that sets this trap (doc 06 « Calcul-piège »). */
   draw(level: Level, rng: Rng): Exercise;
-  /** The typical wrong answer of this error on `ex`. */
+  /** The typical wrong answer of this error on `ex` (a trap must keep it). */
   sample(ex: Exercise): number;
+  /** Other wrong answers of this error on `ex`. */
+  alsoWrong?(ex: Exercise): number[];
 }
 
 /**
@@ -138,19 +140,20 @@ export interface ErrorSpec {
  * is really diagnosed as this error (and not as an earlier one of the list).
  */
 export function buildErrors(specs: ErrorSpec[], resolution: (ex: Exercise) => string[]): ErrorDef[] {
+  const diagnosedAs = (id: string, ex: Exercise, x: number): boolean => {
+    const given = rat(x);
+    return !eqRat(given, ex.answer) && errors.find((e) => e.detect(ex, given))?.id === id;
+  };
   const errors: ErrorDef[] = specs.map((s) => ({
     id: s.id,
     family: s.family,
     detect: s.detect,
     explain: (ex) => explanation(s.text(ex), resolution(ex)),
-    trap: (level, rng) =>
-      redraw(
-        () => s.draw(level, rng),
-        (ex) => {
-          const given = rat(s.sample(ex));
-          return !eqRat(given, ex.answer) && errors.find((e) => e.detect(ex, given))?.id === s.id;
-        },
-      ),
+    trap: (level, rng) => redraw(() => s.draw(level, rng), (ex) => diagnosedAs(s.id, ex, s.sample(ex))),
+    wrongValues: (ex) =>
+      [...new Set([s.sample(ex), ...(s.alsoWrong?.(ex) ?? [])])]
+        .filter((x) => diagnosedAs(s.id, ex, x))
+        .map((x) => rat(x)),
   }));
   return errors;
 }

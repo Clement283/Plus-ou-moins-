@@ -76,6 +76,7 @@ const errors = buildErrors(
       draw: (level, rng) =>
         redraw(() => generate(level, rng), (ex) => operands(ex.expr).filter((x) => x < 0).length >= 2),
       sample: sizeSum,
+      alsoWrong: (ex) => [-sizeSum(ex)],
     },
     {
       id: 'terme-oublie',
@@ -92,7 +93,9 @@ const errors = buildErrors(
             return xs;
           }, mixed),
         ),
-      sample: (ex) => ex.answer.n - (operands(ex.expr).find((x) => Math.abs(x) === smallest(ex.level)) as number),
+      // the term of smallest size forgotten (a trap has one of the level's smallest size)
+      sample: (ex) => ex.answer.n - (operands(ex.expr).sort((x, y) => Math.abs(x) - Math.abs(y))[0] as number),
+      alsoWrong: (ex) => operands(ex.expr).map((t) => ex.answer.n - t),
     },
   ],
   resolution,

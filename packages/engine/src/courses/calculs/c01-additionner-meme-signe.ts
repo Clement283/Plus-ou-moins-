@@ -57,6 +57,10 @@ const errors = buildErrors(
         const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
         return Math.sign(ex.answer.n) * Math.abs(a - b);
       },
+      alsoWrong: (ex) => {
+        const [a, b] = operands(ex.expr).map(Math.abs) as [number, number];
+        return [Math.abs(a - b), -Math.abs(a - b)];
+      },
     },
   ],
   resolution,

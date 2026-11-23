@@ -34,6 +34,11 @@ describe('Cours 1 — Additionner deux nombres de même signe', () => {
     [-7, 'autre'],
   ])('−3 + (−5) = −8 : %i → %s', (given, errorType) => checkDiagnosis(c01, '−3 + (−5)', given, errorType));
 
+  it('wrongValues', () => {
+    const ex = exOf(c01, '−3 + (−5)');
+    expect(c01.errors.map((e) => e.wrongValues(ex).map((r) => r.n))).toEqual([[8], [-2, 2]]);
+  });
+
   it('résolution type', () =>
     expect(c01.resolution(exOf(c01, '−3 + (−5)'))).toEqual(['-3 + (-5)', '= -(3 + 5)', '= -8'].map(tex)));
 

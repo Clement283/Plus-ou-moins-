@@ -27,11 +27,13 @@ describe('Cours 6 — Diviser deux relatifs', () => {
     [2, '−126 ÷ 6', -21],
     [2, '152 ÷ (−8)', -19],
     [2, '−270 ÷ (−9)', 30],
-    [3, '−1452 ÷ 12', -121],
-    [3, '2808 ÷ (−24)', -117],
+    [3, '−1188 ÷ 12', -99],
+    [3, '2208 ÷ (−24)', -92],
     [3, '−3366 ÷ (−34)', 99],
-  ] as [Level, string, number][])('exemple niveau %i : %s = %i', (level, display, answer) =>
-    checkExample(c06, level, display, answer));
+  ] as [Level, string, number][])('exemple niveau %i : %s = %i', (level, display, answer) => {
+    checkExample(c06, level, display, answer);
+    expect(fits(exOf(c06, display, level), level)).toBe(true);
+  });
 
   it.each([
     [3, 'regle-signes'],

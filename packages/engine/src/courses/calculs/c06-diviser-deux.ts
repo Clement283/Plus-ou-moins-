@@ -49,6 +49,7 @@ const errors = buildErrors(
       // « petit quotient » : one of the 3 smallest quotients of the level, e.g. −8 ÷ (−4)
       draw: (level, rng) => drawDivision(level, rng, [QUOTIENT[level][0], QUOTIENT[level][0] + 2], signs(rng)),
       sample: (ex) => operands(ex.expr).reduce((p, x) => p * x, 1),
+      alsoWrong: (ex) => [-operands(ex.expr).reduce((p, x) => p * x, 1)],
     },
   ],
   resolution,
