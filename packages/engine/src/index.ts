@@ -8,6 +8,7 @@ export * from './courses';
 export * from './srs';
 export * from './reviews';
 export * from './daily';
+export * from './activity';
 export type { Answer, BuildCtx, Outcome, Question } from './exercises/types';
 export { buildQuestion } from './exercises/build';
 export { checkAnswer, checkParts } from './exercises/check';

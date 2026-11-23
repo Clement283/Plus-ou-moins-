@@ -87,7 +87,7 @@ function trapFor(course: CourseDef, recentErrors: Record<string, number>): strin
 }
 
 /** Doc 04 §7.2: QCM already seen on the course = its past first answers to a QCM. */
-function qcmSeen(state: ProgressState, courseId: string): number {
+export function qcmSeen(state: ProgressState, courseId: string): number {
   let n = 0;
   for (const e of state.journal.events)
     if (e.kind === 'answer' && e.courseId === courseId && e.questionKind === 'qcm' && e.attempt === 1 && !e.unfinished) n++;
