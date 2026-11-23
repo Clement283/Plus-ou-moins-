@@ -1,6 +1,6 @@
 # 09 — Leçons : titres des écrans et blocs « Fais attention »
 
-*Statut : proposition, à valider par le porteur du projet (2026-11-23).*
+*Statut : validé (2026-11-23), questions 1 et 2 acceptées.*
 
 Ce document propose un titre court pour chaque écran de leçon des cours 0 à 7, comme dans la maquette validée (`docs/design/ecrans/cours.html`, Cours 4).
 Il propose aussi les lignes ✓ et le bloc « Fais attention » de chaque cours.
