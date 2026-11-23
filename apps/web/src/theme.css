@@ -727,3 +727,60 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .katex .mord,.katex .mbin,.katex .mrel,.katex .mopen,.katex .mclose,.katex .mpunct,.katex .minner,.katex .mop,.katex .mathnormal,.katex .mathrm{font-family:var(--font-math);font-style:normal;font-weight:inherit}
 /* Un grand calcul tient dans la largeur du téléphone : il rétrécit un peu et peut passer à la ligne après un signe. */
 .q-expr .t-math-xl{font-size:clamp(28px,9.5vw,40px);white-space:normal;text-wrap:balance}
+
+/* ---- Retour après une réponse et parties de leçon (tâche 22) ---- */
+.feedback{display:grid;gap:var(--gap-related)}
+.feedback .alert .math{font-family:var(--font-math)}
+.feedback .alert b .katex{font-weight:700}
+.feedback .resolution .neg,.feedback .resolution .pos,.lesson-math .neg,.lesson-math .pos{font-weight:700}
+.lesson-screen{flex:1;display:flex;flex-direction:column;min-height:0}
+.lesson-lines{gap:var(--sp-8)}
+.lesson-math{padding:var(--sp-16) var(--sp-12);display:grid;justify-items:center;text-align:center;overflow-x:auto}
+.lesson-math .t-math{font-size:clamp(20px,6.4vw,28px)}
+.lesson-nl{padding:var(--sp-16) var(--sp-8) var(--sp-8)}
+.lesson-reveal{animation:pom-reveal var(--dur-slow) var(--ease) both}
+@keyframes pom-reveal{from{opacity:0;transform:translateY(var(--sp-8))}to{opacity:1;transform:none}}
+
+/* droite graduée de la leçon : bonds et arcs */
+.nl .number-line__cursor{transition:left var(--dur-slow) var(--ease-spring)}
+.nl-arcs{position:relative;height:56px;margin:var(--sp-8) 14px 0}
+.nl-arc{position:absolute;top:0;height:28px;color:var(--primary-ink);border:3px solid currentColor;border-top:0;border-radius:0 0 50% 50% / 0 0 100% 100%;clip-path:inset(0 100% 0 0);transition:clip-path var(--dur-slow) var(--ease)}
+.nl-arc.is-neg{color:var(--error-ink);clip-path:inset(0 0 0 100%)}
+.nl-arc.is-shown{clip-path:inset(-4px -4px -40px -4px)}
+.nl-arc__val{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:var(--sp-4);font:700 15px var(--font-body);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--dur-base) var(--ease) var(--dur-slow)}
+.nl-arc.is-shown .nl-arc__val{opacity:1}
+
+/* animations nommées : états finaux par défaut (animation-fill-mode: both), décor posé avec les tokens */
+.anim{padding:var(--sp-20) var(--sp-16);display:grid;gap:var(--sp-12);justify-items:center;text-align:center;overflow:hidden}
+.anim--stack{gap:var(--sp-12)}
+.anim-row{position:relative;display:flex;align-items:center;justify-content:center;gap:var(--sp-8)}
+.anim-row--burst{margin-top:var(--sp-24)}
+.anim-row--count{margin-bottom:var(--sp-24)}
+.anim-par{display:inline-flex;align-items:baseline}
+.anim-clash{display:inline-block;animation:pom-clash-l 1.2s var(--ease) both}
+.anim-clash--r{animation-name:pom-clash-r}
+@keyframes pom-clash-l{0%{transform:translateX(calc(-1 * var(--sp-32)));opacity:0}40%{transform:translateX(0);opacity:1}52%{transform:translateX(calc(-1 * var(--sp-8)))}68%{transform:translateX(0)}100%{transform:translateX(0)}}
+@keyframes pom-clash-r{0%{transform:translateX(var(--sp-32));opacity:0}40%{transform:translateX(0);opacity:1}52%{transform:translateX(var(--sp-8))}68%{transform:translateX(0)}100%{transform:translateX(0)}}
+.anim-burst{position:absolute;left:50%;top:calc(-1 * var(--sp-32));transform:translateX(-50%);color:var(--error-ink);animation:pom-burst var(--dur-slow) var(--ease-spring) 480ms both}
+@keyframes pom-burst{from{transform:translateX(-50%) scale(0);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+.anim-enc{animation:pom-enc var(--dur-slow) var(--ease) both}
+.anim-enc--a{animation-delay:300ms}
+.anim-enc--b{animation-delay:1300ms}
+@keyframes pom-enc{from{box-shadow:inset 0 0 0 2px transparent}to{box-shadow:inset 0 0 0 2px var(--primary)}}
+.anim-arrow{width:4px;height:32px;border-radius:2px;background:var(--primary-ink);position:relative;transform-origin:top;animation:pom-arrow var(--dur-slow) var(--ease) 800ms both}
+.anim-arrow::after{content:"";position:absolute;left:50%;bottom:calc(-1 * var(--sp-4));margin-left:calc(-1 * var(--sp-8));border:var(--sp-8) solid transparent;border-bottom:0;border-top-color:var(--primary-ink)}
+@keyframes pom-arrow{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+.anim-after{animation:pom-reveal var(--dur-slow) var(--ease) 1300ms both}
+.anim-after--late{animation-delay:1700ms}
+.anim-neg{position:relative;display:inline-flex;align-items:baseline}
+.circled{box-shadow:inset 0 0 0 2px var(--error-ink);color:var(--error-ink);font-weight:700;border-radius:var(--r-full);min-width:1.1em;text-align:center;animation:pom-enc-ko var(--dur-slow) var(--ease) both}
+.anim-neg--1 .circled{animation-delay:400ms}
+.anim-neg--2 .circled{animation-delay:1300ms}
+@keyframes pom-enc-ko{from{box-shadow:inset 0 0 0 2px transparent}to{box-shadow:inset 0 0 0 2px var(--error-ink)}}
+.count{position:absolute;left:0;top:100%;margin-top:var(--sp-4);width:1.4em;height:1.4em;border-radius:var(--r-full);display:grid;place-items:center;background:var(--error-container);color:var(--on-error-container);font:700 15px var(--font-body);font-style:normal;animation:pom-burst var(--dur-base) var(--ease-spring) both}
+.anim-neg--1 .count{animation-delay:700ms}
+.anim-neg--2 .count{animation-delay:1600ms}
+.anim-neg .count{transform:none}
+@media (prefers-reduced-motion:reduce){
+  .anim *,.lesson-reveal,.anim-after{animation-delay:0s!important}
+}

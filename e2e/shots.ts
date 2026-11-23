@@ -97,6 +97,41 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'fraction-vide-validee', fixture: 'debut-de-journee', before: async (page) => { await tapKeys(page, 'fraction', 'Valider'); } },
     ],
   },
+  feedback: {
+    route: '#/essai/retour?case=tons',
+    scenarios: [
+      { name: 'tons', fixture: 'debut-de-journee', fullPage: true },
+      { name: 'corrige-qcm', fixture: 'debut-de-journee', route: '#/essai/retour?case=qcm', before: async (page) => { await page.click('.choice:nth-child(1)'); await page.waitForSelector('.resolution'); } },
+      { name: 'corrige-erreur', fixture: 'debut-de-journee', route: '#/essai/retour?case=erreur', before: async (page) => { await page.click('.copy-line:nth-child(3)'); await page.waitForSelector('.resolution'); } },
+      {
+        name: 'corrige-classer',
+        fixture: 'debut-de-journee',
+        route: '#/essai/retour?case=classer',
+        before: async (page) => {
+          for (const bin of [2, 1, 1, 1]) {
+            await page.click('.stack > .tags > .tag:nth-child(1)');
+            await page.click(`.bin:nth-child(${bin}) .t-h6`);
+          }
+          await page.click('.q-foot .btn');
+          await page.waitForSelector('.resolution');
+        },
+      },
+      { name: 'corrige-fraction', fixture: 'debut-de-journee', route: '#/essai/retour?case=fraction', before: async (page) => { await freezeCaret(page); await tapKeys(page, '1', '2', 'Valider'); await page.waitForSelector('.resolution'); } },
+    ],
+  },
+  lecon: {
+    route: '#/essai/lecon?course=c04&part=0',
+    scenarios: [
+      // Les animations durent jusqu'à ~3 s : la capture attend leur état final.
+      ...[0, 1, 2].map((part): Shot => ({ name: `c04-partie-${part + 1}`, fixture: 'debut-de-journee', route: `#/essai/lecon?course=c04&part=${part}`, before: (page) => page.waitForTimeout(3500) })),
+      { name: 'c04-animation-debut', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c04&part=0', before: (page) => page.waitForTimeout(0) },
+      { name: 'c00-regle-neutre', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=2', before: (page) => page.waitForTimeout(500) },
+      { name: 'c00-signes-qui-se-cognent', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=0', before: (page) => page.waitForTimeout(3000) },
+      { name: 'c07-compter-les-moins', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c07&part=0', before: (page) => page.waitForTimeout(4000) },
+      { name: 'c01-droite-graduee-finale', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c01&part=0', before: async (page) => { await page.waitForSelector('.number-line[data-state="final"]', { timeout: 6000 }); await page.waitForTimeout(1200); } },
+      { name: 'c02-droite-graduee-finale', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c02&part=0', before: async (page) => { await page.waitForSelector('.number-line[data-state="final"]', { timeout: 6000 }); await page.waitForTimeout(1200); } },
+    ],
+  },
   questions: {
     route: '#/essai/questions?type=saisie',
     scenarios: [
