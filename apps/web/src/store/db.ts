@@ -17,12 +17,20 @@ interface PomDB extends DBSchema {
 
 export type ProgressCache = { build: string; state: ProgressState };
 
-const NAME = 'pom';
+export const DB_NAME = 'pom';
+export const DB_VERSION = 3;
+/** Forme de la base à la dernière version (utilisée par e2e/shots.ts pour la préparer ; test de cohérence dans test/progress.test.tsx). */
+export const DB_SCHEMA: { name: 'events' | 'outbox' | 'session' | 'progress'; keyPath?: string; indexes: { name: string; keyPath: string }[] }[] = [
+  { name: 'events', keyPath: 'id', indexes: [{ name: 'byUser', keyPath: 'userId' }] },
+  { name: 'outbox', keyPath: 'id', indexes: [{ name: 'byUser', keyPath: 'userId' }] },
+  { name: 'session', indexes: [] },
+  { name: 'progress', indexes: [] },
+];
 let dbPromise: Promise<IDBPDatabase<PomDB>> | null = null;
 
 export function getDb(): Promise<IDBPDatabase<PomDB>> {
   if (!dbPromise) {
-    const p = openDB<PomDB>(NAME, 3, {
+    const p = openDB<PomDB>(DB_NAME, DB_VERSION, {
       upgrade(db, oldVersion, _newVersion, tx) {
         if (oldVersion < 1) {
           db.createObjectStore('events', { keyPath: 'id' });
@@ -51,5 +59,5 @@ export function getDb(): Promise<IDBPDatabase<PomDB>> {
 export async function resetDb(): Promise<void> {
   if (dbPromise) (await dbPromise).close();
   dbPromise = null;
-  await deleteDB(NAME);
+  await deleteDB(DB_NAME);
 }

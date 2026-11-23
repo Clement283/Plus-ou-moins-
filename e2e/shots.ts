@@ -16,6 +16,7 @@ import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DB_NAME, DB_SCHEMA, DB_VERSION } from '../apps/web/src/store/db';
 import { CLAIRE, LEA, NOW, scenario, type Fixture, type ScenarioName } from './fixtures';
 
 // Playwright est installé globalement (NODE_PATH) : on passe par require, pas par import ESM.
@@ -110,13 +111,16 @@ async function mockApi(page: Page, data: Fixture | null): Promise<void> {
   });
 }
 
-/** Écrit la session dans IndexedDB avant de charger l'appli (même schéma que apps/web/src/store/db.ts, version 3). */
+/** Écrit la session dans IndexedDB avant de charger l'appli ; le schéma vient de apps/web/src/store/db.ts. */
 const SEED_HTML = (user: unknown) => `<!doctype html><title>seed</title><script>
-const req = indexedDB.open('pom', 3);
+const schema = ${JSON.stringify(DB_SCHEMA)};
+const req = indexedDB.open(${JSON.stringify(DB_NAME)}, ${DB_VERSION});
 req.onupgradeneeded = () => {
   const db = req.result;
-  for (const s of ['events', 'outbox']) { const st = db.createObjectStore(s, { keyPath: 'id' }); st.createIndex('byUser', 'userId'); }
-  db.createObjectStore('session'); db.createObjectStore('progress');
+  for (const s of schema) {
+    const st = db.createObjectStore(s.name, s.keyPath ? { keyPath: s.keyPath } : undefined);
+    for (const i of s.indexes) st.createIndex(i.name, i.keyPath);
+  }
 };
 req.onsuccess = () => {
   const db = req.result;

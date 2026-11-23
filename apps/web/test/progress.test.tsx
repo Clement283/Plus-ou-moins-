@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { foldProgress, MODULES, type AppEvent } from '@pom/engine';
-import { resetDb } from '../src/store/db';
+import { DB_NAME, DB_SCHEMA, DB_VERSION, getDb, resetDb } from '../src/store/db';
 import { advanceProgress, loadProgressCache, msUntilParisMidnight, saveProgressCache, useToday } from '../src/store/progress';
 
 const courseId = MODULES[0]!.courseIds[0]!;
@@ -60,5 +60,22 @@ describe('jour de Paris', () => {
       document.dispatchEvent(new Event('visibilitychange'));
     });
     expect(result.current).toBe('2026-11-25');
+  });
+});
+
+describe('schéma IndexedDB', () => {
+  beforeEach(() => resetDb());
+  it('DB_SCHEMA décrit exactement la base créée par getDb (e2e/shots.ts s’en sert)', async () => {
+    const db = await getDb();
+    expect(db.name).toBe(DB_NAME);
+    expect(db.version).toBe(DB_VERSION);
+    expect([...db.objectStoreNames].sort()).toEqual(DB_SCHEMA.map((s) => s.name).sort());
+    const tx = db.transaction([...db.objectStoreNames], 'readonly');
+    for (const s of DB_SCHEMA) {
+      const st: any = tx.objectStore(s.name);
+      expect(st.keyPath ?? undefined).toBe(s.keyPath);
+      expect([...st.indexNames].sort()).toEqual(s.indexes.map((i) => i.name).sort());
+      for (const i of s.indexes) expect(st.index(i.name).keyPath).toBe(i.keyPath);
+    }
   });
 });
