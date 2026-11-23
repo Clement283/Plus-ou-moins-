@@ -246,7 +246,7 @@ body{color:var(--on-surface);background:var(--surface-sunken);padding:72px max(1
     fini:{note:'Les 8 cours sont validés : le module est terminé et reçoit un badge (doc 07 n° 17). Toutes les leçons restent lisibles.',st:[D,D,D,D,D,D,D,D],stars:[3,3,2,3,2,2,1,1],open:2}
   };
   function row(i,st,stars,open){
-    var title=COURSES[i], num='<span class="course-num is-'+st+'" aria-hidden="true">'+i+'</span>', sub, body='', trail;
+    var title=COURSES[i], num='<span class="course-num is-'+(st===L?'locked':st)+'" aria-hidden="true">'+i+'</span>', sub, body='', trail;
     if(st===D){
       sub='<span class="status status--done">'+ico('i-check-circle','ico--sm')+'Validé</span>'+stars_(stars);
       body='<button class="btn btn--outlined btn--block" type="button">'+ico('i-eye')+'Relire la leçon</button><p class="t-caption">Relire ne change ni tes étoiles ni tes révisions.</p>';
