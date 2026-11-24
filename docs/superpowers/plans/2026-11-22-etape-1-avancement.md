@@ -88,3 +88,10 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 2. Mettre à jour le plan (superpowers:writing-plans) : remplacer les parties UI des tâches 6, 7, 10, 13, 14 par des tâches d'écrans qui suivent les maquettes validées et le design system (tokens dans `apps/web/src/theme.css`), en s'appuyant sur les fonctions du moteur déjà construites (`@pom/engine` : buildQuestion/checkAnswer, readRaw/pressKey, createActivity/answer/skip, nextReviewSession, trainingSeries, foldProgress/applyEvent, dailyTime, computeDashboard) et sur `apps/web/src/store/sync.ts`.
 3. Exécuter avec superpowers:subagent-driven-development (un assistant code, un autre vérifie), relecture visuelle sur téléphone avec le plugin UI Design Review.
 4. Puis tâche 15 (déploiement Cloudflare, accès du porteur du projet via le formulaire de secrets) et relecture finale de toute la branche.
+
+## Où on en est (2026-11-25, pour reprendre)
+- Skills : `.claude/skills/plus-ou-moins-ecrire-un-cours/` et `plus-ou-moins-creer-un-module-de-cours/` (à jour).
+- Plan du module Calculs validé : `docs/validation/10-module-calculs.md` (4 modules, 25 cours, 97 techniques, programmes officiels dans `docs/sources/`).
+- Code (plan `docs/superpowers/plans/2026-11-25-cours-1-v2-et-fonctions.md`) : vagues 1 à 3 + T15 (Cours 0 v3) fusionnées ; finitions UI faites ; **reste** : T13 (e2e, en cours), T14 (relecture finale, migration D1 `0002_questions.sql` à appliquer en ligne, mise en ligne).
+- Cours 2 : maquette `docs/design/ecrans/cours-2-v2.html` en attente des retours du porteur du projet, puis spec (doc 06) et code.
+- Ensuite : cours 3 à 7 avec le skill, puis modules B, C, D (documents de classe attendus).
