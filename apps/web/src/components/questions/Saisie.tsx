@@ -1,7 +1,7 @@
 import { Keypad } from '../Keypad';
 import { RawInputView } from '../RawInputView';
 import { Math } from '../../ui/Math';
-import { Prompt, QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, Resolution, type QProps } from './Frame';
 import { useRawAnswer } from './useRawAnswer';
 
 /** Réponse écrite : le calcul, le champ de réponse et le clavier maths. */
@@ -15,6 +15,7 @@ export function Saisie({ q, course, locked, onAnswer, header, footer, notice, te
           <Math latex={q.promptLatex} />
         </p>
       </div>
+      <Resolution texts={texts} />
       <RawInputView input={r.input} state={r.state} />
     </QFrame>
   );

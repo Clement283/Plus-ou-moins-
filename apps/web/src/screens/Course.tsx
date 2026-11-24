@@ -23,6 +23,7 @@ function courseChip(courseId: string) {
   const course = getCourse(courseId);
   const guided = course.parts.filter((p) => p.type === 'question' && p.activity === 'exemple').length;
   return (step: CurrentStep, _pos: ChipPosition): string => {
+    if (step.type === 'question' && step.item.texts?.series) return `Cours ${course.order} · Pratique`;
     if (step.type === 'question' && step.item.activity === 'exemple') {
       const rank = course.parts.slice(0, itemNumber(step)).filter((p) => p.type === 'question' && p.activity === 'exemple').length + 1;
       return `Cours ${course.order}, exemple guidé ${rank} sur ${guided}`;

@@ -12,7 +12,8 @@ import { Saisie } from './Saisie';
 import { Signe } from './Signe';
 import { Trou } from './Trou';
 import { WRITING_COURSE } from './calc';
-import type { PreviousChoix } from './Frame';
+import { SeriesCounter, type PreviousChoix } from './Frame';
+import { Droite } from './Droite';
 import { VraiFaux } from './VraiFaux';
 
 export interface QuestionViewProps {
@@ -41,7 +42,15 @@ export interface QuestionViewProps {
  * À remonter avec une `key` par question : la saisie en cours appartient au composant.
  */
 export function QuestionView({ question: q, course, locked, onAnswer, header, footer, notice, texts, activity, previous }: QuestionViewProps) {
-  const common = { course, locked, onAnswer, header, footer, notice, texts, activity, previous };
+  const head = texts?.series ? (
+    <>
+      {header}
+      <SeriesCounter series={texts.series} locked={locked} />
+    </>
+  ) : (
+    header
+  );
+  const common = { course, locked, onAnswer, header: head, footer, notice, texts, activity, previous };
   switch (q.kind) {
     case 'saisie': return <Saisie q={q} {...common} />;
     case 'trou': return <Trou q={q} {...common} />;
@@ -53,5 +62,6 @@ export function QuestionView({ question: q, course, locked, onAnswer, header, fo
     case 'vraifaux': return <VraiFaux q={q} {...common} />;
     case 'choix': return <Choix q={q} {...common} />;
     case 'reecrire': return <Reecrire q={q} {...common} />;
+    case 'droite': return <Droite q={q} {...common} />;
   }
 }

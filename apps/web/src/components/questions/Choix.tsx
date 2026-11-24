@@ -3,7 +3,8 @@ import { checkAnswer } from '@pom/engine';
 import { Bold } from '../Bold';
 import { Math as MathView } from '../../ui/Math';
 import { writingLatex } from './calc';
-import { LessonHeading, QFrame, type QProps } from './Frame';
+import { Comparer } from './Comparer';
+import { LessonHeading, Mention, QFrame, type QProps } from './Frame';
 
 export const DECOUVERTE_NOTE = 'Question pour découvrir : elle ne compte pas dans la note.';
 
@@ -65,6 +66,7 @@ export function Choix({ q, course, locked, onAnswer, header, footer, texts, acti
   };
   const { cls, cols } = layoutOf(q.options.map((o) => o.label));
   const answered = locked || picked !== null;
+  const compare = texts?.compare;
   return (
     <QFrame
       header={header}
@@ -72,7 +74,7 @@ export function Choix({ q, course, locked, onAnswer, header, footer, texts, acti
       locked={locked}
       answer={
         <>
-          {guess && <p className="t-caption">{DECOUVERTE_NOTE}</p>}
+          <Mention text={texts?.mention ?? (guess ? DECOUVERTE_NOTE : undefined)} />
           <div className={cls} style={{ ['--cols' as string]: cols }} data-copie>
             {q.options.map((o, i) => (
               <button key={i} className={`choice${mark(i)}`} type="button" disabled={answered} onClick={() => pick(i)}>
@@ -85,8 +87,9 @@ export function Choix({ q, course, locked, onAnswer, header, footer, texts, acti
     >
       {texts?.title && <LessonHeading title={texts.title} subtitle={texts.subtitle} />}
       {paragraphs(texts?.intro)}
+      {compare && <Comparer compare={compare} answered={answered} choice={picked ?? (locked ? q.correctIndex : null)} q={q} />}
       {previous && <Summary previous={previous} />}
-      {q.calcLatex && <CalcBox latex={q.calcLatex} />}
+      {!compare && q.calcLatex && <CalcBox latex={q.calcLatex} />}
       <p className="q-ask">{q.prompt}</p>
       {answered && (
         <>

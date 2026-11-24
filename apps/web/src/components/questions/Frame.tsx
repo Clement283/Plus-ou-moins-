@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { Bold } from '../Bold';
+import { Math as MathView } from '../../ui/Math';
 import type { Activity, Answer, CourseDef, Outcome, PartTexts, Question } from '@pom/engine';
 
 export type QProps<K extends Question['kind']> = {
@@ -75,4 +77,49 @@ export function ValidateFoot({ enabled, onSubmit }: { enabled: boolean; onSubmit
       </button>
     </div>
   );
+}
+
+/** Série de pratique : « Question n sur N » et un point par question (`data-speak-skip` : « Écouter » ne les lit pas). */
+export function SeriesCounter({ series, locked }: { series: { n: number; of: number }; locked: boolean }) {
+  const done = series.n - 1 + (locked ? 1 : 0);
+  return (
+    <div className="series-counter" data-speak-skip>
+      <span className="series-counter__n">
+        Question <b>{series.n} sur {series.of}</b>
+      </span>
+      <div className="series-dots" aria-hidden="true">
+        {Array.from({ length: series.of }, (_, j) => (
+          <i key={j} className={j < done ? 'on' : ''} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Exemple guidé : lignes de résolution déjà posées (`above`) puis l'aide de la ligne en cours (`help`). Le calcul de départ reste au-dessus. */
+export function Resolution({ texts }: { texts?: PartTexts | undefined }) {
+  if (!texts?.above?.length && !texts?.help) return null;
+  return (
+    <>
+      {texts.above && texts.above.length > 0 && (
+        <div className="resolution" data-copie>
+          {texts.above.map((l, i) => (
+            <p key={i} className="resolution__line t-math-md">
+              <MathView latex={l} />
+            </p>
+          ))}
+        </div>
+      )}
+      {texts.help && (
+        <div className="help-box">
+          <Bold text={texts.help} />
+        </div>
+      )}
+    </>
+  );
+}
+
+/** Mention sous la question (« ne compte pas ») ; vide ou absente : rien. */
+export function Mention({ text }: { text?: string | undefined }) {
+  return text ? <p className="t-caption">{text}</p> : null;
 }
