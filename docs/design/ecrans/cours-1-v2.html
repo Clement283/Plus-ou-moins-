@@ -206,12 +206,29 @@ h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
 .sw{width:28px;height:20px;border-radius:6px;flex:none;border:1px solid var(--line)}
 .pager{display:flex;gap:8px}
 .pager button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer}
+
+/* ——— v3 : étapes interactives, droite touchable, série, aide qui s'efface ——— */
+.nlscroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.nl .hit{fill:transparent;cursor:pointer;outline:none}
+.nl .hit:hover{fill:color-mix(in srgb,var(--primary) 14%,transparent)}
+.nl .hit:focus-visible{fill:color-mix(in srgb,var(--primary) 22%,transparent);stroke:var(--primary);stroke-width:2}
+.stage.tapst{padding:12px 0;min-height:0}
+.etq.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.etq:disabled{cursor:default}
+.tags.mid{justify-content:center}
+.counter{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.counter .cnt{font-weight:600;color:var(--muted)} .counter .cnt b{color:var(--ink)}
+.eqrow{padding:2px 8px;border-radius:8px}
+.eqrow.cur{background:var(--hl);color:var(--hl-ink)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp>div{background:var(--sunken);border-radius:16px;padding:12px 6px;text-align:center;font-size:1.5rem;font-weight:500;white-space:nowrap}
+.sent{font-size:1.15rem}
 </style>
 
 <div class="wrap">
   <header class="intro">
     <h1>Nouveau Cours 1 : « Additionner deux nombres de même signe »</h1>
-    <p>Maquette du déroulé, écran par écran. Le style viendra plus tard : ici on juge le contenu, l'ordre, les phrases et les interactions. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
+    <p>Maquette du déroulé (version 3 : plus courte, avec une action au moins toutes les 2 étapes de lecture), écran par écran. Le style viendra plus tard : ici on juge le contenu, l'ordre, les phrases et les interactions. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
   </header>
   <nav class="nav" id="nav" aria-label="Écrans du cours"></nav>
   <div class="layout">
@@ -232,21 +249,70 @@ const calc = (html, cls = '') => `<div class="calc calcbox ${cls}">${html}</div>
 const rule = (n, text) => `<div class="rule"><b>Règle ${n}</b>${text}</div>`;
 const fb = (kind, title, text = '') => `<div class="fb ${kind}"><strong>${title}</strong>${text ? `<p>${text}</p>` : ''}</div>`;
 
-/* Écran « étapes qui apparaissent » : chaque « Suite » montre la ligne suivante, doucement. */
-/* Une étape = { s: le grand calcul (« scène »), t: la phrase }. La scène reste en haut et change ; les phrases s'empilent. */
+
+/* Écran « étapes qui apparaissent ». Une étape = { s: la scène (texte, ou fonction de l'état de l'action), t: la phrase, act: action facultative }.
+   Quand l'étape a une action non réussie, « Suite » disparaît : l'action est en bas de l'écran. Mauvaise réponse : message court, elle réessaie (pas de note : c'est la leçon).
+   act = { type:'fill', parts:[texte, n° de trou, …], blanks:[{o:[étiquettes], ok, no:{n°:message}, def}], after }  phrase ou calcul à trous, étiquettes à toucher
+   act = { type:'tap', q, ok, no:(v)=>message, after }  toucher une graduation de la droite (la scène est une fonction qui dessine la droite touchable) */
+const A0 = () => ({ n: 0, msg: '', bad: [], done: false });
+const getA = (st, i) => st.a[i] || A0();
+const sentence = (act, a) => act.parts.map((p) => {
+  if (typeof p === 'string') return p;
+  const b = act.blanks[p];
+  if (a.done || p < a.n) return `<span class="blank ok">${b.o[b.ok]}</span>`;
+  return `<span class="blank">${p === a.n ? '▢' : ''}</span>`;
+}).join('');
+function actZone(act, a) {
+  const msg = a.msg ? fb('ko', 'Pas tout à fait.', `${a.msg} Essaie encore.`) : '';
+  if (act.type === 'tap') return `${msg}<p class="q">${act.q}</p>`;
+  const b = act.blanks[a.n];
+  return `${msg}<p class="small">Touche le bon mot pour compléter la phrase.</p><div class="tags mid">${b.o.map((o, i) => `<button class="etq ${a.bad.includes(i) ? 'ko' : ''}" data-a="fillpick" data-o="${i}" ${a.bad.includes(i) ? 'disabled' : ''}>${o}</button>`).join('')}</div>`;
+}
 function reveal(title, steps) {
   return {
-    init: () => ({ k: 1, rp: false }),
+    init: () => ({ k: 1, fresh: true, sa: false, rp: false, a: {} }),
     render: (st) => {
       let scene = '', sceneAt = -1;
-      steps.slice(0, st.k).forEach((s, i) => { if (s.s) { scene = s.s; sceneAt = i; } });
-      const sceneHtml = scene ? `<div class="stage ${sceneAt === st.k - 1 || st.rp ? 'new' : ''}">${scene}</div>` : '';
-      const texts = steps.slice(0, st.k).map((s, i) => (s.t ? `<div class="step ${i === st.k - 1 ? 'new' : ''}">${s.t}</div>` : '')).join('');
+      steps.slice(0, st.k).forEach((s, i) => { if (s.s) { scene = typeof s.s === 'function' ? s.s(getA(st, i)) : s.s; sceneAt = i; } });
+      const tapping = sceneAt >= 0 && steps[sceneAt].act && steps[sceneAt].act.type === 'tap' && !getA(st, sceneAt).done;
+      const sceneNew = (st.fresh && (sceneAt === st.k - 1 || st.rp)) || st.sa;
+      const sceneHtml = scene ? `<div class="stage ${sceneNew ? 'new' : ''} ${tapping ? 'tapst' : ''}">${scene}</div>` : '';
+      const texts = steps.slice(0, st.k).map((s, i) => {
+        const a = getA(st, i);
+        let h = s.t || '';
+        if (s.act && s.act.type === 'fill') h += `<p class="lead sent">${sentence(s.act, a)}</p>`;
+        if (s.act && a.done && s.act.after) h += s.act.after;
+        return h ? `<div class="step ${st.fresh && i === st.k - 1 ? 'new' : ''}">${h}</div>` : '';
+      }).join('');
       const dots = `<div class="dots" aria-label="Étape ${st.k} sur ${steps.length}">${steps.map((_, i) => `<i class="${i < st.k ? 'on' : ''}"></i>`).join('')}</div>`;
-      return `<h2 class="t">${title}</h2>${sceneHtml}${dots}<div class="texts">${texts}</div><div class="zone"><button class="btn btn-line btn-sm" data-a="replay">↻ Revoir cette étape</button></div>`;
+      const cur = steps[st.k - 1], ca = getA(st, st.k - 1);
+      const act = cur.act && !ca.done ? actZone(cur.act, ca) : '';
+      return `<h2 class="t">${title}</h2>${sceneHtml}${dots}<div class="texts">${texts}</div><div class="zone">${act}<button class="btn btn-line btn-sm" data-a="replay">↻ Revoir cette étape</button></div>`;
     },
-    foot: (st) => (st.k < steps.length ? { label: 'Suite', a: 'more' } : { label: 'Suivant', a: 'next' }),
-    on: (a, d, st) => { if (a === 'more') { st.k++; st.rp = false; } if (a === 'replay') st.rp = true; },
+    foot: (st) => {
+      const cur = steps[st.k - 1];
+      if (cur.act && !getA(st, st.k - 1).done) return { none: true };
+      return st.k < steps.length ? { label: 'Suite', a: 'more' } : { label: 'Suivant', a: 'next' };
+    },
+    on: (a, d, st) => {
+      if (a === 'more') { st.k++; st.fresh = true; st.sa = false; st.rp = false; return; }
+      if (a === 'replay') { st.rp = true; st.fresh = true; return; }
+      const i = st.k - 1, s = steps[i];
+      if (!s.act) return;
+      const ac = st.a[i] || (st.a[i] = A0());
+      if (ac.done) return;
+      st.fresh = false;
+      if (a === 'fillpick' && s.act.type === 'fill') {
+        const b = s.act.blanks[ac.n], o = +d.o;
+        if (o === b.ok) { ac.n++; ac.msg = ''; ac.bad = []; if (ac.n === s.act.blanks.length) ac.done = true; }
+        else { ac.bad.push(o); ac.msg = (b.no && b.no[o]) || b.def || ''; }
+      }
+      if (a === 'tapv' && s.act.type === 'tap') {
+        const v = +d.v;
+        if (v === s.act.ok) { ac.done = true; ac.msg = ''; st.sa = true; }
+        else { ac.bad.push(v); ac.msg = s.act.no(v); }
+      }
+    },
   };
 }
 
@@ -324,16 +390,21 @@ const fmt = (v) => (v < 0 ? M + Math.abs(v) : String(v));
 const fmtS = (v) => (v < 0 ? M + Math.abs(v) : '+' + v);
 const scene = (inner, cls = '') => `<div class="stage ${cls}">${inner}</div>`;
 const sc = (svg, calcHtml = '', cap = '') => `${svg}${calcHtml ? `<div class="sc-calc">${calcHtml}</div>` : ''}${cap ? `<span class="cap">${cap}</span>` : ''}`;
+const kbd = () => `<div class="zone"><div class="keys">${KEYS.map((k) => `<button class="key ${/\d/.test(k) ? '' : 'op'}" data-a="key" data-k="${k}">${k}</button>`).join('')}<button class="key op" data-a="del" style="grid-column:span 4">⌫ Effacer</button></div></div>`;
+
 
 /* Droite graduée. jumps = [{a, b}] (bonds de a vers b) ; anim = indice du bond qui s'anime ;
    neutral = aucune couleur de signe (pendant une question) ; labels = 'signed' | 'abs' | 'none' | 'q' ;
-   mark = graduations surlignées en jaune ; start / end = départ et arrivée. */
-function line({ from = -10, to = 2, jumps = [], anim = -1, neutral = false, labels = 'signed', mark = [], start = null, end = null, caps = false }) {
-  const W = 340, P = 18, Y = 80;
+   mark = graduations surlignées en jaune ; start / end = départ et arrivée ;
+   tap = graduations touchables (cibles de 44 px de large : la droite défile si l'écran est plus étroit) ;
+   pins = [{v, ok}] graduations touchées, vertes ou rouges, après une réponse. */
+function line({ from = -10, to = 2, jumps = [], anim = -1, neutral = false, labels = 'signed', mark = [], start = null, end = null, caps = false, tap = false, pins = [] }) {
+  const n = to - from + 1;
+  const P = tap ? 22 : 18, W = tap ? n * 44 : 340, Y = 80;
   const X = (v) => P + ((v - from) / (to - from)) * (W - 2 * P);
   const every = to - from > 15 ? 2 : 1;
   const tone = (v) => (neutral ? 'muted' : v < 0 ? 'neg' : v > 0 ? 'pos' : 'ink');
-  let s = `<svg class="nl" viewBox="0 0 ${W} 140" role="img" aria-label="Droite graduée de ${fmt(from)} à ${fmt(to)}">`;
+  let s = `<svg class="nl" ${tap ? `style="width:100%;max-width:${W}px"` : ''} viewBox="0 0 ${W} 140" role="img" aria-label="Droite graduée de ${fmt(from)} à ${fmt(to)}">`;
   if (!neutral && from < 0 && to > 0) {
     s += `<line class="ax neg" x1="8" y1="${Y}" x2="${X(0)}" y2="${Y}"/><line class="ax pos" x1="${X(0)}" y1="${Y}" x2="${W - 8}" y2="${Y}"/>`;
   } else s += `<line class="ax muted" x1="8" y1="${Y}" x2="${W - 8}" y2="${Y}"/>`;
@@ -347,19 +418,22 @@ function line({ from = -10, to = 2, jumps = [], anim = -1, neutral = false, labe
   }
   jumps.forEach((j, i) => {
     const x1 = X(j.a), x2 = X(j.b), h = Math.min(52, 16 + Math.abs(j.b - j.a) * 5), c = h * 1.33;
-    const t = neutral ? 'muted' : j.b < j.a ? 'neg' : 'pos', an = i === anim ? 'anim' : '', d = `style="--d:${i === anim ? 0 : 0}s"`;
-    s += `<path class="arc ${t} ${an}" ${d} pathLength="1" stroke-dasharray="1" d="M ${x1} ${Y} C ${x1} ${Y - c}, ${x2} ${Y - c}, ${x2} ${Y}"/>`;
+    const t = neutral ? 'muted' : j.b < j.a ? 'neg' : 'pos', an = i === anim ? 'anim' : '';
+    s += `<path class="arc ${t} ${an}" pathLength="1" stroke-dasharray="1" d="M ${x1} ${Y} C ${x1} ${Y - c}, ${x2} ${Y - c}, ${x2} ${Y}"/>`;
     s += `<polygon class="head ${t} ${an ? 'anim fade' : ''}" points="${x2 - 6},${Y - 11} ${x2 + 6},${Y - 11} ${x2},${Y - 1}"/>`;
     if (labels !== 'none') {
       const txt = labels === 'abs' ? Math.abs(j.b - j.a) : labels === 'q' ? '?' : fmtS(j.b - j.a);
       s += `<text class="lab ${t} ${an ? 'anim fade' : ''}" x="${(x1 + x2) / 2}" y="${Y - h - 7}">${txt}</text>`;
     }
   });
+  pins.forEach((p) => { s += `<circle cx="${X(p.v)}" cy="${Y}" r="10" fill="var(--${p.ok ? 'ok-bg' : 'ko-bg'})" stroke="var(--${p.ok ? 'ok' : 'ko'})" stroke-width="3"/>`; });
   if (start !== null) s += `<circle cx="${X(start)}" cy="${Y}" r="6" fill="var(--ink)"/>`;
   if (end !== null) s += `<circle cx="${X(end)}" cy="${Y}" r="6" fill="var(--hl)" stroke="var(--ink)" stroke-width="2"/>`;
   if (caps && start !== null) s += `<text class="cp muted" x="${X(start)}" y="${Y + 54}">départ</text>`;
   if (caps && end !== null && start !== null && Math.abs(end - start) >= 3) s += `<text class="cp muted" x="${X(end)}" y="${Y + 54}">arrivée</text>`;
-  return s + '</svg>';
+  if (tap) for (let v = from; v <= to; v++) s += `<rect class="hit" data-a="tapv" data-v="${v}" tabindex="0" role="button" aria-label="Graduation ${fmt(v)}" x="${X(v) - 22}" y="8" width="44" height="128"/>`;
+  s += '</svg>';
+  return tap ? `<div class="nlscroll" data-sc="${start !== null && start - from >= to - start ? 'end' : 'start'}">${s}</div>` : s;
 }
 
 /* Exemple guidé à cases : chaque case est une petite réponse tapée, dans l'ordre. */
@@ -399,6 +473,111 @@ const add = (meta, def) => S.push({ ...meta, ...def });
 const SIGNE = `Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe ${M} !`;
 const SOUS = (a, b, r) => `Même signe : on <b>additionne</b> les nombres, on ne les soustrait pas. ${a} + ${b} = ${a + b}, donc ${r}.`;
 
+/* Exemple guidé « résolu à l'écran » : toute la résolution est écrite ; elle valide chaque ligne (« Je comprends ») ou complète une seule case. */
+function aide({ consigne, given, lines }) {
+  return {
+    init: () => ({ i: 0, v: '', msg: '', ok: false }),
+    render: (st) => {
+      const l = lines[st.i];
+      let eq = '';
+      lines.forEach((r, i) => {
+        if (i > st.i) return;
+        let h;
+        if (r.cas) h = r.html(i < st.i || st.ok ? `<span class="blank ok">${r.exp}</span>` : `<span class="blank">${pretty(st.v) || '▢'}<span class="caret"></span></span>`);
+        else h = r.html;
+        eq += `<div class="eqrow ${i === st.i && !st.ok ? 'cur' : ''} ${i === st.i ? 'step new' : ''}">${h}</div>`;
+      });
+      let h = `<p class="lead">${consigne}</p>${calc(given, 'md')}<div class="calcbox eqs">${eq}</div>`;
+      if (st.ok) h += fb('ok', 'Juste !', l.yes);
+      else {
+        if (st.msg) h += fb('ko', 'Pas tout à fait.', `${st.msg} Essaie encore.`);
+        h += `<div class="fb info"><strong>${l.title}</strong><p>${l.expl}</p></div>`;
+        if (l.cas) h += `<p class="small">Tape ce qui manque dans la case, avec les touches du clavier.</p>${kbd()}`;
+      }
+      return h;
+    },
+    foot: (st) => {
+      const l = lines[st.i], last = st.i === lines.length - 1;
+      if (l.cas) return st.ok ? { label: 'Continuer', a: 'next' } : { label: 'Valider', a: 'check', off: !st.v };
+      return { label: last ? 'Continuer' : 'Je comprends', a: last ? 'next' : 'adv' };
+    },
+    on: (a, d, st) => {
+      if (a === 'key') st.v += d.k;
+      if (a === 'del') st.v = st.v.slice(0, -1);
+      if (a === 'adv') { st.i++; st.v = ''; st.msg = ''; }
+      if (a === 'check') { const r = lines[st.i].check(num(st.v)); if (r.ok) st.ok = true; else { st.msg = r.msg; st.v = ''; } }
+    },
+  };
+}
+
+/* Série de pratique : plusieurs questions à la suite, formats variés, aide décroissante, retour immédiat. */
+function serie(items) {
+  const n = items.length;
+  return {
+    init: () => ({ i: 0, res: [], cur: null, v: '' }),
+    render: (st) => {
+      const it = items[st.i], c = st.cur;
+      const dots = `<div class="dots">${items.map((_, j) => `<i class="${j < st.i || (j === st.i && c) ? 'on' : ''}"></i>`).join('')}</div>`;
+      let h = `<div class="counter"><span class="cnt">Question <b>${st.i + 1} sur ${n}</b></span>${dots}</div><p class="lead">${it.consigne}</p>`;
+      if (it.kind === 'tap') {
+        const pins = c ? [{ v: c.pick, ok: c.ok }, ...(c.ok ? [] : [{ v: it.ok, ok: true }])] : [];
+        h += `${calc(it.calc, 'md')}<div class="stage tapst">${line({ from: it.from, to: it.to, jumps: it.jumps, labels: 'none', start: 0, neutral: !c, tap: !c, pins })}</div>`;
+      } else if (it.kind === 'pick') {
+        h += `${calc(it.calc, 'md')}${it.q ? `<p class="q">${it.q}</p>` : ''}`;
+      } else {
+        h += `${calc(it.calc, 'md')}<div class="field ${c ? (c.ok ? 'ok' : 'ko') : ''}" aria-live="polite">${pretty(st.v) || ''}${c ? '' : '<span class="caret"></span>'}</div>`;
+      }
+      if (c) h += `<div class="step new">${fb(c.ok ? 'ok' : 'ko', c.ok ? 'Juste !' : 'Pas tout à fait.', c.msg)}</div>`;
+      if (c && st.i === n - 1) h += `<div class="fb info"><strong>${st.res.filter(Boolean).length} sur ${n}</strong><p>Maintenant, deux exemples pour t'aider à les résoudre en entier.</p></div>`;
+      if (it.kind === 'pick') {
+        h += `<div class="zone"><div class="opts row">${it.o.map((o, oi) => `<button class="opt big ${c ? (oi === it.ok ? 'ok' : oi === c.pick ? 'ko' : '') : ''}" data-a="pick" data-o="${oi}" ${c ? 'disabled' : ''}>${o}</button>`).join('')}</div></div>`;
+      } else if (it.kind === 'type' && !c) h += `<p class="small">${it.hint}</p>${kbd()}`;
+      return h;
+    },
+    foot: (st) => {
+      const it = items[st.i];
+      if (!st.cur) return it.kind === 'type' ? { label: 'Valider', a: 'check', off: !st.v } : { none: true };
+      return st.i < n - 1 ? { label: 'Question suivante', a: 'nxt' } : { label: 'Continuer', a: 'next' };
+    },
+    on: (a, d, st) => {
+      const it = items[st.i];
+      if (a === 'nxt') { st.i++; st.cur = null; st.v = ''; return; }
+      if (st.cur) return;
+      if (a === 'tapv' && it.kind === 'tap') { const v = +d.v, ok = v === it.ok; st.cur = { ok, pick: v, msg: ok ? it.yes : it.no(v) }; st.res[st.i] = ok; }
+      if (a === 'pick' && it.kind === 'pick') { const o = +d.o, ok = o === it.ok; st.cur = { ok, pick: o, msg: ok ? it.yes : (it.why && it.why[o]) || it.no }; st.res[st.i] = ok; }
+      if (it.kind === 'type') {
+        if (a === 'key') st.v += d.k;
+        if (a === 'del') st.v = st.v.slice(0, -1);
+        if (a === 'check') { const r = it.check(num(st.v)); st.cur = { ok: r.ok, msg: r.msg }; st.res[st.i] = r.ok; }
+      }
+    },
+  };
+}
+
+/* Comparer deux cas : deux calculs presque identiques, une question, puis la droite montre les deux trajets. */
+const compareScreen = {
+  init: () => ({ a: undefined }),
+  render: (st) => {
+    const done = st.a !== undefined, o = ['Le premier nombre', 'La longueur du deuxième bond', 'Le signe du deuxième nombre'];
+    const msgs = [`Le premier nombre est ${M}3 dans les deux calculs : il ne change pas.`, `Le deuxième bond fait 5 graduations dans les deux calculs : ce n'est pas sa longueur qui change, c'est son sens.`,
+      `Le deuxième nombre est négatif dans le calcul A, positif dans le calcul B : un signe change, donc le sens du bond change.`];
+    let h = `<h2 class="t">Comparer deux cas</h2><p class="lead">Voici deux calculs presque identiques. Regarde-les bien.</p>`;
+    if (!done) h += `<div class="cmp"><div><span class="tagw">Calcul A</span>${M}3 + (${M}5)</div><div><span class="tagw">Calcul B</span>${M}3 + 5</div></div>
+      <p class="small">Le calcul B est un aperçu : au prochain cours, tu apprendras à le calculer. Ici, tu observes seulement ce qui change.</p><p class="q">Qu'est-ce qui change entre A et B ?</p>`;
+    else {
+      const tr = (lab, to, calcHtml) => `<div class="stage sm new"><span class="tagw">${lab}</span>${sc(line({ from: -9, to: 3, jumps: [{ a: 0, b: -3 }, { a: -3, b: to }], anim: 1, start: 0, end: to }), calcHtml)}</div>`;
+      h += `${tr('Calcul A', -8, `${neg(3)} + (${neg(5)}) = ${neg(8)}`)}${tr('Calcul B', 2, `${neg(3)} + ${pos(5)} = ${pos(2)}`)}`;
+      h += `<div class="step new">${fb(st.a === 2 ? 'ok' : 'info', st.a === 2 ? 'Juste !' : 'Pas tout à fait, et c\'est normal.', msgs[st.a])}</div>
+        <p class="lead">Dans A, les deux bonds vont vers la <b>gauche</b> : ils s'ajoutent. Dans B, le deuxième bond repart vers la <b>droite</b> : on revient vers 0. Ce cours ne traite que le cas A, le même signe.</p>`;
+    }
+    h += `<p class="free">Question pour comprendre : elle ne compte pas dans la note.</p><div class="zone"><div class="opts">${o.map((t, i) => `<button class="opt ${done ? (i === 2 ? 'ok' : i === st.a ? 'ko' : '') : ''}" data-a="pick" data-o="${i}" ${done ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>`;
+    return h;
+  },
+  foot: (st) => ({ label: 'Continuer', a: 'next', off: st.a === undefined }),
+  on: (a, d, st) => { if (a === 'pick' && st.a === undefined) st.a = +d.o; },
+};
+
+
 add({ id: 'accroche', sec: 'Leçon', name: 'Accroche',
   what: "Annonce le cours en trois phrases, puis pose une question pour deviner sur une dette : « Tu dois 3 €, puis encore 5 €. Combien dois-tu en tout ? ».",
   why: "Elle sait à quoi sert le cours. Le cas de la dette est assez simple pour qu'elle trouve seule la bonne réponse, ce qui prépare l'idée de départ. La question ne compte pas : une mauvaise réponse est accueillie comme normale.",
@@ -410,142 +589,90 @@ add({ id: 'accroche', sec: 'Leçon', name: 'Accroche',
            2: "On additionne les deux dettes : 3 + 5 = 8, pas 3 × 5. Tu dois 8 €." } }],
     { free: true, top: `<h2 class="t">Additionner deux nombres de même signe</h2><p class="lead">Quand tu additionnes deux nombres <b>négatifs</b>, ou deux nombres <b>positifs</b>, on dit qu'ils ont le <b>même signe</b>.</p><p class="lead">Dans ce cours, tu vas apprendre à les additionner sans te tromper de signe, avec une image : <b>la droite graduée</b>.</p>` }));
 
-add({ id: 'droite', sec: 'Leçon', name: 'La droite graduée',
-  what: "Présente la droite graduée en cinq étapes : le 0 de départ, les positifs en bleu à droite, les négatifs en orange à gauche, puis un bond vers la droite et un bond vers la gauche. Les bonds se dessinent à l'écran.",
-  why: "C'est l'image qui sert dans tout le cours (et dans les cours 2 à 4). Elle voit d'abord le décor, puis le sens des bonds, avant de calculer. Le code couleur est posé ici une fois pour toutes : orange pour négatif, bleu pour positif, jamais de rouge.",
-  ask: ["Elle connaît déjà la droite graduée depuis le collège. Cet écran est-il utile, ou le raccourcir à deux étapes ? Je le garde parce que le cours en dépend et qu'elle se trompe en calcul, pas en vocabulaire.",
-        "Bleu et orange sont les couleurs du code couleur (doc 08 n° 27). Le bleu des positifs est proche de la couleur de l'appli (indigo) : on garde, ou on prend un bleu plus clair ?",
-        "« Revoir cette étape » (doc 08 n° 24) est ajouté en bas de chaque explication. C'est la première maquette à l'avoir : le bouton te va-t-il comme ça, en bas, sous la zone du pouce ?"] },
-  reveal('La droite graduée', [
-    { s: sc(line({ from: -5, to: 5, mark: [0], start: 0 }), '', 'Une droite où les nombres sont rangés dans l\'ordre'),
-      t: `<p class="lead">Pour comprendre les additions de nombres relatifs, on les dessine sur une <b>droite graduée</b>. Les nombres y sont rangés dans l'ordre.</p><p class="lead">Au milieu, il y a <b>0</b> : c'est notre point de <b>départ</b>.</p>` },
-    { s: sc(line({ from: -5, to: 5 }), '', 'négatifs à gauche · positifs à droite'),
-      t: `<p class="lead">À droite de 0, les nombres <b class="pos">positifs</b>, en bleu. À gauche de 0, les nombres <b class="neg">négatifs</b>, en orange. Ces deux couleurs seront les mêmes dans tout le module.</p>` },
-    { s: sc(line({ from: -5, to: 5, jumps: [{ a: 0, b: 3 }], anim: 0, start: 0, end: 3 }), `0 + ${pos(3)}`),
-      t: `<p class="lead"><b>Ajouter un nombre positif</b>, c'est faire un bond vers la <b>droite</b>. Ici, on ajoute 3 : le bond fait 3 graduations.</p>` },
-    { s: sc(line({ from: -5, to: 5, jumps: [{ a: 0, b: -3 }], anim: 0, start: 0, end: -3 }), `0 + (${neg(3)})`),
-      t: `<p class="lead"><b>Ajouter un nombre négatif</b>, c'est faire un bond vers la <b>gauche</b>. Ici, on ajoute ${M}3 : on recule de 3 graduations.</p>` },
-    { t: `<p class="lead">Un bond est toujours <b>aussi long que le nombre sans son signe</b> : ${M}3 et 3 font tous les deux 3 graduations. Seul le <b>sens</b> du bond change.</p>` },
-  ]));
+/* Une étape « faire le bond » : la scène est grise et touchable ; au bon toucher, le bond se dessine en couleur. */
+const hopNo = (dir, len) => (v) => (v === 0 ? `Tu es resté au départ : le bond fait ${len} graduations.`
+  : (dir > 0) !== (v > 0) ? (dir > 0 ? 'Ajouter un nombre positif, c\'est avancer vers la droite. Tu es parti vers la gauche.' : 'Ajouter un nombre négatif, c\'est reculer vers la gauche. Tu es parti vers la droite.')
+  : Math.abs(v) > len ? `Une graduation de trop : le bond fait exactement ${len} graduations.` : `Il manque des graduations : le bond en fait ${len}. Compte-les une par une à partir de 0.`);
+const hopScene = (from, to, b, calcHtml) => (a) => sc(line({ from, to, start: 0, neutral: !a.done, tap: !a.done, jumps: a.done ? [{ a: 0, b }] : [], anim: 0, end: a.done ? b : null, pins: a.bad.map((v) => ({ v, ok: false })) }), a.done ? calcHtml : '');
 
-add({ id: 'droite-quiz', sec: 'Leçon', name: 'Quel sens ?',
-  what: "Deux questions rapides sur le sens des bonds. La droite est affichée en gris pendant les questions : plus aucune couleur de signe, pour ne pas donner la réponse.",
-  why: "Une question juste après l'explication fixe l'idée. Dans la leçon, la droite est colorée ; dans une question, elle devient neutre (règle : aucune couleur qui donne un indice). Chaque mauvaise réponse a son message.",
-  ask: ["Pendant une question, la droite n'a plus ni orange ni bleu. Je trouve que ça fait un drôle d'effet juste après l'écran coloré, mais la règle l'impose. Tu confirmes ?"] },
-  quiz([
-    { q: 'Un bond vers la gauche correspond à l\'ajout d\'un nombre…', o: ['positif', 'négatif'], ok: 1, row: true,
-      yes: 'Reculer vers la gauche, c\'est ajouter un nombre négatif.', no: 'Vers la droite, on avance : c\'est un nombre positif. Un bond vers la gauche, on recule : c\'est un nombre négatif.' },
-    { q: `On part de 0 et on fait un bond de ${M}2. Où arrive-t-on ?`, o: [`${M}2`, '2', '0'], ok: 0, row: true,
-      yes: `On recule de 2 graduations à partir de 0 : on arrive à ${M}2.`,
-      why: { 1: `Le bond va vers la gauche, car ${M}2 est négatif. On arrive à gauche de 0, donc à ${M}2.`, 2: `Un bond de ${M}2 fait 2 graduations, il ne nous laisse pas sur place. On recule de 2 : ${M}2.` } },
-  ], { top: scene(line({ from: -5, to: 5, neutral: true, start: 0 }), 'sm') }));
+add({ id: 'droite', sec: 'Leçon', name: 'La droite et les bonds',
+  what: "Cinq étapes : le 0 de départ, le code couleur (deux étapes à lire), puis elle fait elle-même les bonds. Étape 3 : « on ajoute 3 », elle touche l'arrivée sur la droite et le bond se dessine. Étape 4 : pareil avec −3. Étape 5 : phrase à trous avec deux trous (gauche ou droite ; avec ou sans signe). « Suite » est remplacé par l'action tant qu'elle n'a pas réussi.",
+  why: "Ce sont les deux anciens écrans (« La droite graduée » et « Quel sens ? ») fusionnés. Elle ne lit jamais plus de deux étapes sans agir. Pendant qu'elle cherche l'arrivée, la droite est grise ; les couleurs reviennent avec le bond. Les graduations touchables font 44 px de large : la droite défile un peu si l'écran est étroit.",
+  ask: ["Une mauvaise réponse dans une étape interactive : un message court (« tu es parti vers la gauche »), puis elle réessaie, sans note, parce que c'est la leçon. Les lettres rouge/vert ne servent qu'à marquer le toucher raté. Tu valides ?",
+        "Les graduations sont touchables à 44 px : sur une droite de 8 graduations, c'est juste la largeur du téléphone, qui défile un peu sur un petit écran. On garde 8 graduations au plus pour les droites à toucher ?",
+        "Elle connaît la droite depuis le collège. Fusionner les deux écrans la fait agir plus vite. Est-ce que ça reste assez lent pour elle ?"] },
+  reveal('La droite graduée et les bonds', [
+    { s: sc(line({ from: -5, to: 5, mark: [0], start: 0 }), '', 'Une droite où les nombres sont rangés dans l\'ordre'),
+      t: `<p class="lead">Pour comprendre les additions de nombres relatifs, on les dessine sur une <b>droite graduée</b>. Au milieu, il y a <b>0</b> : c'est notre point de <b>départ</b>.</p>` },
+    { s: sc(line({ from: -5, to: 5 }), '', 'négatifs à gauche · positifs à droite'),
+      t: `<p class="lead">À droite de 0, les nombres <b class="pos">positifs</b>, en bleu. À gauche, les nombres <b class="neg">négatifs</b>, en orange. Ces couleurs seront les mêmes dans tout le module.</p>` },
+    { s: hopScene(-3, 4, 3, `0 + ${pos(3)}`),
+      t: `<p class="lead"><b>Ajouter un nombre positif</b>, c'est faire un bond vers la <b>droite</b>. On part de 0 et on ajoute 3.</p>`,
+      act: { type: 'tap', q: 'Où arrive le bond de 3 ? Touche la graduation sur la droite.', ok: 3, no: hopNo(1, 3), after: `<p class="lead">Le bond de 3 vers la droite arrive en <b>3</b>.</p>` } },
+    { s: hopScene(-4, 3, -3, `0 + (${neg(3)})`),
+      t: `<p class="lead"><b>Ajouter un nombre négatif</b>, c'est faire un bond vers la <b>gauche</b>. On repart de 0 et on ajoute ${M}3.</p>`,
+      act: { type: 'tap', q: `Où arrive le bond de ${M}3 ? Touche la graduation sur la droite.`, ok: -3, no: hopNo(-1, 3), after: `<p class="lead">Le bond de ${M}3 vers la gauche arrive en <b>${M}3</b>.</p>` } },
+    { t: `<p class="lead">Un bond de ${M}3 va vers la gauche, mais il fait <b>autant de graduations que le nombre sans son signe</b> : 3.</p>`,
+      act: { type: 'fill', parts: ['Un bond de ', 0, ' est un bond vers la ', 1, '.'], blanks: [
+        { o: ['3', `${M}3`], ok: 1, def: `Le nombre ${M}3 est négatif : c'est le bond que l'on vient de faire en dernier.` },
+        { o: ['droite', 'gauche'], ok: 1, def: 'Ajouter un nombre négatif, c\'est reculer : vers la gauche.' }] } },
+  ]));
 
 add({ id: 'dette', sec: 'Leçon', name: 'Deux dettes',
-  what: "L'idée de départ : deux dettes qui s'ajoutent. Les deux bonds de −3 puis −5 se dessinent un par un sur la droite, du départ à l'arrivée, puis le calcul s'écrit.",
-  why: "C'est le « pourquoi » du cours, avant toute règle : deux bonds dans le même sens vont plus loin. Elle voit le départ, chaque bond et l'arrivée. Le surligneur jaune marque l'arrivée.",
-  ask: ["J'ai gardé la dette du doc 06 (3 € puis 5 €) et la droite −3 puis −5. Autre idée de départ possible : le thermomètre. On garde la dette ?"] },
+  what: "Trois étapes. Étape 1 : une première dette, 3 €, un bond de −3 qui se dessine. Étape 2 : une deuxième dette, 5 €, un deuxième bond dans le même sens. Étape 3 : phrase à trous à deux trous (« Les deux bonds vont vers la … donc le résultat est … »). Une fois réussie, la droite montre l'arrivée en −8 et le texte conclut : 8 € en tout.",
+  why: "C'est le « pourquoi » du cours, avant toute règle : deux bonds dans le même sens vont plus loin. Elle n'a plus besoin de lire une étape de conclusion : c'est elle qui l'énonce en complétant la phrase.",
+  ask: ["J'ai gardé la dette du doc 06 (3 € puis 5 €). Autre idée de départ possible : le thermomètre. On garde la dette ?"] },
   reveal('Deux dettes qui s\'ajoutent', [
-    { s: sc(line({ from: -10, to: 2, start: 0, caps: true }), '', 'Une dette, c\'est un nombre négatif'),
-      t: `<p class="lead">Imagine que tu dois de l'argent à une amie. Une <b>dette</b> se note avec un nombre <b>négatif</b>.</p><p class="lead">Au départ, tu ne dois rien : tu es à <b>0</b>.</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }], anim: 0, start: 0 }), neg(3)),
-      t: `<p class="lead">Tu dois <b>3 €</b>. C'est un bond de 3 graduations vers la <b>gauche</b> : tu es à ${neg(3)}.</p>` },
+    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }], anim: 0, start: 0, caps: true }), neg(3), 'Une dette, c\'est un nombre négatif'),
+      t: `<p class="lead">Tu dois de l'argent à une amie : une <b>dette</b> se note avec un nombre <b>négatif</b>. Tu pars de 0 et tu dois <b>3 €</b> : un bond de 3 graduations vers la gauche, tu es à ${neg(3)}.</p>` },
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], anim: 1, start: 0 }), `${neg(3)} + (${neg(5)})`),
-      t: `<p class="lead">Tu dois encore <b>5 €</b>. Tu fais un deuxième bond de 5 graduations, vers la gauche aussi : <b>dans le même sens</b> que le premier.</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, end: -8, caps: true }), `${neg(3)} + (${neg(5)}) = ${neg(8)}`),
-      t: `<p class="lead">Tu arrives à ${neg(8)} : tu dois <b>8 € en tout</b>. Les deux dettes se sont <b>ajoutées</b>.</p>` },
-    { t: `<p class="lead">On a ajouté un nombre négatif à un nombre négatif : deux nombres de <b>même signe</b>. Les deux bonds vont dans le même sens, donc ils vont <b>plus loin ensemble</b>.</p>` },
+      t: `<p class="lead">Tu dois encore <b>5 €</b> : un deuxième bond de 5 graduations, vers la gauche aussi, <b>dans le même sens</b> que le premier.</p>` },
+    { s: (a) => sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], anim: 1, start: 0, neutral: !a.done, end: a.done ? -8 : null, caps: a.done }), a.done ? `${neg(3)} + (${neg(5)}) = ${neg(8)}` : `${M}3 + (${M}5) = ?`),
+      t: '',
+      act: { type: 'fill', parts: ['Les deux bonds vont vers la ', 0, ', donc le résultat est ', 1, '.'], blanks: [
+        { o: ['gauche', 'droite'], ok: 0, def: 'Regarde la droite : les deux bonds reculent, comme une dette qui grandit.' },
+        { o: ['positif', 'négatif'], ok: 1, def: 'On arrive à gauche de 0, du côté des nombres négatifs : le résultat est négatif.' }],
+        after: `<p class="lead">Tu arrives à ${neg(8)} : tu dois <b>8 € en tout</b>. Les deux dettes se sont <b>ajoutées</b> : deux bonds de même sens vont <b>plus loin ensemble</b>.</p>` } },
   ]));
 
-add({ id: 'positifs', sec: 'Leçon', name: 'Et avec des positifs ?',
-  what: "Question pour deviner avant toute explication : deux bonds de 4 et 6 vers la droite, où arrive-t-on ? Après la réponse, la droite montre les deux bonds bleus et l'arrivée en 10.",
-  why: "Elle peut trouver seule : le cas négatif vient d'être vu, il suffit de le retourner. Deviner avant l'explication la fait réfléchir au sens des bonds. La question ne compte pas et ne revient pas.",
-  ask: ["Cette deuxième question pour deviner ne compte pas dans la note, comme au Cours 0. D'accord ?",
-        "Le cours n'a qu'un cas positif sur le cours entier (30 % des calculs du générateur, doc 06). Faut-il lui donner plus de place dans la leçon ?"] },
-  quiz([{ q: 'À ton avis : on part de 0, on fait un bond de 4 vers la droite, puis un bond de 6 vers la droite. On arrive à…', o: ['2', '10', `${M}10`], ok: 1, guess: true, row: false,
-    yes: 'Deux bonds vers la droite : on avance deux fois, on arrive plus loin, à 10.',
-    why: { 0: "Aucun bond ne recule : les deux vont vers la droite, donc on arrive plus loin de 0, pas plus près. 4 + 6 = 10.",
-           2: `Aller vers la droite, c'est avancer du côté positif : on ne peut pas arriver du côté négatif. On arrive à 10.` } }],
-    { free: true, top: `<h2 class="t">Et avec des nombres positifs ?</h2><p class="lead">Même idée, dans l'autre sens.</p>${scene(line({ from: -2, to: 11, neutral: true, start: 0 }), 'sm')}`,
-      after: `<div class="stage new" style="min-height:0">${sc(line({ from: -2, to: 11, jumps: [{ a: 0, b: 4 }, { a: 4, b: 10 }], anim: 1, start: 0, end: 10 }), `${pos(4)} + ${pos(6)} = ${pos(10)}`)}</div>` }));
+add({ id: 'comparer', sec: 'Leçon', name: 'Comparer deux cas',
+  what: "Deux calculs presque identiques côte à côte : −3 + (−5) et −3 + 5. « Qu'est-ce qui change ? » (trois choix touchés). Après la réponse, la droite montre les deux trajets : A arrive en −8, B en 2. Le cas B est présenté comme un aperçu du prochain cours.",
+  why: "Comparer fait voir ce qui compte (le signe du deuxième nombre) et pourquoi ce cours ne traite que « même signe ». Elle remarque la différence avant qu'on la lui dise. La question ne compte pas.",
+  ask: ["Le cas B (−3 + 5) vient du Cours 2 : ici c'est un simple aperçu (« au prochain cours… »), il ne faut pas qu'elle ait à le calculer. Tu es d'accord, ou on prend un autre contraste qui reste dans le Cours 1 (par exemple −3 + (−5) et 3 + 5) ?",
+        "Cet écran vient-il trop tôt (avant la règle 1) ? Je l'ai mis ici pour fixer l'idée « même sens ou sens contraire » avant les règles."] },
+  compareScreen);
 
-add({ id: 'regle-1', sec: 'Leçon', name: 'Règle 1 animée',
-  what: "Reprend −3 + (−5) et montre que les deux bonds se mettent bout à bout : leurs longueurs s'ajoutent, 3 + 5 = 8. Encadré de la règle 1 à la fin.",
-  why: "Elle voit pourquoi on additionne, et pas seulement qu'on additionne. La droite garde les deux bonds, avec leurs longueurs sans signe (3 et 5) surlignées en jaune. Cette règle prévient l'erreur « je soustrais au lieu d'additionner ».",
-  ask: ["J'ai coupé la règle du doc 06 en deux : Règle 1 « j'additionne les nombres sans leur signe », Règle 2 « je garde le signe ». Chacune a sa scène et sa question, et correspond à une erreur reconnue (`soustraction-au-lieu-addition` et `signe-oublie`). Le doc 06 n'a qu'une seule règle : on coupe, ou on garde une règle en deux phrases dans un seul encadré ?"] },
+add({ id: 'regle-1', sec: 'Leçon', name: 'Règle 1 : j\'additionne',
+  what: "Trois étapes. Étape 1 : les deux bonds de −3 + (−5) se mettent bout à bout. Étape 2 : elle complète le calcul avec une étiquette (3 + 5 = 8, avec 2 et 15 en mauvais choix) ; la droite est grise pendant la question. Étape 3 : l'encadré de la règle 1.",
+  why: "Elle voit pourquoi on additionne, puis le fait elle-même au milieu de l'explication. 2 est l'erreur reconnue `soustraction-au-lieu-addition`, 15 la confusion avec la multiplication. Les couleurs et le jaune reviennent après sa réponse.",
+  ask: ["La règle du doc 06 est coupée en deux : Règle 1 « j'additionne les nombres sans leur signe », Règle 2 « je garde le signe ». Chacune a une erreur reconnue (`soustraction-au-lieu-addition` et `signe-oublie`). On coupe, ou une règle en deux phrases dans un seul encadré ?"] },
   reveal('J\'additionne les longueurs des bonds', [
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0 }), `${neg(3)} + (${neg(5)})`),
-      t: `<p class="lead">Reprenons ${M}3 + (${M}5). Les deux nombres sont négatifs : ils ont le <b>même signe</b>.</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, labels: 'abs' }), `<span class="hl">3</span> + <span class="hl">5</span>`),
-      t: `<p class="lead">Les deux bonds vont dans le même sens, donc ils se mettent <b>bout à bout</b>. Le trajet total fait <b>3 graduations plus 5 graduations</b>.</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, labels: 'abs' }), `3 + 5 = <span class="hl">8</span>`),
-      t: `<p class="lead">Les longueurs des bonds, ce sont les nombres <b>sans leur signe</b> : 3 et 5. On les additionne : 3 + 5 = 8.</p>` },
+      t: `<p class="lead">Reprenons ${M}3 + (${M}5). Les deux nombres sont négatifs : ils ont le <b>même signe</b>. Les deux bonds vont dans le même sens, donc ils se mettent <b>bout à bout</b>.</p>` },
+    { s: (a) => sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, labels: 'abs', neutral: !a.done }), a.done ? `<span class="hl">3</span> + <span class="hl">5</span> = <span class="hl">8</span>` : '3 + 5 = ?'),
+      t: `<p class="lead">Le trajet total fait <b>3 graduations plus 5 graduations</b>. Les longueurs des bonds sont les nombres <b>sans leur signe</b> : 3 et 5.</p>`,
+      act: { type: 'fill', parts: ['Longueur du trajet : 3 + 5 = ', 0], blanks: [
+        { o: ['2', '8', '15'], ok: 1, no: { 0: 'Soustraire, ce serait pour des bonds de sens contraires. Ici les deux bonds vont dans le même sens : ils s\'ajoutent.', 2: 'On additionne les longueurs, on ne les multiplie pas : 3 + 5.' } }] } },
     { t: rule(1, `<b style="all:unset;font-weight:700">Deux nombres de même signe : j'additionne les nombres sans leur signe.</b>`) },
   ]));
 
-add({ id: 'regle-1-quiz', sec: 'Leçon', name: 'Règle 1 : à toi (2 questions)',
-  what: "Deux questions sur le même écran. La première : quel calcul fait-on avec 2 et 9 dans −2 + (−9) ? La deuxième : pourquoi additionne-t-on ? Réponses touchées, en bas.",
-  why: "Deux questions qui se suivent : d'abord le geste (additionner), ensuite la raison (même sens, bout à bout). Le mauvais choix « 9 − 2 » est l'erreur reconnue `soustraction-au-lieu-addition`, et le choix « parce qu'il y a un + » est la fausse raison la plus tentante.",
-  ask: ["Question 2 : elle demande une raison, pas un calcul. Est-ce que ça te semble faisable pour elle, avec ses réponses longues à lire ? Sinon je la remplace par un deuxième calcul.",
-        "Une petite question ratée repasse 2 écrans plus loin (doc 08 n° 22) : c'est déjà codé, je ne le montre pas ici. Ça te va ?"] },
-  quiz([
-    { q: 'Quel calcul fait-on avec 2 et 9 ?', calc: `${M}2 + (${M}9)`, o: ['2 + 9', '9 − 2', '2 × 9'], ok: 0,
-      yes: `Les deux bonds vont vers la gauche, ils se mettent bout à bout : on additionne 2 et 9.`,
-      why: { 1: `Soustraire, ce serait pour deux bonds de sens contraires. Ici, les deux vont vers la gauche : ils s'ajoutent. On calcule 2 + 9.`, 2: `On ne multiplie pas ici : les bonds se mettent bout à bout, on additionne 2 + 9.` } },
-    { q: 'Pourquoi additionne-t-on 2 et 9 ?', calc: `${M}2 + (${M}9)`, o: ['Les deux bonds vont dans le même sens : ils se mettent bout à bout', "Parce qu'il y a un signe + dans le calcul"], ok: 0,
-      yes: 'Voilà : même sens, donc bout à bout, donc les longueurs 2 et 9 s\'ajoutent.',
-      no: `Le + dit d'ajouter ${M}9 à ${M}2. Mais ce qui fait additionner 2 et 9, c'est que les deux bonds vont dans le même sens, bout à bout.` },
-  ]));
-
-add({ id: 'regle-2', sec: 'Leçon', name: 'Règle 2 animée',
-  what: "On sait que la distance est 8. Reste à choisir 8 ou −8 : la droite montre qu'on arrive à gauche de 0, donc −8. Puis le même raisonnement avec 4 + 6 vers la droite. Encadré de la règle 2.",
-  why: "Elle lit le signe du résultat sur la droite : à gauche de 0, négatif ; à droite, positif. Cette règle prévient l'oubli du signe, l'erreur la plus fréquente (`signe-oublie`).",
-  ask: ["Je montre les deux cas (négatifs, positifs) dans la même explication. Préfères-tu deux explications séparées ?"] },
+add({ id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : je garde le signe',
+  what: "Quatre étapes. Étape 1 : le trajet fait 8 graduations ; arrive-t-on à 8 ou à −8 ? Étape 2 : elle complète le calcul avec une étiquette (−3 + (−5) = −8, avec 8 et −2 en mauvais choix) ; droite grise. Étape 3 : le même raisonnement avec 4 + 6 vers la droite (cas positif). Étape 4 : l'encadré de la règle 2.",
+  why: "Elle lit le signe du résultat sur la droite (à gauche de 0, négatif ; à droite, positif), puis l'écrit. 8 est l'oubli du signe (`signe-oublie`), −2 la soustraction. Le cas positif a sa place ici, avant la pratique.",
+  ask: ["Le cas positif (4 + 6) est une seule étape de lecture dans la règle 2. Faut-il lui donner une action aussi (par exemple compléter 4 + 6 = ▢) ?"] },
   reveal('Je garde le signe', [
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, mark: [-8], labels: 'abs' }), `${neg(3)} + (${neg(5)}) = ?`),
-      t: `<p class="lead">On sait que le trajet fait 8 graduations. Reste une question : arrive-t-on à <b>8</b> ou à <b>${M}8</b> ?</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, end: -8 }), `${neg(3)} + (${neg(5)}) = ?`),
-      t: `<p class="lead">Regarde la droite : les deux bonds vont vers la <b>gauche</b>. On arrive à gauche de 0, du côté <b>négatif</b>.</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, end: -8 }), `${neg(3)} + (${neg(5)}) = <span class="hl">${M}</span>8`),
-      t: `<p class="lead">Le résultat est négatif : on <b>garde le signe ${M}</b> des deux nombres. Donc ${M}3 + (${M}5) = <b>${M}8</b>.</p>` },
+      t: `<p class="lead">On sait que le trajet fait 8 graduations. Reste une question : arrive-t-on à <b>8</b> ou à <b>${M}8</b> ? Regarde la droite : les deux bonds vont vers la <b>gauche</b>, on arrive du côté <b>négatif</b>.</p>` },
+    { s: (a) => sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, neutral: !a.done, end: a.done ? -8 : null }), a.done ? `${neg(3)} + (${neg(5)}) = ${neg(8)}` : `${M}3 + (${M}5) = ?`),
+      t: '',
+      act: { type: 'fill', parts: [`Du côté négatif : ${M}3 + (${M}5) = `, 0], blanks: [
+        { o: ['8', `${M}8`, `${M}2`], ok: 1, no: { 0: 'Le trajet fait bien 8 graduations, mais on arrive à gauche de 0 : il faut garder le signe.', 2: `${M}2 viendrait de 5 − 3. Ici les bonds s'ajoutent : 3 + 5 = 8, avec le signe ${M}.` } }],
+        after: `<p class="lead">On garde le signe ${M} des deux nombres.</p>` } },
     { s: sc(line({ from: -2, to: 11, jumps: [{ a: 0, b: 4 }, { a: 4, b: 10 }], anim: 1, start: 0, end: 10 }), `${pos(4)} + ${pos(6)} = ${pos(10)}`),
       t: `<p class="lead">Même chose avec 4 + 6 : les bonds vont vers la <b>droite</b>, on arrive du côté <b>positif</b>. On garde le signe + : le résultat est 10.</p>` },
     { t: rule(2, `<b style="all:unset;font-weight:700">Je garde le signe des deux nombres.</b>`) },
   ]));
 
-add({ id: 'regle-2-quiz', sec: 'Leçon', name: 'Règle 2 : à toi',
-  what: "Une question à quatre choix : −6 + (−3) = ? avec 9, −9, −3 et 3.",
-  why: "Les quatre choix couvrent les deux erreurs reconnues : 9 est le signe oublié, −3 et 3 sont la soustraction. Chaque choix a son message.",
-  ask: [] },
-  quiz([{ q: 'Quel est le résultat ?', calc: `${M}6 + (${M}3)`, o: ['9', `${M}9`, `${M}3`, '3'], ok: 1, row: true, big: true,
-    yes: `On additionne 6 et 3 : 9. Les deux nombres sont négatifs, donc on garde le signe ${M} : ${M}9.`,
-    why: { 0: SIGNE, 2: SOUS(6, 3, `${M}9`), 3: SOUS(6, 3, `${M}9`) } }]));
-
-add({ id: 'exemples', sec: 'Leçon', name: 'Trois exemples',
-  what: "Trois calculs résolus, l'un après l'autre : −3 + (−5), −7 + (−2) et 4 + 6. Pour chacun : le calcul, ce que l'on fait, le résultat.",
-  why: "Elle voit la méthode appliquée à de nouveaux nombres, dont un cas positif, avant de s'entraîner. Les nombres sont colorés par signe (orange, bleu) : c'est la leçon, pas une question.",
-  ask: [] },
-  reveal('Trois exemples', ((r1, r2, r3) => [
-    { s: `<div class="pairs">${r1}</div>`, t: `<p class="lead">Deux nombres négatifs : j'additionne 3 et 5, et je garde le signe ${M}.</p>` },
-    { s: `<div class="pairs">${r1}${r2}</div>`, t: `<p class="lead">Encore deux nombres négatifs : 7 + 2 = 9, et je garde le signe ${M}.</p>` },
-    { s: `<div class="pairs">${r1}${r2}${r3}</div>`, t: `<p class="lead">Deux nombres positifs : 4 + 6 = 10, et je garde le signe +, c'est-à-dire que le résultat est positif.</p>` },
-    { t: `<p class="lead">À chaque fois, on se demande d'abord : <b>quel est le signe des deux nombres ?</b> Puis on additionne leurs tailles, et on garde ce signe.</p>` },
-  ])(
-    `<div class="pair"><div><span class="tagw">3 + 5 = 8, signe ${M}</span>${neg(3)} + (${neg(5)})</div><span class="arrow">→</span><div><span class="tagw">résultat</span>${neg(8)}</div></div>`,
-    `<div class="pair"><div><span class="tagw">7 + 2 = 9, signe ${M}</span>${neg(7)} + (${neg(2)})</div><span class="arrow">→</span><div><span class="tagw">résultat</span>${neg(9)}</div></div>`,
-    `<div class="pair"><div><span class="tagw">4 + 6 = 10, signe +</span>${pos(4)} + ${pos(6)}</div><span class="arrow">→</span><div><span class="tagw">résultat</span>${pos(10)}</div></div>`,
-  )));
-
-add({ id: 'pieges', sec: 'Leçon', name: 'Deux erreurs à éviter',
-  what: "Montre les deux erreurs reconnues du cours sur la droite : écrire 8 au lieu de −8, et écrire −2 au lieu de −8. Chaque fois, la droite montre pourquoi c'est impossible.",
-  why: "Elle voit les pièges avant de les rencontrer. Le message est celui qu'elle recevra en cas d'erreur. Ici, rien n'est rouge : on est dans l'explication, le rouge arrive seulement après une réponse.",
-  ask: ["Dans le doc 06, une seule erreur était montrée dans la leçon (8 au lieu de −8). J'ai ajouté la soustraction (−2). Trop pour cet écran ?"] },
-  reveal('Deux erreurs à éviter', [
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, mark: [-8], labels: 'abs' }), `${neg(3)} + (${neg(5)}) = 8 <span class="inutile">faux</span>`),
-      t: `<p class="lead"><b>Erreur 1 : écrire 8.</b> On a bien additionné 3 et 5, mais on a oublié le signe. Les deux bonds reculent : on arrive à gauche de 0, pas à droite.</p>` },
-    { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, labels: 'abs' }), `${neg(3)} + (${neg(5)}) = ${M}2 <span class="inutile">faux</span>`),
-      t: `<p class="lead"><b>Erreur 2 : soustraire.</b> Écrire ${M}2, c'est calculer 5 − 3. Mais ici les deux bonds vont dans le même sens : ils ne s'annulent pas, ils s'ajoutent.</p>` },
-    { t: `<p class="lead">Avant de répondre, pose-toi deux questions. <b>Les bonds vont-ils dans le même sens ?</b> Alors j'additionne. <b>De quel côté de 0 j'arrive ?</b> Alors je connais le signe.</p>` },
-  ]));
 
 add({ id: 'recap', sec: 'Leçon', name: 'Les 2 règles',
   what: "Récapitulatif des deux règles, chacune avec un exemple juste et un exemple faux, et la règle complète en une phrase.",
@@ -556,91 +683,55 @@ add({ id: 'recap', sec: 'Leçon', name: 'Les 2 règles',
       <li><b>1. J'additionne les nombres sans leur signe.</b><em>${M}3 + (${M}5) : 3 + 5 = 8 ✓ &nbsp; 5 ${M} 3 = 2 ✗</em></li>
       <li><b>2. Je garde le signe des deux nombres.</b><em>${M}3 + (${M}5) = ${M}8 ✓ &nbsp; ${M}3 + (${M}5) = 8 ✗</em></li></ul>
       <div class="rule"><b>En une phrase</b>Même signe : j'additionne les nombres sans leur signe, et je garde le signe.</div>
-      <p class="lead">Maintenant, à toi de les utiliser.</p>` });
+      <p class="lead">Maintenant, tu t'entraînes avec quatre questions.</p>` });
 
-/* Étiquettes à ordonner */
-const ORD = ['Les deux sont négatifs', '2 + 7 = 9', `Je garde le signe ${M}`, `Résultat : ${M}9`];
-const ORD_SHOW = [2, 0, 3, 1];
-const ORD_MSG = [
-  'On commence par regarder les signes : ils décident de la méthode.',
-  'Ensuite, on additionne les nombres sans leur signe : 2 + 7 = 9.',
-  `Seulement après, on remet le signe : je garde le signe ${M}.`,
-  `Le résultat vient en dernier : ${M}9.`,
-];
-add({ id: 'ordre', sec: 'À toi', name: 'Remettre dans l\'ordre',
-  what: "Quatre étapes de la résolution de −2 + (−7) sont mélangées. Elle les touche dans l'ordre, de la première à la dernière ; toucher une étape placée la retire. Après Valider, chaque case est verte ou rouge et le message explique la première erreur.",
-  why: "Ça lui fait raconter la méthode avec ses mots à elle, dans l'ordre. Les étapes sont en bas, les cases en haut, et la manière de répondre est dans la consigne.",
-  ask: ["Le doc 06 parle d'« étiquettes à ordonner ». Je propose de les toucher dans l'ordre (plus sûr au doigt). Ou les faire glisser comme dans « Classer » du Cours 0 ?"] },
-  { init: () => ({ pick: [], done: false }),
-    render: (st) => {
-      let h = `<p class="lead"><b>Remets les étapes dans l'ordre</b> pour résoudre ce calcul. Touche-les en bas, de la première à la dernière.</p>${calc(`${M}2 + (${M}7)`, 'md')}
-        <p class="small">Pour retirer une étape, touche-la dans la liste.</p><div class="slots">`;
-      for (let p = 0; p < 4; p++) {
-        const k = st.pick[p];
-        const c = st.done ? (k === p ? 'ok' : 'ko') : '';
-        h += `<button class="slot ${k !== undefined ? 'full' : ''} ${c}" data-a="unpick" data-p="${p}" ${st.done ? 'disabled' : ''}><span class="sn">${p + 1}</span>${k !== undefined ? ORD[k] : ''}</button>`;
-      }
-      h += '</div>';
-      if (st.done) {
-        const w = st.pick.findIndex((k, p) => k !== p);
-        h += w === -1 ? fb('ok', 'Voici le bon ordre.', 'Tu as bien suivi la méthode.') : fb('ko', 'Pas tout à fait.', `${ORD_MSG[w]} Le bon ordre : ${ORD.map((o, i) => `${i + 1}. ${o}`).join(' · ')}`);
-      } else {
-        h += `<div class="zone"><p class="small">À ranger :</p><div class="tags">${ORD_SHOW.filter((k) => !st.pick.includes(k)).map((k) => `<button class="etq" data-a="pick" data-k="${k}">${ORD[k]}</button>`).join('')}</div></div>`;
-      }
-      return h;
-    },
-    foot: (st) => (st.done ? { label: 'Continuer', a: 'next' } : { label: 'Valider', a: 'check', off: st.pick.length < 4 }),
-    on: (a, d, st) => {
-      if (st.done) return;
-      if (a === 'pick' && st.pick.length < 4) st.pick.push(+d.k);
-      if (a === 'unpick') st.pick.splice(+d.p, 1);
-      if (a === 'check') st.done = true;
-    } });
+add({ id: 'pratique', sec: 'Pratique', name: 'Série de 4 questions',
+  what: "Quatre questions à la suite, retour immédiat à chacune, compteur « 1 sur 4 » en haut. (1) Toucher où l'on arrive pour −2 + (−6), bonds dessinés (droite grise, graduations touchables). (2) « Quel est le signe du résultat ? » pour −4 + (−3) : deux gros boutons + et −. (3) Vrai ou faux : « −4 + (−3) = 7 ». (4) Taper le résultat de −8 + (−9) au clavier complet.",
+  why: "Elle passe de l'image (bonds dessinés) à une question de signe seul, puis à un jugement, puis à un calcul tapé : l'aide diminue à chaque question. Le format change pour qu'elle ne réponde pas par automatisme. Chaque erreur prévisible a son message ; pendant une question, aucune couleur de signe.",
+  ask: ["Ces 4 questions comptent-elles dans la note du cours ? Je propose que oui (ce sont les « petites questions » du cours).",
+        "À partir du Cours 2, une des 4 questions viendra du cours précédent (entraînement intercalé). Pour le Cours 1, il n'y a pas de cours précédent sur ce thème : les 4 sont sur ce cours. D'accord ?",
+        "Après une mauvaise réponse, on montre la correction et on passe à la suivante (pas de nouvel essai : c'est de la pratique, pas de la leçon). Une petite question ratée repassera 2 écrans plus loin comme prévu dans le doc 08 n° 22 (déjà codé)."] },
+  serie([
+    { kind: 'tap', consigne: 'Touche sur la droite la graduation où l\'on arrive.', calc: `${M}2 + (${M}6)`, from: -9, to: 0, jumps: [{ a: 0, b: -2 }, { a: -2, b: -8 }], ok: -8,
+      yes: 'Les deux bonds vont vers la gauche et se mettent bout à bout : 2 + 6 = 8, on arrive à −8.'.replace('−8', `${M}8`),
+      no: () => `Le deuxième bond part de ${M}2 et fait 6 graduations vers la gauche : ${M}3, ${M}4, ${M}5, ${M}6, ${M}7, ${M}8. On arrive à ${M}8.` },
+    { kind: 'pick', consigne: 'Touche le signe du résultat. Tu n\'as pas besoin de calculer.', calc: `${M}4 + (${M}3)`, q: 'Quel est le signe du résultat ?', o: ['+', M], ok: 1,
+      yes: `Les deux nombres sont négatifs : on garde le signe ${M}. Le résultat est négatif.`, why: { 0: SIGNE } },
+    { kind: 'pick', consigne: 'Touche Vrai ou Faux.', calc: `${M}4 + (${M}3) = 7`, o: ['Vrai', 'Faux'], ok: 1,
+      yes: `Faux : 4 + 3 = 7, mais on garde le signe ${M}. Le bon résultat est ${M}7.`, why: { 0: `On a bien additionné 4 et 3, mais les deux nombres sont négatifs : le résultat est négatif aussi. ${M}4 + (${M}3) = ${M}7.` } },
+    { kind: 'type', consigne: 'Calcule. <b>Tape le résultat.</b>', calc: `${M}8 + (${M}9)`, hint: 'Tape le résultat avec les touches du clavier.',
+      check: (n) => (n === -17 ? { ok: true, msg: `8 + 9 = 17, et on garde le signe ${M} : ${M}17.` } : n === 17 ? { ok: false, msg: SIGNE } : Math.abs(n) === 1 ? { ok: false, msg: SOUS(8, 9, `${M}17`) } : { ok: false, msg: `Additionne 8 et 9 sans les signes, puis garde le signe ${M}. Le résultat est ${M}17.` }) },
+  ]));
 
-add({ id: 'lire', sec: 'À toi', name: 'Lire la droite (2 questions)',
-  what: "La droite montre deux bonds vers la gauche (de 4 puis de 3), sans leurs nombres. Question 1 : quel calcul correspond ? Question 2 : où arrive-t-on ? La droite reste grise.",
-  why: "C'est le chemin inverse de la leçon : on passe de l'image au calcul, ce qui montre qu'elle a compris le lien droite et calcul. Une bonne façon de faire parler la droite graduée.",
-  ask: ["Question 1 : « −4 + 3 » est le piège « un des deux nombres change de signe ». Il n'est pas dans la liste du doc 06, il sert ici de mauvais choix. On le garde ?"] },
-  quiz([
-    { q: 'Quel calcul correspond à ces deux bonds ?', o: [`${M}4 + 3`, `${M}4 + (${M}3)`, '4 + 3'], ok: 1,
-      yes: `Les deux bonds reculent, de 4 puis de 3 : ${M}4 + (${M}3).`,
-      why: { 0: `Le deuxième bond va vers la gauche, comme le premier : c'est ${M}3, pas 3.`, 2: `Les bonds vont vers la gauche : les nombres sont négatifs, pas positifs.` } },
-    { q: 'Où arrive-t-on ?', o: [`${M}7`, `${M}1`, '7'], ok: 0, row: true, big: true,
-      yes: `On additionne les longueurs : 4 + 3 = 7, et on garde le signe ${M} : ${M}7.`,
-      why: { 1: SOUS(4, 3, `${M}7`), 2: SIGNE } },
-  ], { top: scene(line({ from: -9, to: 1, neutral: true, start: 0, jumps: [{ a: 0, b: -4 }, { a: -4, b: -7 }], labels: 'none' }), 'sm') }));
-
-add({ id: 'guide-1', sec: 'Exemple guidé 1 sur 2', name: 'Compléter −4 + (−9)',
-  what: "Le calcul de départ reste affiché. Elle tape deux cases, l'une après l'autre : d'abord le nombre dans −(4 + ▢), puis le résultat. Clavier complet.",
-  why: "Chaque case a un sens : la première, c'est la taille du deuxième nombre sans son signe ; la seconde, le résultat final avec son signe. Le calcul de départ est toujours là, donc la seule réponse logique est la bonne. Chaque erreur a son message.",
-  ask: ["Les cases du doc 06 (« −( 4 + ▢ ) » puis « ▢ ») sont gardées. Souhaites-tu que la première case ressemble moins à une récitation (on écrit 9, tel quel) ?"] },
-  trous({ consigne: 'Complète les cases pour calculer, étape par étape.', given: `${M}4 + (${M}9)`,
+add({ id: 'guide-1', sec: 'Exemple guidé 1 sur 2', name: 'Résolu : −4 + (−9)',
+  what: "Le calcul est entièrement résolu à l'écran, ligne après ligne. Elle ne fait que valider : « Je comprends » pour les deux premières lignes (la ligne en cours est surlignée et expliquée), puis une seule case à taper pour le résultat final, au clavier complet.",
+  why: "C'est le plus d'aide : elle voit toute la méthode appliquée à de nouveaux nombres avant de la faire seule. Le « Je comprends » l'oblige à s'arrêter sur chaque ligne ; la seule case porte sur le résultat avec son signe, l'endroit où l'on se trompe le plus.",
+  ask: ["La case finale demande le résultat alors que la ligne d'avant l'affiche déjà (−(13)). C'est volontaire pour la première fois : on valide qu'elle sait remettre le signe. Ou on supprime cette case et on garde seulement « Je comprends » ?"] },
+  aide({ consigne: 'Voici la résolution complète. Lis chaque ligne, puis touche « Je comprends ».', given: `${M}4 + (${M}9)`,
     lines: [
-      { html: (b) => `${M}4 + (${M}9) = ${M}(4 + ${b})`, exp: '9',
-        check: (n) => (n === 9 ? { ok: true, msg: `On écrit 9, le nombre sans son signe. Le ${M} est devant la parenthèse.` }
-          : n === -9 ? { ok: false, msg: `On écrit le nombre sans son signe : 9. Le signe ${M} est déjà devant la parenthèse.` }
-          : { ok: false, msg: `Dans ${M}(4 + ▢), on remet le deuxième nombre du calcul sans son signe : 9.` }) },
-      { html: (b) => `${M}4 + (${M}9) = ${M}(4 + 9) = ${b}`, exp: `${M}13`,
-        check: (n) => (n === -13 ? { ok: true, msg: `4 + 9 = 13, et on garde le signe ${M} : ${M}13.` }
-          : n === 13 ? { ok: false, msg: SIGNE }
-          : Math.abs(n) === 5 ? { ok: false, msg: SOUS(4, 9, `${M}13`) }
-          : { ok: false, msg: `Additionne 4 et 9, puis garde le signe ${M} devant le résultat.` }) },
+      { html: `= ${M}(4 + 9)`, title: 'Ligne 1', expl: `Les deux nombres sont négatifs : j'additionne 4 et 9 sans leur signe, et je garde le signe ${M} devant la parenthèse.` },
+      { html: `= ${M}(13)`, title: 'Ligne 2', expl: `4 + 9 = 13. Le signe ${M} est toujours devant : c'est le signe des deux nombres.` },
+      { cas: true, html: (b) => `= ${b}`, exp: `${M}13`, title: 'Dernière ligne', expl: `Écris le résultat, avec son signe. Tu peux t'aider de la ligne du dessus.`, yes: `On garde le signe ${M} : ${M}13.`,
+        check: (n) => (n === -13 ? { ok: true } : n === 13 ? { ok: false, msg: SIGNE } : { ok: false, msg: `Le résultat de la ligne du dessus est ${M}(13), c'est-à-dire ${M}13.` }) },
     ] }));
 
-add({ id: 'guide-2', sec: 'Exemple guidé 2 sur 2', name: 'Calculer −6 + (−1)',
-  what: "Le calcul reste affiché. Cette fois elle tape le résultat entier, sans cases pour l'aider. Clavier complet. Si elle se trompe, « Étape par étape » montre trois vraies étapes.",
-  why: "Le premier exemple guidait chaque étape. Celui-ci la laisse faire seule, mais avec un filet. Le cas −6 + (−1) contient un 1 : la soustraction donnerait −5, et c'est le piège à voir.",
-  ask: ["Le doc 06 avait deux exemples à cases. J'ai changé le deuxième en réponse tapée seule, plus proche des exercices de fin. Tu valides ?",
-        "Ajouter un exemple positif (4 + 6) ? Le doc 06 n'en a pas dans les exemples guidés."] },
-  typed({ consigne: 'Calcule. <b>Tape le résultat.</b>', given: `${M}6 + (${M}1)`,
-    steps: [`Les deux nombres sont négatifs : même signe.`, `J'additionne les nombres sans leur signe : 6 + 1 = 7.`, `Je garde le signe ${M} : le résultat est ${M}7.`],
-    check: (v) => {
-      const n = num(v);
-      if (n === -7) return { ok: true, msg: `6 + 1 = 7, et on garde le signe ${M} : ${M}7.` };
-      if (n === 7) return { ok: false, msg: SIGNE };
-      if (Math.abs(n) === 5) return { ok: false, msg: SOUS(6, 1, `${M}7`) };
-      return { ok: false, msg: `Additionne 6 et 1 sans les signes, puis garde le signe ${M}.` };
-    } }));
+add({ id: 'guide-2', sec: 'Exemple guidé 2 sur 2', name: 'À moitié : −6 + (−1)',
+  what: "Le calcul reste affiché. L'aide a diminué de moitié : elle tape deux cases, l'une après l'autre. D'abord le nombre dans −(6 + ▢), puis le résultat. Clavier complet. Si elle se trompe, la bonne réponse s'affiche avec un message précis.",
+  why: "Le premier exemple était résolu ; ici la résolution est à elle, avec seulement deux cases à remplir. Le cas −6 + (−1) contient un 1 : la soustraction donnerait −5, c'est le piège à voir.",
+  ask: ["Ajouter un exemple positif (4 + 6) ? Le doc 06 n'en a pas dans les exemples guidés ; il y a un cas positif dans les exercices de fin."] },
+  trous({ consigne: 'Cette fois, deux cases sont à toi. Les deux nombres sont négatifs : je garde le signe, et j\'additionne.', given: `${M}6 + (${M}1)`,
+    lines: [
+      { html: (b) => `${M}6 + (${M}1) = ${M}(6 + ${b})`, exp: '1',
+        check: (n) => (n === 1 ? { ok: true, msg: `On écrit 1, le nombre sans son signe. Le ${M} est devant la parenthèse.` }
+          : n === -1 ? { ok: false, msg: `On écrit le nombre sans son signe : 1. Le signe ${M} est déjà devant la parenthèse.` }
+          : { ok: false, msg: `Dans ${M}(6 + ▢), on remet le deuxième nombre du calcul sans son signe : 1.` }) },
+      { html: (b) => `${M}6 + (${M}1) = ${M}(6 + 1) = ${b}`, exp: `${M}7`,
+        check: (n) => (n === -7 ? { ok: true, msg: `6 + 1 = 7, et on garde le signe ${M} : ${M}7.` }
+          : n === 7 ? { ok: false, msg: SIGNE }
+          : Math.abs(n) === 5 ? { ok: false, msg: SOUS(6, 1, `${M}7`) }
+          : { ok: false, msg: `Additionne 6 et 1, puis garde le signe ${M} devant le résultat.` }) },
+    ] }));
+
 
 add({ id: 'annonce', sec: 'Exercices de fin', name: 'Annonce de la fin',
   what: "Annonce les 5 exercices de fin et dit ce qu'il faut réussir, et ce qui se passe sinon. Même texte que le Cours 0.",
@@ -710,16 +801,19 @@ add({ id: 'mes-cours', sec: 'Après', name: 'Mes cours après échec',
 /* ——— Notes générales ——— */
 const GLOBAL = `
 <section><h3>Ce que doit être un bon cours (brouillon du futur skill)</h3><ul>
-<li><b>Une idée par écran.</b> Les lignes apparaissent une par une avec « Suite » ; « Revoir » rejoue l'animation de l'étape. Rien ne défile seul.</li>
+<li><b>Une action au moins toutes les 2 étapes de lecture</b>, y compris dans les explications pas à pas. Quand une étape a une action, « Suite » est remplacé par cette action, en bas de l'écran.</li>
+<li><b>Quatre types d'étapes interactives</b> : phrase à trous (un ou deux trous, étiquettes à toucher), toucher une graduation de la droite, faire le bond (elle touche l'arrivée, le bond se dessine), compléter le calcul (étiquettes ou cases tapées). Retour immédiat.</li>
+<li><b>Mauvaise réponse dans une étape interactive</b> : un message court, puis elle réessaie. Pas de note : c'est la leçon.</li>
+<li><b>Un cours court : 13 à 15 écrans.</b> Une explication par règle, avec une action au milieu. Pas d'écran « exemples » ni « erreurs à éviter » : la pratique les remplace.</li>
+<li><b>Comparer deux cas</b> presque identiques (un écran court) : « Qu'est-ce qui change ? », puis la droite montre les deux trajets.</li>
+<li><b>Une série de pratique juste avant les exemples guidés</b> : 4 questions à la suite, aide décroissante, formats variés, retour immédiat, compteur « 2 sur 4 ». À partir du Cours 2, une question vient du cours précédent.</li>
+<li><b>L'aide s'efface</b> : exemple 1 entièrement résolu (elle valide chaque ligne), exemple 2 à moitié (deux cases), puis les exercices de fin seule.</li>
 <li><b>L'écran n'est jamais vide.</b> Un grand calcul ou une image (la « scène », ici la droite graduée) occupe le haut dès le départ et se transforme à chaque étape. Les phrases s'ajoutent en dessous, les anciennes passent en gris.</li>
-<li><b>De vraies phrases.</b> Elles disent quoi faire et pourquoi. Comprendre une consigne fait partie de l'apprentissage.</li>
+<li><b>De vraies phrases</b>, qui disent quoi faire et pourquoi. « Revoir cette étape » rejoue l'animation ; rien ne défile seul.</li>
 <li><b>Expliquer le pourquoi avant la règle</b> (ici : deux bonds dans le même sens vont plus loin).</li>
-<li><b>Montrer, puis faire faire.</b> Après chaque règle, une ou deux petites questions à toucher. Parfois avant, pour deviner, sans note.</li>
 <li><b>Chaque erreur a son explication</b>, jamais une phrase générale.</li>
-<li><b>La manière de répondre est écrite</b> (glisser, toucher, taper).</li>
-<li><b>Ce qu'on touche est en bas de l'écran</b>, sous le pouce : choix, cases, clavier. Le calcul et les explications restent en haut.</li>
+<li><b>La manière de répondre est écrite</b> (toucher, taper). <b>Ce qu'on touche est en bas de l'écran</b>, sauf la droite graduée touchable, qui est la scène.</li>
 <li><b>Un récapitulatif</b> de toutes les règles, avec un exemple juste et un faux, avant de s'entraîner.</li>
-<li><b>Les exemples guidés</b> montrent le calcul de départ et demandent une vraie action. Le clavier complet ne dicte pas la réponse.</li>
 <li><b>La fin annonce l'enjeu</b>, et le résultat explique avec des chiffres ce qui a manqué.</li>
 </ul></section>
 <section><h3>Règle des couleurs</h3><div class="legend">
@@ -728,7 +822,7 @@ const GLOBAL = `
 <div><span class="sw" style="background:var(--pos)"></span><span><b>Bleu</b> = nombre positif, <b>dans les explications seulement</b>.</span></div>
 <div><span class="sw" style="background:var(--ok-bg);border-color:var(--ok)"></span><span><b>Vert</b> = juste, <b>après</b> une réponse.</span></div>
 <div><span class="sw" style="background:var(--ko-bg);border-color:var(--ko)"></span><span><b>Rouge</b> = faux, <b>après</b> une réponse. Jamais pour un nombre négatif.</span></div>
-<div><span class="sw" style="background:var(--surface)"></span><span><b>Pendant une question : aucune couleur qui donne un indice.</b> La droite graduée devient grise.</span></div>
+<div><span class="sw" style="background:var(--grey-bg)"></span><span><b>Pendant une question : aucune couleur qui donne un indice.</b> La droite graduée devient grise, même quand elle est touchable.</span></div>
 </div></section>`;
 
 /* ——— Moteur ——— */
@@ -752,7 +846,8 @@ function render() {
     <div class="ph-top"><span class="ph-x" aria-hidden="true">✕</span><div class="bar">${S.map((_, i) => `<i class="${i < idx ? 'd' : i === idx ? 'c' : ''}"></i>`).join('')}</div></div>
     <span class="chip">${chipText(s, idx)}</span>
     <div class="ph-body">${s.render(st)}</div>
-    <div class="ph-foot"><button class="btn btn-main" data-a="${f.a}" ${f.off ? 'disabled' : ''}>${f.label}</button></div>`;
+    <div class="ph-foot">${f.none ? '' : `<button class="btn btn-main" data-a="${f.a}" ${f.off ? 'disabled' : ''}>${f.label}</button>`}</div>`;
+  document.querySelectorAll('.nlscroll').forEach((e) => { e.scrollLeft = e.dataset.sc === 'end' ? 1e4 : 0; });
   const ask = s.ask.length ? `<section class="ask"><h3>À décider</h3><ul>${s.ask.map((a) => `<li>${a}</li>`).join('')}</ul></section>` : '';
   $('#notes').innerHTML = `
     <section><h3>Écran ${idx + 1} sur ${S.length} · ${s.name}</h3><p>${s.what}</p><p><b>Pourquoi :</b> ${s.why}</p>
@@ -809,6 +904,10 @@ document.addEventListener('pointerup', (e) => {
   render();
 });
 document.addEventListener('pointercancel', () => { if (drag?.ghost) drag.ghost.remove(); drag = null; render(); });
+
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('hit')) { e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+});
 
 render();
 </script>
