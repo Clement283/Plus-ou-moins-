@@ -7,7 +7,7 @@ description: Use when writing, rewriting or reviewing a course (« cours ») of 
 
 ## Principe
 
-Un cours **explique avant de montrer, et fait faire juste après avoir expliqué**. Une idée par écran, de vraies phrases, un rythme lent choisi par l'élève (« Suite »), et un retour précis sur chaque erreur. Le **Cours 0 v2** est la référence : quand un doute se pose, faire comme lui.
+Un cours **explique avant de montrer, et fait faire juste après avoir expliqué**. Une idée par écran, de vraies phrases, un rythme lent choisi par l'élève (« Suite »), et un retour précis sur chaque erreur. Le **Cours 1 v2** (maquette `docs/design/ecrans/cours-1-v2.html`) est la référence la plus à jour : quand un doute se pose, faire comme lui. Le Cours 0 v2 est le modèle de la spec et du code.
 
 L'élève : première spécialité maths, **dyslexique**. Elle connaît les méthodes mais se trompe en calcul. Elle a **besoin des phrases** (comprendre une consigne fait partie de ce qu'elle travaille) et de visuel, sans ton enfantin.
 
@@ -15,10 +15,10 @@ L'élève : première spécialité maths, **dyslexique**. Elle connaît les mét
 
 | Quoi | Où |
 |---|---|
-| Le modèle complet (textes, ordre, retours d'erreur) | `docs/validation/06-cours-relatifs.md`, partie « Cours 0 » v2 |
-| Les règles transversales (couleurs, repassage, réponses en bas, note…) | `docs/validation/08-decisions-ecrans.md` n° 20 à 31 |
+| Les modèles complets (textes, ordre, retours d'erreur) | `docs/validation/06-cours-relatifs.md`, parties « Cours 0 » et « Cours 1 » v2 |
+| Les règles transversales (couleurs, repassage, réponses en bas, note, fiche mémo, Écouter…) | `docs/validation/08-decisions-ecrans.md` à partir du n° 20 |
 | Le code du modèle (briques, scènes, messages, tests) | `packages/engine/src/courses/calculs/c00-bien-ecrire.ts`, `shared.ts`, `test/courses/c00.test.ts` |
-| Les maquettes cliquables (étapes interactives, série de pratique, moteur `reveal` / `quiz` / `typed` / `trous`, bouton « Revoir », droite graduée SVG `line()`) | `docs/design/ecrans/cours-0-v2.html`, `docs/design/ecrans/cours-1-v2.html` (partir de la plus récente) |
+| Les maquettes cliquables (étapes interactives, série de pratique, moteur `reveal` / `quiz` / `typed` / `trous`, bouton « Revoir », droite graduée SVG `line()`) | `docs/design/ecrans/cours-0-v2.html`, `docs/design/ecrans/cours-1-v2.html` (partir de la plus récente, `cours-1-v2.html`) |
 | La version actuelle du cours à réécrire | sa partie dans le doc 06 + son fichier `cXX-*.ts` |
 
 ## Déroulé d'un cours (recette)
@@ -61,6 +61,7 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 | Écran vide | Jamais. Une **scène** (grand calcul ou image) occupe le haut dès la 1re étape et se transforme ; les phrases s'empilent dessous. |
 | Texte | Phrases courtes et complètes, **gras** sur l'idée clé, une idée par écran. Dire *pourquoi*, pas seulement *quoi*. Pas de répétition titre / phrase / encadré mot pour mot. |
 | Rythme | L'élève avance avec « Suite » ; « Revoir » rejoue l'animation. Rien ne défile seul. |
+| Écouter | Un bouton haut-parleur **dans un coin en haut** de chaque écran de leçon lit à voix haute le titre, la phrase affichée et la consigne (synthèse vocale du téléphone). Écrire les textes pour qu'ils se lisent bien à l'oral : pas d'abréviation, calculs écrits en clair dans le texte lu (« moins trois plus moins cinq »). |
 | Couleurs | Surligneur jaune = « regarde ici » (leçon seulement). Vert / rouge **seulement après une réponse**. **Aucune couleur qui donne un indice** pendant une question. Si les signes doivent être distingués (droite graduée) : négatifs **orange**, positifs **bleu**, jamais rouge. Les mêmes dans tous les cours. |
 | Scènes pendant une question | Une scène (droite graduée, image) affichée pendant une question est **neutre** : grise, sans couleur de signe ni surlignage. Les couleurs reviennent après la réponse. |
 | Réponses | Tout ce qu'on touche est **en bas de l'écran** ; la manière de répondre (toucher, glisser, taper) est **écrite dans la consigne**. Étiquettes à ordonner : on les **touche dans l'ordre** (toucher une étiquette placée la retire) ; Classer : glisser-déposer + toucher. |
@@ -74,12 +75,12 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 ## Méthode de travail (dans cet ordre)
 
 1. **Lire** les sources ci-dessus, la version actuelle du cours, le **plan du module** s'il existe (`docs/validation/NN-module-*.md` : reprises, astuces, sources) et **les documents fournis** par le porteur du projet (cours du prof, cahier de l'élève). **Chercher aussi sur Internet** : programme officiel, astuces et méthodes que les profs ne donnent pas toujours, erreurs classiques. Noter les sources dans la spec.
-2. **Proposer le déroulé au porteur du projet sous forme de maquette cliquable** : copier `docs/design/ecrans/cours-0-v2.html` dans `docs/design/ecrans/cours-N-v2.html`, remplacer les écrans (même moteur `reveal` / `quiz` / `typed`), et la publier en artefact. Noter à droite de chaque écran ce qu'il fait, pourquoi, et les questions à décider. **À chaque nouvelle version de la maquette, signaler ce qui a changé** : astérisque et couleur sur les écrans modifiés dans la liste, contour pointillé « modifié » sur les éléments changés, ligne « Modifié dans cette version : … » en haut, bouton pour masquer ces repères. Ils servent à la relecture et ne sont jamais codés dans l'appli. **Ne rien coder dans l'appli avant sa validation.**
-3. **Écrire la spec** : remplacer la partie du cours dans le doc 06 par une « version 2 » au format de celle du Cours 0 (règles, déroulé écran par écran avec les textes exacts, note du cours, tableau des retours d'erreur, révisions, générateur, erreurs reconnues avec leur règle). Faire valider.
-4. **Coder** dans `packages/engine/src/courses/calculs/cXX-*.ts` avec les briques existantes (`etapes`, `choix` + `small`, `decouverte`, `texted`, `joinPrevious`, `reecrire`, `lessonLength`, `ErrorDef.rule`). Une nouvelle brique d'écran n'est ajoutée que si aucune existante ne convient ; elle doit être réutilisable.
+2. **Proposer le déroulé au porteur du projet sous forme de maquette cliquable** : copier `docs/design/ecrans/cours-1-v2.html` (la plus récente) dans `docs/design/ecrans/cours-N-v2.html`, remplacer les écrans (même moteur `reveal` avec étapes interactives / `quiz` / `typed` / `trous`, droite graduée `line()`), et la publier en artefact. Noter à droite de chaque écran ce qu'il fait, pourquoi, et les questions à décider. **À chaque nouvelle version de la maquette, signaler ce qui a changé** : astérisque et couleur sur les écrans modifiés dans la liste, contour pointillé « modifié » sur les éléments changés, ligne « Modifié dans cette version : … » en haut, bouton pour masquer ces repères. Ils servent à la relecture et ne sont jamais codés dans l'appli. **Ne rien coder dans l'appli avant sa validation.**
+3. **Écrire la spec** : remplacer la partie du cours dans le doc 06 par une « version 2 » au format de celles des Cours 0 et 1 (règles, déroulé écran par écran avec les textes exacts et les étapes interactives, série de pratique, note du cours, tableau des retours d'erreur, fiche mémo, révisions, générateur, erreurs reconnues avec leur règle). Faire valider.
+4. **Coder** dans `packages/engine/src/courses/calculs/cXX-*.ts` avec les briques existantes (`etapes` et ses étapes interactives, scène droite graduée, série de pratique, `choix` + `small`, `decouverte`, `texted`, `joinPrevious`, `reecrire`, `lessonLength`, `ErrorDef.rule`, fiche mémo). Une nouvelle brique d'écran n'est ajoutée que si aucune existante ne convient ; elle doit être réutilisable.
 5. **Tester** : textes mot pour mot, indices des parties, `lessonStep`, chaque message d'erreur du tableau, propriété sur 500 tirages pour tout générateur. Captures téléphone (`npm run shots`) des écrans nouveaux, à regarder une fois.
 
-## Erreurs fréquentes (vues sur le Cours 0 v1)
+## Erreurs fréquentes (vues sur le Cours 0 v1 et les premières maquettes du Cours 1)
 
 | Ce qui a été fait | Ce qu'il faut faire |
 |---|---|
@@ -92,3 +93,7 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 | Retour d'erreur = la règle générale du cours | Un message par erreur prévisible |
 | Clavier réduit aux touches de la réponse | Clavier complet |
 | Fin ratée sans dire pourquoi | Chiffres + erreurs par règle + « Relire la règle N » |
+| Un cours de 21 écrans où elle lit plus qu'elle ne fait | 12 à 15 écrans, une action au plus toutes les 2 étapes de lecture |
+| Une phrase à deux trous avec des choix sans contexte (« 3 / −3 ») | Un seul trou, des choix qui se lisent dans la phrase, qui remplace une phrase existante |
+| Une droite graduée touchable qui ne se voit pas comme touchable | Pastilles visibles, consigne au-dessus, main animée la première fois |
+| Tout le texte de l'explication empilé à l'écran | Les 2 dernières phrases, le reste derrière « Relire le début » |
