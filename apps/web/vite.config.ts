@@ -44,7 +44,15 @@ export default defineConfig({
           { src: '/icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'], navigateFallback: '/index.html' },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
+        navigateFallback: '/index.html',
+        // Explicite : avec injectRegister false, le plugin ne les met plus. Sans eux, un nouveau service worker
+        // reste « waiting » tant que l'ancienne page est ouverte, et une installation restée sur une vieille
+        // version (dont la page ne sait pas envoyer SKIP_WAITING) ne se met jamais à jour.
+        skipWaiting: true,
+        clientsClaim: true,
+      },
     }),
   ],
   test: { include: ['test/**/*.test.{ts,tsx}'], environment: 'jsdom' },
