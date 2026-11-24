@@ -1,1 +1,17 @@
-/* series : rempli par une tâche suivante. */
+/* Série de pratique, exemples guidés, comparer deux cas, droite à toucher (T9). */
+.series-counter{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
+.series-counter__n{font:600 15px var(--font-body);color:var(--muted)}
+.series-counter__n b{color:var(--on-surface)}
+.series-dots{display:flex;gap:6px}
+.series-dots i{width:8px;height:8px;border-radius:50%;background:var(--tick)}
+.series-dots i.on{background:var(--primary)}
+.resolution{display:grid;gap:var(--sp-4);padding:var(--sp-8) var(--sp-12);border-radius:var(--r-lg);background:var(--surface-sunken)}
+.resolution__line{margin:0}
+.help-box{padding:var(--sp-12);border-radius:var(--r-lg);background:var(--surface-sunken);border-left:4px solid var(--highlight)}
+.compare__pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-8)}
+.compare__case{display:grid;justify-items:center;gap:var(--sp-4);padding:var(--sp-12) var(--sp-8);border-radius:var(--r-lg);background:var(--surface-sunken)}
+.compare__tag{font:700 13px var(--font-body);color:var(--muted)}
+.compare__case .t-math-xl{font-size:clamp(22px,6.5vw,28px);margin:0}
+.compare-feedback{display:grid;gap:var(--sp-12)}
+/* le retour est déjà dans la page : celui du pied de l'écran ferait doublon */
+.q-body:has(.compare) ~ .q-foot .alert{display:none}

@@ -343,3 +343,13 @@ describe('cours 0 : pastille de la leçon pas à pas', () => {
     expect(chip()).toBe(`Cours 0 · Leçon · étape 3 sur ${total}`); // 2e question du même écran
   });
 });
+
+describe('cours : pratique', () => {
+  it("la pastille d'un élément de série est « Cours N · Pratique »", () => {
+    h.items = [{ ...item('partie-1-0', 'fin', 5, 3), activity: 'lecon', texts: { series: { n: 1, of: 4 } } } as ActivityItem];
+    const t = mount(<CourseScreen courseId={C04.id} rng={seededRng(1)} />);
+    expect(t.text()).toContain(`Cours ${C04.order} · Pratique`);
+    expect(t.text()).toContain('Question 1 sur 4');
+    expect(t.btn('Passer')).toBeNull();
+  });
+});

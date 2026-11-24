@@ -3,7 +3,7 @@ import { checkAnswer, type Outcome } from '@pom/engine';
 import { Math as MathView } from '../../ui/Math';
 import { ExprKeypad } from '../ExprKeypad';
 import { writingLatex } from './calc';
-import { Prompt, QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, Resolution, type QProps } from './Frame';
 
 /** Ce qu'elle a tapé, lisible : des espaces autour des opérateurs (« 6 × (−2) »), le « − » d'un nombre collé à lui. */
 export function prettyCalc(typed: string): string {
@@ -40,6 +40,7 @@ export function Reecrire({ q, course, locked, onAnswer, header, footer, texts }:
           <MathView latex={writingLatex(q.givenLatex)} />
         </p>
       </div>
+      <Resolution texts={texts} />
       <p className="t-body2">Écris le calcul en entier, avec les touches du clavier.</p>
       <div className={`answer answer--text${state}`} aria-live="polite" aria-label="Ta réponse">
         <span>{prettyCalc(typed)}</span>

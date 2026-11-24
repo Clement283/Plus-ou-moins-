@@ -744,3 +744,80 @@ describe('Calculs du cours 0 : « 3− + 4 »', () => {
     expect(mo[1]![1]).toBeNull(); // le « + » garde son espacement
   });
 });
+
+describe('T9 : droite à toucher, série, comparer, exemples guidés', () => {
+  const C01 = getCourse('c01-additionner-meme-signe');
+  const dEx: Exercise = { courseId: C01.id, level: 1, expr: op('+', num(-2), num(-5)), answer: rat(-7) };
+  const droite: Question = { kind: 'droite', ex: dEx, promptLatex: '-2 + (-5)', line: { from: -7, to: 0 }, jumps: [{ from: 0, by: -2 }, { from: -2, by: -5 }], answer: -7 };
+  const grad = (t: ReturnType<typeof setup>, v: string) => t.$$('button').find((b) => b.getAttribute('aria-label') === `Graduation ${v}`)!;
+
+  it('droite : 8 graduations, toucher −7 → onAnswer({point:-7}) juste', () => {
+    const t = setup(droite, C01);
+    expect(t.$$('button[aria-label^="Graduation"]')).toHaveLength(8);
+    fireEvent.click(grad(t, '−7'));
+    expect(t.calls[0]![0]).toEqual({ point: -7 });
+    expect(t.calls[0]![1].correct).toBe(true);
+  });
+  it('droite : toucher −6 → faux ; une fois répondu, −7 est vert et −6 rouge', () => {
+    const t = setup(droite, C01);
+    fireEvent.click(grad(t, '−6'));
+    expect(t.calls[0]![1].correct).toBe(false);
+    const css = t.$('.droite style')!.textContent!;
+    expect(css).toContain('Graduation −7');
+    expect(css).toContain('var(--success)');
+    expect(css).toContain('Graduation −6');
+    expect(css).toContain('var(--error)');
+  });
+  it('droite : aucune couleur de signe pendant la question, consigne par défaut', () => {
+    const t = setup(droite, C01);
+    expect(t.$('.is-neutral')).toBeTruthy();
+    expect(t.$('.is-neg, .is-pos')).toBeNull();
+    expect(t.$('.line-view__consigne')!.textContent).toBe("Touche la droite à l'endroit où l'on arrive.");
+  });
+  it('série : « Question 2 sur 4 » et 4 points dont 1 plein', () => {
+    const view = render(<QuestionView question={saisie} course={C05} locked={false} onAnswer={() => undefined} texts={{ series: { n: 2, of: 4 } }} />);
+    expect(view.container.querySelector('.series-counter')!.textContent).toContain('Question 2 sur 4');
+    expect(view.container.querySelectorAll('.series-dots i')).toHaveLength(4);
+    expect(view.container.querySelectorAll('.series-dots i.on')).toHaveLength(1);
+    expect(view.container.querySelector('.series-counter')!.hasAttribute('data-speak-skip')).toBe(true);
+  });
+  const cmp: Question = {
+    kind: 'choix', ex: ex(4, -3, -12), calcLatex: null, prompt: "Qu'est-ce qui change entre A et B ?",
+    options: [{ label: 'Le premier nombre', why: 'Le 4 est le même dans A et B.' }, { label: 'Le signe du deuxième nombre', why: 'Oui.' }], correctIndex: 1,
+  };
+  const compare = {
+    a: { label: 'Calcul A', latex: '4 \\times (-3)' }, b: { label: 'Calcul B', latex: '4 \\times -3' }, note: 'Même calcul.',
+    line: { from: -3, to: 3, jumps: [{ from: 0, by: -3 }, { from: -3, by: -3 }], tone: 'color' as const }, after: ['Dans A, **−3** est un seul nombre.'],
+  };
+  const cmpView = () => render(<QuestionView question={cmp} course={C05} locked={false} onAnswer={() => undefined} activity="decouverte" texts={{ compare, mention: '' }} />);
+  const click = (view: ReturnType<typeof cmpView>, label: string) => fireEvent.click([...view.container.querySelectorAll('button')].find((b) => b.textContent === label)!);
+  it('comparer : bonne réponse → « Juste. », deux trajets, phrase after, pas de mention', () => {
+    const view = cmpView();
+    expect(view.container.textContent).toContain('Calcul A');
+    expect(view.container.textContent).toContain('Calcul B');
+    expect(view.container.textContent).not.toContain('ne compte pas');
+    expect(view.container.querySelector('.line-view')).toBeNull();
+    click(view, 'Le signe du deuxième nombre');
+    expect(view.container.querySelector('.compare .alert__title')!.textContent).toBe('Juste.');
+    expect(view.container.querySelectorAll('.line-view__arc.is-shown')).toHaveLength(2);
+    expect(view.container.textContent).toContain('est un seul nombre');
+  });
+  it("comparer : mauvaise réponse → « Pas tout à fait, et c'est normal. » + message", () => {
+    const view = cmpView();
+    click(view, 'Le premier nombre');
+    expect(view.container.querySelector('.compare .alert__title')!.textContent).toBe("Pas tout à fait, et c'est normal.");
+    expect(view.container.textContent).toContain('Le 4 est le même dans A et B.');
+  });
+  it('above : 2 lignes au-dessus de la case, calcul de départ présent ; help affiché', () => {
+    const q: Question = { kind: 'reecrire', ex: ex(4, -3, -12), givenLatex: '4 \\times -3', expected: '4×(−3)', specific: [], fallback: 'x', steps: [] };
+    const view = render(<QuestionView question={q} course={C05} locked={false} onAnswer={() => undefined} texts={{ above: ['4 \\times -3', '= 4 \\times (-3)'], help: 'Mets le **3** entre parenthèses.' }} />);
+    expect(view.container.querySelectorAll('.resolution__line')).toHaveLength(2);
+    expect(view.container.querySelector('.q-calc')).toBeTruthy();
+    expect(view.container.querySelector('.help-box b, .help-box strong')!.textContent).toBe('3');
+  });
+  it('uncounted : mention vide → aucune mention « ne compte pas »', () => {
+    const q: Question = { kind: 'choix', ex: ex(4, -3, -12), calcLatex: '4 \\times (-3)', prompt: '?', options: [{ label: 'a', why: '' }], correctIndex: 0 };
+    const view = render(<QuestionView question={q} course={C05} locked={false} onAnswer={() => undefined} activity="decouverte" texts={{ mention: '' }} />);
+    expect(view.container.textContent).not.toContain('ne compte pas');
+  });
+});
