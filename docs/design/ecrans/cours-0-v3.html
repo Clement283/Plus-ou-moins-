@@ -1,0 +1,1096 @@
+<title>Nouveau Cours 0 : « Bien écrire un calcul » (v3)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style>
+/* Mise en page : un téléphone qui déroule le cours, à côté les notes de conception de l'écran affiché. */
+:root{
+  --bg:#F2F3F8; --surface:#FFFFFF; --sunken:#E9EBF3; --line:#DDE0EA;
+  --ink:#1A1D2E; --muted:#565C73; --primary:#3B39D4; --on-primary:#FFFFFF;
+  --ok:#137F57; --ok-bg:#DDF3E9; --ko:#C42D47; --ko-bg:#FCE4E8;
+  --hl:#FFE27A; --hl-ink:#5C4100; --grey-bg:#ECEDF2;
+  --neg:#C25400; --pos:#1565C0; --chg:#D97A00; --chg-bg:#FFF0D2;
+  --font:'Lexend','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px}
+.intro h1{font-size:1.6rem;margin:0 0 4px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:70ch}
+.layout{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+/* ——— Liste des écrans ——— */
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);
+  border-radius:999px;padding:4px 10px;cursor:pointer}
+.nav button.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+
+/* ——— Téléphone ——— */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;min-height:720px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.ph-top{display:flex;align-items:center;gap:12px;padding:16px 18px 6px}
+.ph-x{font-size:1.4rem;color:var(--muted);line-height:1}
+.bar{flex:1;display:flex;gap:3px}
+.bar i{flex:1;height:5px;border-radius:3px;background:var(--sunken)}
+.bar i.d{background:var(--primary)}
+.bar i.c{background:color-mix(in srgb,var(--primary) 45%,var(--sunken))}
+.chip{margin:8px 18px 0;align-self:flex-start;font-size:.8rem;font-weight:600;color:var(--muted);background:var(--sunken);border-radius:999px;padding:5px 12px}
+.ph-body{flex:1;padding:14px 20px 8px;display:flex;flex-direction:column;gap:14px}
+.ph-foot{padding:10px 20px 20px;display:grid;gap:8px}
+h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:0}
+.small{font-size:.85rem;color:var(--muted);margin:0}
+.btn{font:inherit;font-weight:600;font-size:1.05rem;border-radius:16px;padding:15px;border:0;cursor:pointer;width:100%}
+.btn-main{background:var(--primary);color:var(--on-primary)}
+.btn-main:disabled{background:var(--sunken);color:var(--muted);cursor:default}
+.btn-line{background:transparent;border:2px solid var(--line);color:var(--ink)}
+.btn:focus-visible,.opt:focus-visible,.key:focus-visible,.g:focus-visible,.tag:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* Calculs */
+.calc{font-size:2.2rem;font-weight:500;text-align:center;letter-spacing:.02em;padding:14px 8px;white-space:nowrap}
+.calc.md{font-size:1.6rem;padding:8px}
+.calcbox{background:var(--sunken);border-radius:18px}
+.hl{background:var(--hl);color:var(--hl-ink);border-radius:8px;padding:0 .1em}
+.lbl{display:block;font-size:.75rem;font-weight:600;color:var(--hl-ink);background:var(--hl);border-radius:6px;padding:2px 8px;width:max-content;margin:4px auto 0}
+
+/* Étapes qui apparaissent */
+.step{display:grid;gap:8px}
+.new{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:.0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.new .pin{display:inline-block;animation:pin .7s .35s cubic-bezier(.34,1.4,.5,1) both}
+@keyframes pin{from{opacity:0;transform:scale(2.2)}to{opacity:1;transform:none}}
+.new .bump{display:inline-block;animation:bump .6s .3s ease both}
+@keyframes bump{0%,100%{transform:none}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.new .slide{display:inline-block;animation:slide .8s .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slide{from{transform:translateX(1.4em);opacity:.3}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.new,.new .pin,.new .bump,.new .slide{animation:none}}
+
+.stage{background:var(--sunken);border-radius:22px;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px 10px;font-size:2.6rem;font-weight:500;white-space:nowrap}
+.stage .lbl{font-size:.8rem}
+.stage .cap{font-size:.85rem;font-weight:500;color:var(--muted);white-space:normal;text-align:center}
+.stage.split{flex-direction:row;justify-content:space-around;font-size:2.1rem}
+.stage.split > div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stage .pairs{display:grid;gap:10px;font-size:1.35rem;width:100%}
+.stage .pairs .pair{font-size:1.35rem}
+.dots{display:flex;gap:6px;justify-content:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--primary)}
+.texts{display:grid;gap:10px}
+.texts .step:not(.new) .lead{color:var(--muted)}
+.rule{border:2px solid var(--primary);border-radius:16px;padding:12px 14px}
+.rule b{display:block;color:var(--primary);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;font-size:1.3rem;text-align:center}
+.pair .arrow{color:var(--muted);font-size:1rem}
+.tagw{font-size:.75rem;font-weight:600;color:var(--muted);display:block}
+
+/* Choix */
+.q{font-weight:600;margin:0}
+.opts{display:grid;gap:8px}
+.opts.row{grid-template-columns:1fr 1fr}
+.opt{font:inherit;font-size:1.05rem;text-align:center;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:13px;cursor:pointer}
+.opt.big{font-size:1.6rem;padding:10px}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.opt.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.opt:disabled{cursor:default}
+.fb{border-radius:14px;padding:12px 14px;display:grid;gap:4px}
+.fb.ok{background:var(--ok-bg)} .fb.ko{background:var(--ko-bg)} .fb.info{background:var(--sunken)}
+.fb strong{color:var(--ok)} .fb.ko strong{color:var(--ko)} .fb.info strong{color:var(--ink)}
+.fb p{margin:0}
+.free{font-size:.75rem;color:var(--muted);text-align:center;margin:0}
+
+/* Classer */
+.tags{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.tag{font:inherit;font-size:1.3rem;font-weight:500;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:6px 14px;cursor:grab;touch-action:none;user-select:none;white-space:nowrap}
+.tag.sel{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 30%,transparent)}
+.tag.ok{border-color:var(--ok);background:var(--ok-bg)} .tag.ko{border-color:var(--ko);background:var(--ko-bg)}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bin{border:2px dashed var(--line);border-radius:16px;padding:10px;min-height:170px;display:flex;flex-direction:column;gap:8px}
+.bin.over{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 8%,transparent)}
+.bin h3{margin:0;font-size:.95rem}
+.ghost{position:fixed;pointer-events:none;z-index:50;transform:translate(-50%,-50%) scale(1.05);box-shadow:0 10px 30px rgb(0 0 0/.25)}
+.fix{font-size:.85rem;color:var(--muted);display:block}
+
+/* Clavier */
+.field{font-size:1.9rem;font-weight:500;text-align:center;min-height:68px;border:2px solid var(--primary);border-radius:16px;display:flex;align-items:center;justify-content:center;white-space:nowrap;padding:0 8px}
+.field.ok{border-color:var(--ok);background:var(--ok-bg)} .field.ko{border-color:var(--ko);background:var(--ko-bg)}
+.field .caret{display:inline-block;width:2px;height:1.2em;background:var(--primary);margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.key{font:inherit;font-size:1.3rem;font-weight:500;border:0;border-radius:12px;padding:11px 0;background:var(--sunken);color:var(--ink);cursor:pointer}
+.key.op{background:color-mix(in srgb,var(--primary) 16%,var(--sunken))}
+.steps{margin:0;padding-left:1.2em;display:grid;gap:4px}
+
+/* Exercice de fin : calcul touchable sans cases */
+.glyphs{display:flex;justify-content:center;align-items:center;gap:2px;font-size:2.3rem;font-weight:500;padding:18px 0}
+.g{font:inherit;border:0;background:none;color:var(--ink);padding:2px 5px;border-radius:8px;cursor:pointer;border-bottom:3px solid transparent}
+.g.sp{margin-left:.35em}
+.g:hover{border-bottom-color:var(--line)}
+.g.ok{background:var(--ok-bg);color:var(--ok)} .g.ko{background:var(--ko-bg);color:var(--ko)}
+
+.pieces{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.piece{font:inherit;font-size:1.6rem;font-weight:500;min-width:46px;height:56px;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;cursor:pointer}
+.piece:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.piece.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)} .piece.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.zone{margin-top:auto;display:grid;gap:10px;padding-top:6px}
+/* Résultat */
+.cond{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;border-radius:14px;padding:12px}
+.cond.ok{background:var(--ok-bg)} .cond.ko{background:var(--ko-bg)}
+.cond .ic{font-weight:700} .cond.ok .ic{color:var(--ok)} .cond.ko .ic{color:var(--ko)}
+.cond p{margin:0}
+.errs{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.errs li{display:flex;justify-content:space-between;gap:8px;background:var(--sunken);border-radius:12px;padding:8px 12px}
+.link{color:var(--primary);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.card{border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:8px}
+.num{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--ko-bg);color:var(--ko);font-weight:700;font-size:1.2rem}
+.recap{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.recap li{display:grid;gap:2px;background:var(--sunken);border-radius:14px;padding:10px 12px}
+.recap em{font-style:normal;color:var(--muted);font-size:.9rem}
+.inutile{display:inline-block;font-size:.72rem;font-weight:600;background:var(--grey-bg);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px;vertical-align:middle}
+
+
+/* ——— Cours 1 : couleurs de signe (leçon seulement), droite graduée, étiquettes ——— */
+.neg{color:var(--neg)} .pos{color:var(--pos)}
+.btn-sm{font-size:.9rem;padding:9px}
+.nl{width:100%;max-width:380px;height:auto;display:block;overflow:visible}
+.nl text{font-family:var(--font);font-size:12.5px;text-anchor:middle}
+.nl .ink{color:var(--ink)} .nl .muted{color:var(--muted)} .nl .hlink{color:var(--hl-ink)}
+.nl .ax,.nl .tk{stroke:currentColor;stroke-linecap:round}
+.nl .ax{stroke-width:3} .nl .tk{stroke-width:2}
+.nl text{fill:currentColor}
+.nl .arc{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round}
+.nl .head{fill:currentColor}
+.nl .lab{font-weight:700;font-size:14px}
+.nl .cp{font-size:11.5px}
+.stage .sc-calc{font-size:2rem;font-weight:500;white-space:nowrap;margin-top:2px}
+.stage.sm{min-height:0;padding:10px}
+.stage.new .anim.arc{animation:draw .8s var(--d,0s) ease both}
+.stage.new .anim.fade{animation:fadein .4s calc(var(--d,0s) + .65s) ease both}
+@keyframes draw{from{stroke-dashoffset:1}}
+@keyframes fadein{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.stage.new .anim.arc,.stage.new .anim.fade{animation:none}}
+.slots{display:grid;gap:8px}
+.slot{font:inherit;font-size:1.05rem;display:flex;gap:10px;align-items:center;min-height:50px;border:2px dashed var(--line);border-radius:12px;padding:6px 10px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
+.slot.full{border-style:solid}
+.slot .sn{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--sunken);font-size:.8rem;font-weight:700;color:var(--muted);flex:none}
+.slot.ok{border-color:var(--ok);background:var(--ok-bg)} .slot.ko{border-color:var(--ko);background:var(--ko-bg)}
+.slot:focus-visible,.etq:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.etq{font:inherit;font-size:1.05rem;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 14px;cursor:pointer}
+.eqs{display:grid;gap:4px;text-align:left;font-size:1.5rem;padding:12px 16px;white-space:normal}
+.slotb{display:inline-block;min-width:4.6em;min-height:1.9em;vertical-align:middle;text-align:center;line-height:1.9em;font-weight:700;border:2.5px dashed var(--primary);background:var(--sunken);color:var(--muted);border-radius:12px;padding:0 12px;margin:2px 3px}
+.slotb.ok{border:2.5px solid var(--ok);background:var(--ok-bg);color:var(--ok)}
+.relire{font:inherit;font-size:.85rem;background:none;border:0;padding:4px 0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
+.relire:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.blank{display:inline-block;min-width:2.2em;text-align:center;border-bottom:3px solid var(--primary);padding:0 4px;margin:0 2px}
+.blank.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok);border-radius:6px}
+.blank.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko);border-radius:6px}
+.blank.done{border-color:transparent;font-weight:700}
+.zone .row2{display:grid;gap:8px}
+
+/* ——— Repères de relecture (hors design, jamais codés) ——— */
+.chg{outline:2px dashed var(--chg);outline-offset:3px;border-radius:10px;position:relative}
+.chg::after{content:'modifié';position:absolute;top:-11px;right:8px;background:var(--chg-bg);color:var(--chg);border:1px solid var(--chg);border-radius:999px;font-size:.65rem;font-weight:700;line-height:1;padding:3px 7px;pointer-events:none;z-index:2}
+.stage.chg{outline-offset:-3px}
+.nav button.cs{background:var(--chg-bg);border-color:var(--chg);color:var(--ink)}
+.nav button.cs b{color:var(--chg)}
+.nav button.cs.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.nav button.cs.on b{color:var(--on-primary)}
+.chgbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--chg-bg);border:1px solid var(--chg);border-radius:14px;padding:10px 14px;font-size:.88rem}
+.chgbar p{margin:0;max-width:78ch}
+.chgbar button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--chg);background:var(--surface);color:var(--ink);border-radius:10px;padding:5px 12px;cursor:pointer}
+body.nochg .chg{outline:none}
+body.nochg .chg::after,body.nochg .chgbar .liste,body.nochg .nav button.cs b{display:none}
+body.nochg .nav button.cs{background:var(--surface);border-color:var(--line);color:var(--muted)}
+body.nochg .nav button.cs.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+
+/* ——— Notes ——— */
+.notes{display:grid;gap:16px;min-width:0}
+.notes section{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.notes h3{margin:0 0 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.notes p,.notes li{margin:0 0 6px;max-width:68ch}
+.notes ul{margin:0;padding-left:1.1em}
+.notes .ask{border-color:var(--primary)}
+.notes .ask h3{color:var(--primary)}
+.legend{display:grid;gap:8px}
+.legend div{display:flex;gap:10px;align-items:center}
+.sw{width:28px;height:20px;border-radius:6px;flex:none;border:1px solid var(--line)}
+.pager{display:flex;gap:8px}
+.pager button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer}
+
+/* ——— v3 : étapes interactives, droite touchable, série, aide qui s'efface ——— */
+/* Droite touchable : pastille ronde qui respire, main qui montre le geste (1re fois), consigne en gras au-dessus */
+.tapwrap{width:100%}
+.tapq{margin:0 0 4px;padding:0 16px;text-align:center;font-weight:700;font-size:1.02rem;line-height:1.35;text-wrap:balance}
+.nl.tp{max-width:none}
+.nl .pad{fill:var(--surface);stroke:var(--primary);stroke-width:2.5;pointer-events:none;transform-box:fill-box;transform-origin:center;animation:breathe 2.8s ease-in-out infinite;animation-delay:calc(var(--i,0) * .18s)}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.14);opacity:1}}
+.nl .hand{pointer-events:none}
+.nl .hand .hm{animation:handmove 2.6s .5s ease-in-out 3 both}
+@keyframes handmove{0%{transform:translate(0,6px);opacity:0}12%{opacity:1;transform:translate(0,0)}22%{transform:translate(0,0)}72%{transform:translate(132px,0);opacity:1}88%{transform:translate(132px,6px);opacity:1}100%{transform:translate(132px,6px);opacity:0}}
+.nl .hand path,.nl .hand rect.hb{fill:var(--surface);stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.nl .hand rect.hc{fill:var(--surface)}
+@media (prefers-reduced-motion:reduce){.nl .pad{animation:none}.nl .hand .hm{animation:none;opacity:1}}
+.nl .hit{fill:transparent;cursor:pointer;outline:none}
+.nl .hit:hover{fill:color-mix(in srgb,var(--primary) 14%,transparent)}
+.nl .hit:focus-visible{fill:color-mix(in srgb,var(--primary) 22%,transparent);stroke:var(--primary);stroke-width:2}
+.stage.tapst{padding:12px 0;min-height:0;margin-inline:-20px;align-items:stretch}
+.etq.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.etq:disabled{cursor:default}
+.tags.mid{justify-content:center}
+.counter{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.counter .cnt{font-weight:600;color:var(--muted)} .counter .cnt b{color:var(--ink)}
+.eqrow{padding:2px 8px;border-radius:8px}
+.eqrow.cur{background:var(--hl);color:var(--hl-ink)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp>div{background:var(--sunken);border-radius:16px;padding:12px 6px;text-align:center;font-size:1.5rem;font-weight:500;white-space:nowrap}
+.sent{font-size:1.15rem}
+
+/* ——— v3 Cours 0 : scènes à glyphes touchables, Écouter, fiche, encadré des changements ——— */
+.gl{display:flex;justify-content:center;align-items:center;font-size:2.1rem;font-weight:500;padding:6px 0;white-space:nowrap}
+.gt{font:inherit;min-width:44px;height:56px;display:inline-grid;place-items:center;border-radius:12px;border:2.5px solid transparent;background:none;color:var(--ink);padding:0 2px}
+button.gt{border:2.5px dashed var(--primary);background:var(--surface);cursor:pointer;margin:0 2px;animation:breathe 2.8s ease-in-out infinite}
+button.gt:nth-child(2n){animation-delay:.3s}
+.gt.ok{border:2.5px solid var(--ok);background:var(--ok-bg);color:var(--ok)}
+.gt.ko{border:2.5px solid var(--ko);background:var(--ko-bg);color:var(--ko);animation:none}
+.gp{font:inherit;width:44px;height:60px;border:0;background:none;cursor:pointer;display:grid;place-items:center;padding:0}
+.gp i{width:28px;height:48px;border:2.5px dashed var(--primary);border-radius:12px;background:var(--surface);animation:breathe 2.8s ease-in-out infinite}
+.gp.ko i{border-style:solid;border-color:var(--ko);background:var(--ko-bg);animation:none}
+.gp:focus-visible,button.gt:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){button.gt,.gp i{animation:none}}
+.floatq{display:flex;justify-content:center;align-items:center;gap:10px;font-size:2.1rem;font-weight:500}
+.floatq .lbl{margin:0}
+.ear{margin-left:2px;flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;position:relative;padding:0}
+.ear svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ear.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.ear:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.ear.chg::after{right:auto;left:-44px}
+.ph-x{display:inline-grid;place-items:center;min-width:24px;min-height:44px}
+.diff{background:var(--surface);border:1px solid var(--chg);border-radius:14px;padding:12px 16px}
+.diff h2{margin:0 0 6px;font-size:1rem}
+.diff ul{margin:0;padding-left:1.1em;display:grid;gap:4px;font-size:.92rem}
+body.nochg .diff{display:none}
+.fiche{display:grid;gap:12px}
+.fiche .blk{border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:4px}
+.fiche .blk b.k{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--primary)}
+.fiche .blk.bad b.k{color:var(--ko)}
+.fiche .blk p{margin:0}
+.fiche .ex{font-size:1.35rem;font-weight:500}
+.fiche ul{margin:0;padding-left:1.1em;display:grid;gap:2px}
+.ph-body.fullsheet{padding-top:6px}
+.gt.tx{min-width:0;padding:0;font-size:1.9rem}
+.relire{min-height:44px;display:inline-flex;align-items:center;padding:0 4px}
+.btn-sm{min-height:44px}
+
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Nouveau Cours 0 : « Bien écrire un calcul » (version 3)</h1>
+    <p>Maquette du Cours 0 remis aux nouvelles règles du skill « écrire un cours » : une action au moins toutes les 2 étapes de lecture, comparer deux cas, série de pratique, aide qui s'efface, bouton Écouter, fiche mémo. Le contenu (textes, 4 règles, retours d'erreur) vient du Cours 0 v2. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
+  </header>
+  <div class="chgbar"><p><b class="liste">Modifié dans cette version : </b><span class="liste" id="chglist"></span> <i>Ces repères (astérisques, contours « modifié ») servent seulement à la relecture : ils ne font pas partie du design et ne seront jamais codés dans l'appli.</i></p><button type="button" id="chgtoggle">Masquer les repères</button></div>
+  <section class="diff" aria-label="Ce qui change"><h2>Ce qui change par rapport au Cours 0 actuel</h2><ul>
+<li><b>Elle agit plus qu'elle ne lit.</b> Chaque explication a des étapes interactives (phrase à trous, toucher le signe fautif, toucher l'endroit des parenthèses) : jamais plus de 2 étapes de lecture d'affilée.</li>
+<li><b>Seules les 2 dernières phrases restent affichées</b> ; le début se replie derrière « Relire le début ».</li>
+<li><b>Nouveau : comparer deux cas</b>, 4 × (−3) et 4 × −3 côte à côte, « Qu'est-ce qui change ? ».</li>
+<li><b>Nouveau : une série de pratique de 4 questions</b> à aide décroissante (toucher la faute avec la règle rappelée, choisir la règle, vrai ou faux, réécrire au clavier). Elle remplace « Classer » et « Quelle règle ? ».</li>
+<li><b>L'aide s'efface</b> dans les exemples guidés : le 1er est presque résolu, le 2e à moitié, le calcul de départ reste affiché.</li>
+<li><b>Nouveau : bouton « Écouter »</b> (haut-parleur, en haut à droite) qui lit l'écran à voix haute.</li>
+<li><b>Nouveau : une fiche mémo</b> plein écran (la règle, des exemples, l'erreur à éviter, l'astuce), relisible depuis Mes cours.</li>
+<li><b>Plus court :</b> 18 écrans au lieu de 20 ; 13 pour apprendre (avant l'annonce de la fin) au lieu de 16. La note passe de 15 à 14 questions. Inchangés : les 2 questions pour deviner, les 4 règles, les retours d'erreur, les 5 exercices « Toucher la faute ».</li></ul></section>
+  <nav class="nav" id="nav" aria-label="Écrans du cours"></nav>
+  <div class="layout">
+    <div>
+      <div class="phone" id="phone"></div>
+    </div>
+    <aside class="notes" id="notes"></aside>
+  </div>
+</div>
+
+<script>
+const M = '−'; // vrai signe moins
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s);
+
+/* ——— Petits morceaux réutilisables ——— */
+const calc = (html, cls = '') => `<div class="calc calcbox ${cls}">${html}</div>`;
+const rule = (n, text) => `<div class="rule"><b>Règle ${n}</b>${text}</div>`;
+const fb = (kind, title, text = '') => `<div class="fb ${kind}"><strong>${title}</strong>${text ? `<p>${text}</p>` : ''}</div>`;
+
+
+/* Écran « étapes qui apparaissent ». Une étape = { s: la scène (texte, ou fonction de l'état de l'action), t: la phrase, act: action facultative }.
+   Quand l'étape a une action non réussie, « Suite » disparaît : l'action est en bas de l'écran. Mauvaise réponse : message court, elle réessaie (pas de note : c'est la leçon).
+   act = { type:'fill', parts:[texte, n° de trou, …], blanks:[{o:[étiquettes], ok, no:{n°:message}, def}], after }  phrase ou calcul à trous, étiquettes à toucher
+   act = { type:'tap', q, ok, no:(v)=>message, after }  toucher une graduation de la droite (la scène est une fonction qui dessine la droite touchable) */
+let handDone = false; // la main qui montre le geste n'apparaît qu'à la première droite touchable
+const A0 = () => ({ n: 0, msg: '', bad: [], done: false });
+const getA = (st, i) => st.a[i] || A0();
+const sentence = (act, a) => act.parts.map((p) => {
+  if (typeof p === 'string') return p;
+  const b = act.blanks[p];
+  if (a.done || p < a.n) return `<span class="slotb ok">${b.o[b.ok]}</span>`;
+  return `<span class="slotb">${p === a.n ? '?' : ''}</span>`;
+}).join('');
+function actZone(act, a) {
+  const msg = a.msg ? fb('ko', 'Pas tout à fait.', `${a.msg} Essaie encore.`) : '';
+  if (act.type === 'tap' || act.type === 'tapg') return msg;
+  const b = act.blanks[a.n];
+  return `${msg}<p class="small">Touche le mot qui complète la phrase.</p><div class="tags mid">${b.o.map((o, i) => `<button class="etq ${a.bad.includes(i) ? 'ko' : ''}" data-a="fillpick" data-o="${i}" ${a.bad.includes(i) ? 'disabled' : ''}>${o}</button>`).join('')}</div>`;
+}
+function reveal(title, steps) {
+  return {
+    init: () => ({ k: 1, fresh: true, sa: false, rp: false, open: false, a: {} }),
+    render: (st) => {
+      let scene = '', sceneAt = -1;
+      steps.slice(0, st.k).forEach((s, i) => { if (s.s) { scene = typeof s.s === 'function' ? s.s(getA(st, i)) : s.s; sceneAt = i; } });
+      const tapping = sceneAt >= 0 && steps[sceneAt].act && ['tap', 'tapg'].includes(steps[sceneAt].act.type) && !getA(st, sceneAt).done;
+      const sceneNew = (st.fresh && (sceneAt === st.k - 1 || st.rp)) || st.sa;
+      const sceneHtml = scene ? `<div class="stage ${sceneNew ? 'new' : ''} ${tapping ? 'tapst chg' : ''}">${scene}</div>` : '';
+      /* Une « phrase » = un morceau de texte (explication, phrase à trous, conclusion). Seules les 2 dernières restent affichées ; le début se replie. */
+      const frags = [];
+      steps.slice(0, st.k).forEach((s, i) => {
+        const a = getA(st, i);
+        if (s.t) frags.push({ h: s.t, last: false, c: !!s.c });
+        if (s.act && s.act.type === 'fill') frags.push({ h: `<p class="lead sent">${sentence(s.act, a)}</p>`, last: false, c: true });
+        if (s.act && a.done && s.act.after) frags.push({ h: s.act.after, last: false });
+        if (i === st.k - 1 && frags.length) frags[frags.length - 1].last = true;
+      });
+      const hidden = st.open ? 0 : Math.max(0, frags.length - 2);
+      const texts = (hidden ? `<button class="relire chg" data-a="relire">Relire le début</button>` : '') + (st.open && frags.length > 2 ? `<button class="relire" data-a="relire">Replier le début</button>` : '')
+        + frags.slice(hidden).map((f) => `<div class="step ${st.fresh && f.last ? 'new' : ''} ${f.c ? 'chg' : ''}">${f.h}</div>`).join('');
+      const dots = `<div class="dots" aria-label="Étape ${st.k} sur ${steps.length}">${steps.map((_, i) => `<i class="${i < st.k ? 'on' : ''}"></i>`).join('')}</div>`;
+      const cur = steps[st.k - 1], ca = getA(st, st.k - 1);
+      const act = cur.act && !ca.done ? actZone(cur.act, ca) : '';
+      return `<h2 class="t">${title}</h2>${sceneHtml}${dots}<div class="texts">${texts}</div><div class="zone">${act}<button class="btn btn-line btn-sm" data-a="replay">↻ Revoir cette étape</button></div>`;
+    },
+    foot: (st) => {
+      const cur = steps[st.k - 1];
+      if (cur.act && !getA(st, st.k - 1).done) return { none: true };
+      return st.k < steps.length ? { label: 'Suite', a: 'more' } : { label: 'Suivant', a: 'next' };
+    },
+    on: (a, d, st) => {
+      if (a === 'more') { st.k++; st.fresh = true; st.sa = false; st.rp = false; st.open = false; return; }
+      if (a === 'relire') { st.open = !st.open; st.fresh = false; return; }
+      if (a === 'replay') { st.rp = true; st.fresh = true; return; }
+      const i = st.k - 1, s = steps[i];
+      if (!s.act) return;
+      const ac = st.a[i] || (st.a[i] = A0());
+      if (ac.done) return;
+      st.fresh = false;
+      if (a === 'fillpick' && s.act.type === 'fill') {
+        const b = s.act.blanks[ac.n], o = +d.o;
+        if (o === b.ok) { ac.n++; ac.msg = ''; ac.bad = []; if (ac.n === s.act.blanks.length) ac.done = true; }
+        else { ac.bad.push(o); ac.msg = (b.no && b.no[o]) || b.def || ''; }
+      }
+      if (a === 'tapg' && s.act.type === 'tapg') {
+        const v = +d.v;
+        if ([].concat(s.act.ok).includes(v)) { ac.done = true; ac.msg = ''; st.sa = true; }
+        else { ac.bad.push(v); ac.msg = s.act.no(v); }
+      }
+      if (a === 'tapv' && s.act.type === 'tap') {
+        const v = +d.v;
+        handDone = true;
+        if (v === s.act.ok) { ac.done = true; ac.msg = ''; st.sa = true; }
+        else { ac.bad.push(v); ac.msg = s.act.no(v); }
+      }
+    },
+  };
+}
+
+/* Écran de questions à toucher (une ou plusieurs, l'une après l'autre). */
+function quiz(items, opts = {}) {
+  const optsHtml = (it, qi, a) => `<div class="opts ${it.row ? 'row' : ''}">${it.o.map((o, oi) => {
+    let c = '';
+    if (a !== undefined) { if (oi === it.ok) c = 'ok'; else if (oi === a) c = 'ko'; }
+    return `<button class="opt ${it.big ? 'big' : ''} ${c}" data-a="pick" data-q="${qi}" data-o="${oi}" ${a !== undefined ? 'disabled' : ''}>${o}</button>`;
+  }).join('')}</div>`;
+  const feedback = (it, a) => {
+    const good = a === it.ok;
+    const why = (it.why && it.why[a]) || (good ? it.yes : it.no) || '';
+    return good ? fb('ok', it.yesTitle || 'Juste !', why) : fb(it.guess ? 'info' : 'ko', it.guess ? (it.noTitle || 'Pas tout à fait, et c\'est normal.') : 'Pas tout à fait.', why);
+  };
+  return {
+    init: () => ({ ans: [] }),
+    render: (st) => {
+      const cur = Math.min(st.ans.length, items.length - 1);
+      let h = opts.top || '';
+      items.forEach((it, qi) => {
+        if (qi > cur) return;
+        const a = st.ans[qi];
+        h += `<div class="step ${qi === cur ? 'new' : ''}">`;
+        if (it.calc) h += calc(it.calc, 'md');
+        h += `<p class="q">${it.q}</p>`;
+        if (qi < cur) h += `<p class="small">Ta réponse : ${it.o[a]} ${a === it.ok ? '✓' : '✗'}</p>`;
+        else if (a !== undefined) h += feedback(it, a);
+        h += '</div>';
+      });
+      if (st.ans.length === items.length && opts.after) h += `<div class="step new">${opts.after}</div>`;
+      if (opts.free) h += `<p class="free">Question pour découvrir : elle ne compte pas dans la note.</p>`;
+      h += `<div class="zone">${optsHtml(items[cur], cur, st.ans[cur])}</div>`;
+      return h;
+    },
+    foot: (st) => (st.ans.length === items.length ? { label: 'Continuer', a: 'next' } : { label: 'Continuer', a: 'next', off: true }),
+    on: (a, d, st) => { if (a === 'pick' && +d.q === st.ans.length) st.ans.push(+d.o); },
+  };
+}
+
+/* Saisie au clavier complet. */
+const KEYS = ['7','8','9','÷','4','5','6','×','1','2','3',M,'(','0',')','+'];
+const pretty = (s) => s.replace(/([+×÷=])/g, ' $1 ').replace(/(\d|\))−/g, '$1 − ').replace(/\s+/g, ' ').trim();
+function typed({ consigne, given, check, steps, lines, hint = 'Tape le résultat avec les touches du clavier.' }) {
+  return {
+    init: () => ({ v: '', res: null }),
+    render: (st) => {
+      const cls = st.res ? (st.res.ok ? 'ok' : 'ko') : '';
+      let h = `<p class="lead">${consigne}</p>${calc(given, 'md')}
+        <p class="small">${hint}</p>
+        <div class="field ${cls}" aria-live="polite">${pretty(st.v) || ''}${st.res ? '' : '<span class="caret"></span>'}</div>`;
+      if (st.res) {
+        h += st.res.ok ? fb('ok', st.res.title || 'Juste !', st.res.msg) : fb('ko', 'Pas tout à fait.', st.res.msg);
+        if (!st.res.ok && steps) h += `<div class="fb info"><strong>Étape par étape</strong><ol class="steps">${steps.map((s) => `<li>${s}</li>`).join('')}</ol></div>`;
+        if (lines) h += `<div class="fb info"><strong>La résolution</strong>${lines.map((s) => `<p>${s}</p>`).join('')}</div>`;
+      } else {
+        h += `<div class="zone"><div class="keys">${KEYS.map((k) => `<button class="key ${/\d/.test(k) ? '' : 'op'}" data-a="key" data-k="${k}">${k}</button>`).join('')}
+          <button class="key op" data-a="del" style="grid-column:span 4">⌫ Effacer</button></div></div>`;
+      }
+      return h;
+    },
+    foot: (st) => (st.res ? { label: 'Continuer', a: 'next' } : { label: 'Valider', a: 'check', off: !st.v }),
+    on: (a, d, st) => {
+      if (a === 'key') st.v += d.k;
+      if (a === 'del') st.v = st.v.slice(0, -1);
+      if (a === 'check') st.res = check(st.v);
+    },
+  };
+}
+
+/* ——— Cours 1 : la droite graduée (scène SVG) et les nombres colorés ——— */
+const neg = (n) => `<span class="neg">${M}${n}</span>`;
+const pos = (n) => `<span class="pos">${n}</span>`;
+const fmt = (v) => (v < 0 ? M + Math.abs(v) : String(v));
+const fmtS = (v) => (v < 0 ? M + Math.abs(v) : '+' + v);
+const scene = (inner, cls = '') => `<div class="stage ${cls}">${inner}</div>`;
+const sc = (svg, calcHtml = '', cap = '') => `${svg}${calcHtml ? `<div class="sc-calc">${calcHtml}</div>` : ''}${cap ? `<span class="cap">${cap}</span>` : ''}`;
+const kbd = () => `<div class="zone"><div class="keys">${KEYS.map((k) => `<button class="key ${/\d/.test(k) ? '' : 'op'}" data-a="key" data-k="${k}">${k}</button>`).join('')}<button class="key op" data-a="del" style="grid-column:span 4">⌫ Effacer</button></div></div>`;
+
+
+/* Droite graduée. jumps = [{a, b}] (bonds de a vers b) ; anim = indice du bond qui s'anime ;
+   neutral = aucune couleur de signe (pendant une question) ; labels = 'signed' | 'abs' | 'none' | 'q' ;
+   mark = graduations surlignées en jaune ; start / end = départ et arrivée ;
+   tap = graduations touchables : pastille ronde qui respire, cible de 44 px de large au moins (8 graduations au plus : la droite tient dans l'écran de 390 px, sans défiler), consigne en gras au-dessus, main animée la première fois ;
+   pins = [{v, ok}] graduations touchées, vertes ou rouges, après une réponse. */
+function line({ from = -10, to = 2, jumps = [], anim = -1, neutral = false, labels = 'signed', mark = [], start = null, end = null, caps = false, tap = false, pins = [] }) {
+  const n = to - from + 1;
+  if (tap && n > 8) throw new Error('Droite touchable : 8 graduations au plus');
+  const P = tap ? 22 : 18, W = tap ? n * 44 : 340, Y = 80;
+  const X = (v) => P + ((v - from) / (to - from)) * (W - 2 * P);
+  const every = to - from > 15 ? 2 : 1;
+  const tone = (v) => (neutral ? 'muted' : v < 0 ? 'neg' : v > 0 ? 'pos' : 'ink');
+  let s = `<svg class="nl ${tap ? 'tp' : ''}" ${tap ? 'style="width:100%"' : ''} viewBox="0 0 ${W} 140" role="img" aria-label="Droite graduée de ${fmt(from)} à ${fmt(to)}">`;
+  if (!neutral && from < 0 && to > 0) {
+    s += `<line class="ax neg" x1="8" y1="${Y}" x2="${X(0)}" y2="${Y}"/><line class="ax pos" x1="${X(0)}" y1="${Y}" x2="${W - 8}" y2="${Y}"/>`;
+  } else s += `<line class="ax muted" x1="8" y1="${Y}" x2="${W - 8}" y2="${Y}"/>`;
+  const marks = end !== null ? [...mark, end] : mark;
+  for (let v = from; v <= to; v++) {
+    const x = X(v), z = v === 0;
+    s += `<line class="tk ${tone(v)}" x1="${x}" y1="${Y - (z ? 9 : 6)}" x2="${x}" y2="${Y + (z ? 9 : 6)}" ${z ? 'style="stroke-width:3.5"' : ''}/>`;
+    const hl = marks.includes(v);
+    if (hl) s += `<rect x="${x - 14}" y="${Y + 11}" width="28" height="22" rx="6" fill="var(--hl)"/>`;
+    if (hl || z || (v - from) % every === 0) s += `<text class="${hl ? 'hlink' : tone(v)}" x="${x}" y="${Y + 27}" ${z || hl ? 'style="font-weight:700"' : ''}>${fmt(v)}</text>`;
+  }
+  jumps.forEach((j, i) => {
+    const x1 = X(j.a), x2 = X(j.b), h = Math.min(52, 16 + Math.abs(j.b - j.a) * 5), c = h * 1.33;
+    const t = neutral ? 'muted' : j.b < j.a ? 'neg' : 'pos', an = i === anim ? 'anim' : '';
+    s += `<path class="arc ${t} ${an}" pathLength="1" stroke-dasharray="1" d="M ${x1} ${Y} C ${x1} ${Y - c}, ${x2} ${Y - c}, ${x2} ${Y}"/>`;
+    s += `<polygon class="head ${t} ${an ? 'anim fade' : ''}" points="${x2 - 6},${Y - 11} ${x2 + 6},${Y - 11} ${x2},${Y - 1}"/>`;
+    if (labels !== 'none') {
+      const txt = labels === 'abs' ? Math.abs(j.b - j.a) : labels === 'q' ? '?' : fmtS(j.b - j.a);
+      s += `<text class="lab ${t} ${an ? 'anim fade' : ''}" x="${(x1 + x2) / 2}" y="${Y - h - 7}">${txt}</text>`;
+    }
+  });
+  if (tap) for (let v = from; v <= to; v++) if (!pins.some((p) => p.v === v)) s += `<circle class="pad" style="--i:${v - from}" cx="${X(v)}" cy="${Y}" r="15"/>`;
+  pins.forEach((p) => { s += `<circle cx="${X(p.v)}" cy="${Y}" r="15" fill="var(--${p.ok ? 'ok-bg' : 'ko-bg'})" stroke="var(--${p.ok ? 'ok' : 'ko'})" stroke-width="3"/>`; });
+  if (start !== null) s += `<circle cx="${X(start)}" cy="${Y}" r="6" fill="var(--ink)"/>`;
+  if (end !== null) s += `<circle cx="${X(end)}" cy="${Y}" r="6" fill="var(--hl)" stroke="var(--ink)" stroke-width="2"/>`;
+  if (caps && start !== null) s += `<text class="cp muted" x="${X(start)}" y="${Y + 54}">départ</text>`;
+  if (caps && end !== null && start !== null && Math.abs(end - start) >= 3) s += `<text class="cp muted" x="${X(end)}" y="${Y + 54}">arrivée</text>`;
+  if (tap && !handDone) s += `<g class="hand" transform="translate(${X(from + 1)} ${Y + 4})" aria-hidden="true"><g class="hm"><rect class="hb" x="-13" y="17" width="28" height="24" rx="9"/><rect class="hb" x="-4.5" y="0" width="9" height="28" rx="4.5"/><rect class="hc" x="-3" y="16" width="6" height="8"/></g></g>`;
+  if (tap) for (let v = from; v <= to; v++) s += `<rect class="hit" data-a="tapv" data-v="${v}" tabindex="0" role="button" aria-label="Graduation ${fmt(v)}" x="${X(v) - 22}" y="8" width="44" height="128"/>`;
+  s += '</svg>';
+  return tap ? `<div class="tapwrap"><p class="tapq">Touche la droite à l'endroit où l'on arrive.</p>${s}</div>` : s;
+}
+
+/* Exemple guidé à cases : chaque case est une petite réponse tapée, dans l'ordre. */
+const num = (v) => { const s = v.replace(/\s/g, '').replace(/−/g, '-'); return /^-?\d+$/.test(s) ? Number(s) : NaN; };
+function trous({ consigne, given, lines }) {
+  return {
+    init: () => ({ i: 0, v: '', res: null, vals: [] }),
+    render: (st) => {
+      const L = lines;
+      let eq = '';
+      L.forEach((l, i) => {
+        if (i > st.i) return;
+        let b;
+        if (i < st.i) b = `<span class="blank done">${l.exp}</span>`;
+        else if (st.res) b = `<span class="blank ${st.res.ok ? 'ok' : 'ko'}">${pretty(st.v)}</span>`;
+        else b = `<span class="blank">${pretty(st.v) || '▢'}${'<span class="caret"></span>'}</span>`;
+        eq += `<div class="${i === st.i ? 'step new' : ''}">${l.html(b)}</div>`;
+      });
+      let h = `<p class="lead">${consigne}</p>${calc(given, 'md')}<div class="calcbox eqs chg">${eq}</div>`;
+      if (st.res) h += st.res.ok ? fb('ok', 'Juste !', st.res.msg) : fb('ko', 'Pas tout à fait.', `${st.res.msg} La bonne réponse : <b>${L[st.i].exp}</b>.`);
+      else h += `<p class="small">Tape ce qui manque dans la case, avec les touches du clavier.</p><div class="zone"><div class="keys">${KEYS.map((k) => `<button class="key ${/\d/.test(k) ? '' : 'op'}" data-a="key" data-k="${k}">${k}</button>`).join('')}<button class="key op" data-a="del" style="grid-column:span 4">⌫ Effacer</button></div></div>`;
+      return h;
+    },
+    foot: (st) => (st.res ? { label: st.i < lines.length - 1 ? 'Case suivante' : 'Continuer', a: st.i < lines.length - 1 ? 'adv' : 'next' } : { label: 'Valider', a: 'check', off: !st.v }),
+    on: (a, d, st) => {
+      if (a === 'key') st.v += d.k;
+      if (a === 'del') st.v = st.v.slice(0, -1);
+      if (a === 'check') st.res = lines[st.i].check(lines[st.i].raw ? st.v : num(st.v));
+      if (a === 'adv') { st.i++; st.v = ''; st.res = null; }
+    },
+  };
+}
+
+/* ——— Les écrans ——— */
+const S = [];
+const add = (meta, def) => S.push({ ...meta, ...def });
+
+/* Calcul découpé en morceaux touchables (scène neutre : aucune couleur avant la réponse).
+   tap = chaque morceau est un bouton ; gaps = positions (avant le morceau n°j) où l'on peut toucher, bouton de 44 px ;
+   ok / bad = morceaux colorés APRÈS la réponse. */
+function glyphRow(tokens, { tap = false, gaps = null, bad = [], ok = [] } = {}) {
+  const gp = (j) => (gaps && gaps.includes(j)
+    ? `<button class="gp ${bad.includes(j) ? 'ko' : ''}" data-a="tapg" data-v="${j}" aria-label="Entre ${tokens[j - 1] || 'le début'} et ${tokens[j] || 'la fin'}"><i></i></button>` : '');
+  let h = '<div class="gl">';
+  tokens.forEach((t, i) => {
+    h += gp(i);
+    if (tap && !gaps) h += `<button class="gt ${bad.includes(i) ? 'ko' : ''}" data-a="tapg" data-v="${i}" aria-label="${t}">${t}</button>`;
+    else h += `<span class="gt ${gaps ? 'tx' : ok.includes(i) ? 'ok' : bad.includes(i) ? 'ko' : ''}">${t}</span>`;
+  });
+  return `${h}${gp(tokens.length)}</div>`;
+}
+const tapScene = (tokens, q, ok) => (a) => `<div class="tapwrap"><p class="tapq">${q}</p>${glyphRow(tokens, { tap: !a.done, bad: a.bad, ok: a.done ? [].concat(ok) : [] })}</div>`;
+const gapScene = (tokens, q, gaps, final, float = '') => (a) => (a.done ? final : `<div class="tapwrap"><p class="tapq">${q}</p>${float}${glyphRow(tokens, { gaps, bad: a.bad })}</div>`);
+const isSign = (t) => ['+', M, '×', '÷'].includes(t);
+
+/* Exemple guidé « résolu à l'écran » : toute la résolution est écrite ; elle valide chaque ligne (« Je comprends ») ou complète une case. */
+function aide({ consigne, given, lines }) {
+  return {
+    init: () => ({ i: 0, v: '', msg: '', ok: false }),
+    render: (st) => {
+      const l = lines[st.i];
+      let eq = '';
+      lines.forEach((r, i) => {
+        if (i > st.i) return;
+        let h;
+        if (r.cas) h = r.html(i < st.i || st.ok ? `<span class="blank ok">${r.exp}</span>` : `<span class="blank">${pretty(st.v) || '▢'}<span class="caret"></span></span>`);
+        else h = r.html;
+        eq += `<div class="eqrow ${i === st.i && !st.ok ? 'cur' : ''} ${i === st.i ? 'step new' : ''}">${h}</div>`;
+      });
+      let h = `<p class="lead">${consigne}</p>${calc(given, 'md')}<div class="calcbox eqs chg">${eq}</div>`;
+      if (st.ok) h += fb('ok', 'Juste !', l.yes);
+      else {
+        if (st.msg) h += fb('ko', 'Pas tout à fait.', `${st.msg} Essaie encore.`);
+        h += `<div class="fb info"><strong>${l.title}</strong><p>${l.expl}</p></div>`;
+        if (l.cas) h += `<p class="small">Tape ce qui manque dans la case, avec les touches du clavier.</p>${kbd()}`;
+      }
+      return h;
+    },
+    foot: (st) => {
+      const l = lines[st.i], last = st.i === lines.length - 1;
+      if (l.cas) return st.ok ? { label: 'Continuer', a: 'next' } : { label: 'Valider', a: 'check', off: !st.v };
+      return { label: last ? 'Continuer' : 'Je comprends', a: last ? 'next' : 'adv' };
+    },
+    on: (a, d, st) => {
+      if (a === 'key') st.v += d.k;
+      if (a === 'del') st.v = st.v.slice(0, -1);
+      if (a === 'adv') { st.i++; st.v = ''; st.msg = ''; }
+      if (a === 'check') { const l = lines[st.i], r = l.check(l.raw ? st.v : num(st.v)); if (r.ok) st.ok = true; else { st.msg = r.msg; st.v = ''; } }
+    },
+  };
+}
+
+/* Série de pratique : plusieurs questions à la suite, formats variés, aide décroissante, retour immédiat. */
+function serie(items) {
+  const n = items.length;
+  return {
+    init: () => ({ i: 0, res: [], cur: null, v: '' }),
+    render: (st) => {
+      const it = items[st.i], c = st.cur;
+      const dots = `<div class="dots">${items.map((_, j) => `<i class="${j < st.i || (j === st.i && c) ? 'on' : ''}"></i>`).join('')}</div>`;
+      let h = `<div class="counter chg"><span class="cnt">Question <b>${st.i + 1} sur ${n}</b></span>${dots}</div>${it.consigne ? `<p class="lead">${it.consigne}</p>` : ''}`;
+      if (it.kind === 'tapg') {
+        const ok = c ? [].concat(it.ok) : [], bad = c && !c.ok ? [c.pick] : [];
+        h += `<div class="stage sm ${c ? '' : 'chg'}">${glyphRow(it.tokens, { tap: !c, ok, bad })}</div>`;
+      } else if (it.kind === 'pick') {
+        h += `${calc(it.calc, 'md')}${it.q ? `<p class="q">${it.q}</p>` : ''}`;
+      } else {
+        h += `${calc(it.calc, 'md')}<div class="field ${c ? (c.ok ? 'ok' : 'ko') : ''}" aria-live="polite">${pretty(st.v) || ''}${c ? '' : '<span class="caret"></span>'}</div>`;
+      }
+      if (c) h += `<div class="step new">${fb(c.ok ? 'ok' : 'ko', c.ok ? 'Juste !' : 'Pas tout à fait.', c.msg)}</div>`;
+      if (c && st.i === n - 1) h += `<div class="fb info"><strong>${st.res.filter(Boolean).length} sur ${n}</strong><p>Maintenant, deux exemples pour t'aider à réécrire un calcul en entier.</p></div>`;
+      if (it.kind === 'pick') {
+        h += `<div class="zone"><div class="opts ${it.col ? '' : 'row'}">${it.o.map((o, oi) => `<button class="opt ${it.col ? '' : 'big'} ${c ? (oi === it.ok ? 'ok' : oi === c.pick ? 'ko' : '') : ''}" data-a="pick" data-o="${oi}" ${c ? 'disabled' : ''}>${o}</button>`).join('')}</div></div>`;
+      } else if (it.kind === 'type' && !c) h += `<p class="small">${it.hint}</p>${kbd()}`;
+      return h;
+    },
+    foot: (st) => {
+      const it = items[st.i];
+      if (!st.cur) return it.kind === 'type' ? { label: 'Valider', a: 'check', off: !st.v } : { none: true };
+      return st.i < n - 1 ? { label: 'Question suivante', a: 'nxt' } : { label: 'Continuer', a: 'next' };
+    },
+    on: (a, d, st) => {
+      const it = items[st.i];
+      if (a === 'nxt') { st.i++; st.cur = null; st.v = ''; return; }
+      if (st.cur) return;
+      if (a === 'tapg' && it.kind === 'tapg') { const v = +d.v, ok = [].concat(it.ok).includes(v); st.cur = { ok, pick: v, msg: ok ? it.yes : it.no(v) }; st.res[st.i] = ok; }
+      if (a === 'pick' && it.kind === 'pick') { const o = +d.o, ok = o === it.ok; st.cur = { ok, pick: o, msg: ok ? it.yes : (it.why && it.why[o]) || it.no }; st.res[st.i] = ok; }
+      if (it.kind === 'type') {
+        if (a === 'key') st.v += d.k;
+        if (a === 'del') st.v = st.v.slice(0, -1);
+        if (a === 'check') { const r = it.check(st.v); st.cur = { ok: r.ok, msg: r.msg }; st.res[st.i] = r.ok; }
+      }
+    },
+  };
+}
+
+/* Comparer deux cas : 4 × (−3) et 4 × −3 côte à côte. */
+const compareScreen = {
+  init: () => ({ a: undefined }),
+  render: (st) => {
+    const done = st.a !== undefined, o = ['Le résultat', 'La façon de l\'écrire', 'Le nombre 3'];
+    const msgs = [`Le résultat est le même : 4 fois ${M}3 donne ${M}12 dans les deux cas. Ce n'est pas le calcul qui change.`,
+      `Le calcul et le résultat sont les mêmes. Seule l'écriture change : A a des parenthèses, B n'en a pas.`,
+      `Le nombre est ${M}3 dans les deux calculs. Seule la façon de l'écrire change.`];
+    let h = `<h2 class="t">Comparer deux cas</h2><p class="lead">Voici deux écritures du même calcul. Regarde-les bien.</p>`;
+    h += `<div class="cmp chg"><div><span class="tagw">Calcul A</span>4 × ${done ? `<span class="hl">(</span>${M}3<span class="hl">)</span>` : `(${M}3)`}</div><div><span class="tagw">Calcul B</span>${done ? `4 <span class="hl">× ${M}</span> 3` : `4 × ${M}3`}</div></div>`;
+    if (!done) h += `<p class="q">Qu'est-ce qui change entre A et B ?</p>`;
+    else {
+      h += `<div class="step new">${fb(st.a === 1 ? 'ok' : 'info', st.a === 1 ? 'Juste !' : 'Pas tout à fait, et c\'est normal.', msgs[st.a])}</div>
+        <p class="lead sent">Dans B, le × et le ${M} se touchent : on ne sait plus si le ${M} soustrait. Dans A, ${M}3 est <b>un seul nombre</b>, entouré de parenthèses. Le calcul A se lit d'<b>une seule façon</b> : c'est le bien écrit.</p>`;
+    }
+    h += `<p class="free">Question pour comprendre : elle ne compte pas dans la note.</p><div class="zone"><div class="opts">${o.map((t, i) => `<button class="opt ${done ? (i === 1 ? 'ok' : i === st.a ? 'ko' : '') : ''}" data-a="pick" data-o="${i}" ${done ? 'disabled' : ''}>${t}</button>`).join('')}</div></div>`;
+    return h;
+  },
+  foot: (st) => ({ label: 'Continuer', a: 'next', off: st.a === undefined }),
+  on: (a, d, st) => { if (a === 'pick' && st.a === undefined) st.a = +d.o; },
+};
+
+/* ——— 1. Accroche ——— */
+add({ id: 'accroche', sec: 'Leçon', name: 'Accroche',
+  what: "Présente le cours en deux phrases, puis pose une question pour deviner : « 4 × −3 est-il bien écrit ? ». Comme dans le Cours 0 actuel.",
+  why: "Elle sait pourquoi ce cours existe avant de commencer. Une mauvaise réponse est accueillie comme normale. La question ne compte pas dans la note.",
+  ask: [] },
+  quiz([{ q: 'Pour commencer, à ton avis : ce calcul est-il bien écrit ?', calc: `4 × ${M}3`, o: ['Oui', 'Non'], ok: 1, row: true, guess: true,
+    yes: "Il lui manque quelque chose. Tu vas voir quoi, et surtout pourquoi.",
+    no: "Il est mal écrit. Ce n'est pas grave de ne pas le savoir encore : c'est justement ce que ce cours explique." }],
+    { free: true, top: `<h2 class="t">Bien écrire un calcul</h2><p class="lead">En maths, un calcul doit se lire <b>d'une seule façon</b>. S'il est mal écrit, on peut se tromper même en connaissant la méthode.</p><p class="lead">Dans ce cours, tu vas apprendre <b>4 règles d'écriture</b>.</p>` }));
+
+/* ——— 2. Le − a deux rôles ——— */
+add({ chg: true, id: 'deux-roles', sec: 'Leçon', name: 'Le − a deux rôles',
+  what: "Quatre étapes. Deux à lire : rôle 1 (soustraire, 7 − 3), rôle 2 (dire qu'un nombre est négatif, −3). Puis elle agit : (3) dans −6 + 2 − 5 elle touche le − qui soustrait (les morceaux du calcul sont des boutons à pastille qui respire, consigne en gras au-dessus) ; (4) phrase à trous, un seul trou : « Un − placé tout au début d'un calcul est [le signe du nombre | une soustraction]. ». Cette phrase remplace l'ancienne conclusion.",
+  why: "Ça remplace deux écrans : l'explication « le − a deux rôles » et les deux petites questions « Quel rôle ? ». Elle ne lit jamais plus de 2 étapes sans agir, et elle vérifie qu'elle reconnaît les deux rôles en les touchant dans un vrai calcul plutôt qu'en choisissant une réponse écrite. Aucune couleur de signe : la scène reste neutre (jaune seulement pour « regarde ici »).",
+  ask: ["Les deux petites questions « À quoi sert le − ? » du Cours 0 actuel sont remplacées par ces deux étapes interactives (qui ne comptent pas dans la note, c'est de la leçon). Tu valides ?",
+        "Dans l'étape 3, le calcul −6 + 2 − 5 contient les deux rôles. Est-ce assez clair, ou faut-il un calcul plus court (−6 + 2) ?"] },
+  reveal(`Le signe ${M} a deux rôles`, [
+    { s: `<span>7 <span class="hl pin">${M}</span> 3</span><span class="lbl">soustraire</span>`, c: 1,
+      t: `<p class="lead">Le signe <b>${M}</b> a <b>deux rôles</b>. Le premier : <b>soustraire</b>. Dans 7 ${M} 3, on enlève 3 à 7.</p>` },
+    { s: `<div class="stage split" style="background:none;min-height:0;padding:0"><div>7 <span class="hl">${M}</span> 3<span class="lbl">soustraire</span></div><div><span><span class="hl pin">${M}</span>3</span><span class="lbl">signe du nombre</span></div></div>`,
+      t: `<p class="lead">Le deuxième : <b>dire qu'un nombre est négatif</b>. Dans ${M}3, le signe fait partie du nombre : on lit « moins trois ».</p>` },
+    { s: tapScene(['−', '6', '+', '2', '−', '5'], `Touche le ${M} qui sert à soustraire.`, 4),
+      act: { type: 'tapg', ok: 4,
+        no: (v) => (v === 0 ? `Ce ${M} est tout au début : il n'y a rien à soustraire. C'est le signe de ${M}6.` : `Ce n'est pas un ${M}. Cherche les deux traits ${M} du calcul.`),
+        after: `<p class="lead">Ce ${M} est entre 2 et 5 : on enlève 5. Le ${M} du début est, lui, le signe de ${M}6.</p>` } },
+    { t: '', act: { type: 'fill', parts: [`Un ${M} placé tout au début d'un calcul est `, 0, '.'], blanks: [
+      { o: ['le signe du nombre', 'une soustraction'], ok: 0, def: `Au début, il n'y a rien avant le ${M} : on ne peut rien soustraire.` }],
+      after: `<p class="lead">Quand tu lis un calcul, demande-toi toujours <b>quel rôle joue chaque ${M}</b>. Les 4 règles de ce cours servent à ça.</p>` } },
+  ]));
+
+/* ——— 3. Règle 1 ——— */
+add({ chg: true, id: 'regle-1', sec: 'Leçon', name: 'Règle 1 : deux signes collés',
+  what: "Quatre étapes. (1) À lire : 4 × −3, le × et le − sont collés. (2) Elle touche le signe fautif dans le calcul (« Touche le signe qui se colle au ×. »). Message d'erreur selon ce qu'elle touche. (3) Elle touche l'endroit où la parenthèse ouvrante doit aller : trois emplacements à pastille entre les morceaux ; au bon endroit, les deux parenthèses arrivent autour de −3. (4) L'encadré de la règle 1. Seules les 2 dernières phrases restent affichées, « Relire le début » déplie le reste.",
+  why: "Avant, cet écran se lisait en 5 « Suite » et l'écran suivant donnait 3 autres exemples à lire : 8 étapes de lecture. Ici elle trouve elle-même la faute, puis elle place elle-même la parenthèse : elle voit pourquoi les parenthèses vont autour du nombre négatif et pas ailleurs. Les exemples avec +, − et ÷ passent à l'écran suivant, avec la question.",
+  ask: ["Toucher « l'endroit où va la parenthèse » : elle ne place que la parenthèse ouvrante, la fermante arrive toute seule (la règle 4 insiste ensuite sur le fait qu'elles vont par deux). D'accord, ou on lui fait placer les deux ?",
+        "Cet écran fusionne « Règle 1 animée » et « Règle 1 : exemples » : les exemples avec + − ÷ sont maintenant en haut de l'écran suivant. Tu valides la fusion ?"] },
+  reveal('Quand deux signes se touchent', [
+    { s: `<span>4 <span class="hl bump">× ${M}</span> 3</span><span class="lbl">deux signes collés</span>`,
+      t: `<p class="lead">Voici 4 × ${M}3. Le <b>×</b> et le <b>${M}</b> sont <b>collés</b> : deux signes se touchent.</p>` },
+    { s: tapScene(['4', '×', M, '3'], 'Touche le signe qui se colle au ×.', 2),
+      act: { type: 'tapg', ok: 2,
+        no: (v) => (v === 1 ? `C'est le × lui-même. Cherche le signe qui le touche, juste à sa droite.` : `${v === 0 ? '4' : '3'} est un nombre, pas un signe. Cherche le signe collé au ×.`),
+        after: `<p class="lead">Ce ${M}, est-ce qu'il soustrait ? Ou est-ce le signe de 3 ? <b>On ne sait plus.</b></p>` } },
+    { s: gapScene(['4', '×', M, '3'], "Touche l'endroit où la parenthèse ouvrante doit aller.", [1, 2, 3],
+        `<span>4 × <span class="hl pin">(</span>${M}3<span class="hl pin">)</span></span><span class="lbl">${M}3 est un seul nombre</span>`),
+      act: { type: 'tapg', ok: 2,
+        no: (v) => (v === 1 ? `Là, la parenthèse entourerait le × aussi. Mais le × est une opération : il reste dehors.` : `Là, elle couperait ${M}3 en deux. Le ${M} fait partie du nombre : il doit être dedans.`),
+        after: `<p class="lead">La parenthèse se ferme après le 3. Elles entourent ${M}3 : c'est <b>un seul nombre</b>, le ${M} ne soustrait plus rien.</p>` } },
+    { t: rule(1, `<b style="all:unset;font-weight:700">Deux signes ne se suivent jamais.</b> Après +, ${M}, × ou ÷, un nombre négatif se met entre parenthèses.`) },
+  ]));
+
+/* ——— 4. Règle 1 : à toi ——— */
+const px = (bad, good) => `<div class="pair"><div><span class="tagw">mal écrit</span>${bad}</div><span class="arrow">→</span><div><span class="tagw">bien écrit</span>${good}</div></div>`;
+add({ chg: true, id: 'regle-1-quiz', sec: 'Leçon', name: 'Règle 1 : à toi',
+  what: "Deux exemples en haut (après un − et après un ÷), puis une petite question : comment écrire correctement 5 + −2. Chaque mauvais choix a son explication (doc 06, écran 6).",
+  why: "Les exemples avec les autres opérations ne sont plus un écran de lecture à part : ils sont posés juste au-dessus de la question, en une seule phrase. La question compte dans la note.",
+  ask: [] },
+  quiz([{ q: `Comment écrire correctement ce calcul ?`, calc: `5 + ${M}2`, o: [`(5 + ${M}2)`, `5 + (${M}2)`, `5 (+ ${M}2)`], ok: 1,
+    why: { 0: `Les parenthèses doivent entourer le nombre négatif, pas tout le calcul. Ici + et ${M} se touchent encore.`,
+           1: `Les parenthèses entourent le nombre négatif ${M}2. Le + et le ${M} ne se touchent plus.`,
+           2: `Le + est une opération : il reste en dehors. Seul le nombre négatif ${M}2 va entre parenthèses.` } }],
+    { top: `<h2 class="t">La règle 1, à toi</h2><p class="lead">La règle marche aussi après un ${M} et un ÷. Le nombre ne change pas, le résultat non plus.</p>
+      <div class="stage chg"><div class="pairs">${px(`7 ${M} ${M}1`, `7 ${M} <span class="hl">(</span>${M}1<span class="hl">)</span>`)}${px(`8 ÷ ${M}4`, `8 ÷ <span class="hl">(</span>${M}4<span class="hl">)</span>`)}</div></div>` }));
+
+/* ——— 5. Règle 2 ——— */
+add({ id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : en tête',
+  what: "La question vient d'abord (« faut-il des parenthèses autour de −3 au début ? »), puis l'encadré de la règle 2 et « (−3) + 5 : pas faux, mais inutile ». Comme dans le Cours 0 actuel.",
+  why: "Ici, deviner marche bien : elle peut trouver seule en appliquant la règle 1, puisque rien ne se touche. La question ne compte pas dans la note.",
+  ask: [] },
+  quiz([{ q: `Ce calcul commence par un nombre négatif. Faut-il des parenthèses autour de ${M}3 ?`, calc: `${M}3 + 5`, o: ['Oui', 'Non'], ok: 1, row: true, guess: true, noTitle: 'Pas besoin.',
+    yes: `Devant ${M}3, il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.`,
+    no: `Regarde devant ${M}3 : il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.` }],
+    { free: true, top: `<h2 class="t">Et au début du calcul ?</h2>`,
+      after: `${rule(2, `<b style="all:unset;font-weight:700">En tête d'un calcul, pas de parenthèses</b> pour un nombre négatif.`)}
+        <p class="lead">${M}3 + 5 ✓ &nbsp;&nbsp; (${M}3) + 5 <span class="inutile">pas faux, mais inutile</span></p>` }));
+
+/* ——— 6. Règle 3 ——— */
+add({ chg: true, id: 'regle-3', sec: 'Leçon', name: 'Règle 3 : le − avant le nombre',
+  what: "Quatre étapes. (1) À lire : dans 3− + 4, le − est après le 3 et un + le suit. (2) Elle touche le − mal placé. (3) Le − quitte sa place (étiquette en jaune au-dessus de 3 + 4) : elle touche l'endroit où il doit aller, trois emplacements ; il glisse alors devant le 3. (4) L'encadré de la règle 3.",
+  why: "Dans la maquette actuelle, le − glissait tout seul devant le 3 : elle regardait. Maintenant c'est elle qui choisit où il va, et un message répond à chaque mauvais emplacement (après le 3 : même faute ; contre le + : deux signes se touchent).",
+  ask: ["Elle touche l'endroit d'arrivée plutôt que de faire glisser le − avec le doigt. Le glisser demande de la précision (et le glisser-déposer reste réservé aux exercices de classement). On garde le toucher ?"] },
+  reveal('Le moins se met avant le nombre', [
+    { s: `<span>3<span class="hl bump">${M}</span> + 4</span><span class="lbl">le ${M} est après le 3</span>`,
+      t: `<p class="lead">Dans 3${M} + 4, le ${M} est écrit <b>après</b> le 3, et juste après lui, il y a un +.</p>` },
+    { s: tapScene(['3', M, '+', '4'], `Touche le ${M} qui est mal placé.`, 1),
+      act: { type: 'tapg', ok: 1,
+        no: (v) => (v === 0 ? `Le 3 est un nombre, il est bien écrit. Cherche le signe ${M} mal placé.` : v === 2 ? `Le + est bien placé : il additionne 4. Cherche le ${M}.` : `Le 4 est bien écrit. Cherche le ${M}.`),
+        after: `<p class="lead">On croit qu'on soustrait quelque chose au 3. Mais juste après, il y a un + : <b>il n'y a rien à soustraire</b>.</p>` } },
+    { s: gapScene(['3', '+', '4'], `Le ${M} quitte sa place. Touche l'endroit où il doit aller.`, [0, 1, 2],
+        `<span><span class="hl slide">${M}</span>3 + 4</span><span class="lbl">le ${M} passe devant</span>`,
+        `<div class="floatq"><span class="hl">${M}</span><span class="small">ce signe est à placer</span></div>`),
+      act: { type: 'tapg', ok: 0,
+        no: (v) => (v === 1 ? `Là, le ${M} serait encore après le 3 : c'est la même faute. Le signe d'un nombre négatif se met avant le nombre.` : `Là, il se collerait au + : deux signes se touchent (règle 1). Et il rendrait le 4 négatif, pas le 3.`),
+        after: `<p class="lead">Le signe d'un nombre négatif s'écrit <b>devant</b> le nombre : ${M}3 + 4.</p>` } },
+    { t: rule(3, `<b style="all:unset;font-weight:700">Le signe ${M} d'un nombre négatif s'écrit toujours avant le nombre :</b> ${M}3, jamais 3${M}.`) },
+  ]));
+
+/* ——— 7. Règle 4 ——— */
+add({ chg: true, id: 'regle-4', sec: 'Leçon', name: 'Règle 4 : une parenthèse se ferme',
+  what: "Quatre étapes. (1) À lire : dans 4 × (−3, une parenthèse s'ouvre et rien ne la ferme. (2) Phrase à trous, un seul trou : « Sans parenthèse fermante, on ne sait pas où le nombre [s'arrête | commence]. » (3) Elle touche l'endroit où la parenthèse fermante doit aller (cinq emplacements entre et après les morceaux) ; elle apparaît. (4) L'encadré de la règle 4.",
+  why: "La comparaison avec les guillemets reste, mais c'est elle qui découvre qu'il manque la fermante, au lieu de la voir arriver. La phrase à trous vérifie qu'elle a compris pourquoi : on ne sait plus où s'arrête le nombre.",
+  ask: ["Pour l'étape 3, les emplacements avant le nombre sont aussi proposés (pas seulement le bon côté), pour ne pas lui souffler la réponse. Les messages expliquent chaque mauvais choix. D'accord ?"] },
+  reveal('Une parenthèse ouverte se ferme', [
+    { s: `<span>4 × <span class="hl bump">(</span>${M}3</span><span class="lbl">elle s'ouvre ici</span>`,
+      t: `<p class="lead">Dans 4 × (${M}3, une parenthèse <b>s'ouvre</b>. Rien ne la <b>ferme</b>.</p>` },
+    { t: '', act: { type: 'fill', parts: ['Sans parenthèse fermante, on ne sait pas où le nombre ', 0, '.'], blanks: [
+      { o: ["s'arrête", 'commence'], ok: 0, def: `Le nombre commence bien après la parenthèse ouverte. C'est la fin qu'on ne voit pas.` }],
+      after: `<p class="lead">Les parenthèses vont toujours <b>par deux</b>, comme des guillemets.</p>` } },
+    { s: gapScene(['4', '×', '(', M, '3'], "Touche l'endroit où la parenthèse fermante doit aller.", [1, 2, 3, 4, 5],
+        `<span>4 × (${M}3<span class="hl pin">)</span></span><span class="lbl">une qui ouvre, une qui ferme</span>`),
+      act: { type: 'tapg', ok: 5,
+        no: (v) => (v === 4 ? `Là, elle couperait ${M}3 en deux. Le nombre n'est fini qu'après le 3.` : v === 3 ? `Là, elle se fermerait avant le nombre. Une parenthèse se ferme après ce qu'elle entoure.` : `Là, elle se fermerait avant d'avoir été ouverte. Elle doit venir après l'ouverture.`),
+        after: `<p class="lead">Maintenant, on voit où le nombre s'arrête : <b>${M}3</b> est bien entouré.</p>` } },
+    { t: rule(4, `<b style="all:unset;font-weight:700">Une parenthèse ouverte doit toujours être fermée.</b>`) },
+  ]));
+
+/* ——— 8. À toi : règles 3 et 4 ——— */
+add({ chg: true, id: 'regles-34-quiz', sec: 'Leçon', name: 'Règles 3 et 4 : à toi',
+  what: "Deux petites questions à la suite sur le même écran : « Lequel est bien écrit ? » (7− ou −7) et « Que manque-t-il à ce calcul ? » (4 × (−3). Les mauvaises réponses ont leur message (doc 06, écrans 9 et 11).",
+  why: "Ça regroupe les deux écrans de questions du Cours 0 actuel (« Avant ou après ? » et « Que manque-t-il ? »). La question « avant ou après » est supprimée : « Lequel est bien écrit ? » la couvre.",
+  ask: ["Le doc 06 comptait 6 petites questions ; ici il en reste 3 (règle 1, règle 3, règle 4), car les étapes interactives et la série de pratique prennent le relais. La note passe de 15 à 14 questions. D'accord ?"] },
+  quiz([
+    { q: 'Lequel est bien écrit ?', o: [`7${M}`, `${M}7`], ok: 1, row: true, big: true,
+      yes: `Le signe est devant le nombre : ${M}7, « moins sept ».`, no: `Le signe se met devant : ${M}7. Écrit après, on croirait une soustraction.` },
+    { q: 'Que manque-t-il à ce calcul ?', calc: `4 × (${M}3`, o: ['(', ')', M], ok: 1, big: true,
+      why: { 0: 'Une parenthèse est déjà ouverte. Il manque celle qui la ferme : « ) ».', 1: 'La parenthèse ouverte est maintenant fermée : 4 × (−3).', 2: `Le ${M} est déjà là, devant le 3. Il manque la parenthèse qui ferme : « ) ».` } },
+  ], { top: `<h2 class="t">Règles 3 et 4, à toi</h2>` }));
+
+/* ——— 9. Comparer deux cas ——— */
+add({ chg: true, id: 'comparer', sec: 'Leçon', name: 'Comparer deux cas',
+  what: "Deux calculs côte à côte : A = 4 × (−3) et B = 4 × −3. Question « Qu'est-ce qui change entre A et B ? » (le résultat / la façon de l'écrire / le nombre 3). Ensuite, les parenthèses de A sont surlignées en jaune et B montre les deux signes collés, avec une phrase de conclusion.",
+  why: "Elle voit que les deux écritures disent le même calcul : on n'écrit pas les parenthèses pour changer le résultat, mais pour que le calcul se lise d'une seule façon. C'est l'idée de tout le cours en un coup d'œil. La question ne compte pas : elle sert à comprendre.",
+  ask: ["Comme c'est le premier cours du module, il n'y a pas de cas venu d'un cours précédent : les deux cas viennent de ce cours. D'accord ?",
+        "B est affiché comme « mal écrit » sans le dire avant la réponse. Est-ce que ça la met sur la voie, ou faut-il l'écrire sans rien surligner aussi après ?"] },
+  compareScreen);
+
+/* ——— 10. Récapitulatif ——— */
+add({ id: 'recap', sec: 'Leçon', name: 'Les 4 règles',
+  what: "Un récapitulatif des 4 règles, chacune avec un exemple juste et un exemple faux. On retrouve le même écran avec « Relire la leçon ».",
+  why: "Elle a toutes les règles sous les yeux juste avant de s'entraîner. Aucun changement par rapport au Cours 0 actuel.",
+  ask: [] },
+  { init: () => ({}), foot: () => ({ label: 'Suivant', a: 'next' }), on() {},
+    render: () => `<h2 class="t">Les 4 règles à retenir</h2><ul class="recap">
+      <li><b>1. Deux signes ne se suivent jamais.</b><em>4 × (${M}3) ✓ &nbsp; 4 × ${M}3 ✗</em></li>
+      <li><b>2. En tête, pas de parenthèses.</b><em>${M}3 + 5 ✓ &nbsp; (${M}3) + 5 inutile</em></li>
+      <li><b>3. Le ${M} se met avant le nombre.</b><em>${M}3 ✓ &nbsp; 3${M} ✗</em></li>
+      <li><b>4. Une parenthèse ouverte se ferme.</b><em>(${M}3) ✓ &nbsp; (${M}3 ✗</em></li></ul>
+      <p class="lead">Maintenant, à toi de les utiliser.</p>` });
+
+/* ——— 11. Série de pratique ——— */
+add({ chg: true, id: 'pratique', sec: 'Pratique', name: 'Série de 4 questions',
+  what: "Quatre questions à la suite, retour immédiat, compteur « 1 sur 4 » en haut. (1) Toucher l'endroit mal écrit de 5 + −2, avec la règle 1 rappelée dans la consigne. (2) Choisir la règle non respectée dans 4 × (−3 : la règle n'est plus rappelée. (3) Vrai ou faux : « −6 − (−2) × 4 est bien écrit ». (4) Réécrire 9 + −4 au clavier complet. Pendant chaque question, aucune couleur ; vert et rouge arrivent après la réponse.",
+  why: "Elle passe de « je touche » (règle rappelée) à « je choisis » (sans rappel), puis « je juge », puis « j'écris tout seule » : l'aide diminue à chaque question et le format change pour qu'elle ne réponde pas par automatisme. Cette série remplace les écrans « Classer » et « Quelle règle ? ». Chaque erreur prévisible a son message.",
+  ask: ["Ces 4 questions comptent-elles dans la note du cours ? Je propose que oui, comme les petites questions (elles remplacent Classer et Quelle règle ?).",
+        "Le glisser-déposer « Classer » disparaît de ce cours. Il reste disponible dans les révisions et l'entraînement du Cours 0. D'accord ?",
+        "Pas de question venue d'un cours précédent : c'est le premier cours du module (règle du skill à partir du 2e cours)."] },
+  serie([
+    { kind: 'tapg', consigne: `Rappel de la règle 1 : <b>deux signes ne se suivent jamais</b>. Touche l'endroit mal écrit de ce calcul.`, tokens: ['5', '+', M, '2'], ok: [1, 2],
+      yes: `Le + et le ${M} se touchent. On écrit 5 + (${M}2).`,
+      no: () => `Les nombres sont bien écrits. Cherche les deux signes qui se touchent : + et ${M}.` },
+    { kind: 'pick', col: true, consigne: `Ce calcul est mal écrit. <b>Touche la règle</b> qui n'est pas respectée.`, calc: `4 × (${M}3`, o: ['Deux signes se touchent', 'Le moins est après le nombre', "Une parenthèse n'est pas fermée"], ok: 2,
+      yes: `La parenthèse ouverte ne se ferme pas : 4 × (${M}3).`,
+      why: { 0: `Il n'y a pas de signes collés ici : le × est suivi d'une parenthèse. Le problème est ailleurs.`, 1: `Le ${M} de ${M}3 est bien devant le 3. Le problème : la parenthèse reste ouverte.` } },
+    { kind: 'pick', consigne: 'Touche Vrai ou Faux.', calc: `${M}6 ${M} (${M}2) × 4`, q: 'Ce calcul est bien écrit.', o: ['Vrai', 'Faux'], ok: 0,
+      yes: `Vrai : ${M}6 est en tête sans parenthèses, et (${M}2) est entre parenthèses. Rien ne se touche.`,
+      why: { 1: `Cherche une faute : deux signes collés ? Non, ${M}2 est entre parenthèses. Un ${M} après un nombre ? Non. Une parenthèse ouverte ? Elle est fermée. Le calcul est bien écrit.` } },
+    { kind: 'type', consigne: 'Ce calcul est mal écrit. <b>Réécris-le</b> en entier.', calc: `9 + ${M}4`, hint: 'Tape le calcul entier avec les touches du clavier.',
+      check: (v) => {
+        const s = v.replace(/\s/g, '');
+        if (s === `9+(${M}4)`) return { ok: true, msg: `Le + et le ${M} ne se touchent plus : 9 + (${M}4).` };
+        if (s === `9+${M}4`) return { ok: false, msg: `Le + et le ${M} se touchent encore. Mets ${M}4 entre parenthèses : 9 + (${M}4).` };
+        if (s === `9+(${M}4`) return { ok: false, msg: `La parenthèse ouverte doit se fermer : 9 + (${M}4).` };
+        if (s === `(9+${M}4)`) return { ok: false, msg: `Les parenthèses doivent entourer le nombre négatif, pas tout le calcul : 9 + (${M}4).` };
+        if (new RegExp(`^9\\+\\(\\d+${M}\\)$`).test(s) || s === `9+4${M}`) return { ok: false, msg: `Le signe ${M} se met avant le 4 : 9 + (${M}4).` };
+        if (new RegExp(`^9\\+\\(${M}\\d+\\)$`).test(s)) return { ok: false, msg: `L'écriture est bonne, mais le nombre a changé. Garde ${M}4.` };
+        return { ok: false, msg: `Garde le même calcul, et mets le nombre négatif entre parenthèses : 9 + (${M}4).` };
+      } },
+  ]));
+
+/* ——— 12. Exemple guidé 1 : presque résolu ——— */
+add({ chg: true, id: 'guide-1', sec: 'Exemple guidé 1 sur 2', name: 'Presque résolu : 6 × −2',
+  what: "Le calcul mal écrit reste affiché en haut. La correction s'écrit ligne après ligne, toute résolue : « Je comprends » pour les deux premières lignes (la ligne en cours est surlignée et expliquée), puis une seule case à taper : le calcul bien écrit, au clavier complet.",
+  why: "C'est le plus d'aide : elle voit toute la méthode (repérer les signes collés, ajouter les parenthèses) avant de la faire seule. Avant, ce premier exemple était une réécriture entièrement à elle. L'aide diminue ensuite : le 2e exemple est à moitié à elle, les exercices de fin sans aide.",
+  ask: ["La dernière case demande de recopier le calcul bien écrit alors que la ligne du dessus le montre. C'est voulu pour la première fois : on vérifie qu'elle sait l'écrire en entier. Ou on garde seulement « Je comprends » ?"] },
+  aide({ consigne: 'Voici la correction. Lis chaque ligne, puis touche « Je comprends ».', given: `6 × ${M}2`,
+    lines: [
+      { html: `Signes collés : <span class="hl">×</span> et <span class="hl">${M}</span>`, title: 'Ligne 1', expl: `Le × et le ${M} se touchent : c'est la règle 1 qui n'est pas respectée.` },
+      { html: `On met ${M}2 entre parenthèses : 6 × <span class="hl">(</span>${M}2<span class="hl">)</span>`, title: 'Ligne 2', expl: `${M}2 est un seul nombre : on l'entoure de parenthèses. Le nombre ne change pas, le résultat non plus.` },
+      { cas: true, raw: true, html: (b) => `Le calcul bien écrit : ${b}`, exp: `6 × (${M}2)`, title: 'Dernière ligne', expl: `Écris le calcul en entier, bien écrit. Tu peux t'aider de la ligne du dessus.`, yes: `Le × et le ${M} ne se touchent plus.`,
+        check: (v) => {
+          const s = v.replace(/\s/g, '');
+          if (s === `6×(${M}2)`) return { ok: true };
+          if (s === `6×${M}2`) return { ok: false, msg: `Le × et le ${M} se touchent encore. Mets ${M}2 entre parenthèses.` };
+          if (s === `6×(${M}2`) return { ok: false, msg: 'La parenthèse ouverte doit se fermer.' };
+          return { ok: false, msg: `Recopie la ligne du dessus : 6 × (${M}2).` };
+        } },
+    ] }));
+
+/* ——— 13. Exemple guidé 2 : à moitié ——— */
+add({ chg: true, id: 'guide-2', sec: 'Exemple guidé 2 sur 2', name: 'À moitié : 3− + 4',
+  what: "Le calcul 3− + 4 reste affiché. L'aide a diminué de moitié : elle tape deux cases, l'une après l'autre. D'abord « Le − passe devant le 3 : ▢ + 4 » (réponse −3), puis « Le calcul bien écrit : ▢ » (réponse −3 + 4). Clavier complet. Chaque erreur a son message ; la bonne réponse s'affiche si elle se trompe.",
+  why: "Le premier exemple était résolu, ici la moitié est à elle : le signe qui passe devant, puis le calcul entier. La bonne réponse mêle deux règles (le − devant, pas de parenthèses en tête) : « (−3) + 4 » reçoit la remarque « pas de parenthèses en tête ».",
+  ask: ["Le doc 06 comptait « (−3) + 4 » comme une faute dans ce cours qui enseigne la règle 2. Ici aussi : on ne l'accepte pas, le message dit pourquoi. On garde ?"] },
+  trous({ consigne: 'Cette fois, deux cases sont à toi. Le calcul de départ reste affiché.', given: `3${M} + 4`,
+    lines: [
+      { raw: true, html: (b) => `Le ${M} passe devant le 3 : ${b} + 4`, exp: `${M}3`,
+        check: (v) => {
+          const s = v.replace(/\s/g, '');
+          if (s === `${M}3`) return { ok: true, msg: `Le ${M} est devant le 3, comme la règle 3 le demande.` };
+          if (s === `3${M}`) return { ok: false, msg: `Le ${M} est toujours après le 3. Il doit aller devant.` };
+          if (s === `(${M}3)`) return { ok: false, msg: `En tête du calcul, on n'écrit pas de parenthèses : ${M}3.` };
+          if (s === '3') return { ok: false, msg: `Le 3 est négatif : garde son signe ${M}, devant le nombre.` };
+          return { ok: false, msg: `Écris le nombre 3 avec son signe ${M} devant.` };
+        } },
+      { raw: true, html: (b) => `Le calcul bien écrit : ${b}`, exp: `${M}3 + 4`,
+        check: (v) => {
+          const s = v.replace(/\s/g, '');
+          if (s === `${M}3+4`) return { ok: true, msg: `Le ${M} est devant le 3, et pas de parenthèses en tête.` };
+          if (s === `(${M}3)+4`) return { ok: false, msg: `Pas tout à fait. En tête du calcul, on n'écrit pas de parenthèses : ${M}3 + 4.` };
+          if (s === `3${M}+4`) return { ok: false, msg: `Le ${M} est toujours après le 3. Il doit aller devant.` };
+          if (s === '3+4' || s === '+3+4') return { ok: false, msg: `Le 3 est négatif : garde son signe ${M}, devant le nombre.` };
+          return { ok: false, msg: `Garde les mêmes nombres. Le signe ${M} va devant le 3.` };
+        } },
+    ] }));
+
+/* ——— 14. Annonce ——— */
+add({ id: 'annonce', sec: 'Exercices de fin', name: 'Annonce de la fin',
+  what: "Annonce les 5 exercices de fin et dit ce qu'il faut réussir, et ce qui se passe sinon. Même texte qu'avant.",
+  why: "Elle connaît l'enjeu avant de commencer, et un échec ne sera pas une surprise.",
+  ask: [] },
+  { init: () => ({}), foot: () => ({ label: 'Commencer les exercices', a: 'next' }), on() {},
+    render: () => `<h2 class="t">Place aux 5 exercices de fin</h2>
+      <p class="lead">Cette fois, <b>pas d'aide</b>. Ils ressemblent à ce que tu verras en contrôle.</p>
+      <div class="card"><b>Pour valider le cours, il faut :</b>
+      <span>• au moins <b>4 exercices de fin justes sur 5</b> ;</span>
+      <span>• et <b>80 % de bonnes réponses</b> sur tout le cours.</span></div>
+      <p class="lead">Si tu n'y arrives pas, ce n'est pas grave : tu feras une <b>série de validation</b>. Ce sont 5 exercices, sans refaire la leçon.</p>` });
+
+/* ——— 15. Exercice de fin : Toucher la faute ——— */
+const GL = ['5', '+', M, '2', '×', '3'];
+add({ chg: true, id: 'fin', sec: 'Exercice de fin 1 sur 5', name: 'Toucher la faute',
+  what: "Le calcul est écrit normalement en haut (5 + −2 × 3). En bas, le même calcul est découpé en cases de même taille, une par symbole, puis « Tout est bien écrit ». Elle touche la case de la faute. Aucune couleur avant la réponse ; après, la bonne case passe en vert, la mauvaise en rouge, avec l'explication et le calcul corrigé. 1 fois sur 5, tout est bien écrit.",
+  why: "Mêmes principes que le Cours 0 actuel : calcul en haut, cases en bas, rien qui trahisse où est la faute. Les cases se rangent maintenant sur une seule ligne (6 cases de 44 px) et le bouton « Écouter » lit le calcul à voix haute. Ce format n'est jamais appris dans la leçon, c'est celui du contrôle.",
+  ask: ["Les deux signes collés (+ et −) comptent tous deux comme bonne réponse. Une seule des deux cases suffit ?"] },
+  { init: () => ({ p: undefined }),
+    render: (st) => {
+      const done = st.p !== undefined;
+      const good = st.p === 1 || st.p === 2;
+      let h = `<p class="lead">Ce calcul est-il bien écrit ?</p>
+        ${calc(`5 + ${M}2 × 3`)}
+        <p class="lead">S'il est mal écrit, <b>touche l'endroit de la faute</b> dans les cases en bas. Chaque symbole du calcul a sa case.</p>`;
+      if (done) h += good ? fb('ok', 'Juste !', `Deux signes se touchent : + et ${M}2. On écrit 5 + (${M}2) × 3.`)
+        : fb('ko', 'Pas tout à fait.', `La faute est ici : le + touche le ${M} de ${M}2 (règle 1). On écrit 5 + (${M}2) × 3.`);
+      if (done) h += `<div class="fb info"><strong>La résolution</strong><p>5 + ${M}2 × 3 → 5 + (${M}2) × 3</p></div>`;
+      h += `<div class="zone"><div class="pieces chg">${GL.map((g, i) => `<button class="piece ${done && (i === 1 || i === 2) ? 'ok' : done && i === st.p ? 'ko' : ''}" data-a="g" data-i="${i}" ${done ? 'disabled' : ''}>${g}</button>`).join('')}</div>
+        <button class="btn btn-line" data-a="g" data-i="-1" ${done ? 'disabled' : ''}>Tout est bien écrit</button></div>`;
+      return h;
+    },
+    foot: (st) => ({ label: 'Continuer', a: 'next', off: st.p === undefined }),
+    on: (a, d, st) => { if (a === 'g' && st.p === undefined) st.p = +d.i; } });
+
+/* ——— 16. Résultat ——— */
+add({ id: 'resultat', sec: 'Résultat', name: 'Cours raté',
+  what: "Dit ce qui s'est passé, avec des chiffres : bonnes réponses (sur 14), exercices de fin, et les erreurs par règle avec un lien pour relire cette règle. Les chiffres sont inventés, pour montrer la forme.",
+  why: "Elle voit ce qui a manqué et quoi relire. La série de validation est présentée comme l'étape suivante, sans dramatiser. Seul changement : le total est de 14 questions.",
+  ask: [] },
+  { init: () => ({}), foot: () => ({ label: 'Faire la série de validation', a: 'next' }), on() {},
+    render: () => `<span class="num" aria-hidden="true">0</span><h2 class="t">Le cours 0 n'est pas encore validé</h2>
+      <p class="lead">Voici ce qui s'est passé :</p>
+      <div class="cond ko"><span class="ic">✗</span><p><b>10 bonnes réponses sur 14, soit 71 %.</b> Il en faut au moins 80 %.</p></div>
+      <div class="cond ko"><span class="ic">✗</span><p><b>3 exercices de fin justes sur 5.</b> Il en faut au moins 4.</p></div>
+      <p class="q">Tes erreurs :</p>
+      <ul class="errs"><li><span>Deux signes qui se touchent (règle 1)</span><b>3 fois</b></li><li><span>Parenthèse non fermée (règle 4)</span><b>1 fois</b></li></ul>
+      <p class="lead"><span class="link">Relire la règle 1</span></p>
+      <p class="lead"><b>Prochaine étape : la série de validation.</b> 5 exercices, 4 justes pour valider le cours.</p>` });
+
+/* ——— 17. Mes cours ——— */
+add({ chg: true, id: 'mes-cours', sec: 'Après', name: 'Mes cours après échec',
+  what: "La fiche du cours dans « Mes cours » garde la raison de l'échec et propose maintenant aussi « Voir la fiche mémo » (le bouton du bas ouvre la fiche).",
+  why: "Quand elle revient plus tard, elle sait encore ce qui lui manque, et elle peut relire la fiche sans refaire la leçon.",
+  ask: ["Avant validation, la fiche mémo est-elle déjà consultable depuis Mes cours, ou seulement après avoir validé ? Je propose : toujours consultable (elle aide à réussir la série de validation)."] },
+  { init: () => ({}), foot: () => ({ label: 'Voir la fiche mémo', a: 'next' }), on() {},
+    render: () => `<h2 class="t">Mes cours</h2>
+      <div class="card"><div style="display:flex;gap:12px;align-items:center"><span class="num">0</span><div><b>Cours 0, bien écrire un calcul</b><br><span class="small" style="color:var(--ko)">À valider</span></div></div>
+      <p class="small">Dernier essai : 3 exercices de fin justes sur 5. À revoir : <b>deux signes qui se touchent</b>.</p>
+      <button class="btn btn-main" type="button">Faire la série de validation</button>
+      <p class="lead" style="text-align:center"><span class="link">Relire la règle 1</span> · <span class="link">Relire la leçon</span> · <span class="link chg">Fiche mémo</span></p></div>` });
+
+/* ——— 18. Fiche mémo (version A, plein écran) ——— */
+add({ chg: true, id: 'fiche', sec: 'Fiche mémo', name: 'Fiche mémo',
+  what: "Version A retenue : un écran plein, sans scène. La règle du cours (avec les 4 réflexes en une ligne chacun), deux exemples bien écrits, l'erreur à éviter, l'astuce. S'affiche après la validation du cours et se relit depuis Mes cours.",
+  why: "Une page à relire avant un contrôle, courte, avec de vraies phrases. Les exemples sont ceux du cours, l'erreur à éviter est la plus fréquente (deux signes collés), l'astuce est un réflexe à acquérir.",
+  ask: ["Le texte de l'astuce est une proposition : « Cherche d'abord les signes qui se touchent, puis demande-toi pour chaque − : il soustrait, ou c'est le signe d'un nombre ? ». À valider.",
+        "Faut-il que la fiche soit aussi lue par « Écouter » ? Ici oui, comme tout écran de leçon."] },
+  { init: () => ({}), foot: () => ({ label: 'Revenir au début', a: 'home' }), on() {},
+    render: () => `<h2 class="t">Fiche mémo · Cours 0</h2><div class="fiche chg">
+      <div class="blk"><b class="k">La règle</b><p><b>Un calcul s'écrit d'une seule façon.</b> On doit toujours savoir quel rôle joue chaque ${M} : soustraire, ou signe d'un nombre.</p>
+        <ul><li>Deux signes ne se suivent jamais.</li><li>En tête, pas de parenthèses.</li><li>Le ${M} se met avant le nombre.</li><li>Une parenthèse ouverte se ferme.</li></ul></div>
+      <div class="blk"><b class="k">Exemples bien écrits</b><p class="ex">4 × (${M}3) &nbsp; ${M}3 + 5</p></div>
+      <div class="blk bad"><b class="k">L'erreur à éviter</b><p class="ex">4 × ${M}3 ✗</p><p>Le × et le ${M} se touchent. On écrit 4 × (${M}3).</p></div>
+      <div class="blk"><b class="k">L'astuce</b><p>Cherche d'abord <b>les signes qui se touchent</b>. Puis, pour chaque ${M}, demande-toi : il soustrait, ou c'est le signe d'un nombre ?</p></div></div>` });
+
+/* ——— Notes générales ——— */
+const GLOBAL = `
+<section><h3>Règles appliquées dans cette maquette</h3><ul>
+<li><b>Une action au moins toutes les 2 étapes de lecture</b>, y compris dans les explications. Quand une étape a une action, « Suite » est remplacé par cette action, en bas de l'écran.</li>
+<li><b>Étapes interactives du Cours 0</b> : phrase à trous (un seul trou, qui remplace une phrase), toucher le signe fautif dans le calcul, toucher l'endroit où va une parenthèse ou un signe. Une erreur donne un message court et elle réessaie ; rien n'est noté dans la leçon.</li>
+<li><b>Ce qui se touche se voit</b> : cadre en pointillés qui respire, consigne en gras juste au-dessus, cibles de 44 px au moins.</li>
+<li><b>Seules les 2 dernières phrases restent affichées</b> ; le début se replie derrière « Relire le début ».</li>
+<li><b>Bouton « Écouter »</b> en haut à droite de chaque écran : il lit le titre, la phrase affichée et la consigne (voix du téléphone, français). Les calculs sont lus en clair (« quatre fois ouvre la parenthèse moins trois… »). Si la voix du téléphone manque, rien ne se passe.</li>
+<li><b>Réponses en bas</b>, sauf les calculs touchables de la leçon, dont la consigne est juste au-dessus.</li>
+<li><b>Clavier complet</b> : il ne dicte jamais la réponse.</li>
+</ul></section>
+<section><h3>Règle des couleurs (Cours 0)</h3><div class="legend">
+<div><span class="sw" style="background:var(--hl)"></span><span><b>Surligneur jaune</b> = « regarde ici ». Uniquement dans les explications.</span></div>
+<div><span class="sw" style="background:var(--ok-bg);border-color:var(--ok)"></span><span><b>Vert</b> = juste, <b>après</b> une réponse.</span></div>
+<div><span class="sw" style="background:var(--ko-bg);border-color:var(--ko)"></span><span><b>Rouge</b> = faux, <b>après</b> une réponse.</span></div>
+<div><span class="sw" style="background:var(--grey-bg)"></span><span><b>Pas de couleur de signe dans le Cours 0</b> (orange et bleu sont pour la droite graduée du Cours 1). <b>Pendant une question, aucune couleur qui donne un indice.</b></span></div>
+</div></section>`;
+
+/* ——— Écouter : texte lu à voix haute ——— */
+const MOTS = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf', 'vingt'];
+function toSpeech(t) {
+  return t.replace(/\d+/g, (d) => (+d < MOTS.length ? ` ${MOTS[+d]} ` : ` ${d} `))
+    .replace(/×/g, ' fois ').replace(/÷/g, ' divisé par ').replace(/\+/g, ' plus ').replace(/−/g, ' moins ').replace(/=/g, ' égale ')
+    .replace(/\(/g, ' ouvre la parenthèse ').replace(/\)/g, ' ferme la parenthèse ').replace(/✓/g, ' juste ').replace(/✗/g, ' faux ').replace(/▢/g, ' case vide ')
+    .replace(/\s+/g, ' ').replace(/\s([.,?!:;])/g, '$1').trim();
+}
+function speakable() {
+  const tmp = document.createElement('div');
+  tmp.style.cssText = 'position:fixed;left:-9999px;top:0;width:360px';
+  tmp.innerHTML = $('#phone .ph-body').innerHTML;
+  tmp.querySelectorAll('.dots,.relire,.free,.zone button,.counter .cnt,svg,.caret').forEach((e) => e.remove());
+  tmp.querySelectorAll('.slotb:not(.ok)').forEach((e) => (e.textContent = ' un mot à trouver '));
+  tmp.querySelectorAll('.gp').forEach((e) => e.remove());
+  document.body.appendChild(tmp);
+  const raw = tmp.innerText;
+  tmp.remove();
+  return toSpeech(raw.split('\n').map((l) => l.trim()).filter(Boolean).join('. '));
+}
+function listen() {
+  try {
+    const s = window.speechSynthesis;
+    if (!s || typeof SpeechSynthesisUtterance === 'undefined') return;
+    if (s.speaking) { s.cancel(); return; }
+    const u = new SpeechSynthesisUtterance(speakable());
+    u.lang = 'fr-FR';
+    const v = (s.getVoices ? s.getVoices() : []).find((x) => /^fr/i.test(x.lang));
+    if (v) u.voice = v;
+    u.onstart = () => document.querySelector('.ear')?.classList.add('on');
+    u.onend = u.onerror = () => document.querySelector('.ear')?.classList.remove('on');
+    s.speak(u);
+  } catch (e) { /* échec silencieux */ }
+}
+const EAR = `<button class="ear chg" type="button" data-a="listen" aria-label="Écouter cet écran à voix haute" title="Écouter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>`;
+
+/* ——— Moteur ——— */
+let idx = 0;
+const states = S.map((s) => s.init());
+
+$('#chglist').textContent = S.map((s, i) => (s.chg ? `${i + 1}. ${s.name}` : '')).filter(Boolean).join(' · ') + ' · bouton Écouter sur tous les écrans';
+$('#chgtoggle').addEventListener('click', () => { const h = document.body.classList.toggle('nochg'); $('#chgtoggle').textContent = h ? 'Afficher les repères' : 'Masquer les repères'; });
+function renderNav() {
+  $('#nav').innerHTML = S.map((s, i) => `<button class="${i === idx ? 'on' : ''} ${s.chg ? 'cs' : ''}" data-go="${i}">${i + 1}. ${s.name}${s.chg ? ' <b>*</b>' : ''}</button>`).join('');
+}
+function chipText(s) {
+  if (s.sec === 'Leçon') {
+    const lec = S.filter((x) => x.sec === 'Leçon');
+    return `Cours 0 · Leçon · étape ${lec.indexOf(s) + 1} sur ${lec.length}`;
+  }
+  return `Cours 0 · ${s.sec}`;
+}
+function render() {
+  const s = S[idx], st = states[idx];
+  const f = s.foot(st);
+  $('#phone').innerHTML = `
+    <div class="ph-top"><span class="ph-x" aria-hidden="true">✕</span><div class="bar">${S.map((_, i) => `<i class="${i < idx ? 'd' : i === idx ? 'c' : ''}"></i>`).join('')}</div>${EAR}</div>
+    <span class="chip">${chipText(s)}</span>
+    <div class="ph-body">${s.render(st)}</div>
+    <div class="ph-foot">${f.none ? '' : `<button class="btn btn-main" data-a="${f.a}" ${f.off ? 'disabled' : ''}>${f.label}</button>`}</div>`;
+  const ask = s.ask.length ? `<section class="ask"><h3>À décider</h3><ul>${s.ask.map((a) => `<li>${a}</li>`).join('')}</ul></section>` : '';
+  $('#notes').innerHTML = `
+    <section><h3>Écran ${idx + 1} sur ${S.length} · ${s.name}</h3><h3 style="margin-top:8px">Ce que fait l'écran</h3><p>${s.what}</p><h3 style="margin-top:8px">Pourquoi</h3><p>${s.why}</p>
+      <div class="pager"><button data-go="${Math.max(0, idx - 1)}">← Écran précédent</button><button data-go="${Math.min(S.length - 1, idx + 1)}">Écran suivant →</button><button data-reset>Recommencer l'écran</button></div></section>
+    ${ask || '<section class="ask"><h3>À décider</h3><p>Rien de nouveau sur cet écran.</p></section>'}${GLOBAL}`;
+  renderNav();
+}
+function go(i) { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* rien */ } idx = i; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+document.addEventListener('click', (e) => {
+  const g = e.target.closest('[data-go]');
+  if (g) return go(+g.dataset.go);
+  if (e.target.closest('[data-reset]')) { states[idx] = S[idx].init(); return render(); }
+  if (e.target.closest('[data-drag]')) return;
+  const el = e.target.closest('#phone [data-a]');
+  if (!el || el.disabled) return;
+  const a = el.dataset.a;
+  if (a === 'listen') return listen();
+  if (a === 'next') return go(Math.min(S.length - 1, idx + 1));
+  if (a === 'home') { S.forEach((s, i) => (states[i] = s.init())); return go(0); }
+  S[idx].on(a, el.dataset, states[idx]);
+  render();
+});
+
+/* Pas de glisser-déposer dans ce cours : « Classer » est remplacé par la série de pratique. */
+render();
+</script>
