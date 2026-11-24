@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { newToken, requireAuth, sha256Hex, type AppEnv, type AuthUser } from './auth';
 import { eventsRoutes } from './routes/events';
 import { studentsRoutes } from './routes/students';
+import { assets } from './assets.generated';
+import { serveStatic } from './static';
 
 const app = new Hono<AppEnv>();
 
@@ -30,7 +32,7 @@ app.route('/api/students', studentsRoutes);
 
 app.all('/api/*', (c) => c.json({ error: 'not found' }, 404));
 
-// Hors /api : fichiers statiques (le routage SPA est fait par Static Assets).
-app.all('*', (c) => (c.env.ASSETS ? c.env.ASSETS.fetch(c.req.raw) : c.text('Not found', 404)));
+// Hors /api : fichiers de la PWA embarqués dans le Worker (assets.generated.ts), repli SPA.
+app.all('*', (c) => serveStatic(c.req.raw, assets));
 
 export default app;

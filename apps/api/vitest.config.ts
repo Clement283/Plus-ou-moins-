@@ -3,6 +3,8 @@ import { defineWorkersConfig, readD1Migrations } from '@cloudflare/vitest-pool-w
 export default defineWorkersConfig(async () => {
   const migrations = await readD1Migrations(new URL('./migrations', import.meta.url).pathname);
   return {
+    // Les tests n'utilisent pas le vrai assets.generated.ts (gitignoré, produit au déploiement) : petite fixture.
+    resolve: { alias: { './assets.generated': new URL('./test/fixtures/assets.ts', import.meta.url).pathname } },
     test: {
       include: ['test/**/*.test.ts'],
       setupFiles: ['./test/apply-migrations.ts'],

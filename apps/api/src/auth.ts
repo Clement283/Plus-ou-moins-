@@ -2,7 +2,7 @@ import type { Context, MiddlewareHandler } from 'hono';
 
 export type Role = 'eleve' | 'suiveur';
 export type AuthUser = { id: string; name: string; role: Role };
-export type Env = { DB: D1Database; ASSETS?: Fetcher };
+export type Env = { DB: D1Database };
 export type AppEnv = { Bindings: Env; Variables: { user: AuthUser } };
 
 export async function sha256Hex(s: string): Promise<string> {

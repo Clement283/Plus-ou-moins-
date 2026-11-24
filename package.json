@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "test": "npm test --workspaces --if-present && vitest run scripts",
+    "embed": "tsx scripts/embed-assets.ts",
+    "deploy": "npm run build -w web && tsx scripts/embed-assets.ts && cd apps/api && wrangler deploy",
     "shots": "tsx e2e/shots.ts",
     "e2e": "playwright test",
     "typecheck:e2e": "tsc -p e2e"

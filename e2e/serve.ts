@@ -32,6 +32,8 @@ function createUser(name: string, role: 'eleve' | 'suiveur', follows?: string): 
 
 if (process.env.SKIP_BUILD !== '1') run('npm', ['run', 'build', '-w', 'web'], ROOT);
 
+run('npx', ['tsx', 'scripts/embed-assets.ts'], ROOT); // la PWA est embarquée dans le Worker
+
 // Base locale neuve : l'état local de wrangler (gitignoré) est effacé.
 rmSync(resolve(API, '.wrangler/state'), { recursive: true, force: true });
 run('npx', ['wrangler', 'd1', 'migrations', 'apply', 'plus-ou-moins', '--local'], API);
