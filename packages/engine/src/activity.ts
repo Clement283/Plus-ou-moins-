@@ -38,7 +38,7 @@
 import type { Activity, AppEvent, QuestionKind } from './events';
 import { getCourse, type CourseDef, type EtapeStep, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
 import type { Outcome, Question } from './exercises/types';
-import { buildQuestion } from './exercises/build';
+import { buildQuestion, buildSlot, type Slot } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
 import { toLatex } from './math/expr';
 import { type Rng, pick, seededRng, shuffle } from './rng';
@@ -333,7 +333,7 @@ export function promptOf(q: Question): string {
 
 /** The kinds of question the course can build (Cours 0 builds only its own formats). */
 export function availableKinds(course: CourseDef): QuestionKind[] {
-  if (!course.customCheck) return [...ALL_KINDS];
+  if (!course.customCheck) return course.formats?.includes('droite') ? [...ALL_KINDS, 'droite'] : [...ALL_KINDS];
   const probe = { rng: seededRng(0), level: 1 as Level, timesSeen: 0 };
   // « choix » et « reecrire » n'existent que pour les cours qui les construisent (Cours 0).
   return [...ALL_KINDS, 'choix', 'reecrire'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
@@ -450,7 +450,9 @@ export function trainingSeries(state: ProgressState, choice: 'tout' | { courseId
   return Array.from({ length: TRAINING_SERIES_LENGTH }, (_, i) => {
     const courseId = pick(rng, pool);
     const course = getCourse(courseId);
-    const question = buildQuestion(course, pick(rng, availableKinds(course)), {
+    // a course with its own formats trains on them too (« signe » included)
+    const slot: Slot = course.formats ? pick(rng, course.formats) : pick(rng, availableKinds(course));
+    const question = buildSlot(course, slot, {
       rng,
       level: pick(rng, TRAINING_LEVELS),
       timesSeen: qcmSeen(state, courseId),
