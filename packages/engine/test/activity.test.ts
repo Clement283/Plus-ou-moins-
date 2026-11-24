@@ -633,8 +633,9 @@ describe('entraînement : cours à rattraper et sélection (doc 08 n° 1 et 3)',
 
 describe('repassage des questions de leçon (doc 08 n° 21 et 22)', () => {
   const ex = (finItems(1)[0]!.question as Extract<Question, { kind: 'saisie' }>).ex;
-  const choixQ = (n: number): Question => ({
+  const choixQ = (n: number, small = true): Question => ({
     kind: 'choix',
+    ...(small ? { small: true as const } : {}),
     ex,
     calcLatex: null,
     prompt: `Question ${n}`,
@@ -693,6 +694,15 @@ describe('repassage des questions de leçon (doc 08 n° 21 et 22)', () => {
     const c = current(s) as { canSkip: boolean; attempt: number };
     expect(c.attempt).toBe(3);
     expect(c.canSkip).toBe(true);
+  });
+
+  it('choix sans `small` (« Quelle règle ? ») : repassage habituel, répétition exacte juste avant le 1er fin', () => {
+    const q = choixQ(0, false);
+    const s = start([item('c0', 'lecon', q), expl('e1'), item('c1', 'lecon', choixQ(1)), expl('e2'), ...fins()]);
+    const r = answer(s, ko(), 1).state;
+    expect(steps(r)).toEqual(['expl:e1', 'c1:original', 'expl:e2', 'c0:repetition', 'f0:original', 'f1:original']);
+    const rep = r.queue.find((x) => x.type === 'question' && x.role === 'repetition');
+    expect(rep && rep.type === 'question' && rep.question).toBe(q);
   });
 
   it('decouverte ratée : rien ne repasse', () => {

@@ -33,6 +33,16 @@ const wrong = (activityId: string, activity: Activity, errorType: string | null)
 const right = (activityId: string, activity: Activity) => ans({ activityId, activity, correct: true });
 
 describe('runErrors', () => {
+  it('ignore une petite question choix ratée (errorType null) : pas de « Autre erreur »', () => {
+    const A = 'run2';
+    const choixKo = { ...(wrong(A, 'lecon', null) as object), questionKind: 'choix' } as AppEvent;
+    const evts = [choixKo, wrong(A, 'fin', 'parenthese'), wrong(A, 'fin', null)];
+    expect(runErrors(evts, A, C0)).toEqual([
+      { errorType: 'parenthese', label: 'Parenthèse non fermée', rule: 4, partIndex: 11, count: 1 },
+      { errorType: 'autre', label: 'Autre erreur', rule: null, partIndex: null, count: 1 },
+    ]);
+  });
+
   it('groups first wrong answers by type, most frequent first', () => {
     const A = 'run1';
     const evts = [

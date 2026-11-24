@@ -224,7 +224,7 @@ export function answer(s: ActivityState, outcome: Outcome, durationMs: number): 
   } else if (!outcome.correct && isLesson && step.role !== 'meme-type') {
     failures[id] = (failures[id] ?? 0) + 1;
     const q = step.question;
-    if (q.kind === 'choix') {
+    if (q.kind === 'choix' && q.small) {
       const attempt = (s.answered[id] ?? 0) + 1;
       const question = reshuffled(q, itemRng(s.seed, `${id}#${attempt}`));
       queue.splice(Math.min(CHOIX_REPEAT_DISTANCE, firstFin(queue)), 0, { type: 'question', item: step.item, role: 'repetition', question });

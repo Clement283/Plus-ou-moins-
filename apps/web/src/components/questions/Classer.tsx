@@ -163,10 +163,16 @@ export function Classer({ q, course, locked, onAnswer, header, footer, texts }: 
             <div
               key={c.id}
               className={`bin${drag?.moved && drag.over === c.id ? ' is-over' : ''}`}
-              role="group"
+              role="button"
+              tabIndex={0}
               aria-label={c.label}
               data-bin={c.id}
               onClick={() => drop(c.id)}
+              onKeyDown={(ev) => {
+                if (ev.target !== ev.currentTarget || (ev.key !== 'Enter' && ev.key !== ' ')) return;
+                ev.preventDefault();
+                drop(c.id);
+              }}
             >
               <p className="t-h6">{c.label}</p>
               <div className="tags">

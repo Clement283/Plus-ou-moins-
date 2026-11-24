@@ -145,7 +145,7 @@ async function answerPart(page: Page, q: Question): Promise<void> {
       // Les calculs rangés quittent la liste à ranger : le premier restant est toujours le suivant.
       for (const c of q.expected) {
         await page.locator('.tags:not(.bin .tags) > button.tag').first().click();
-        await page.getByRole('group', { name: q.classes.find((x) => x.id === c)!.label }).locator('p.t-h6').click(); // l'en-tête de la case : jamais un calcul déjà rangé
+        await page.locator(`[data-bin="${c}"] p.t-h6`).click(); // l'en-tête de la case : jamais un calcul déjà rangé
       }
       await page.getByRole('button', { name: 'Valider' }).click();
       return;

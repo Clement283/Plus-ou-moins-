@@ -45,6 +45,8 @@ export type Question =
       prompt: string;
       options: { label: string; why: string }[];
       correctIndex: number;
+      /** Petite question de leçon : repasse 2 étapes plus loin, options remélangées (doc 08 n° 21). Absent : repassage habituel. */
+      small?: true;
     }
   | {
       kind: 'reecrire';

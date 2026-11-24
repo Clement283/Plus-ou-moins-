@@ -22,8 +22,8 @@ export interface RunResultViewProps {
 
 /** « Tes erreurs : » une ligne par type, et le lien vers la règle la plus fréquente qui en a une. */
 function ErrorsBlock({ courseId, errors }: { courseId: string; errors: RunErrorLine[] }) {
-  if (!errors.length) return null;
   const top = errors.find((e) => e.rule !== null && e.partIndex !== null);
+  if (!top) return null; // aucune règle en cause : « Autre erreur, N fois » n'apprend rien
   return (
     <div className="stack" style={{ gap: 'var(--sp-8)' }}>
       <p className="t-subtitle2">Tes erreurs :</p>

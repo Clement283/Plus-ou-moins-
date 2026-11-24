@@ -6,7 +6,7 @@ import { rat } from '../../math/rational';
 import { type Rng, pick, randInt, shuffle } from '../../rng';
 import { normalizeCalc } from '../../exercises/rewrite';
 import type { CourseDef, ErrorDef, Exercise, Explanation, Level, LessonPart, Scene, SceneCalc, SceneToken } from '../types';
-import { MODULE_ID, asking, choix, chance, decouverte, etapes, exemple, lecon, math, operands, redraw, signed, texted, toText } from './shared';
+import { MODULE_ID, asking, choix, smallChoix, chance, decouverte, etapes, exemple, lecon, math, operands, redraw, signed, texted, toText } from './shared';
 
 const ID = 'c00-bien-ecrire';
 const RULE = "Un calcul s'écrit d'une seule façon correcte : il faut savoir le lire et l'écrire sans ambiguïté.";
@@ -530,10 +530,10 @@ const toClass = [
 
 /** Small question on a lesson writing: the calculation is its pieces, as written. */
 const small = (ex: Exercise, prompt: string, options: [string, string][], correctIndex: number): Question =>
-  choix(ex, prompt, options.map(([label, why]) => ({ label, why })), correctIndex, joinPieces(tokensOf(ex)));
+  smallChoix(ex, prompt, options.map(([label, why]) => ({ label, why })), correctIndex, joinPieces(tokensOf(ex)));
 /** The same, with no calculation shown. */
 const smallPlain = (ex: Exercise, prompt: string, options: [string, string][], correctIndex: number): Question =>
-  choix(ex, prompt, options.map(([label, why]) => ({ label, why })), correctIndex);
+  smallChoix(ex, prompt, options.map(([label, why]) => ({ label, why })), correctIndex);
 
 const YES_NO = (yes: string, no: string): [string, string][] => [['Oui', yes], ['Non', no]];
 

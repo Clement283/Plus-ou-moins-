@@ -44,7 +44,8 @@ interface Ended {
 }
 
 /** Résultat d'après les premières réponses gardées en mémoire par le déroulé (même règle : `resultOfTally`). */
-function memoryResult(courseId: string, firsts: FirstAnswer[]): RunResult {
+export function memoryResult(courseId: string, all: FirstAnswer[]): RunResult {
+  const firsts = all.filter((f) => f.activity !== 'decouverte'); // « pour découvrir » ne compte jamais
   const fin = firsts.filter((f) => f.activity === 'fin');
   return resultOfTally({ first: firsts.length, ok: firsts.filter((f) => f.correct).length, fin: fin.length, finOk: fin.filter((f) => f.correct).length }, courseId);
 }

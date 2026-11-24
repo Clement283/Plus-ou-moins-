@@ -136,7 +136,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     const note = !failed
       ? null
       : lessonQuestion
-        ? step.item.activity === 'decouverte' || step.question.kind === 'choix'
+        ? step.item.activity === 'decouverte' || (step.question.kind === 'choix' && step.question.small === true)
           ? null
           : LESSON_REPEAT_NOTE
         : step.role === 'original'
@@ -337,13 +337,13 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
  */
 function textsOf(step: Extract<CurrentStep, { type: 'question' }>): PartTexts | undefined {
   const t = step.item.texts;
-  if (!t || step.question === step.item.question) return t;
+  if (!t || step.role !== 'meme-type') return t;
   return t.consigne === undefined ? undefined : { consigne: t.consigne };
 }
 
 /** La petite question d'avant, si l'écran la partage (`joinPrevious`) et qu'elle a été répondue (partie juste avant). */
 function previousOf(step: Extract<CurrentStep, { type: 'question' }>, answered: Record<string, PreviousChoix>): PreviousChoix | undefined {
-  if (step.item.texts?.joinPrevious !== true || step.question !== step.item.question) return undefined;
+  if (step.item.texts?.joinPrevious !== true || step.role === 'meme-type') return undefined;
   const n = Number(step.item.itemId.split('-')[1]);
   return answered[`partie-${n - 1}`];
 }

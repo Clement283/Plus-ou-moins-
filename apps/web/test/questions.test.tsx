@@ -350,6 +350,17 @@ describe('Classer', () => {
     expect(t.calls[0]![0]).toEqual({ classes: ['moins', 'plus', 'moins', 'plus'] });
     expect(t.calls[0]![1].correct).toBe(true);
   });
+  it('les cases se touchent au clavier (Entrée / Espace) : focalisables, nommées', () => {
+    const t = setup(classer);
+    expect(bins(t)[0]!.getAttribute('tabindex')).toBe('0');
+    expect(bins(t)[0]!.getAttribute('role')).toBe('button');
+    fireEvent.click(items(t)[0]!);
+    fireEvent.keyDown(bins(t)[1]!, { key: 'Enter' });
+    expect(bins(t)[1]!.querySelectorAll('.tag')).toHaveLength(1);
+    fireEvent.click(items(t)[0]!);
+    fireEvent.keyDown(bins(t)[0]!, { key: ' ' });
+    expect(bins(t)[0]!.querySelectorAll('.tag')).toHaveLength(1);
+  });
   it('un calcul mal rangé du premier coup : faux', () => {
     const t = setup(classer);
     for (const b of [1, 0, 0, 0]) {

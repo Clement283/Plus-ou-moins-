@@ -316,6 +316,37 @@ describe('ActivityScreen : Cours 0 v2 (leçon pas à pas, petites questions)', (
     expect(u.$('.alert--success')!.textContent).toContain('ne se touchent plus');
   });
 
+  it('« Quelle règle ? » (choix sans `small`) en leçon, ratée : la note de repassage ; la petite question : aucune', () => {
+    const rq = buildQuestion(C00, 'choix', { rng: seededRng(5), level: 1, timesSeen: 0 });
+    if (rq.kind !== 'choix' || rq.small) throw new Error('« Quelle règle ? » attendue');
+    const lesson = (q: Question): ActivityItem => ({ type: 'question', itemId: 'partie-14', courseId: C00.id, activity: 'lecon', question: q });
+    const t = setup00([lesson(rq)]);
+    choice(t, rq.options[(rq.correctIndex + 1) % rq.options.length]!.label);
+    expect(t.$('.q-foot .t-caption')!.textContent).toBe(LESSON_REPEAT_NOTE);
+    cleanup();
+    const small = all().find((it) => it.type === 'question' && it.question.kind === 'choix' && it.question.small)!;
+    if (small.type !== 'question' || small.question.kind !== 'choix') throw new Error('petite question attendue');
+    const u = setup00([small]);
+    choice(u, small.question.options[(small.question.correctIndex + 1) % small.question.options.length]!.label);
+    expect(u.$('.q-foot .t-caption')).toBeNull();
+  });
+
+  it('petite question ratée puis remélangée : la répétition garde son titre', () => {
+    const base = all().find((it) => it.type === 'question' && it.question.kind === 'choix' && it.question.small && it.activity !== 'decouverte')!;
+    if (base.type !== 'question' || base.question.kind !== 'choix') throw new Error('petite question attendue');
+    const q = base.question;
+    base.texts = { title: 'Titre de la partie' };
+    const other: ActivityItem = { ...base, itemId: 'partie-99', texts: undefined };
+    const fin = all().find((it) => it.type === 'question' && it.activity === 'fin')!;
+    const t = setup00([base, other, fin]);
+    choice(t, q.options[(q.correctIndex + 1) % q.options.length]!.label);
+    t.next();
+    const o = other.type === 'question' && other.question.kind === 'choix' ? other.question : q;
+    choice(t, o.options[o.correctIndex]!.label);
+    t.next();
+    expect(t.$('h1')!.textContent).toBe('Titre de la partie');
+  });
+
   it('exercice de fin « Toucher la faute » raté : titre sans « ligne N », aucune couleur de signe dans la correction', () => {
     const q = buildQuestion(C00, 'erreur', { rng: seededRng(3), level: 1, timesSeen: 0 });
     if (q.kind !== 'erreur' || !q.accept) throw new Error('toucher la faute attendu');

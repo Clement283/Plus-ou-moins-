@@ -28,7 +28,8 @@ export function runErrors(events: AppEvent[], activityId: string, courseId: stri
       e.attempt !== 1 ||
       e.unfinished ||
       e.skipped ||
-      e.correct
+      e.correct ||
+      (e.questionKind === 'choix' && e.errorType === null) // petite question : pas une règle, ne masque pas la vraie
     )
       continue;
     const type = e.errorType ?? 'autre';

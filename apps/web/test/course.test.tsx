@@ -32,6 +32,7 @@ vi.mock('@pom/engine', async (orig) => {
 import { go } from '../src/router';
 import { CourseScreen, RattrapageScreen, RelireScreen } from '../src/screens/Course';
 import { RunResultView } from '../src/screens/CourseResult';
+import { memoryResult } from '../src/screens/Course';
 
 const C04 = getCourse('c04-soustraire');
 const sub = (a: number, b: number) => ({ courseId: C04.id, level: 1 as const, expr: op('-', num(a), num(b)), answer: rat(a - b) });
@@ -121,6 +122,25 @@ describe('cours : résultat', () => {
     expect(window.location.hash).toBe('#/cours/' + encodeURIComponent(C04.id) + '/relire');
   });
 
+  it('aucune erreur avec une règle : pas de bloc « Tes erreurs : » (ni « Autre erreur »)', () => {
+    const errors = [{ errorType: 'autre', label: 'Autre erreur', rule: null, partIndex: null, count: 2 }];
+    const t = mount(
+      <RunResultView variant="cours" courseId={C04.id} results={['ko', 'ko', 'ok']} result={resultOfTally({ first: 3, ok: 1, fin: 3, finOk: 1 }, C04.id)} errors={errors} />,
+    );
+    expect(t.text()).not.toContain('Tes erreurs :');
+    expect(t.text()).not.toContain('Autre erreur');
+  });
+
+  it('résultat en mémoire : les réponses « pour découvrir » ne comptent pas', () => {
+    const firsts = [
+      { activity: 'decouverte' as const, correct: false },
+      { activity: 'decouverte' as const, correct: false },
+      { activity: 'lecon' as const, correct: true },
+      { activity: 'fin' as const, correct: true },
+    ];
+    expect(memoryResult(C04.id, firsts)).toEqual(resultOfTally({ first: 2, ok: 2, fin: 1, finOk: 1 }, C04.id));
+  });
+
   it('erreurs par règle et lien « Relire la règle N » vers la partie de la règle', () => {
     const C00 = getCourse('c00-bien-ecrire');
     const ans = (i: number, correct: boolean, errorType?: string) =>
@@ -138,7 +158,7 @@ describe('cours : résultat', () => {
     expect(t.$$('a').find((a) => a.textContent === 'Relire la règle 1')?.getAttribute('href')).toBe('#/cours/c00-bien-ecrire/relire/4');
   });
 
-  it('erreur la plus fréquente sans règle : pas de lien « Relire la règle »', () => {
+  it('erreurs sans règle : ni bloc ni lien « Relire la règle »', () => {
     const t = mount(
       <RunResultView
         variant="cours"
@@ -148,7 +168,7 @@ describe('cours : résultat', () => {
         errors={[{ errorType: 'autre', label: 'Autre erreur', rule: null, partIndex: null, count: 2 }]}
       />,
     );
-    expect(t.text()).toContain('Autre erreur');
+    expect(t.text()).not.toContain('Autre erreur');
     expect(t.text()).not.toContain('Relire la règle');
   });
 

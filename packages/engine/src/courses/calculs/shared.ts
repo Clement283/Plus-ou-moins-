@@ -108,6 +108,12 @@ export const choix = (ex: Exercise, prompt: string, options: { label: string; wh
   correctIndex,
 });
 
+/** Une petite question de leçon : `choix` marquée `small` (repassage 2 étapes plus loin, options remélangées). */
+export const smallChoix = (ex: Exercise, prompt: string, options: { label: string; why: string }[], correctIndex: number, calcLatex: string | null = null): Question => ({
+  ...choix(ex, prompt, options, correctIndex, calcLatex),
+  small: true,
+} as Question);
+
 /** Une question « pour découvrir » : elle ne compte jamais (activité `decouverte`). */
 export const decouverte = (question: Question): LessonPart => ({ type: 'question', activity: 'decouverte', question });
 

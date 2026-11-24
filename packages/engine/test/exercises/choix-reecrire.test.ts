@@ -27,6 +27,10 @@ describe('normalizeCalc', () => {
     expect(normalizeCalc('6x(-2)')).toBe('6×(−2)');
     expect(normalizeCalc('8/2')).toBe('8÷2');
   });
+  it('ignore un = final isolé', () => {
+    expect(normalizeCalc('−7−1−(−5)=')).toBe('−7−1−(−5)');
+    expect(normalizeCalc('6×(−2) =')).toBe('6×(−2)');
+  });
 });
 
 describe('choix', () => {

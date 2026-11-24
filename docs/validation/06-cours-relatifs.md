@@ -94,7 +94,7 @@ Types d'écrans utilisés : **explication pas à pas** (une grande zone de calcu
 19. **Résultat** (validé ou non, voir doc 08 n° 29).
 20. **Mes cours** garde la raison d'un échec (doc 08 n° 29).
 
-**Note du cours** (doc 08 n° 21) : comptent les 7 petites questions (écrans 3, 6, 9, 11), Classer, Quelle règle ?, les 2 exemples guidés et les 5 exercices de fin, soit 16 questions. Les 2 questions pour deviner (écrans 1 et 7) ne comptent pas. Validation : 80 % sur les 16 **et** au moins 4 exercices de fin sur 5.
+**Note du cours** (doc 08 n° 21) : comptent les 6 petites questions (parties 2, 3, 6, 9, 10 et 12 ; écrans 3, 6, 9, 11), Classer, Quelle règle ?, les 2 exemples guidés et les 5 exercices de fin, soit 15 questions. Les 2 questions pour deviner (écrans 1 et 7) ne comptent pas. Validation : 80 % sur les 15 **et** au moins 4 exercices de fin sur 5.
 
 **Retours d'erreur précis**
 | Écran | Réponse | Message |

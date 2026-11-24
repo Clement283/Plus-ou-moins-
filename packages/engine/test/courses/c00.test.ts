@@ -264,6 +264,9 @@ describe('Cours 0 — Bien écrire un calcul', () => {
         // même écriture, mais un nombre change
         const changed = q.expected.replace(/\d+/, (d) => String(Number(d) + 10));
         expect(checkAnswer(c00, q, { text: changed })).toMatchObject({ correct: false, errorType: null, message: 'Garde les mêmes nombres.' });
+        // un « = » final isolé ne change pas le diagnostic
+        expect(checkAnswer(c00, q, { text: `${q.expected}=` })).toMatchObject({ correct: true });
+        expect(checkAnswer(c00, q, { text: `${changed}=` })).toMatchObject({ correct: false, errorType: null, message: 'Garde les mêmes nombres.' });
       }
       expect(sawHead).toBe(true);
     });
