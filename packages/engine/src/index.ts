@@ -16,3 +16,4 @@ export { normalizeCalc } from './exercises/rewrite';
 export { checkAnswer, checkParts } from './exercises/check';
 export * from './home';
 export * from './feedback';
+export * from './attempts';
