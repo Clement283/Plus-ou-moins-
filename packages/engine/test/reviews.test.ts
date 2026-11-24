@@ -329,13 +329,18 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
         expect(kinds).toHaveLength(3);
         expect(kinds.filter((k) => k === 'vraifaux').length).toBeLessThanOrEqual(1);
         expect(kinds.filter((k) => k === 'classer').length).toBeLessThanOrEqual(1);
-        expect(kinds.every((k) => k === 'qcm' || k === 'vraifaux' || k === 'classer')).toBe(true);
-        expect(kinds.filter((k) => k === 'qcm').length).toBeGreaterThanOrEqual(1);
-        if (id === C0) expect(kinds).not.toContain('vraifaux');
+        if (id === C0) {
+          // Cours 0: 3 different formats among QCM, Classer, « Quelle règle ? », « Réécris », « Toucher la faute »
+          expect(new Set(kinds).size).toBe(3);
+          expect(kinds.every((k) => ['qcm', 'classer', 'choix', 'reecrire', 'erreur'].includes(k))).toBe(true);
+        } else {
+          expect(kinds.every((k) => k === 'qcm' || k === 'vraifaux' || k === 'classer')).toBe(true);
+          expect(kinds.filter((k) => k === 'qcm').length).toBeGreaterThanOrEqual(1);
+        }
         for (const k of kinds) seenKinds.add(`${id === C0 ? 'c0' : 'other'}:${k}`);
       }
     }
-    expect([...seenKinds].sort()).toEqual(['c0:classer', 'c0:qcm', 'other:classer', 'other:qcm', 'other:vraifaux']);
+    expect([...seenKinds].sort()).toEqual(['c0:choix', 'c0:classer', 'c0:erreur', 'c0:qcm', 'c0:reecrire', 'other:classer', 'other:qcm', 'other:vraifaux']);
   });
 
   it('fréquence des formats (doc 07 #10A) : 1 chance sur 4 de « vrai ou faux », 1 sur 4 de « classer » par cours', () => {
@@ -391,11 +396,18 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
     expect(misses).toBeGreaterThan(0); // without recent errors, nothing forces it
   });
 
-  it('Cours 0 avec des erreurs récentes « signes collés » : au moins 1 QCM propose cette faute', () => {
+  it('Cours 0 avec des erreurs récentes « signes collés » : au moins 1 question montre cette faute', () => {
     const state = withCourses(onlyDue(all, [C0], D), { [C0]: { recentErrors: { 'signes-colles': 2, parenthese: 1 } } });
+    const faultOf = (q: Question) => (q.kind !== 'paires' && q.kind !== 'classer' ? (q.ex.meta?.faultType ?? null) : null);
     for (let seed = 0; seed < 300; seed++) {
       const items = nextReviewSession(state, D, seededRng(seed), fixedId)!.items;
-      expect(items.some((it) => it.question.kind === 'qcm' && it.question.choices.some((ch) => ch.errorType === 'signes-colles'))).toBe(true);
+      expect(
+        items.some(
+          (it) =>
+            (it.question.kind === 'qcm' && it.question.choices.some((ch) => ch.errorType === 'signes-colles')) ||
+            ((it.question.kind === 'erreur' || it.question.kind === 'choix' || it.question.kind === 'reecrire') && faultOf(it.question) === 'signes-colles'),
+        ),
+      ).toBe(true);
     }
   });
 

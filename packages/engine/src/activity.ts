@@ -30,7 +30,7 @@
  *   from a generator seeded by (seed, itemId), so `answer` gives the same result for the same state.
  */
 import type { Activity, AppEvent, QuestionKind } from './events';
-import { getCourse, type CourseDef, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
+import { getCourse, type CourseDef, type EtapeStep, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
 import type { Outcome, Question } from './exercises/types';
 import { buildQuestion } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
@@ -64,6 +64,8 @@ export interface ExplanationItem {
   courseId: string;
   partIndex: number;
   blocks: LessonBlock[];
+  /** Une partie `etapes` : l'explication pas à pas (`blocks` est alors vide). */
+  steps?: EtapeStep[];
   /** Titre et sous-titre de l'écran (doc 09). */
   texts?: PartTexts;
 }
@@ -329,8 +331,14 @@ function typedSeries(course: CourseDef, n: number, rng: Rng): Question[] {
 function withTexts(p: LessonPart): { texts?: PartTexts } {
   const texts: PartTexts = {};
   if (p.title !== undefined) texts.title = p.title;
-  if (p.subtitle !== undefined) texts.subtitle = p.subtitle;
-  if (p.type === 'question' && p.consigne !== undefined) texts.consigne = p.consigne;
+  if ('subtitle' in p && p.subtitle !== undefined) texts.subtitle = p.subtitle;
+  if (p.type === 'question') {
+    if (p.consigne !== undefined) texts.consigne = p.consigne;
+    if (p.intro !== undefined) texts.intro = p.intro;
+    if (p.outro !== undefined) texts.outro = p.outro;
+    if (p.outroRule !== undefined) texts.outroRule = p.outroRule;
+    if (p.joinPrevious !== undefined) texts.joinPrevious = p.joinPrevious;
+  }
   return Object.keys(texts).length > 0 ? { texts } : {};
 }
 
@@ -339,7 +347,9 @@ export function courseRunItems(course: CourseDef, rng: Rng): ActivityItem[] {
   const parts = course.parts.map((p, i): ActivityItem =>
     p.type === 'explication'
       ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: p.blocks, ...withTexts(p) }
-      : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) },
+      : p.type === 'etapes'
+        ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: [], steps: p.steps, ...withTexts(p) }
+        : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) },
   );
   const fin = typedSeries(course, END_EXERCISES, rng).map(
     (question, i): ActivityItem => ({ type: 'question', itemId: `fin-${i}`, courseId: course.id, activity: 'fin', question }),

@@ -99,7 +99,7 @@ describe('Cours 5 — Multiplier deux relatifs', () => {
   });
 
   it('leçon : 5 parties, 2 exemples guidés', () => {
-    const kinds = c05.parts.map((p) => (p.type === 'explication' ? 'explication' : `${p.activity}:${p.question.kind}`));
+    const kinds = c05.parts.map((p) => (p.type !== 'question' ? p.type : `${p.activity}:${p.question.kind}`));
     expect(kinds).toEqual([
       'explication', 'explication', 'lecon:ordre', 'lecon:saisie', 'lecon:classer',
       'exemple:qcm', 'exemple:trou', 'exemple:trou', 'exemple:qcm', 'exemple:trou', 'exemple:trou',

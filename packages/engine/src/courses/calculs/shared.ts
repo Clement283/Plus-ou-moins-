@@ -3,7 +3,7 @@ import { type Expr, evaluate, num, op, toLatex } from '../../math/expr';
 import { type Rational, eqRat, rat } from '../../math/rational';
 import { type Rng, pick, randInt } from '../../rng';
 import type { ErrorFamily } from '../../events';
-import type { CourseDef, ErrorDef, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, WrongResolution } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, WrongResolution } from '../types';
 import type { Question } from '../../exercises/types';
 
 /** Number sizes of courses 1, 2 and 4: 1–9, tens, hundreds. */
@@ -94,6 +94,25 @@ export const exemple = (question: Question): LessonPart => ({
   question,
   ...(question.kind === 'trou' ? { consigne: COMPLETE } : {}),
 });
+
+/** Une explication pas à pas (écran à « Suite », doc 08 n° 20). */
+export const etapes = (title: string, steps: EtapeStep[]): LessonPart => ({ type: 'etapes', title, steps });
+
+/** Une petite question à un toucher : le calcul (LaTeX, ou rien), la question, des options avec leur explication. */
+export const choix = (ex: Exercise, prompt: string, options: { label: string; why: string }[], correctIndex: number, calcLatex: string | null = null): Question => ({
+  kind: 'choix',
+  ex,
+  calcLatex,
+  prompt,
+  options,
+  correctIndex,
+});
+
+/** Une question « pour découvrir » : elle ne compte jamais (activité `decouverte`). */
+export const decouverte = (question: Question): LessonPart => ({ type: 'question', activity: 'decouverte', question });
+
+/** Textes d'écran d'une partie (titre, intro, outro, `joinPrevious`…). */
+export const texted = <P extends LessonPart>(part: P, texts: PartTexts): P => ({ ...part, ...texts });
 
 /** Doc 09 : titre (et sous-titre) de l'écran. */
 export const titled = <P extends LessonPart>(title: string, subtitle: string | undefined, part: P): P => ({

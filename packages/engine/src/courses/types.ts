@@ -39,6 +39,8 @@ export interface ErrorDef {
    * line; the next lines carry the error on. null when `wrong` cannot come from this error alone.
    */
   wrongResolution?(ex: Exercise, wrong: Rational): WrongResolution | null;
+  /** La règle du cours que cette erreur enfreint, et la partie de la leçon qui l'explique (« Relire la règle N »). */
+  rule?: { n: number; label: string; partIndex: number };
 }
 
 export interface WrongResolution {
@@ -70,11 +72,71 @@ export interface PartTexts {
   title?: string;
   subtitle?: string;
   consigne?: string;
+  /** Paragraphes avant la question (**gras** autorisé). */
+  intro?: string[];
+  /** Paragraphes après la réponse, avec l'encadré de règle `outroRule`. */
+  outro?: string[];
+  outroRule?: { n: number; text: string };
+  /** La question s'affiche sur le même écran que la précédente (2 questions par écran, doc 08 n° 20) ; le moteur garde 2 éléments distincts. */
+  joinPrevious?: boolean;
+}
+
+/** Un morceau d'un calcul affiché dans une scène : `hl` = surligneur (« regarde ici »), `anim` = animation, `dim` = estompé. */
+export interface SceneToken {
+  t: string;
+  hl?: boolean;
+  anim?: 'pin' | 'bump' | 'slide';
+  dim?: boolean;
+}
+
+export interface SceneCalc {
+  tokens: SceneToken[];
+  /** Sous le calcul (« soustraire »). */
+  label?: string;
+  /** Étiquette au-dessus (« mal écrit », « bien écrit »). */
+  tag?: string;
+}
+
+/** La grande zone de calcul d'un écran « pas à pas » ; `pairs` : les calculs par paires (mal écrit puis bien écrit). */
+export interface Scene {
+  layout: 'one' | 'row' | 'pairs';
+  calcs: SceneCalc[];
+  /** Phrase sous la scène. */
+  caption?: string;
+}
+
+/** Une étape d'un écran « pas à pas » (doc 08 n° 20). */
+export interface EtapeStep {
+  /** Remplace la scène précédente ; sans scène, la dernière reste affichée. */
+  scene?: Scene;
+  /** **gras** autorisé (composant Bold). */
+  text?: string;
+  rule?: { n: number; text: string };
+  recap?: { title: string; ok: string; ko: string; koLabel?: string }[];
 }
 
 export type LessonPart =
   | ({ type: 'explication'; blocks: LessonBlock[] } & Pick<PartTexts, 'title' | 'subtitle'>)
-  | ({ type: 'question'; activity: 'lecon' | 'exemple'; question: Question } & PartTexts);
+  | { type: 'etapes'; title: string; steps: EtapeStep[] }
+  | ({ type: 'question'; activity: 'lecon' | 'exemple' | 'decouverte'; question: Question } & PartTexts);
+
+/**
+ * Numéro d'écran de leçon (les parties `joinPrevious` partagent l'écran de la précédente) et nombre d'écrans
+ * de la leçon ; null hors leçon (après `lessonLength`, ou cours sans `lessonLength`).
+ */
+export function lessonStep(course: CourseDef, partIndex: number): { n: number; total: number } | null {
+  const length = course.lessonLength;
+  if (length === undefined || partIndex < 0 || partIndex >= length) return null;
+  let n = 0;
+  let total = 0;
+  for (let i = 0; i < length; i++) {
+    const p = course.parts[i];
+    if (p?.type === 'question' && p.joinPrevious === true) continue;
+    total++;
+    if (i <= partIndex) n++;
+  }
+  return { n, total };
+}
 
 export interface CourseDef {
   id: string;
@@ -86,6 +148,8 @@ export interface CourseDef {
   rule: string;
   /** The course's own sequence, in order. */
   parts: LessonPart[];
+  /** Nombre de parties « Leçon » au début de `parts` (le reste : à toi, exemples guidés, annonce). */
+  lessonLength?: number;
   /** 'erreur' = the Cours 0 exception. */
   endExercises: { count: 5; kind: 'saisie' | 'trou' | 'erreur' };
   generate(level: Level, rng: Rng): Exercise;
