@@ -8,6 +8,7 @@ import { buildOrdre } from './ordre';
 import { buildPaires } from './paires';
 import { buildQcm } from './qcm';
 import { buildSaisie } from './saisie';
+import { buildSigne } from './signe';
 import { buildTrou } from './trou';
 import { buildVraiFaux } from './vraifaux';
 
@@ -35,4 +36,14 @@ export function buildQuestion(course: CourseDef, kind: QuestionKind, ctx: BuildC
   if (course.customCheck) throw new Error(`Exercice « ${kind} » indisponible pour ${course.id}`);
   if (kind === 'choix' || kind === 'reecrire') throw new Error(`Exercice « ${kind} » sans générateur`);
   return BUILDERS[kind](course, ctx);
+}
+
+/** A slot of a review or training: a kind of question, or « signe » (a QCM « + / − »). */
+export type Slot = QuestionKind | 'signe';
+
+/** The question of a slot; « droite » only at level 1 (8 graduations), « saisie » otherwise. */
+export function buildSlot(course: CourseDef, slot: Slot, ctx: BuildCtx): Question {
+  if (slot === 'signe') return buildSigne(course, ctx);
+  if (slot === 'droite' && ctx.level !== 1) return buildQuestion(course, 'saisie', ctx);
+  return buildQuestion(course, slot, ctx);
 }

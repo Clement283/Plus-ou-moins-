@@ -15,7 +15,7 @@
  */
 import { getCourse, MODULES, type CourseDef, type Level } from './courses';
 import type { Question } from './exercises/types';
-import { buildQuestion } from './exercises/build';
+import { buildSlot, type Slot } from './exercises/build';
 import type { QuestionKind } from './events';
 import { type Rng, randInt, shuffle } from './rng';
 import { LADDER, type CourseProgress, type ProgressState } from './srs';
@@ -70,10 +70,12 @@ function levelsFor(step: number, rng: Rng): Level[] {
 }
 
 /** Doc 04 §9: mostly QCM, at most one « Vrai ou faux », at most one « Classer ». */
-function kindsFor(course: CourseDef, rng: Rng): QuestionKind[] {
+function kindsFor(course: CourseDef, rng: Rng): Slot[] {
+  // a course with its own formats (doc 06, Cours 1 v2): 3 different formats among them
+  if (course.formats) return shuffle(rng, course.formats).slice(0, QUESTIONS_PER_COURSE);
   // Cours 0 (doc 06): 3 different formats among its 5 (so at most one « Classer »)
   if (course.customCheck) return shuffle(rng, COURSE_0_KINDS).slice(0, QUESTIONS_PER_COURSE);
-  const kinds: QuestionKind[] = Array.from({ length: QUESTIONS_PER_COURSE }, () => 'qcm');
+  const kinds: Slot[] = Array.from({ length: QUESTIONS_PER_COURSE }, () => 'qcm');
   const slots = shuffle(rng, [0, 1, 2]);
   if (rng() < VRAIFAUX_CHANCE) kinds[slots[0]!] = 'vraifaux';
   if (rng() < CLASSER_CHANCE) kinds[slots[1]!] = 'classer';
@@ -105,11 +107,13 @@ function courseQuestions(state: ProgressState, c: CourseProgress, rng: Rng): Que
   const levels = shuffle(rng, levelsFor(c.step ?? 0, rng));
   const trap = trapFor(course, c.recentErrors);
   // the trap goes on a question that can show it: a QCM, or any format but « Classer » in a course with its own questions
-  const trapSlots = kinds.flatMap((k, i) => (k === 'qcm' || (course.customCheck && k !== 'classer') ? [i] : []));
+  const trapSlots = kinds.flatMap((k, i) =>
+    k === 'qcm' || (course.customCheck && k !== 'classer') || (course.formats && (k === 'saisie' || k === 'signe')) ? [i] : [],
+  );
   const trapSlot = trap ? trapSlots[randInt(rng, 0, trapSlots.length - 1)] : undefined;
   const timesSeen = qcmSeen(state, c.courseId);
   return kinds.map((kind, i) =>
-    buildQuestion(course, kind, {
+    buildSlot(course, kind, {
       rng,
       level: levels[i]!,
       timesSeen,

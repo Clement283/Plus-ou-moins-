@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { Activity, AppEvent, QuestionKind } from '../src/events';
-import { getModule, type Level } from '../src/courses';
+import { getCourse, getModule, type Level } from '../src/courses';
 import type { Question } from '../src/exercises/types';
 import { seededRng } from '../src/rng';
 import { addDays } from '../src/time';
@@ -450,5 +450,50 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
     expect(a).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     expect(a).not.toBe(b);
     expect(nextReviewSession(state, D, rng(), () => 'mine')!.activityId).toBe('mine');
+  });
+});
+
+describe('formats propres à un cours (doc 06, Cours 1 v2)', () => {
+  const C1 = 'c01-additionner-meme-signe';
+  const FORMATS = ['saisie', 'droite', 'signe', 'vraifaux', 'erreur'] as const;
+  const course = getCourse(C1) as { formats?: readonly string[] };
+  const stepOf = (level: Level) => LADDER.findIndex((l) => l.level === level);
+  const stateAt = (step: number) => withCourses(foldProgress(validation('2026-03-02', C1)), { [C1]: { step, nextReview: '2026-03-04' } });
+  const session = (seed: number, step: number) => nextReviewSession(stateAt(step), '2026-03-04', seededRng(seed), fixedId)!;
+  /** « signe » is a QCM whose two choices are « + » and « − ». */
+  const isSigne = (q: Question) => q.kind === 'qcm' && q.choices.map((c) => c.latex).join() === '+,-';
+  const formatOf = (q: Question) => (isSigne(q) ? 'signe' : q.kind);
+
+  beforeEach(() => {
+    course.formats = FORMATS;
+  });
+  afterEach(() => {
+    delete course.formats;
+  });
+
+  it('3 formats différents tirés dans la liste, tous vus sur l’ensemble (niveau 1)', () => {
+    const seen = new Set<string>();
+    for (let seed = 0; seed < 200; seed++) {
+      const kinds = session(seed, 0).items.map((i) => formatOf(i.question));
+      expect(new Set(kinds).size).toBe(3);
+      kinds.forEach((k) => seen.add(k));
+    }
+    expect([...seen].sort()).toEqual([...FORMATS].sort());
+  });
+
+  it('droite : jamais plus de 8 graduations ; seulement au niveau 1 (repli sur saisie ensuite)', () => {
+    for (let seed = 0; seed < 500; seed++)
+      for (const i of session(seed, 0).items)
+        if (i.question.kind === 'droite') expect(i.question.line.to - i.question.line.from).toBeLessThanOrEqual(7);
+    for (const level of [2, 3] as Level[])
+      for (let seed = 0; seed < 200; seed++)
+        for (const i of session(seed, stepOf(level)).items) if (i.question.kind === 'droite') expect(i.question.ex.level).toBe(1);
+  });
+
+  it('sans formats : séance identique à celle d’avant', () => {
+    delete course.formats;
+    const a = session(5, 0);
+    expect(a.items.every((i) => !isSigne(i.question) && i.question.kind !== 'droite')).toBe(true);
+    expect(a).toEqual(session(5, 0));
   });
 });
