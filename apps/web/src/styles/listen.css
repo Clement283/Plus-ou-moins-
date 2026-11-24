@@ -1,1 +1,4 @@
-/* listen : rempli par une tâche suivante. */
+/* Bouton « Écouter » : coin haut droit, sous la barre, cible de 44 px. */
+.listen-btn{align-self:flex-end;flex:none;width:44px;height:44px;margin:8px var(--layout-gutter,16px) 0;border-radius:50%;border:2px solid var(--surface-sunken);background:var(--surface);color:var(--on-surface);display:grid;place-items:center;cursor:pointer;padding:0}
+.listen-btn.is-on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.listen-btn:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
