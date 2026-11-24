@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { getCourse, resultOfTally, num, op, rat, seededRng, type ActivityItem, type Question } from '@pom/engine';
+import { getCourse, lessonStep, resultOfTally, num, op, rat, seededRng, type ActivityItem, type Question } from '@pom/engine';
 
 const h = vi.hoisted(() => ({ events: [] as any[], items: [] as any[], record: null as any, listeners: new Set<() => void>(), fixed: null as any }));
 vi.mock('../src/store/sync', () => ({
@@ -253,5 +253,25 @@ describe('relire', () => {
     await settle();
     expect(h.events).toEqual([]);
     expect(window.location.hash).toBe('#/cours');
+  });
+});
+
+describe('cours 0 : pastille de la leçon pas à pas', () => {
+  it('« Cours 0 · Leçon · étape N sur M », deux questions sur un même écran comptent une étape', () => {
+    const c00 = getCourse('c00-bien-ecrire');
+    const total = lessonStep(c00, 0)!.total;
+    const t = mount(<CourseScreen courseId={c00.id} rng={seededRng(1)} />);
+    const chip = () => t.$('.chip')!.textContent;
+    const choose = (label: string) => fireEvent.click(t.$$('.answer-zone .choice').find((b) => b.textContent === label)!);
+    expect(chip()).toBe(`Cours 0 · Leçon · étape 1 sur ${total}`);
+    choose('Non');
+    fireEvent.click(t.btn('Continuer')!);
+    expect(chip()).toBe(`Cours 0 · Leçon · étape 2 sur ${total}`); // « Le signe − a deux rôles » (pas à pas)
+    for (let i = 0; i < 3; i++) fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.btn('Suivant')!);
+    expect(chip()).toBe(`Cours 0 · Leçon · étape 3 sur ${total}`);
+    choose('À soustraire');
+    fireEvent.click(t.btn('Continuer')!);
+    expect(chip()).toBe(`Cours 0 · Leçon · étape 3 sur ${total}`); // 2e question du même écran
   });
 });

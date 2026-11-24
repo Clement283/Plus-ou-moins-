@@ -96,6 +96,48 @@ async function courseTo(page: Page, n: number): Promise<void> {
   for (let i = 0; i < n && i < steps.length; i++) { await steps[i]!(); await next(); }
 }
 
+
+const press = (page: Page, label: string) => page.click(`button:text-is("${label}")`);
+const more = async (page: Page, n: number) => { for (let i = 0; i < n; i++) await press(page, 'Suite'); };
+const pick = (page: Page, label: string) => page.click(`.answer-zone .choice:text-is("${label}")`);
+/** Touche les touches du clavier du calcul (« Réécris »), dans l'ordre. */
+const typeExpr = async (page: Page, ...keys: string[]) => { for (const k of keys) await page.click(`.keypad--expr button:text-is("${k}")`); await freezeCaret(page); };
+
+/** Les 19 parties du Cours 0 v2 (#/cours/c00-bien-ecrire), jouées en répondant juste ; `c00To(page, n)` s'arrête sur la partie n. */
+const C00_PARTS: ((page: Page) => Promise<void>)[] = [
+  async (p) => { await pick(p, 'Non'); await press(p, 'Continuer'); }, // 0 accroche (pour découvrir)
+  async (p) => { await more(p, 3); await press(p, 'Suivant'); }, // 1 le − a deux rôles
+  async (p) => { await pick(p, 'À soustraire'); await press(p, 'Continuer'); }, // 2 quel rôle ? (1/2)
+  async (p) => { await pick(p, 'À dire que 6 est négatif'); await press(p, 'Continuer'); }, // 3 quel rôle ? (2/2)
+  async (p) => { await more(p, 4); await press(p, 'Suivant'); }, // 4 règle 1
+  async (p) => { await more(p, 3); await press(p, 'Suivant'); }, // 5 règle 1, exemples
+  async (p) => { await pick(p, '5 + (−2)'); await press(p, 'Continuer'); }, // 6 règle 1, à toi
+  async (p) => { await pick(p, 'Non'); await press(p, 'Continuer'); }, // 7 règle 2 (pour découvrir)
+  async (p) => { await more(p, 4); await press(p, 'Suivant'); }, // 8 règle 3
+  async (p) => { await pick(p, 'avant le nombre'); await press(p, 'Continuer'); }, // 9
+  async (p) => { await pick(p, '−7'); await press(p, 'Continuer'); }, // 10
+  async (p) => { await more(p, 4); await press(p, 'Suivant'); }, // 11 règle 4
+  async (p) => { await pick(p, ')'); await press(p, 'Continuer'); }, // 12
+  async (p) => { await press(p, 'Suivant'); }, // 13 récapitulatif
+  async (p) => { // 14 classer : bien, mal, bien, mal
+    for (const bin of [1, 2, 1, 2]) {
+      await p.click('.answer-zone .tags .tag:nth-child(1)');
+      await p.click(`.bin:nth-child(${bin}) .t-h6`);
+    }
+    await press(p, 'Valider');
+    await press(p, 'Continuer');
+  },
+  async (p) => { await pick(p, 'Deux signes se touchent'); await press(p, 'Continuer'); }, // 15 quelle règle ?
+  async (p) => { await typeExpr(p, '6', '×', '(', '−', '2', ')'); await press(p, 'Valider'); await press(p, 'Continuer'); }, // 16 réécris 6 × −2
+  async (p) => { await typeExpr(p, '−', '3', '+', '4'); await press(p, 'Valider'); await press(p, 'Continuer'); }, // 17 réécris 3− + 4
+  async (p) => { await more(p, 2); await press(p, 'Suivant'); }, // 18 annonce
+];
+async function c00To(page: Page, n: number): Promise<void> {
+  for (let i = 0; i < n; i++) { await C00_PARTS[i]!(page); await page.waitForTimeout(100); }
+}
+/** Les animations d'une étape durent jusqu'à ~1,2 s : la capture attend leur état final. */
+const settled = (page: Page) => page.waitForTimeout(1300);
+
 /** Registre des écrans : les tâches d'écran y ajoutent une entrée. */
 export const SCREENS: Record<string, ScreenDef> = {
   login: {
@@ -205,6 +247,33 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'rattrapage-quitter-relire', fixture: 'debut-de-journee', route: '#/rattrapage/c04-soustraire', before: async (page) => { await page.click('.chip-action'); await page.waitForSelector('[role=dialog]'); } },
       { name: 'rattrapage-4-sur-5', fixture: 'debut-de-journee', route: '#/essai/cours?cas=rattrapage-ok' },
       { name: 'rattrapage-3-sur-5', fixture: 'debut-de-journee', route: '#/essai/cours?cas=rattrapage-ko' },
+    ],
+  },
+  cours0: {
+    route: '#/cours/c00-bien-ecrire',
+    scenarios: [
+      { name: 'accroche', fixture: 'debut-de-journee', before: (p) => settled(p) },
+      { name: 'accroche-ratee', fixture: 'debut-de-journee', before: async (p) => { await pick(p, 'Oui'); await settled(p); } },
+      { name: 'etapes-debut', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 1); await settled(p); } },
+      { name: 'etapes-fin', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 4); await more(p, 4); await settled(p); } },
+      { name: 'etapes-paires', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 5); await more(p, 2); await settled(p); } },
+      { name: 'etapes-regle-3', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 8); await more(p, 2); await settled(p); } },
+      { name: 'recap', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 13); await settled(p); } },
+      { name: 'choix-1', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await settled(p); } },
+      { name: 'choix-2-joint', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await pick(p, 'À soustraire'); await press(p, 'Continuer'); await settled(p); } },
+      { name: 'choix-2-repondu', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await pick(p, 'À soustraire'); await press(p, 'Continuer'); await pick(p, 'À soustraire'); await settled(p); } },
+      { name: 'choix-trois', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 6); await settled(p); } },
+      { name: 'regle-2-repondu', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 7); await pick(p, 'Non'); await settled(p); } },
+      { name: 'classer', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); await settled(p); } },
+      { name: 'classer-en-cours', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); for (const bin of [1, 2]) { await p.click('.answer-zone .tags .tag:nth-child(1)'); await p.click(`.bin:nth-child(${bin}) .t-h6`); } await p.click('.answer-zone .tags .tag:nth-child(1)'); await settled(p); } },
+      { name: 'classer-corrige', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); for (const bin of [1, 1, 1, 2]) { await p.click('.answer-zone .tags .tag:nth-child(1)'); await p.click(`.bin:nth-child(${bin}) .t-h6`); } await press(p, 'Valider'); await settled(p); } },
+      { name: 'quelle-regle', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 15); await pick(p, 'Deux signes se touchent'); await settled(p); } },
+      { name: 'reecrire', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 16); await typeExpr(p, '6', '×', '('); await settled(p); } },
+      { name: 'reecrire-rate', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 16); await typeExpr(p, '6', '×', '−', '2'); await press(p, 'Valider'); await settled(p); } },
+      { name: 'reecrire-3-moins', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 17); await settled(p); } },
+      { name: 'annonce', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 18); await more(p, 2); await settled(p); } },
+      { name: 'fin-toucher', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 19); await settled(p); } },
+      { name: 'fin-corrige', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 19); await p.click('.pieces .tag--piece:nth-child(1)'); await settled(p); } },
     ],
   },
   accueil: {

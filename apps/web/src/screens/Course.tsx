@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { courseRunItems, getCourse, rattrapageItems, resultOfTally, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
+import { courseRunItems, getCourse, lessonStep, rattrapageItems, resultOfTally, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
 import { go } from '../router';
 import { FOLD_WAIT_MS } from '../store/foldcache';
 import { useProgress } from '../store/progress';
@@ -27,6 +27,12 @@ function courseChip(courseId: string) {
       return `Cours ${course.order}, exemple guidé ${rank} sur ${guided}`;
     }
     if (step.type === 'question' && step.item.activity === 'fin') return `Cours ${course.order}, exercice ${itemNumber(step) + 1} sur 5`;
+    // un cours à leçon pas à pas (Cours 0) : l'étape, avec les parties qui partagent un écran comptées pour une seule
+    if (course.lessonLength !== undefined) {
+      const at = lessonStep(course, itemNumber(step));
+      if (at) return `Cours ${course.order} · Leçon · étape ${at.n} sur ${at.total}`;
+      return step.type === 'question' ? `Cours ${course.order} · À toi` : `Cours ${course.order} · Exercices de fin`;
+    }
     return `Cours ${course.order}, leçon`;
   };
 }
