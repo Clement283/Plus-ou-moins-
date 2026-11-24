@@ -9,20 +9,21 @@
   --ink:#1A1D2E; --muted:#565C73; --primary:#3B39D4; --on-primary:#FFFFFF;
   --ok:#137F57; --ok-bg:#DDF3E9; --ko:#C42D47; --ko-bg:#FCE4E8;
   --hl:#FFE27A; --hl-ink:#5C4100; --grey-bg:#ECEDF2;
-  --neg:#C25400; --pos:#1565C0;
+  --neg:#C25400; --pos:#1565C0; --chg:#D97A00; --chg-bg:#FFF0D2;
   --font:'Lexend','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
   --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
   --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
-  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; color-scheme:dark}}
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
   --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
   --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
-  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; color-scheme:dark}
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510; color-scheme:dark}
 *{box-sizing:border-box}
+body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px}
@@ -187,11 +188,31 @@ h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
 .slot:focus-visible,.etq:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .etq{font:inherit;font-size:1.05rem;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 14px;cursor:pointer}
 .eqs{display:grid;gap:4px;text-align:left;font-size:1.5rem;padding:12px 16px;white-space:normal}
+.slotb{display:inline-block;min-width:4.6em;min-height:1.9em;vertical-align:middle;text-align:center;line-height:1.9em;font-weight:700;border:2.5px dashed var(--primary);background:var(--sunken);color:var(--muted);border-radius:12px;padding:0 12px;margin:2px 3px}
+.slotb.ok{border:2.5px solid var(--ok);background:var(--ok-bg);color:var(--ok)}
+.relire{font:inherit;font-size:.85rem;background:none;border:0;padding:4px 0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
+.relire:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .blank{display:inline-block;min-width:2.2em;text-align:center;border-bottom:3px solid var(--primary);padding:0 4px;margin:0 2px}
 .blank.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok);border-radius:6px}
 .blank.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko);border-radius:6px}
 .blank.done{border-color:transparent;font-weight:700}
 .zone .row2{display:grid;gap:8px}
+
+/* ——— Repères de relecture (hors design, jamais codés) ——— */
+.chg{outline:2px dashed var(--chg);outline-offset:3px;border-radius:10px;position:relative}
+.chg::after{content:'modifié';position:absolute;top:-11px;right:8px;background:var(--chg-bg);color:var(--chg);border:1px solid var(--chg);border-radius:999px;font-size:.65rem;font-weight:700;line-height:1;padding:3px 7px;pointer-events:none;z-index:2}
+.stage.chg{outline-offset:-3px}
+.nav button.cs{background:var(--chg-bg);border-color:var(--chg);color:var(--ink)}
+.nav button.cs b{color:var(--chg)}
+.nav button.cs.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.nav button.cs.on b{color:var(--on-primary)}
+.chgbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--chg-bg);border:1px solid var(--chg);border-radius:14px;padding:10px 14px;font-size:.88rem}
+.chgbar p{margin:0;max-width:78ch}
+.chgbar button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--chg);background:var(--surface);color:var(--ink);border-radius:10px;padding:5px 12px;cursor:pointer}
+body.nochg .chg{outline:none}
+body.nochg .chg::after,body.nochg .chgbar .liste,body.nochg .nav button.cs b{display:none}
+body.nochg .nav button.cs{background:var(--surface);border-color:var(--line);color:var(--muted)}
+body.nochg .nav button.cs.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
 
 /* ——— Notes ——— */
 .notes{display:grid;gap:16px;min-width:0}
@@ -208,11 +229,22 @@ h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
 .pager button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer}
 
 /* ——— v3 : étapes interactives, droite touchable, série, aide qui s'efface ——— */
-.nlscroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+/* Droite touchable : pastille ronde qui respire, main qui montre le geste (1re fois), consigne en gras au-dessus */
+.tapwrap{width:100%}
+.tapq{margin:0 0 4px;padding:0 16px;text-align:center;font-weight:700;font-size:1.02rem;line-height:1.35;text-wrap:balance}
+.nl.tp{max-width:none}
+.nl .pad{fill:var(--surface);stroke:var(--primary);stroke-width:2.5;pointer-events:none;transform-box:fill-box;transform-origin:center;animation:breathe 2.8s ease-in-out infinite;animation-delay:calc(var(--i,0) * .18s)}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.14);opacity:1}}
+.nl .hand{pointer-events:none}
+.nl .hand .hm{animation:handmove 2.6s .5s ease-in-out 3 both}
+@keyframes handmove{0%{transform:translate(0,6px);opacity:0}12%{opacity:1;transform:translate(0,0)}22%{transform:translate(0,0)}72%{transform:translate(132px,0);opacity:1}88%{transform:translate(132px,6px);opacity:1}100%{transform:translate(132px,6px);opacity:0}}
+.nl .hand path,.nl .hand rect.hb{fill:var(--surface);stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.nl .hand rect.hc{fill:var(--surface)}
+@media (prefers-reduced-motion:reduce){.nl .pad{animation:none}.nl .hand .hm{animation:none;opacity:1}}
 .nl .hit{fill:transparent;cursor:pointer;outline:none}
 .nl .hit:hover{fill:color-mix(in srgb,var(--primary) 14%,transparent)}
 .nl .hit:focus-visible{fill:color-mix(in srgb,var(--primary) 22%,transparent);stroke:var(--primary);stroke-width:2}
-.stage.tapst{padding:12px 0;min-height:0}
+.stage.tapst{padding:12px 0;min-height:0;margin-inline:-20px;align-items:stretch}
 .etq.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
 .etq:disabled{cursor:default}
 .tags.mid{justify-content:center}
@@ -228,8 +260,9 @@ h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
 <div class="wrap">
   <header class="intro">
     <h1>Nouveau Cours 1 : « Additionner deux nombres de même signe »</h1>
-    <p>Maquette du déroulé (version 3 : plus courte, avec une action au moins toutes les 2 étapes de lecture), écran par écran. Le style viendra plus tard : ici on juge le contenu, l'ordre, les phrases et les interactions. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
+    <p>Maquette du déroulé (version 4 : plus courte, avec une action au moins toutes les 2 étapes de lecture), écran par écran. Le style viendra plus tard : ici on juge le contenu, l'ordre, les phrases et les interactions. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
   </header>
+  <div class="chgbar"><p><b class="liste">Modifié dans cette version : </b><span class="liste" id="chglist"></span> <i>Ces repères (astérisques, contours « modifié ») servent seulement à la relecture : ils ne font pas partie du design et ne seront jamais codés dans l'appli.</i></p><button type="button" id="chgtoggle">Masquer les repères</button></div>
   <nav class="nav" id="nav" aria-label="Écrans du cours"></nav>
   <div class="layout">
     <div>
@@ -254,36 +287,42 @@ const fb = (kind, title, text = '') => `<div class="fb ${kind}"><strong>${title}
    Quand l'étape a une action non réussie, « Suite » disparaît : l'action est en bas de l'écran. Mauvaise réponse : message court, elle réessaie (pas de note : c'est la leçon).
    act = { type:'fill', parts:[texte, n° de trou, …], blanks:[{o:[étiquettes], ok, no:{n°:message}, def}], after }  phrase ou calcul à trous, étiquettes à toucher
    act = { type:'tap', q, ok, no:(v)=>message, after }  toucher une graduation de la droite (la scène est une fonction qui dessine la droite touchable) */
+let handDone = false; // la main qui montre le geste n'apparaît qu'à la première droite touchable
 const A0 = () => ({ n: 0, msg: '', bad: [], done: false });
 const getA = (st, i) => st.a[i] || A0();
 const sentence = (act, a) => act.parts.map((p) => {
   if (typeof p === 'string') return p;
   const b = act.blanks[p];
-  if (a.done || p < a.n) return `<span class="blank ok">${b.o[b.ok]}</span>`;
-  return `<span class="blank">${p === a.n ? '▢' : ''}</span>`;
+  if (a.done || p < a.n) return `<span class="slotb ok">${b.o[b.ok]}</span>`;
+  return `<span class="slotb">${p === a.n ? '?' : ''}</span>`;
 }).join('');
 function actZone(act, a) {
   const msg = a.msg ? fb('ko', 'Pas tout à fait.', `${a.msg} Essaie encore.`) : '';
-  if (act.type === 'tap') return `${msg}<p class="q">${act.q}</p>`;
+  if (act.type === 'tap') return msg;
   const b = act.blanks[a.n];
-  return `${msg}<p class="small">Touche le bon mot pour compléter la phrase.</p><div class="tags mid">${b.o.map((o, i) => `<button class="etq ${a.bad.includes(i) ? 'ko' : ''}" data-a="fillpick" data-o="${i}" ${a.bad.includes(i) ? 'disabled' : ''}>${o}</button>`).join('')}</div>`;
+  return `${msg}<p class="small">Touche le mot qui complète la phrase.</p><div class="tags mid">${b.o.map((o, i) => `<button class="etq ${a.bad.includes(i) ? 'ko' : ''}" data-a="fillpick" data-o="${i}" ${a.bad.includes(i) ? 'disabled' : ''}>${o}</button>`).join('')}</div>`;
 }
 function reveal(title, steps) {
   return {
-    init: () => ({ k: 1, fresh: true, sa: false, rp: false, a: {} }),
+    init: () => ({ k: 1, fresh: true, sa: false, rp: false, open: false, a: {} }),
     render: (st) => {
       let scene = '', sceneAt = -1;
       steps.slice(0, st.k).forEach((s, i) => { if (s.s) { scene = typeof s.s === 'function' ? s.s(getA(st, i)) : s.s; sceneAt = i; } });
       const tapping = sceneAt >= 0 && steps[sceneAt].act && steps[sceneAt].act.type === 'tap' && !getA(st, sceneAt).done;
       const sceneNew = (st.fresh && (sceneAt === st.k - 1 || st.rp)) || st.sa;
-      const sceneHtml = scene ? `<div class="stage ${sceneNew ? 'new' : ''} ${tapping ? 'tapst' : ''}">${scene}</div>` : '';
-      const texts = steps.slice(0, st.k).map((s, i) => {
+      const sceneHtml = scene ? `<div class="stage ${sceneNew ? 'new' : ''} ${tapping ? 'tapst chg' : ''}">${scene}</div>` : '';
+      /* Une « phrase » = un morceau de texte (explication, phrase à trous, conclusion). Seules les 2 dernières restent affichées ; le début se replie. */
+      const frags = [];
+      steps.slice(0, st.k).forEach((s, i) => {
         const a = getA(st, i);
-        let h = s.t || '';
-        if (s.act && s.act.type === 'fill') h += `<p class="lead sent">${sentence(s.act, a)}</p>`;
-        if (s.act && a.done && s.act.after) h += s.act.after;
-        return h ? `<div class="step ${st.fresh && i === st.k - 1 ? 'new' : ''}">${h}</div>` : '';
-      }).join('');
+        if (s.t) frags.push({ h: s.t, last: false, c: !!s.c });
+        if (s.act && s.act.type === 'fill') frags.push({ h: `<p class="lead sent">${sentence(s.act, a)}</p>`, last: false, c: true });
+        if (s.act && a.done && s.act.after) frags.push({ h: s.act.after, last: false });
+        if (i === st.k - 1 && frags.length) frags[frags.length - 1].last = true;
+      });
+      const hidden = st.open ? 0 : Math.max(0, frags.length - 2);
+      const texts = (hidden ? `<button class="relire chg" data-a="relire">Relire le début</button>` : '') + (st.open && frags.length > 2 ? `<button class="relire" data-a="relire">Replier le début</button>` : '')
+        + frags.slice(hidden).map((f) => `<div class="step ${st.fresh && f.last ? 'new' : ''} ${f.c ? 'chg' : ''}">${f.h}</div>`).join('');
       const dots = `<div class="dots" aria-label="Étape ${st.k} sur ${steps.length}">${steps.map((_, i) => `<i class="${i < st.k ? 'on' : ''}"></i>`).join('')}</div>`;
       const cur = steps[st.k - 1], ca = getA(st, st.k - 1);
       const act = cur.act && !ca.done ? actZone(cur.act, ca) : '';
@@ -295,7 +334,8 @@ function reveal(title, steps) {
       return st.k < steps.length ? { label: 'Suite', a: 'more' } : { label: 'Suivant', a: 'next' };
     },
     on: (a, d, st) => {
-      if (a === 'more') { st.k++; st.fresh = true; st.sa = false; st.rp = false; return; }
+      if (a === 'more') { st.k++; st.fresh = true; st.sa = false; st.rp = false; st.open = false; return; }
+      if (a === 'relire') { st.open = !st.open; st.fresh = false; return; }
       if (a === 'replay') { st.rp = true; st.fresh = true; return; }
       const i = st.k - 1, s = steps[i];
       if (!s.act) return;
@@ -309,6 +349,7 @@ function reveal(title, steps) {
       }
       if (a === 'tapv' && s.act.type === 'tap') {
         const v = +d.v;
+        handDone = true;
         if (v === s.act.ok) { ac.done = true; ac.msg = ''; st.sa = true; }
         else { ac.bad.push(v); ac.msg = s.act.no(v); }
       }
@@ -396,15 +437,16 @@ const kbd = () => `<div class="zone"><div class="keys">${KEYS.map((k) => `<butto
 /* Droite graduée. jumps = [{a, b}] (bonds de a vers b) ; anim = indice du bond qui s'anime ;
    neutral = aucune couleur de signe (pendant une question) ; labels = 'signed' | 'abs' | 'none' | 'q' ;
    mark = graduations surlignées en jaune ; start / end = départ et arrivée ;
-   tap = graduations touchables (cibles de 44 px de large : la droite défile si l'écran est plus étroit) ;
+   tap = graduations touchables : pastille ronde qui respire, cible de 44 px de large au moins (8 graduations au plus : la droite tient dans l'écran de 390 px, sans défiler), consigne en gras au-dessus, main animée la première fois ;
    pins = [{v, ok}] graduations touchées, vertes ou rouges, après une réponse. */
 function line({ from = -10, to = 2, jumps = [], anim = -1, neutral = false, labels = 'signed', mark = [], start = null, end = null, caps = false, tap = false, pins = [] }) {
   const n = to - from + 1;
+  if (tap && n > 8) throw new Error('Droite touchable : 8 graduations au plus');
   const P = tap ? 22 : 18, W = tap ? n * 44 : 340, Y = 80;
   const X = (v) => P + ((v - from) / (to - from)) * (W - 2 * P);
   const every = to - from > 15 ? 2 : 1;
   const tone = (v) => (neutral ? 'muted' : v < 0 ? 'neg' : v > 0 ? 'pos' : 'ink');
-  let s = `<svg class="nl" ${tap ? `style="width:100%;max-width:${W}px"` : ''} viewBox="0 0 ${W} 140" role="img" aria-label="Droite graduée de ${fmt(from)} à ${fmt(to)}">`;
+  let s = `<svg class="nl ${tap ? 'tp' : ''}" ${tap ? 'style="width:100%"' : ''} viewBox="0 0 ${W} 140" role="img" aria-label="Droite graduée de ${fmt(from)} à ${fmt(to)}">`;
   if (!neutral && from < 0 && to > 0) {
     s += `<line class="ax neg" x1="8" y1="${Y}" x2="${X(0)}" y2="${Y}"/><line class="ax pos" x1="${X(0)}" y1="${Y}" x2="${W - 8}" y2="${Y}"/>`;
   } else s += `<line class="ax muted" x1="8" y1="${Y}" x2="${W - 8}" y2="${Y}"/>`;
@@ -426,14 +468,16 @@ function line({ from = -10, to = 2, jumps = [], anim = -1, neutral = false, labe
       s += `<text class="lab ${t} ${an ? 'anim fade' : ''}" x="${(x1 + x2) / 2}" y="${Y - h - 7}">${txt}</text>`;
     }
   });
-  pins.forEach((p) => { s += `<circle cx="${X(p.v)}" cy="${Y}" r="10" fill="var(--${p.ok ? 'ok-bg' : 'ko-bg'})" stroke="var(--${p.ok ? 'ok' : 'ko'})" stroke-width="3"/>`; });
+  if (tap) for (let v = from; v <= to; v++) if (!pins.some((p) => p.v === v)) s += `<circle class="pad" style="--i:${v - from}" cx="${X(v)}" cy="${Y}" r="15"/>`;
+  pins.forEach((p) => { s += `<circle cx="${X(p.v)}" cy="${Y}" r="15" fill="var(--${p.ok ? 'ok-bg' : 'ko-bg'})" stroke="var(--${p.ok ? 'ok' : 'ko'})" stroke-width="3"/>`; });
   if (start !== null) s += `<circle cx="${X(start)}" cy="${Y}" r="6" fill="var(--ink)"/>`;
   if (end !== null) s += `<circle cx="${X(end)}" cy="${Y}" r="6" fill="var(--hl)" stroke="var(--ink)" stroke-width="2"/>`;
   if (caps && start !== null) s += `<text class="cp muted" x="${X(start)}" y="${Y + 54}">départ</text>`;
   if (caps && end !== null && start !== null && Math.abs(end - start) >= 3) s += `<text class="cp muted" x="${X(end)}" y="${Y + 54}">arrivée</text>`;
+  if (tap && !handDone) s += `<g class="hand" transform="translate(${X(from + 1)} ${Y + 4})" aria-hidden="true"><g class="hm"><rect class="hb" x="-13" y="17" width="28" height="24" rx="9"/><rect class="hb" x="-4.5" y="0" width="9" height="28" rx="4.5"/><rect class="hc" x="-3" y="16" width="6" height="8"/></g></g>`;
   if (tap) for (let v = from; v <= to; v++) s += `<rect class="hit" data-a="tapv" data-v="${v}" tabindex="0" role="button" aria-label="Graduation ${fmt(v)}" x="${X(v) - 22}" y="8" width="44" height="128"/>`;
   s += '</svg>';
-  return tap ? `<div class="nlscroll" data-sc="${start !== null && start - from >= to - start ? 'end' : 'start'}">${s}</div>` : s;
+  return tap ? `<div class="tapwrap"><p class="tapq">Touche la droite à l'endroit où l'on arrive.</p>${s}</div>` : s;
 }
 
 /* Exemple guidé à cases : chaque case est une petite réponse tapée, dans l'ordre. */
@@ -518,10 +562,10 @@ function serie(items) {
     render: (st) => {
       const it = items[st.i], c = st.cur;
       const dots = `<div class="dots">${items.map((_, j) => `<i class="${j < st.i || (j === st.i && c) ? 'on' : ''}"></i>`).join('')}</div>`;
-      let h = `<div class="counter"><span class="cnt">Question <b>${st.i + 1} sur ${n}</b></span>${dots}</div><p class="lead">${it.consigne}</p>`;
+      let h = `<div class="counter"><span class="cnt">Question <b>${st.i + 1} sur ${n}</b></span>${dots}</div>${it.consigne ? `<p class="lead">${it.consigne}</p>` : ''}`;
       if (it.kind === 'tap') {
         const pins = c ? [{ v: c.pick, ok: c.ok }, ...(c.ok ? [] : [{ v: it.ok, ok: true }])] : [];
-        h += `${calc(it.calc, 'md')}<div class="stage tapst">${line({ from: it.from, to: it.to, jumps: it.jumps, labels: 'none', start: 0, neutral: !c, tap: !c, pins })}</div>`;
+        h += `${calc(it.calc, 'md')}<div class="stage tapst ${c ? '' : 'chg'}">${line({ from: it.from, to: it.to, jumps: it.jumps, labels: 'none', start: 0, neutral: !c, tap: !c, pins })}</div>`;
       } else if (it.kind === 'pick') {
         h += `${calc(it.calc, 'md')}${it.q ? `<p class="q">${it.q}</p>` : ''}`;
       } else {
@@ -543,7 +587,7 @@ function serie(items) {
       const it = items[st.i];
       if (a === 'nxt') { st.i++; st.cur = null; st.v = ''; return; }
       if (st.cur) return;
-      if (a === 'tapv' && it.kind === 'tap') { const v = +d.v, ok = v === it.ok; st.cur = { ok, pick: v, msg: ok ? it.yes : it.no(v) }; st.res[st.i] = ok; }
+      if (a === 'tapv' && it.kind === 'tap') { handDone = true; const v = +d.v, ok = v === it.ok; st.cur = { ok, pick: v, msg: ok ? it.yes : it.no(v) }; st.res[st.i] = ok; }
       if (a === 'pick' && it.kind === 'pick') { const o = +d.o, ok = o === it.ok; st.cur = { ok, pick: o, msg: ok ? it.yes : (it.why && it.why[o]) || it.no }; st.res[st.i] = ok; }
       if (it.kind === 'type') {
         if (a === 'key') st.v += d.k;
@@ -595,44 +639,43 @@ const hopNo = (dir, len) => (v) => (v === 0 ? `Tu es resté au départ : le bond
   : Math.abs(v) > len ? `Une graduation de trop : le bond fait exactement ${len} graduations.` : `Il manque des graduations : le bond en fait ${len}. Compte-les une par une à partir de 0.`);
 const hopScene = (from, to, b, calcHtml) => (a) => sc(line({ from, to, start: 0, neutral: !a.done, tap: !a.done, jumps: a.done ? [{ a: 0, b }] : [], anim: 0, end: a.done ? b : null, pins: a.bad.map((v) => ({ v, ok: false })) }), a.done ? calcHtml : '');
 
-add({ id: 'droite', sec: 'Leçon', name: 'La droite et les bonds',
-  what: "Cinq étapes : le 0 de départ, le code couleur (deux étapes à lire), puis elle fait elle-même les bonds. Étape 3 : « on ajoute 3 », elle touche l'arrivée sur la droite et le bond se dessine. Étape 4 : pareil avec −3. Étape 5 : phrase à trous avec deux trous (gauche ou droite ; avec ou sans signe). « Suite » est remplacé par l'action tant qu'elle n'a pas réussi.",
-  why: "Ce sont les deux anciens écrans (« La droite graduée » et « Quel sens ? ») fusionnés. Elle ne lit jamais plus de deux étapes sans agir. Pendant qu'elle cherche l'arrivée, la droite est grise ; les couleurs reviennent avec le bond. Les graduations touchables font 44 px de large : la droite défile un peu si l'écran est étroit.",
-  ask: ["Une mauvaise réponse dans une étape interactive : un message court (« tu es parti vers la gauche »), puis elle réessaie, sans note, parce que c'est la leçon. Les lettres rouge/vert ne servent qu'à marquer le toucher raté. Tu valides ?",
-        "Les graduations sont touchables à 44 px : sur une droite de 8 graduations, c'est juste la largeur du téléphone, qui défile un peu sur un petit écran. On garde 8 graduations au plus pour les droites à toucher ?",
+add({ chg: true, id: 'droite', sec: 'Leçon', name: 'La droite et les bonds',
+  what: "Cinq étapes : le 0 de départ, le code couleur (deux étapes à lire), puis elle fait elle-même les bonds. Étape 3 : « on ajoute 3 », elle touche l'arrivée sur la droite (pastilles rondes qui respirent, consigne en gras au-dessus, main animée la première fois seulement) et le bond se dessine. Étape 4 : pareil avec −3. Étape 5 : une phrase à trous, un seul trou : « Le bond de −3 va vers la [ ? ]. », qui remplace l'ancienne phrase « arrive en −3 ». Seules les 2 dernières phrases restent affichées ; « Relire le début » déplie le reste.",
+  why: "Ce sont les deux anciens écrans fusionnés. Elle ne lit jamais plus de deux étapes sans agir. Pendant qu'elle cherche l'arrivée, la droite est grise ; les couleurs reviennent avec le bond. Les zones de toucher font au moins 44 px de large à l'écran : la droite tient dans le téléphone (8 graduations au plus), elle ne défile plus ni n'est coupée.",
+  ask: ["Une mauvaise réponse dans une étape interactive : un message court (« tu es parti vers la gauche »), puis elle réessaie, sans note, parce que c'est la leçon. Tu valides ?",
+        "Les pastilles qui respirent et la main (première fois seulement) rendent la droite clairement touchable. Est-ce assez visible, ou trop animé ?",
         "Elle connaît la droite depuis le collège. Fusionner les deux écrans la fait agir plus vite. Est-ce que ça reste assez lent pour elle ?"] },
   reveal('La droite graduée et les bonds', [
     { s: sc(line({ from: -5, to: 5, mark: [0], start: 0 }), '', 'Une droite où les nombres sont rangés dans l\'ordre'),
-      t: `<p class="lead">Pour comprendre les additions de nombres relatifs, on les dessine sur une <b>droite graduée</b>. Au milieu, il y a <b>0</b> : c'est notre point de <b>départ</b>.</p>` },
+      c: 1, t: `<p class="lead">Pour additionner des relatifs, on les dessine sur une <b>droite graduée</b>. Au milieu, <b>0</b> : notre point de <b>départ</b>.</p>` },
     { s: sc(line({ from: -5, to: 5 }), '', 'négatifs à gauche · positifs à droite'),
-      t: `<p class="lead">À droite de 0, les nombres <b class="pos">positifs</b>, en bleu. À gauche, les nombres <b class="neg">négatifs</b>, en orange. Ces couleurs seront les mêmes dans tout le module.</p>` },
+      c: 1, t: `<p class="lead">À droite de 0, les <b class="pos">positifs</b>, en bleu. À gauche, les <b class="neg">négatifs</b>, en orange. Mêmes couleurs dans tout le module.</p>` },
     { s: hopScene(-3, 4, 3, `0 + ${pos(3)}`),
       t: `<p class="lead"><b>Ajouter un nombre positif</b>, c'est faire un bond vers la <b>droite</b>. On part de 0 et on ajoute 3.</p>`,
-      act: { type: 'tap', q: 'Où arrive le bond de 3 ? Touche la graduation sur la droite.', ok: 3, no: hopNo(1, 3), after: `<p class="lead">Le bond de 3 vers la droite arrive en <b>3</b>.</p>` } },
+      act: { type: 'tap', ok: 3, no: hopNo(1, 3), after: `<p class="lead">Le bond de 3 vers la droite arrive en <b>3</b>.</p>` } },
     { s: hopScene(-4, 3, -3, `0 + (${neg(3)})`),
       t: `<p class="lead"><b>Ajouter un nombre négatif</b>, c'est faire un bond vers la <b>gauche</b>. On repart de 0 et on ajoute ${M}3.</p>`,
-      act: { type: 'tap', q: `Où arrive le bond de ${M}3 ? Touche la graduation sur la droite.`, ok: -3, no: hopNo(-1, 3), after: `<p class="lead">Le bond de ${M}3 vers la gauche arrive en <b>${M}3</b>.</p>` } },
-    { t: `<p class="lead">Un bond de ${M}3 va vers la gauche, mais il fait <b>autant de graduations que le nombre sans son signe</b> : 3.</p>`,
-      act: { type: 'fill', parts: ['Un bond de ', 0, ' est un bond vers la ', 1, '.'], blanks: [
-        { o: ['3', `${M}3`], ok: 1, def: `Le nombre ${M}3 est négatif : c'est le bond que l'on vient de faire en dernier.` },
-        { o: ['droite', 'gauche'], ok: 1, def: 'Ajouter un nombre négatif, c\'est reculer : vers la gauche.' }] } },
+      act: { type: 'tap', ok: -3, no: hopNo(-1, 3) } },
+    { t: '',
+      act: { type: 'fill', parts: [`Le bond de ${M}3 va vers la `, 0, '.'], blanks: [
+        { o: ['droite', 'gauche'], ok: 1, def: 'Ajouter un nombre négatif, c\'est reculer : vers la gauche.' }],
+        after: `<p class="lead">Il fait 3 graduations : autant que le nombre sans son signe.</p>` } },
   ]));
 
-add({ id: 'dette', sec: 'Leçon', name: 'Deux dettes',
-  what: "Trois étapes. Étape 1 : une première dette, 3 €, un bond de −3 qui se dessine. Étape 2 : une deuxième dette, 5 €, un deuxième bond dans le même sens. Étape 3 : phrase à trous à deux trous (« Les deux bonds vont vers la … donc le résultat est … »). Une fois réussie, la droite montre l'arrivée en −8 et le texte conclut : 8 € en tout.",
+add({ chg: true, id: 'dette', sec: 'Leçon', name: 'Deux dettes',
+  what: "Trois étapes. Étape 1 : une première dette, 3 €, un bond de −3 qui se dessine. Étape 2 : une deuxième dette, 5 €, un deuxième bond dans le même sens. Étape 3 : phrase à trous, un seul trou (« Les deux bonds vont vers la [ ? ]. »). Une fois réussie, la droite montre l'arrivée en −8 et le texte conclut : 8 € en tout.",
   why: "C'est le « pourquoi » du cours, avant toute règle : deux bonds dans le même sens vont plus loin. Elle n'a plus besoin de lire une étape de conclusion : c'est elle qui l'énonce en complétant la phrase.",
   ask: ["J'ai gardé la dette du doc 06 (3 € puis 5 €). Autre idée de départ possible : le thermomètre. On garde la dette ?"] },
   reveal('Deux dettes qui s\'ajoutent', [
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }], anim: 0, start: 0, caps: true }), neg(3), 'Une dette, c\'est un nombre négatif'),
-      t: `<p class="lead">Tu dois de l'argent à une amie : une <b>dette</b> se note avec un nombre <b>négatif</b>. Tu pars de 0 et tu dois <b>3 €</b> : un bond de 3 graduations vers la gauche, tu es à ${neg(3)}.</p>` },
+      c: 1, t: `<p class="lead">Une <b>dette</b> se note avec un nombre <b>négatif</b>. Tu dois <b>3 €</b> : un bond de 3 graduations vers la gauche, tu es à ${neg(3)}.</p>` },
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], anim: 1, start: 0 }), `${neg(3)} + (${neg(5)})`),
-      t: `<p class="lead">Tu dois encore <b>5 €</b> : un deuxième bond de 5 graduations, vers la gauche aussi, <b>dans le même sens</b> que le premier.</p>` },
+      c: 1, t: `<p class="lead">Tu dois encore <b>5 €</b> : un deuxième bond de 5 graduations, vers la gauche aussi, <b>dans le même sens</b>.</p>` },
     { s: (a) => sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], anim: 1, start: 0, neutral: !a.done, end: a.done ? -8 : null, caps: a.done }), a.done ? `${neg(3)} + (${neg(5)}) = ${neg(8)}` : `${M}3 + (${M}5) = ?`),
       t: '',
-      act: { type: 'fill', parts: ['Les deux bonds vont vers la ', 0, ', donc le résultat est ', 1, '.'], blanks: [
-        { o: ['gauche', 'droite'], ok: 0, def: 'Regarde la droite : les deux bonds reculent, comme une dette qui grandit.' },
-        { o: ['positif', 'négatif'], ok: 1, def: 'On arrive à gauche de 0, du côté des nombres négatifs : le résultat est négatif.' }],
-        after: `<p class="lead">Tu arrives à ${neg(8)} : tu dois <b>8 € en tout</b>. Les deux dettes se sont <b>ajoutées</b> : deux bonds de même sens vont <b>plus loin ensemble</b>.</p>` } },
+      act: { type: 'fill', parts: ['Les deux bonds vont vers la ', 0, '.'], blanks: [
+        { o: ['gauche', 'droite'], ok: 0, def: 'Regarde la droite : les deux bonds reculent, comme une dette qui grandit.' }],
+        after: `<p class="lead">Tu arrives à ${neg(8)} : <b>8 € en tout</b>. Deux bonds de même sens vont <b>plus loin ensemble</b>.</p>` } },
   ]));
 
 add({ id: 'comparer', sec: 'Leçon', name: 'Comparer deux cas',
@@ -642,34 +685,34 @@ add({ id: 'comparer', sec: 'Leçon', name: 'Comparer deux cas',
         "Cet écran vient-il trop tôt (avant la règle 1) ? Je l'ai mis ici pour fixer l'idée « même sens ou sens contraire » avant les règles."] },
   compareScreen);
 
-add({ id: 'regle-1', sec: 'Leçon', name: 'Règle 1 : j\'additionne',
-  what: "Trois étapes. Étape 1 : les deux bonds de −3 + (−5) se mettent bout à bout. Étape 2 : elle complète le calcul avec une étiquette (3 + 5 = 8, avec 2 et 15 en mauvais choix) ; la droite est grise pendant la question. Étape 3 : l'encadré de la règle 1.",
+add({ chg: true, id: 'regle-1', sec: 'Leçon', name: 'Règle 1 : j\'additionne',
+  what: "Trois étapes. Étape 1 : les deux bonds de −3 + (−5) se mettent bout à bout. Étape 2 : la phrase à trous « Le trajet total fait 3 + 5 = [ ? ] graduations. » (8, avec 2 et 15 en mauvais choix) remplace une phrase de l'explication ; la droite est grise pendant la question. Étape 3 : l'encadré de la règle 1.",
   why: "Elle voit pourquoi on additionne, puis le fait elle-même au milieu de l'explication. 2 est l'erreur reconnue `soustraction-au-lieu-addition`, 15 la confusion avec la multiplication. Les couleurs et le jaune reviennent après sa réponse.",
   ask: ["La règle du doc 06 est coupée en deux : Règle 1 « j'additionne les nombres sans leur signe », Règle 2 « je garde le signe ». Chacune a une erreur reconnue (`soustraction-au-lieu-addition` et `signe-oublie`). On coupe, ou une règle en deux phrases dans un seul encadré ?"] },
   reveal('J\'additionne les longueurs des bonds', [
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0 }), `${neg(3)} + (${neg(5)})`),
-      t: `<p class="lead">Reprenons ${M}3 + (${M}5). Les deux nombres sont négatifs : ils ont le <b>même signe</b>. Les deux bonds vont dans le même sens, donc ils se mettent <b>bout à bout</b>.</p>` },
+      c: 1, t: `<p class="lead">Reprenons ${M}3 + (${M}5) : même signe, donc les deux bonds vont dans le même sens, <b>bout à bout</b>.</p>` },
     { s: (a) => sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, labels: 'abs', neutral: !a.done }), a.done ? `<span class="hl">3</span> + <span class="hl">5</span> = <span class="hl">8</span>` : '3 + 5 = ?'),
-      t: `<p class="lead">Le trajet total fait <b>3 graduations plus 5 graduations</b>. Les longueurs des bonds sont les nombres <b>sans leur signe</b> : 3 et 5.</p>`,
-      act: { type: 'fill', parts: ['Longueur du trajet : 3 + 5 = ', 0], blanks: [
+      c: 1, t: `<p class="lead">Les longueurs des bonds sont les nombres <b>sans leur signe</b> : 3 et 5.</p>`,
+      act: { type: 'fill', parts: ['Le trajet total fait 3 + 5 = ', 0, ' graduations.'], blanks: [
         { o: ['2', '8', '15'], ok: 1, no: { 0: 'Soustraire, ce serait pour des bonds de sens contraires. Ici les deux bonds vont dans le même sens : ils s\'ajoutent.', 2: 'On additionne les longueurs, on ne les multiplie pas : 3 + 5.' } }] } },
     { t: rule(1, `<b style="all:unset;font-weight:700">Deux nombres de même signe : j'additionne les nombres sans leur signe.</b>`) },
   ]));
 
-add({ id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : je garde le signe',
+add({ chg: true, id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : je garde le signe',
   what: "Quatre étapes. Étape 1 : le trajet fait 8 graduations ; arrive-t-on à 8 ou à −8 ? Étape 2 : elle complète le calcul avec une étiquette (−3 + (−5) = −8, avec 8 et −2 en mauvais choix) ; droite grise. Étape 3 : le même raisonnement avec 4 + 6 vers la droite (cas positif). Étape 4 : l'encadré de la règle 2.",
   why: "Elle lit le signe du résultat sur la droite (à gauche de 0, négatif ; à droite, positif), puis l'écrit. 8 est l'oubli du signe (`signe-oublie`), −2 la soustraction. Le cas positif a sa place ici, avant la pratique.",
   ask: ["Le cas positif (4 + 6) est une seule étape de lecture dans la règle 2. Faut-il lui donner une action aussi (par exemple compléter 4 + 6 = ▢) ?"] },
   reveal('Je garde le signe', [
     { s: sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, mark: [-8], labels: 'abs' }), `${neg(3)} + (${neg(5)}) = ?`),
-      t: `<p class="lead">On sait que le trajet fait 8 graduations. Reste une question : arrive-t-on à <b>8</b> ou à <b>${M}8</b> ? Regarde la droite : les deux bonds vont vers la <b>gauche</b>, on arrive du côté <b>négatif</b>.</p>` },
+      c: 1, t: `<p class="lead">Le trajet fait 8 graduations : on arrive à <b>8</b> ou à <b>${M}8</b> ? Les deux bonds vont vers la <b>gauche</b> : côté <b>négatif</b>.</p>` },
     { s: (a) => sc(line({ from: -10, to: 2, jumps: [{ a: 0, b: -3 }, { a: -3, b: -8 }], start: 0, neutral: !a.done, end: a.done ? -8 : null }), a.done ? `${neg(3)} + (${neg(5)}) = ${neg(8)}` : `${M}3 + (${M}5) = ?`),
       t: '',
       act: { type: 'fill', parts: [`Du côté négatif : ${M}3 + (${M}5) = `, 0], blanks: [
         { o: ['8', `${M}8`, `${M}2`], ok: 1, no: { 0: 'Le trajet fait bien 8 graduations, mais on arrive à gauche de 0 : il faut garder le signe.', 2: `${M}2 viendrait de 5 − 3. Ici les bonds s'ajoutent : 3 + 5 = 8, avec le signe ${M}.` } }],
         after: `<p class="lead">On garde le signe ${M} des deux nombres.</p>` } },
     { s: sc(line({ from: -2, to: 11, jumps: [{ a: 0, b: 4 }, { a: 4, b: 10 }], anim: 1, start: 0, end: 10 }), `${pos(4)} + ${pos(6)} = ${pos(10)}`),
-      t: `<p class="lead">Même chose avec 4 + 6 : les bonds vont vers la <b>droite</b>, on arrive du côté <b>positif</b>. On garde le signe + : le résultat est 10.</p>` },
+      c: 1, t: `<p class="lead">Même chose avec 4 + 6 : bonds vers la <b>droite</b>, côté <b>positif</b>. On garde le signe + : 10.</p>` },
     { t: rule(2, `<b style="all:unset;font-weight:700">Je garde le signe des deux nombres.</b>`) },
   ]));
 
@@ -685,16 +728,16 @@ add({ id: 'recap', sec: 'Leçon', name: 'Les 2 règles',
       <div class="rule"><b>En une phrase</b>Même signe : j'additionne les nombres sans leur signe, et je garde le signe.</div>
       <p class="lead">Maintenant, tu t'entraînes avec quatre questions.</p>` });
 
-add({ id: 'pratique', sec: 'Pratique', name: 'Série de 4 questions',
-  what: "Quatre questions à la suite, retour immédiat à chacune, compteur « 1 sur 4 » en haut. (1) Toucher où l'on arrive pour −2 + (−6), bonds dessinés (droite grise, graduations touchables). (2) « Quel est le signe du résultat ? » pour −4 + (−3) : deux gros boutons + et −. (3) Vrai ou faux : « −4 + (−3) = 7 ». (4) Taper le résultat de −8 + (−9) au clavier complet.",
+add({ chg: true, id: 'pratique', sec: 'Pratique', name: 'Série de 4 questions',
+  what: "Quatre questions à la suite, retour immédiat à chacune, compteur « 1 sur 4 » en haut. (1) Toucher où l'on arrive pour −2 + (−5), bonds dessinés (droite grise, pastilles touchables, consigne en gras au-dessus de la droite). (2) « Quel est le signe du résultat ? » pour −4 + (−3) : deux gros boutons + et −. (3) Vrai ou faux : « −4 + (−3) = 7 ». (4) Taper le résultat de −8 + (−9) au clavier complet.",
   why: "Elle passe de l'image (bonds dessinés) à une question de signe seul, puis à un jugement, puis à un calcul tapé : l'aide diminue à chaque question. Le format change pour qu'elle ne réponde pas par automatisme. Chaque erreur prévisible a son message ; pendant une question, aucune couleur de signe.",
   ask: ["Ces 4 questions comptent-elles dans la note du cours ? Je propose que oui (ce sont les « petites questions » du cours).",
         "À partir du Cours 2, une des 4 questions viendra du cours précédent (entraînement intercalé). Pour le Cours 1, il n'y a pas de cours précédent sur ce thème : les 4 sont sur ce cours. D'accord ?",
         "Après une mauvaise réponse, on montre la correction et on passe à la suivante (pas de nouvel essai : c'est de la pratique, pas de la leçon). Une petite question ratée repassera 2 écrans plus loin comme prévu dans le doc 08 n° 22 (déjà codé)."] },
   serie([
-    { kind: 'tap', consigne: 'Touche sur la droite la graduation où l\'on arrive.', calc: `${M}2 + (${M}6)`, from: -9, to: 0, jumps: [{ a: 0, b: -2 }, { a: -2, b: -8 }], ok: -8,
-      yes: 'Les deux bonds vont vers la gauche et se mettent bout à bout : 2 + 6 = 8, on arrive à −8.'.replace('−8', `${M}8`),
-      no: () => `Le deuxième bond part de ${M}2 et fait 6 graduations vers la gauche : ${M}3, ${M}4, ${M}5, ${M}6, ${M}7, ${M}8. On arrive à ${M}8.` },
+    { kind: 'tap', consigne: '', calc: `${M}2 + (${M}5)`, from: -7, to: 0, jumps: [{ a: 0, b: -2 }, { a: -2, b: -7 }], ok: -7,
+      yes: `Les deux bonds vont vers la gauche, bout à bout : 2 + 5 = 7, on arrive à ${M}7.`,
+      no: () => `Le deuxième bond part de ${M}2 et fait 5 graduations vers la gauche : ${M}3, ${M}4, ${M}5, ${M}6, ${M}7. On arrive à ${M}7.` },
     { kind: 'pick', consigne: 'Touche le signe du résultat. Tu n\'as pas besoin de calculer.', calc: `${M}4 + (${M}3)`, q: 'Quel est le signe du résultat ?', o: ['+', M], ok: 1,
       yes: `Les deux nombres sont négatifs : on garde le signe ${M}. Le résultat est négatif.`, why: { 0: SIGNE } },
     { kind: 'pick', consigne: 'Touche Vrai ou Faux.', calc: `${M}4 + (${M}3) = 7`, o: ['Vrai', 'Faux'], ok: 1,
@@ -802,17 +845,20 @@ add({ id: 'mes-cours', sec: 'Après', name: 'Mes cours après échec',
 const GLOBAL = `
 <section><h3>Ce que doit être un bon cours (brouillon du futur skill)</h3><ul>
 <li><b>Une action au moins toutes les 2 étapes de lecture</b>, y compris dans les explications pas à pas. Quand une étape a une action, « Suite » est remplacé par cette action, en bas de l'écran.</li>
-<li><b>Quatre types d'étapes interactives</b> : phrase à trous (un ou deux trous, étiquettes à toucher), toucher une graduation de la droite, faire le bond (elle touche l'arrivée, le bond se dessine), compléter le calcul (étiquettes ou cases tapées). Retour immédiat.</li>
+<li><b>Quatre types d'étapes interactives</b> : phrase à trous (un seul trou à la fois), toucher une graduation de la droite, faire le bond (elle touche l'arrivée, le bond se dessine), compléter le calcul (étiquettes ou cases tapées). Retour immédiat.</li>
+<li><b>Une phrase à trous n'a qu'un seul trou à la fois</b>, et ses choix se lisent dans la phrase (« Un bond de −3 va vers la [gauche | droite]. »). Le trou est un grand emplacement visible, rempli par le mot choisi.</li>
+<li><b>Une phrase à trous remplace une phrase de l'explication</b>, elle ne s'ajoute pas. Et <b>seules les 2 dernières phrases restent affichées</b> : les plus anciennes se replient derrière « Relire le début ». Phrases courtes.</li>
+<li><b>La droite graduée touchable se voit comme « à toucher »</b> : pastille ronde par graduation qui respire doucement, consigne en gras juste au-dessus (« Touche la droite à l'endroit où l'on arrive. »), petite main animée la première fois seulement, zones de 44 px de large au moins, 8 graduations au plus (jamais de défilement ni de droite coupée).</li>
 <li><b>Mauvaise réponse dans une étape interactive</b> : un message court, puis elle réessaie. Pas de note : c'est la leçon.</li>
 <li><b>Un cours court : 13 à 15 écrans.</b> Une explication par règle, avec une action au milieu. Pas d'écran « exemples » ni « erreurs à éviter » : la pratique les remplace.</li>
 <li><b>Comparer deux cas</b> presque identiques (un écran court) : « Qu'est-ce qui change ? », puis la droite montre les deux trajets.</li>
 <li><b>Une série de pratique juste avant les exemples guidés</b> : 4 questions à la suite, aide décroissante, formats variés, retour immédiat, compteur « 2 sur 4 ». À partir du Cours 2, une question vient du cours précédent.</li>
 <li><b>L'aide s'efface</b> : exemple 1 entièrement résolu (elle valide chaque ligne), exemple 2 à moitié (deux cases), puis les exercices de fin seule.</li>
-<li><b>L'écran n'est jamais vide.</b> Un grand calcul ou une image (la « scène », ici la droite graduée) occupe le haut dès le départ et se transforme à chaque étape. Les phrases s'ajoutent en dessous, les anciennes passent en gris.</li>
+<li><b>L'écran n'est jamais vide.</b> Un grand calcul ou une image (la « scène », ici la droite graduée) occupe le haut dès le départ et se transforme à chaque étape. Les phrases s'ajoutent en dessous (2 au plus, le début se replie).</li>
 <li><b>De vraies phrases</b>, qui disent quoi faire et pourquoi. « Revoir cette étape » rejoue l'animation ; rien ne défile seul.</li>
 <li><b>Expliquer le pourquoi avant la règle</b> (ici : deux bonds dans le même sens vont plus loin).</li>
 <li><b>Chaque erreur a son explication</b>, jamais une phrase générale.</li>
-<li><b>La manière de répondre est écrite</b> (toucher, taper). <b>Ce qu'on touche est en bas de l'écran</b>, sauf la droite graduée touchable, qui est la scène.</li>
+<li><b>La manière de répondre est écrite</b> (toucher, taper). <b>Ce qu'on touche est en bas de l'écran</b>, sauf la droite graduée touchable, qui est la scène (sa consigne est au-dessus d'elle).</li>
 <li><b>Un récapitulatif</b> de toutes les règles, avec un exemple juste et un faux, avant de s'entraîner.</li>
 <li><b>La fin annonce l'enjeu</b>, et le résultat explique avec des chiffres ce qui a manqué.</li>
 </ul></section>
@@ -829,8 +875,10 @@ const GLOBAL = `
 let idx = 0;
 const states = S.map((s) => s.init());
 
+$('#chglist').textContent = S.map((s, i) => (s.chg ? `${i + 1}. ${s.name}` : '')).filter(Boolean).join(' · ');
+$('#chgtoggle').addEventListener('click', () => { const h = document.body.classList.toggle('nochg'); $('#chgtoggle').textContent = h ? 'Afficher les repères' : 'Masquer les repères'; });
 function renderNav() {
-  $('#nav').innerHTML = S.map((s, i) => `<button class="${i === idx ? 'on' : ''}" data-go="${i}">${i + 1}. ${s.name}</button>`).join('');
+  $('#nav').innerHTML = S.map((s, i) => `<button class="${i === idx ? 'on' : ''} ${s.chg ? 'cs' : ''}" data-go="${i}">${i + 1}. ${s.name}${s.chg ? ' <b>*</b>' : ''}</button>`).join('');
 }
 function chipText(s, i) {
   if (s.sec === 'Leçon') {
@@ -847,7 +895,6 @@ function render() {
     <span class="chip">${chipText(s, idx)}</span>
     <div class="ph-body">${s.render(st)}</div>
     <div class="ph-foot">${f.none ? '' : `<button class="btn btn-main" data-a="${f.a}" ${f.off ? 'disabled' : ''}>${f.label}</button>`}</div>`;
-  document.querySelectorAll('.nlscroll').forEach((e) => { e.scrollLeft = e.dataset.sc === 'end' ? 1e4 : 0; });
   const ask = s.ask.length ? `<section class="ask"><h3>À décider</h3><ul>${s.ask.map((a) => `<li>${a}</li>`).join('')}</ul></section>` : '';
   $('#notes').innerHTML = `
     <section><h3>Écran ${idx + 1} sur ${S.length} · ${s.name}</h3><p>${s.what}</p><p><b>Pourquoi :</b> ${s.why}</p>
