@@ -352,4 +352,30 @@ describe('cours : pratique', () => {
     expect(t.text()).toContain('Question 1 sur 4');
     expect(t.btn('Passer')).toBeNull();
   });
+  it("après la 4e question de la série : un encadré « N sur 4 » (bonnes réponses) et la phrase de transition", () => {
+    const outro = "Maintenant, deux exemples pour t'aider à les résoudre en entier.";
+    h.items = ops.slice(0, 4).map(([a, b], i) => ({ ...item(`partie-1-${i}`, 'fin', a, b), activity: 'lecon', texts: { series: { n: i + 1, of: 4, outro } } }) as ActivityItem);
+    const t = mount(<CourseScreen courseId={C04.id} rng={seededRng(1)} />);
+    const answer = (n: number) => {
+      for (const d of String(n)) fireEvent.click(t.btn(d)!);
+      fireEvent.click(t.btn('Valider')!);
+    };
+    for (const n of [2, 4, 9]) {
+      answer(n); // juste, juste, faux ; la 4e juste : 3 sur 4
+      expect(t.$('.series-summary')).toBeNull();
+      fireEvent.click(t.btn('Continuer')!);
+    }
+    answer(5);
+    expect(t.$('.series-summary')!.textContent).toBe(`3 sur 4${outro}`);
+  });
+});
+
+describe('cours 0 : pastille de l\'annonce de la fin (maquette cours-0-v3)', () => {
+  it('l\'annonce dit « Cours 0 · Exercices de fin », les exercices « exercice N sur 5 »', () => {
+    const c00 = getCourse('c00-bien-ecrire');
+    const annonce = c00.parts.length - 1;
+    h.items = [{ type: 'explication', itemId: `partie-${annonce}`, courseId: c00.id, activity: 'lecon', blocks: [], steps: [{ text: 'Place aux 5 exercices de fin' }] } as unknown as ActivityItem, { ...item('fin-0', 'fin', 5, 3), courseId: c00.id }];
+    const t = mount(<CourseScreen courseId={c00.id} rng={seededRng(1)} />);
+    expect(t.$('.chip')!.textContent).toBe('Cours 0 · Exercices de fin');
+  });
 });

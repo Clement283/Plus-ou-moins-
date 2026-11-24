@@ -129,7 +129,7 @@ function engineFeedback(course: CourseDef, q: Question, a: Answer, o: Outcome, o
   if (q.kind === 'choix' || q.kind === 'reecrire') {
     if (o.correct) return { tone: 'juste', title: 'Juste !', note: o.message || null };
     const message = o.message ?? '';
-    if (opts?.guess) return { tone: 'pas-fini', title: 'Pas tout à fait, et c\'est normal.', message };
+    if (opts?.guess) return { tone: 'pas-fini', title: (q.kind === 'choix' && q.guessTitle) || 'Pas tout à fait, et c\'est normal.', message };
     const right = wrongParts(q, a, o);
     return {
       tone: 'faux',

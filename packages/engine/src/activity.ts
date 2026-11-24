@@ -395,7 +395,7 @@ export function courseRunItems(course: CourseDef, rng: Rng): ActivityItem[] {
           courseId: course.id,
           activity: texts?.uncounted ? 'decouverte' : 'lecon',
           question,
-          texts: { ...texts, series: { n: k + 1, of: p.questions.length } },
+          texts: { ...texts, series: { n: k + 1, of: p.questions.length, ...(p.outro ? { outro: p.outro } : {}) } },
         }))
       : [partItem(course, p, i)],
   );

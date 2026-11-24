@@ -107,3 +107,30 @@ describe('Cours 1 — Additionner deux nombres de même signe', () => {
     ]);
   });
 });
+
+describe('Cours 1 : la scène après un toucher', () => {
+  it('chaque étape « graduation » a une scène « après » avec le bond dessiné', () => {
+    const grads = c01.parts.flatMap((p) => (p.type === 'etapes' ? p.steps : [])).filter((s) => s.action?.type === 'graduation');
+    expect(grads).toHaveLength(2);
+    for (const s of grads) {
+      expect(s.after?.line?.jumps.every((j) => !j.after)).toBe(true);
+      expect(s.after?.line?.tone).toBe('color');
+    }
+  });
+});
+
+describe('séries de pratique : la phrase de transition', () => {
+  it('Cours 0 et Cours 1 : la dernière question de la série porte la phrase du doc 06', async () => {
+    const { c00 } = await import('../../src/courses/calculs/c00-bien-ecrire');
+    const { courseRunItems } = await import('../../src/activity');
+    const { seededRng } = await import('../../src/rng');
+    for (const [c, outro] of [
+      [c00, "Maintenant, deux exemples pour t'aider à réécrire un calcul en entier."],
+      [c01, "Maintenant, deux exemples pour t'aider à les résoudre en entier."],
+    ] as const) {
+      const items = courseRunItems(c, seededRng(1)).filter((i) => i.type === 'question' && i.texts?.series);
+      expect(items).toHaveLength(4);
+      expect(items.map((i) => (i as { texts: { series: { outro?: string } } }).texts.series.outro)).toEqual([outro, outro, outro, outro]);
+    }
+  });
+});

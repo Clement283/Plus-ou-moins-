@@ -254,3 +254,34 @@ describe('Etapes : actions interactives', () => {
     expect(visible()).toEqual(['C.', 'D.']);
   });
 });
+
+describe('Etapes : la scène « après » le toucher', () => {
+  const steps: EtapeStep[] = [
+    {
+      scene: { layout: 'one', calcs: [{ tokens: tk('4', '×', '−', '3') }] },
+      text: 'Les parenthèses entourent −3.',
+      action: { type: 'endroit', consigne: 'Touche l’endroit.', calc: 0, target: [2], errors: [], fallback: 'Pas ici.', gaps: [1, 2, 3] },
+      after: { layout: 'one', calcs: [{ tokens: tk('4 × ', '(', '−3', ')') }], caption: 'avec les parenthèses' },
+    },
+    { text: 'Suite du cours.' },
+  ];
+  it('le bon toucher montre tout de suite la scène « après », sans passer à l’étape suivante', () => {
+    const t = setup(steps);
+    expect(t.$('.stage')!.textContent).not.toContain('(');
+    fireEvent.click(t.$$('.touch-gap')[1]!);
+    expect(t.$('.stage')!.textContent).toContain('4 × (−3)');
+    expect(t.$('.scene-cap')!.textContent).toBe('avec les parenthèses');
+    expect(t.btn('Suite')).not.toBeNull();
+  });
+  it('un mauvais toucher laisse la scène d’avant', () => {
+    const t = setup(steps);
+    fireEvent.click(t.$$('.touch-gap')[0]!);
+    expect(t.$('.stage')!.textContent).not.toContain('(');
+  });
+  it('les étapes suivantes sans scène gardent la scène « après »', () => {
+    const t = setup(steps);
+    fireEvent.click(t.$$('.touch-gap')[1]!);
+    fireEvent.click(t.btn('Suite')!);
+    expect(t.$('.stage')!.textContent).toContain('4 × (−3)');
+  });
+});

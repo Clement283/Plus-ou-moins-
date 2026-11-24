@@ -79,8 +79,8 @@ export interface PartTexts {
   outroRule?: { n: number; text: string };
   /** La question s'affiche sur le même écran que la précédente (2 questions par écran, doc 08 n° 20) ; le moteur garde 2 éléments distincts. */
   joinPrevious?: boolean;
-  /** Série de pratique : « Question n sur of ». */
-  series?: { n: number; of: number };
+  /** Série de pratique : « Question n sur of » ; `outro` = la phrase de transition sous l'encadré « N sur of » de la dernière question. */
+  series?: { n: number; of: number; outro?: string };
   /** Lignes LaTeX de résolution déjà posées au-dessus de la case (exemples guidés). */
   above?: string[];
   /** Encadré d'aide de la ligne en cours. */
@@ -172,13 +172,15 @@ export interface EtapeStep {
   recap?: { title: string; ok: string; ko: string; koLabel?: string }[];
   /** Action de l'élève (remplace « Suite » ; rien n'est noté). */
   action?: StepAction;
+  /** Scène montrée dès que l'action est réussie (le résultat du toucher), à la place de `scene`. */
+  after?: Scene;
 }
 
 export type LessonPart =
   | ({ type: 'explication'; blocks: LessonBlock[] } & Pick<PartTexts, 'title' | 'subtitle'>)
   | { type: 'etapes'; title: string; steps: EtapeStep[] }
   | ({ type: 'question'; activity: 'lecon' | 'exemple' | 'decouverte'; question: Question } & PartTexts)
-  | { type: 'pratique'; title: string; questions: { question: Question; texts?: PartTexts }[] };
+  | { type: 'pratique'; title: string; questions: { question: Question; texts?: PartTexts }[]; /** Phrase de transition après la série. */ outro?: string };
 
 /**
  * Numéro d'écran de leçon (les parties `joinPrevious` partagent l'écran de la précédente) et nombre d'écrans

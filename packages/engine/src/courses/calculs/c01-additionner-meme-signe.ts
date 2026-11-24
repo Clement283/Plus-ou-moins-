@@ -216,6 +216,7 @@ const leconDroite: EtapeStep[] = [
   }),
   step('**Ajouter un nombre positif**, c\'est faire un bond vers la **droite**. On part de 0 et on ajoute 3.', {
     scene: lineScene({ from: -3, to: 4, jumps: [{ from: 0, by: 3, after: true }], tone: 'neutral' }),
+    after: lineScene({ from: -3, to: 4, jumps: [{ from: 0, by: 3 }], tone: 'color' }, '0 + 3'),
     action: {
       type: 'graduation',
       consigne: NEUTRAL_HINT,
@@ -234,6 +235,7 @@ const leconDroite: EtapeStep[] = [
   }),
   step('**Ajouter un nombre négatif**, c\'est faire un bond vers la **gauche**. On repart de 0 et on ajoute −3.', {
     scene: lineScene({ from: -4, to: 3, jumps: [{ from: 0, by: -3, after: true }], tone: 'neutral' }),
+    after: lineScene({ from: -4, to: 3, jumps: [{ from: 0, by: -3 }], tone: 'color' }, `0 + (${M}3)`),
     action: {
       type: 'graduation',
       consigne: NEUTRAL_HINT,
@@ -419,7 +421,7 @@ const parts: LessonPart[] = [
       texts: { consigne: 'Touche Vrai ou Faux.' },
     },
     { question: saisie(ex1(-8, -9)), texts: { consigne: 'Calcule. Tape le résultat.' } },
-  ]),
+   ], "Maintenant, deux exemples pour t'aider à les résoudre en entier."),
   // 8 — Exemple 1 : tout est résolu à l'écran
   etapes('Exemple 1 sur 2', exemple1),
   // 9 — Exemple 1 : la dernière ligne (notée)

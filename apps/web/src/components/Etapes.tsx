@@ -140,11 +140,14 @@ export function Etapes({ title, steps, onDone, header }: { title: string; steps:
   const [solved, setSolved] = useState<number[]>([]);
   const [expanded, setExpanded] = useState(false);
   const shown = steps.slice(0, k);
+  // la scène d'une étape : sa scène « après » dès que son toucher a réussi
+  const sceneOf = (s: EtapeStep, i: number): Scene | undefined => (s.after && solved.includes(i) ? s.after : s.scene);
   let sceneAt = -1;
   shown.forEach((s, i) => {
-    if (s.scene) sceneAt = i;
+    if (sceneOf(s, i)) sceneAt = i;
   });
-  const scene = sceneAt >= 0 ? shown[sceneAt]!.scene! : null;
+  const scene = sceneAt >= 0 ? sceneOf(shown[sceneAt]!, sceneAt)! : null;
+  const sceneAfter = sceneAt >= 0 && solved.includes(sceneAt) && !!shown[sceneAt]!.after;
   const last = k >= steps.length;
   const cur = steps[k - 1]!;
   const action = cur.action;
@@ -179,7 +182,7 @@ export function Etapes({ title, steps, onDone, header }: { title: string; steps:
         <LessonHeading title={title} />
         {scene && (
           <SceneView
-            key={`${sceneAt}-${replay}`}
+            key={`${sceneAt}-${replay}-${sceneAfter ? 'after' : 'before'}`}
             scene={scene}
             isNew={sceneAt === k - 1}
             lineNode={lineNode}

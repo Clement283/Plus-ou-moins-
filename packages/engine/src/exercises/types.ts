@@ -47,6 +47,8 @@ export type Question =
       correctIndex: number;
       /** Petite question de leçon : repasse 2 étapes plus loin, options remélangées (doc 08 n° 21). Absent : repassage habituel. */
       small?: true;
+      /** Question « pour deviner » : titre du retour quand la réponse est fausse (défaut : « Pas tout à fait, et c'est normal. »). */
+      guessTitle?: string;
     }
   | {
       kind: 'reecrire';

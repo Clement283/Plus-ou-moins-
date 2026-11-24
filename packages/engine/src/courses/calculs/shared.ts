@@ -254,10 +254,11 @@ export const droiteQ = (ex: Exercise, line: { from: number; to: number }, jumps:
 });
 
 /** Une série de pratique : une question par élément, comptée dans la note sauf `uncounted`. */
-export const pratique = (title: string, questions: { question: Question; texts?: PartTexts }[]): LessonPart => ({
+export const pratique = (title: string, questions: { question: Question; texts?: PartTexts }[], outro?: string): LessonPart => ({
   type: 'pratique',
   title,
   questions,
+  ...(outro ? { outro } : {}),
 });
 
 /** Une étape d'un écran « pas à pas ». */

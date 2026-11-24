@@ -311,6 +311,15 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
           <AskClement courseId={course.id} question={step.question} outcome={view.outcome} correction={view.feedback.message} />
         )}
         {view.note && <p className="t-caption">{view.note}</p>}
+        {step.item.texts?.series && step.item.texts.series.n === step.item.texts.series.of && step.role === 'original' && (
+          <div className="alert alert--info series-summary" role="status">
+            <Icon name="info" />
+            <div className="alert__title">
+              {results.slice(-step.item.texts.series.of).filter((r) => r === 'ok').length} sur {step.item.texts.series.of}
+            </div>
+            {step.item.texts.series.outro && <div>{step.item.texts.series.outro}</div>}
+          </div>
+        )}
         <button className="btn btn--contained btn--block" type="button" onClick={() => advance(state)}>
           Continuer
         </button>

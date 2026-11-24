@@ -516,6 +516,8 @@ const oneScene = (tokens: SceneToken[], extra: { label?: string; caption?: strin
   ...(extra.caption ? { caption: extra.caption } : {}),
 });
 const M = '−';
+/** Les mêmes morceaux, celui que l'élève vient de toucher en surligneur. */
+const marked = (tokens: string[], at: number): SceneToken[] => tokens.map((t, i) => (i === at ? hl(t, 'pin') : { t }));
 
 /** Small question on a lesson writing: the calculation is its pieces, as written. */
 const small = (ex: Exercise, prompt: string, options: [string, string][], correctIndex: number): Question =>
@@ -676,6 +678,7 @@ const parts: LessonPart[] = [
     },
     {
       scene: { layout: 'one', calcs: [{ tokens: tk(M, '6', '+', '2', M, '5') }] },
+      after: oneScene(marked([M, '6', '+', '2', M, '5'], 4)),
       text: `Ce ${M} est entre 2 et 5 : on enlève 5. Le ${M} du début est, lui, le signe de ${M}6.`,
       action: touch(
         'morceau',
@@ -704,6 +707,7 @@ const parts: LessonPart[] = [
     },
     {
       scene: { layout: 'one', calcs: [{ tokens: tk('4', '×', M, '3') }] },
+      after: oneScene(marked(['4', '×', M, '3'], 2), { label: 'deux signes collés' }),
       text: `Ce ${M}, est-ce qu'il soustrait ? Ou est-ce le signe de 3 ? **On ne sait plus.**`,
       action: touch(
         'morceau',
@@ -719,6 +723,7 @@ const parts: LessonPart[] = [
     },
     {
       text: `La parenthèse se ferme après le 3. Elles entourent ${M}3 : c'est **un seul nombre**, le ${M} ne soustrait plus rien.`,
+      after: oneScene(toks('4 × ', hl('(', 'pin'), `${M}3`, hl(')', 'pin')), { label: `${M}3 est un seul nombre` }),
       action: touch(
         'endroit',
         "Touche l'endroit où la parenthèse ouvrante doit aller.",
@@ -759,15 +764,18 @@ const parts: LessonPart[] = [
   // 4 — Règle 2 : deviner puis expliquer (ne compte pas)
   texted(
     decouverte(
-      small(
-        lessonWriting(op('+', num(-3), num(5)), '-3', '+', '5'),
-        `Ce calcul commence par un nombre négatif. Faut-il des parenthèses autour de ${M}3 ?`,
-        YES_NO(
-          `Regarde devant ${M}3 : il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.`,
-          `Devant ${M}3, il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.`,
+      {
+        ...small(
+          lessonWriting(op('+', num(-3), num(5)), '-3', '+', '5'),
+          `Ce calcul commence par un nombre négatif. Faut-il des parenthèses autour de ${M}3 ?`,
+          YES_NO(
+            `Regarde devant ${M}3 : il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.`,
+            `Devant ${M}3, il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.`,
+          ),
+          1,
         ),
-        1,
-      ),
+        guessTitle: 'Pas besoin.',
+      } as Question,
     ),
     {
       title: 'Et au début du calcul ?',
@@ -783,6 +791,7 @@ const parts: LessonPart[] = [
     },
     {
       scene: { layout: 'one', calcs: [{ tokens: tk('3', M, '+', '4') }] },
+      after: oneScene(marked(['3', M, '+', '4'], 1), { label: `le ${M} est mal placé` }),
       text: "On croit qu'on soustrait quelque chose au 3. Mais juste après, il y a un + : **il n'y a rien à soustraire**.",
       action: touch(
         'morceau',
@@ -802,6 +811,7 @@ const parts: LessonPart[] = [
         calcs: [{ tokens: [hl(M)], label: 'ce signe est à placer' }, { tokens: tk('3', '+', '4') }],
       },
       text: `Le signe d'un nombre négatif s'écrit **devant** le nombre : ${M}3 + 4.`,
+      after: oneScene(toks(hl(M, 'slide'), '3 + 4'), { label: `le ${M} passe devant` }),
       action: touch(
         'endroit',
         `Le ${M} quitte sa place. Touche l'endroit où il doit aller.`,
@@ -838,6 +848,7 @@ const parts: LessonPart[] = [
     {
       scene: { layout: 'one', calcs: [{ tokens: tk('4', '×', '(', M, '3') }] },
       text: `Maintenant, on voit où le nombre s'arrête : **${M}3** est bien entouré.`,
+      after: oneScene(toks('4 × ', hl('('), `${M}3`, hl(')', 'pin')), { label: 'une qui ouvre, une qui ferme' }),
       action: touch(
         'endroit',
         "Touche l'endroit où la parenthèse fermante doit aller.",
@@ -966,6 +977,7 @@ const parts: LessonPart[] = [
       },
       { question: PRACTICE_REWRITE, texts: { consigne: 'Ce calcul est mal écrit. **Réécris-le** en entier.' } },
     ],
+    outro: "Maintenant, deux exemples pour t'aider à réécrire un calcul en entier.",
   },
   // 12 — Exemple 1 (résolution à l'écran)
   etapes('Exemple 1 sur 2', [

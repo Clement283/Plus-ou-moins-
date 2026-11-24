@@ -470,3 +470,11 @@ describe('Cours 0 — Bien écrire un calcul', () => {
     expect(good / total).toBeLessThan(0.3);
   });
 });
+
+describe('Cours 0 : la scène après un toucher', () => {
+  it('chaque étape « toucher » (morceau, endroit) a une scène « après »', () => {
+    const touches = c00.parts.flatMap((p) => (p.type === 'etapes' ? p.steps : [])).filter((s) => s.action?.type === 'morceau' || s.action?.type === 'endroit');
+    expect(touches).toHaveLength(6);
+    for (const s of touches) expect(s.after).toBeDefined();
+  });
+});

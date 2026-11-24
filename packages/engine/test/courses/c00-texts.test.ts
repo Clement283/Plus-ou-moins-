@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { c00, joinPieces } from '../../src/courses/calculs/c00-bien-ecrire';
 import type { EtapeStep, LessonPart, StepAction } from '../../src/courses/types';
 import { checkAnswer } from '../../src/exercises/check';
+import { feedbackFor } from '../../src/feedback';
 import type { Answer, Outcome, Question } from '../../src/exercises/types';
 
 type Q<K extends Question['kind']> = Extract<Question, { kind: K }>;
@@ -228,6 +229,14 @@ describe('questions pour deviner et pour comprendre : les 7 lignes', () => {
   it('écran 5', () => {
     expect(why(choix(4), 'Non')).toBe("Devant −3, il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.");
     expect(why(choix(4), 'Oui')).toBe("Regarde devant −3 : il n'y a aucun signe. Rien ne se touche, donc pas besoin de parenthèses.");
+    // « Oui » : titre « Pas besoin. » (et non « Pas tout à fait, et c'est normal. »)
+    expect(choix(4).guessTitle).toBe('Pas besoin.');
+    const q = choix(4);
+    const o = checkAnswer(c00, q, { choice: 0 });
+    expect(feedbackFor(c00, q, { choice: 0 }, o, { guess: true })).toMatchObject({ tone: 'pas-fini', title: 'Pas besoin.' });
+    // les autres devinettes gardent le titre habituel
+    const q0 = choix(0);
+    expect(feedbackFor(c00, q0, { choice: 0 }, checkAnswer(c00, q0, { choice: 0 }), { guess: true })).toMatchObject({ title: "Pas tout à fait, et c'est normal." });
   });
   it('écran 9', () => {
     expect(why(choix(9), 'Le résultat')).toBe('Le résultat est le même : 4 fois −3 donne −12 dans les deux cas. Ce n\'est pas le calcul qui change.');
