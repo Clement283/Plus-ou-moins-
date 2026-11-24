@@ -18,25 +18,37 @@ L'élève : première spécialité maths, **dyslexique**. Elle connaît les mét
 | Le modèle complet (textes, ordre, retours d'erreur) | `docs/validation/06-cours-relatifs.md`, partie « Cours 0 » v2 |
 | Les règles transversales (couleurs, repassage, réponses en bas, note…) | `docs/validation/08-decisions-ecrans.md` n° 20 à 31 |
 | Le code du modèle (briques, scènes, messages, tests) | `packages/engine/src/courses/calculs/c00-bien-ecrire.ts`, `shared.ts`, `test/courses/c00.test.ts` |
-| Les maquettes cliquables (moteur `reveal` / `quiz` / `typed` / `trous`, bouton « Revoir », droite graduée SVG `line()`) | `docs/design/ecrans/cours-0-v2.html`, `docs/design/ecrans/cours-1-v2.html` (partir de la plus récente) |
+| Les maquettes cliquables (étapes interactives, série de pratique, moteur `reveal` / `quiz` / `typed` / `trous`, bouton « Revoir », droite graduée SVG `line()`) | `docs/design/ecrans/cours-0-v2.html`, `docs/design/ecrans/cours-1-v2.html` (partir de la plus récente) |
 | La version actuelle du cours à réécrire | sa partie dans le doc 06 + son fichier `cXX-*.ts` |
 
 ## Déroulé d'un cours (recette)
 
-Écrire les écrans dans cet ordre. Le nombre de règles change d'un cours à l'autre, la forme reste la même.
+Environ **12 à 15 écrans**. Elle apprend en faisant : **jamais plus de 2 étapes de lecture d'affilée sans une action**, y compris à l'intérieur d'une explication. Le nombre de règles change d'un cours à l'autre, la forme reste la même.
 
 1. **Accroche** : 2 ou 3 phrases (à quoi sert ce cours, ce qu'on va apprendre) + **une question pour deviner** (`decouverte`, ne compte pas) sur un cas typique.
-2. **L'idée de départ** : le *pourquoi* de la méthode, avant toute règle (Cours 0 : « le − a deux rôles » ; Cours 1 : par exemple une dette, une droite graduée). Explication pas à pas (`etapes`).
+2. **L'idée de départ** : le *pourquoi* de la méthode, avant toute règle (Cours 0 : « le − a deux rôles » ; Cours 1 : deux dettes, deux bonds sur la droite graduée). Explication pas à pas **avec au moins une action**.
 3. **Pour chaque règle** :
-   - une **explication pas à pas** (`etapes`, 3 à 5 étapes) : la scène montre le calcul qui se transforme, les phrases expliquent chaque transformation, la dernière étape pose l'**encadré de la règle** (`rule`) ;
+   - une **explication pas à pas** (3 à 5 étapes) : la scène montre le calcul qui se transforme, les phrases expliquent chaque transformation, **une étape interactive au milieu** (voir « Étapes interactives »), la dernière étape pose l'**encadré de la règle** (`rule`) ;
    - une « règle » du doc 06 qui contient deux gestes (ex. « j'additionne… et je garde le signe ») peut être coupée en deux règles **si chacune correspond à une erreur reconnue** ; sinon, une seule règle. Le dire dans les questions « À décider » ;
-   - si utile, un écran d'**exemples** (`layout: 'pairs'` ou une suite de calculs) ;
    - **une ou deux petites questions** (`choix` avec `small`), qui comptent. Varier : parfois deux questions sur le même écran (`joinPrevious`), parfois une question à deviner *avant* l'explication quand l'élève peut trouver seule.
-4. **Récapitulatif** de toutes les règles, chacune avec un exemple juste et un faux (`recap`).
-5. **À toi** : un ou deux exercices de leçon variés (Classer, Quelle règle ?, étiquettes, Réécris…).
-6. **Exemples guidés** (2) : le calcul de départ est **toujours affiché** ; l'élève fait une vraie action. Le 1er guide davantage (cases tapées l'une après l'autre, chacune avec un sens), le 2e moins (résultat ou calcul tapé seul, avec « Étape par étape » si erreur).
-7. **Annonce de la fin** : ce qu'il faut réussir (4 exercices de fin sur 5 **et** 80 % sur tout le cours) et ce qui se passe sinon (série de validation, sans refaire la leçon).
-8. **5 exercices de fin**, générés, sans aide, comme en contrôle.
+4. **Comparer deux cas** : deux calculs presque identiques côte à côte (−3 + (−5) et −3 + 5), « Qu'est-ce qui change ? », puis la scène montre les deux. À partir du 2e cours d'un module, l'un des deux vient du cours précédent.
+5. **Récapitulatif** de toutes les règles, chacune avec un exemple juste et un faux (`recap`).
+6. **Série de pratique** (un écran, 4 questions à la suite, compteur « 2 sur 4 », retour immédiat, notée comme les petites questions) : **l'aide diminue et les formats changent**. Ex. Cours 1 : toucher l'arrivée sur la droite avec les bonds dessinés → « Quel est le signe du résultat ? » (+ / −) → vrai ou faux → taper le résultat sans aide. **À partir du 2e cours d'un module, une des 4 questions vient d'un cours précédent** (entraînement intercalé : elle doit d'abord reconnaître quelle règle s'applique).
+7. **Exemples guidés** (2), **l'aide qui s'efface** : le 1er presque entièrement résolu (elle valide chaque ligne ou complète une case), le 2e à moitié (2 cases), le calcul de départ **toujours affiché**. Les exercices de fin se font ensuite seule.
+8. **Annonce de la fin** : ce qu'il faut réussir (4 exercices de fin sur 5 **et** 80 % sur tout le cours) et ce qui se passe sinon (série de validation, sans refaire la leçon).
+9. **5 exercices de fin**, générés, sans aide, comme en contrôle, **uniquement sur la méthode du cours** (pas de calculs d'anciens cours : ils valident ce cours-ci).
+10. **Fiche mémo** (affichée après validation, relisible depuis Mes cours) : la règle, 1 ou 2 exemples, l'erreur à éviter, l'astuce. Le cours la fournit.
+
+## Étapes interactives (dans les explications)
+
+Une étape interactive remplace « Suite » par une action en bas de l'écran. Une erreur donne un message court et elle réessaie ; rien n'est noté.
+
+| Action | Exemple |
+|---|---|
+| Phrase à trous (toucher le bon mot) | « Les deux bonds vont vers la [gauche \| droite], donc le résultat est [négatif \| positif]. » |
+| Toucher sur la scène | « Où arrive le bond ? » → toucher la graduation |
+| Faire le geste | toucher l'arrivée, le bond se dessine |
+| Compléter le calcul au fil des étapes | −3 + (−5) = −(3 + ▢) = ▢ |
 
 ## Règles de forme (toutes obligatoires)
 
@@ -57,7 +69,7 @@ L'élève : première spécialité maths, **dyslexique**. Elle connaît les mét
 
 ## Méthode de travail (dans cet ordre)
 
-1. **Lire** les sources ci-dessus et la version actuelle du cours.
+1. **Lire** les sources ci-dessus, la version actuelle du cours, le **plan du module** s'il existe (`docs/validation/NN-module-*.md` : reprises, astuces, sources) et **les documents fournis** par le porteur du projet (cours du prof, cahier de l'élève). **Chercher aussi sur Internet** : programme officiel, astuces et méthodes que les profs ne donnent pas toujours, erreurs classiques. Noter les sources dans la spec.
 2. **Proposer le déroulé au porteur du projet sous forme de maquette cliquable** : copier `docs/design/ecrans/cours-0-v2.html` dans `docs/design/ecrans/cours-N-v2.html`, remplacer les écrans (même moteur `reveal` / `quiz` / `typed`), et la publier en artefact. Noter à droite de chaque écran ce qu'il fait, pourquoi, et les questions à décider. **Ne rien coder dans l'appli avant sa validation.**
 3. **Écrire la spec** : remplacer la partie du cours dans le doc 06 par une « version 2 » au format de celle du Cours 0 (règles, déroulé écran par écran avec les textes exacts, note du cours, tableau des retours d'erreur, révisions, générateur, erreurs reconnues avec leur règle). Faire valider.
 4. **Coder** dans `packages/engine/src/courses/calculs/cXX-*.ts` avec les briques existantes (`etapes`, `choix` + `small`, `decouverte`, `texted`, `joinPrevious`, `reecrire`, `lessonLength`, `ErrorDef.rule`). Une nouvelle brique d'écran n'est ajoutée que si aucune existante ne convient ; elle doit être réutilisable.
