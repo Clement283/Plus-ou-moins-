@@ -4,13 +4,14 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { MODULES, type AppEvent } from '@pom/engine';
 import { scenario, LEA, HUGO, type ScenarioName } from '../../../e2e/fixtures';
 
-const h = vi.hoisted(() => ({ students: [] as { id: string; name: string }[], events: {} as Record<string, any[]>, offline: false, status: 0 }));
+const h = vi.hoisted(() => ({ students: [] as { id: string; name: string }[], events: {} as Record<string, any[]>, offline: false, status: 0, questions: {} as Record<string, any[]> }));
 vi.mock('../src/api', async (orig) => {
   const real = await orig<typeof import('../src/api')>();
   const fail = () => Promise.reject(new real.ApiError(h.status || 0, 'x'));
   return {
     ...real,
     getStudents: vi.fn(async () => (h.offline ? fail() : h.students)),
+    getStudentQuestions: vi.fn(async (_t: string, id: string) => (h.offline ? fail() : (h.questions[id] ?? []))),
     getStudentEvents: vi.fn(async (_t: string, id: string) => (h.offline ? fail() : (h.events[id] ?? []))),
   };
 });
@@ -47,6 +48,7 @@ beforeEach(async () => {
   await resetDb();
   h.offline = false;
   h.status = 0;
+  h.questions = {};
   window.location.hash = '';
 });
 afterEach(() => cleanup());
@@ -267,5 +269,44 @@ describe('Suivi, hors ligne sans cache', () => {
     h.offline = true;
     const v = await mount(<DashCourse eleve={LEA.id} id={C(4)} />, '.alert');
     expect(v.text()).toContain('Pas de connexion');
+  });
+});
+
+describe('Questions à Clément (page de suivi)', () => {
+  const q = (id: string, over: Record<string, unknown> = {}) => ({
+    id, courseId: MOD.courseIds[0]!, calc: '−3 + (−5)', given: '8', expected: '−8', correction: 'c', note: 'Je ne comprends pas.',
+    askedAt: Date.UTC(2026, 10, 22, 8), answer: null, answeredAt: null, answeredBy: null, readAt: null, ...over,
+  });
+
+  it('badge = nombre de questions sans réponse, une ligne par demande', async () => {
+    load('elle-bloque');
+    h.questions[h.students[0]!.id] = [q('a'), q('b'), q('c', { answer: 'Voilà.', answeredAt: 1 })];
+    const v = await mount(<Dashboard />);
+    await waitFor(() => expect(v.$('[data-questions-badge]')?.textContent).toBe('2'));
+    expect(v.text()).toContain('Questions à Clément');
+    expect(v.text()).toContain('Sa réponse');
+    expect(v.text()).toContain('La bonne réponse');
+    expect(v.text()).toContain('Je ne comprends pas.');
+    expect(v.$$('[data-question]')).toHaveLength(3);
+    expect(v.$$('a[href*="/question/"]')).toHaveLength(3);
+  });
+
+  it('pas de badge quand tout est répondu', async () => {
+    load('elle-bloque');
+    h.questions[h.students[0]!.id] = [q('c', { answer: 'Voilà.', answeredAt: 1 })];
+    const v = await mount(<Dashboard />);
+    await waitFor(() => expect(v.$$('[data-question]')).toHaveLength(1));
+    expect(v.$('[data-questions-badge]')).toBeNull();
+  });
+
+  it('la liste vient du cache hors ligne quand le réseau échoue', async () => {
+    load('elle-bloque');
+    h.questions[h.students[0]!.id] = [q('a')];
+    const v1 = await mount(<Dashboard />);
+    await waitFor(() => expect(v1.$$('[data-question]')).toHaveLength(1));
+    v1.unmount();
+    h.offline = true;
+    const v2 = await mount(<Dashboard />);
+    await waitFor(() => expect(v2.$$('[data-question]')).toHaveLength(1));
   });
 });

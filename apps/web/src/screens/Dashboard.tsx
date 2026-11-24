@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { DAILY_GOAL_MS, getCourse, type Dashboard as Dash, type DayPoint } from '@pom/engine';
 import { Acc, ErrItem, OfflineAlert, errorLabel, listOrders, lowerFirst, plural, upperFirst, longDate, weekdayLetter, when } from '../components/FollowBits';
 import { toHash } from '../router';
-import { useCurrentStudent, useStudentDashboard, useStudents, type Student } from '../store/follow';
+import { useCurrentStudent, useStudentDashboard, useStudentQuestions, useStudents, type Student } from '../store/follow';
 import { Icon } from '../ui/Icon';
 import { Sheet } from '../ui/Sheet';
 
@@ -235,6 +235,54 @@ function ToRework({ dash, eleve }: { dash: Dash; eleve: string }) {
   );
 }
 
+/** « Questions à Clément » : badge du nombre de demandes sans réponse, une ligne par demande. */
+function ClementQuestions({ eleve }: { eleve: string }) {
+  const { data } = useStudentQuestions(eleve);
+  if (!data || data.length === 0) return null;
+  const open = data.filter((q) => q.answer === null).length;
+  const list = [...data].sort((a, b) => b.askedAt - a.askedAt);
+  return (
+    <section className="card block" aria-labelledby="hclem">
+      <div className="block__head">
+        <h2 className="t-h5" id="hclem">
+          Questions à Clément
+        </h2>
+        {open > 0 && (
+          <span className="chip chip--selected" data-questions-badge aria-label={plural(open, 'question sans réponse', 'questions sans réponse')}>
+            {open}
+          </span>
+        )}
+      </div>
+      <ul className="errs">
+        {list.map((q) => (
+          <li className="err" key={q.id} data-question={q.id}>
+            <div className="err__top">
+              <span className="err__expr">{q.calc}</span>
+              <span className="t-caption">{q.answer === null ? 'Sans réponse' : 'Répondu'}</span>
+            </div>
+            <div className="fact">
+              <span className="fact__label">Sa réponse</span>
+              <span className="fact__value">{q.given}</span>
+            </div>
+            <div className="fact">
+              <span className="fact__label">La bonne réponse</span>
+              <span className="fact__value">{q.expected}</span>
+            </div>
+            {q.note && <p className="t-body2">« {q.note} »</p>}
+            <span className="t-caption">{askedOn(q.askedAt)}</span>{' '}
+            <a className="btn btn--text btn--sm" href={toHash({ name: 'suivi-question', eleve, id: q.id })}>
+              {q.answer === null ? 'Répondre' : 'Modifier ma réponse'}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const askedOn = (ms: number) =>
+  new Date(ms).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', timeZone: 'Europe/Paris' });
+
 function StudentPicker({ students, current, onChoose }: { students: Student[]; current: Student; onChoose: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   if (students.length < 2) return <h1 className="who who--static">{current.name}</h1>;
@@ -335,6 +383,7 @@ export default function Dashboard() {
       <Reviews dash={dash} today={today} />
       <CommonErrors dash={dash} />
       <ToRework dash={dash} eleve={student.id} />
+      <ClementQuestions eleve={student.id} />
     </main>
   );
 }
