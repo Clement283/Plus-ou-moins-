@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { LineScene } from '@pom/engine';
 import { prefersReducedMotion } from './reducedMotion';
 
 export interface Jump {
@@ -63,6 +64,120 @@ export function NumberLine({ from, to, jumps }: { from: number; to: number; jump
           );
         })}
       </div>
+    </div>
+  );
+}
+
+const MAX_TOUCH_TICKS = 8;
+
+export interface LineTouch {
+  onPick(point: number): void;
+  picked?: number | null;
+  /** Main animée : l'appelant ne la passe que la 1re fois. */
+  hand?: boolean;
+  consigne: string;
+}
+
+/** Graduation de la main : jamais 0 ; arrivée du dernier bond, sinon la graduation non nulle la plus proche du milieu. */
+function handPoint(line: LineScene): number | null {
+  const ticks = Array.from({ length: Math.max(line.to - line.from, 0) + 1 }, (_, i) => line.from + i).filter((v) => v !== 0);
+  if (ticks.length === 0) return null;
+  const last = line.jumps[line.jumps.length - 1];
+  if (last) {
+    const end = last.from + last.by;
+    if (ticks.includes(end)) return end;
+  }
+  const mid = (line.from + line.to) / 2;
+  return ticks.reduce((best, v) => (Math.abs(v - mid) < Math.abs(best - mid) ? v : best));
+}
+
+/**
+ * Droite graduée de la scène : une colonne par graduation (au moins 44 px), pastille touchable, nombres SOUS les
+ * pastilles, arcs orange (négatif) / bleu (positif) ou gris (`tone: 'neutral'`). `revealed` dessine les bonds `after`.
+ */
+export function LineView({
+  line,
+  mode = 'lesson',
+  touch,
+  revealed = false,
+  replay = 0,
+}: {
+  line: LineScene;
+  mode?: 'lesson' | 'question';
+  touch?: LineTouch;
+  revealed?: boolean;
+  replay?: number;
+}) {
+  const [reduced] = useState(prefersReducedMotion);
+  const ticks = Array.from({ length: Math.max(line.to - line.from, 0) + 1 }, (_, i) => line.from + i);
+  const n = ticks.length;
+  const center = (v: number): string => `${((v - line.from + 0.5) / n) * 100}%`;
+  const neutral = line.tone === 'neutral';
+  const hl = new Set(line.highlight ?? []);
+  const hand = touch?.hand && !reduced ? handPoint(line) : null;
+  const touchable = touch !== undefined && n <= MAX_TOUCH_TICKS;
+
+  return (
+    <div className={`line-view${neutral ? ' is-neutral' : ' is-color'}${touchable ? ' is-touch' : ''}`} data-mode={mode}>
+      {touch && (
+        <p className="line-view__consigne">
+          <strong>{touch.consigne}</strong>
+        </p>
+      )}
+      <div className="line-view__grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(44px, 1fr))` }}>
+        <span className="line-view__track" />
+        {ticks.map((v) => (
+          <span key={v} className="line-view__col">
+            {touchable ? (
+              <button
+                type="button"
+                className={`line-view__dot${reduced ? '' : ' is-breathing'}${touch.picked === v ? ' is-picked' : ''}`}
+                style={{ minWidth: '44px' }}
+                aria-label={`Graduation ${fmt(v)}`}
+                onClick={() => touch.onPick(v)}
+              >
+                <i className="line-view__pastille" />
+              </button>
+            ) : (
+              <span className="line-view__dot">
+                <i className={`line-view__tick${hl.has(v) ? ' is-hl' : ''}`} />
+              </span>
+            )}
+            <span className={`line-view__num${hl.has(v) ? ' is-hl' : ''}`}>{fmt(v)}</span>
+            {hand === v && (
+              <span className={`line-view__hand${reduced ? '' : ' is-animated'}`} aria-hidden="true">
+                👆
+              </span>
+            )}
+          </span>
+        ))}
+      </div>
+      <div className="line-view__arcs" key={replay}>
+        {line.jumps.map((j, i) => {
+          const lo = Math.min(j.from, j.from + j.by);
+          const sign = neutral ? '' : j.by < 0 ? ' is-neg' : ' is-pos';
+          const visible = !j.after || revealed;
+          return (
+            <span
+              key={i}
+              className={`line-view__arc${sign}${visible ? ' is-shown' : ''}`}
+              style={{ left: center(lo), width: `${(Math.abs(j.by) / n) * 100}%` }}
+            >
+              <span className="line-view__arcval">{j.label ?? fmt(j.by, true)}</span>
+            </span>
+          );
+        })}
+      </div>
+      {line.marks && line.marks.length > 0 && (
+        <div className="line-view__marks">
+          {line.marks.map((m) => (
+            <span key={m.at} className="line-view__mark" style={{ left: center(m.at) }}>
+              {m.text}
+            </span>
+          ))}
+        </div>
+      )}
+      {line.legend && <p className="line-view__legend">{line.legend}</p>}
     </div>
   );
 }

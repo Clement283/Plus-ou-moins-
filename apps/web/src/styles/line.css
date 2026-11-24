@@ -1,1 +1,35 @@
-/* line : rempli par une tâche suivante. */
+/* Droite graduée touchable. Couleurs : négatif orange, positif bleu, jamais de rouge. */
+:root{--neg-orange:#B85A00;--pos-blue:#1F5FBF;--line-neutral:#6B6B6B}
+:root[data-theme="dark"]{--neg-orange:#FFA24D;--pos-blue:#7AB0FF;--line-neutral:#A8A8A8}
+
+.line-view{position:relative;padding:var(--sp-8) 0;width:100%}
+.line-view__consigne{margin:0 0 var(--sp-12);text-align:center}
+.line-view__grid{position:relative;display:grid;width:100%}
+.line-view__track{position:absolute;left:0;right:0;top:20px;height:4px;border-radius:2px;background:var(--surface-sunken)}
+.line-view__col{position:relative;display:flex;flex-direction:column;align-items:center;min-width:44px}
+.line-view__dot{position:relative;display:grid;place-items:center;height:44px;width:100%;min-width:44px;background:none;border:0;padding:0;margin:0}
+button.line-view__dot{cursor:pointer}
+.line-view__pastille{display:block;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 3px var(--line-neutral)}
+.line-view__dot.is-picked .line-view__pastille{background:var(--line-neutral)}
+.line-view__tick{display:block;width:2px;height:12px;background:var(--tick);border-radius:1px}
+.line-view__tick.is-hl{height:20px;width:4px;background:var(--highlight)}
+/* nombres sous les pastilles : rien ne les recouvre */
+.line-view__num{margin-top:var(--sp-4);font:400 13px var(--font-body);font-variant-numeric:tabular-nums;color:var(--muted)}
+.line-view__num.is-hl{background:var(--highlight);color:var(--on-highlight);border-radius:var(--r-sm);padding:0 var(--sp-4);font-weight:700}
+.is-breathing .line-view__pastille{animation:line-breathe 2s ease-in-out infinite}
+@keyframes line-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+/* la main reste dans la rangée des pastilles, décalée à droite, jamais sur le 0 : elle ne couvre aucun nombre */
+.line-view__hand{position:absolute;top:2px;left:58%;font-size:26px;line-height:1;pointer-events:none;transform:rotate(-20deg)}
+.line-view__hand.is-animated{animation:line-tap 1.4s ease-in-out 3}
+@keyframes line-tap{0%,100%{transform:translateY(0) rotate(-20deg)}50%{transform:translateY(6px) rotate(-20deg)}}
+.line-view__arcs{position:relative;height:56px;margin-top:var(--sp-8)}
+.line-view__arc{position:absolute;top:0;height:28px;color:var(--line-neutral);border:3px solid currentColor;border-top:0;border-radius:0 0 50% 50% / 0 0 100% 100%;clip-path:inset(0 100% 0 0);transition:clip-path var(--dur-slow) var(--ease)}
+.line-view__arc.is-neg{color:var(--neg-orange)}
+.line-view__arc.is-pos{color:var(--pos-blue)}
+.line-view__arc.is-shown{clip-path:inset(-4px -4px -40px -4px)}
+.line-view__arcval{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:var(--sp-4);font:700 15px var(--font-body);white-space:nowrap;opacity:0}
+.line-view__arc.is-shown .line-view__arcval{opacity:1}
+.line-view__marks{position:relative;height:20px}
+.line-view__mark{position:absolute;transform:translateX(-50%);font:600 12px var(--font-body);color:var(--muted);white-space:nowrap}
+.line-view__legend{margin:var(--sp-8) 0 0;text-align:center;font:400 13px var(--font-body);color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.is-breathing .line-view__pastille,.line-view__hand.is-animated{animation:none}.line-view__arc{transition:none}}
