@@ -4,6 +4,7 @@ import { CALCULS, CALCULS_COURSES } from './calculs';
 import type { CourseDef, Exercise, ModuleDef } from './types';
 
 export * from './types';
+export { MEMO_BEFORE_VALIDATION, canOpenMemo } from './memo';
 /** The LaTeX of a writing cut into pieces (Cours 0), for showing a calculation as it was written. */
 export { joinPieces } from './calculs/c00-bien-ecrire';
 

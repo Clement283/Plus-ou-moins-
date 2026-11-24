@@ -1,1 +1,8 @@
-/* memo : rempli par une tâche suivante. */
+/* Fiche mémo (T3) */
+.fiche { display: grid; gap: var(--sp-12); }
+.fiche__blk { border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-12) var(--sp-16); display: grid; gap: var(--sp-4); }
+.fiche__blk p { margin: 0; }
+.fiche__blk ul { margin: 0; padding-left: 1.1em; display: grid; gap: 2px; }
+.fiche__k { margin: 0; font: 500 0.75rem var(--font-body); text-transform: uppercase; letter-spacing: 0.07em; color: var(--primary-ink); }
+.fiche__blk--bad .fiche__k { color: var(--error-ink); }
+.fiche__ex { font-size: 1.35rem; font-weight: 500; display: flex; flex-wrap: wrap; gap: var(--sp-16); }
