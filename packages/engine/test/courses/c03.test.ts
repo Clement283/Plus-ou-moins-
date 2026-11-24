@@ -91,7 +91,7 @@ describe('Cours 3 — Additionner plusieurs relatifs', () => {
     ));
 
   it('leçon : 4 parties, 2 exemples guidés', () => {
-    const kinds = c03.parts.map((p) => (p.type === 'explication' ? 'explication' : `${p.activity}:${p.question.kind}`));
+    const kinds = c03.parts.map((p) => (p.type !== 'question' ? p.type : `${p.activity}:${p.question.kind}`));
     expect(kinds).toEqual([
       'explication', 'explication', 'lecon:ordre', 'lecon:saisie',
       'exemple:trou', 'exemple:trou', 'exemple:trou', 'exemple:trou',

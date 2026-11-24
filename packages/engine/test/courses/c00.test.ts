@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { c00, joinPieces, writingExercise, writingFaults } from '../../src/courses/calculs/c00-bien-ecrire';
+import { atomize, c00, joinPieces, writingExercise, writingFaults } from '../../src/courses/calculs/c00-bien-ecrire';
+import { lessonStep } from '../../src/courses/types';
+import { checkAnswer } from '../../src/exercises/check';
 import type { Exercise, Level } from '../../src/courses/types';
 import type { Question } from '../../src/exercises/types';
 import { type Expr, toLatex } from '../../src/math/expr';
 import { seededRng } from '../../src/rng';
 import { rat } from '../../src/math/rational';
-import { diagnose } from '../../src/courses';
+import { diagnose, getCourse } from '../../src/courses';
 import { DRAWS, LEVELS, TOLERANCE, opsOf, parseCalc, tex } from './helpers';
 
 const tokens = (ex: Exercise): string[] => ex.meta?.tokens as string[];
@@ -14,8 +16,11 @@ const faultType = (ex: Exercise): string | null => ex.meta?.faultType as string 
 const pieces = (...p: string[]): string[] => p.map(tex);
 const leaves = (e: Expr): number[] => (e.k === 'num' ? [e.v.n] : e.k === 'op' ? [...leaves(e.a), ...leaves(e.b)] : leaves(e.a));
 
+/** « Toucher la faute » question as customQuestion builds it: one box per symbol. */
 function erreurOf(ex: Exercise): Extract<Question, { kind: 'erreur' }> {
-  return { kind: 'erreur', ex, lines: c00.resolution(ex), wrongLine: faultAt(ex), errorType: faultType(ex) };
+  const at = faultAt(ex);
+  const { symbols, accept } = atomize(tokens(ex), at === null ? null : { at, type: faultType(ex) as 'signes-colles' });
+  return { kind: 'erreur', ex, lines: symbols, wrongLine: accept[0] ?? null, errorType: faultType(ex), accept, shownLatex: joinPieces(tokens(ex)) };
 }
 
 describe('Cours 0 — Bien écrire un calcul', () => {
@@ -28,12 +33,20 @@ describe('Cours 0 — Bien écrire un calcul', () => {
     expect(c00.endExercises).toEqual({ count: 5, kind: 'erreur' });
     expect(c00.errors.map((e) => [e.id, e.family])).toEqual([
       ['signes-colles', 'ecriture'],
+      ['parentheses-en-tete', 'ecriture'],
       ['moins-apres', 'ecriture'],
       ['parenthese', 'ecriture'],
+    ]);
+    expect(c00.errors.map((e) => e.rule)).toEqual([
+      { n: 1, label: 'Deux signes qui se touchent', partIndex: 4 },
+      { n: 2, label: 'Parenthèses inutiles en tête', partIndex: 7 },
+      { n: 3, label: 'Moins après le nombre', partIndex: 8 },
+      { n: 4, label: 'Parenthèse non fermée', partIndex: 11 },
     ]);
     const ex = writingExercise(parseCalc('4 × (−3)'), pieces('4', '× −', '3'), 1);
     expect(c00.errors.map((e) => e.explain(ex).rule)).toEqual([
       'Deux signes ne se suivent jamais : 4 × (−3).',
+      "En tête du calcul, on n'écrit pas de parenthèses : −3 + 4.",
       "Le signe moins s'écrit avant le nombre : −3.",
       'Une parenthèse ouverte doit être fermée.',
     ]);
@@ -53,20 +66,27 @@ describe('Cours 0 — Bien écrire un calcul', () => {
       expect([faultAt(row4), faultType(row4)]).toEqual([2, 'parenthese']);
     });
 
-    it('4 × −3 : touches « × − » → juste', () => {
-      const o = c00.customCheck?.(erreurOf(row1), { line: 1 });
-      expect(o).toMatchObject({ correct: true, errorType: null, errorFamily: null });
+    it('4 × −3 : la case « × » ou la case « − » → juste', () => {
+      const q = erreurOf(row1);
+      expect(q.lines).toEqual(['4', '\\times', '-', '3']);
+      expect(c00.customCheck?.(q, { line: 2 })).toMatchObject({ correct: true, errorType: null, errorFamily: null });
+      expect(c00.customCheck?.(q, { line: 1 })).toMatchObject({ correct: true, errorType: null });
+      expect(c00.customCheck?.(q, { line: 0 })).toMatchObject({ correct: false, errorType: 'signes-colles', errorFamily: 'ecriture' });
     });
-    it('4 × (−3) : touches « × » → relecture', () => {
+    it('4 × (−3) : touche « × » → relecture', () => {
       const o = c00.customCheck?.(erreurOf(row2), { line: 1 });
       expect(o).toMatchObject({ correct: false, errorType: 'relecture', given: '\\times', expected: 'Tout est bien écrit' });
+      expect(c00.customCheck?.(erreurOf(row2), { line: null })).toMatchObject({ correct: true });
     });
     it('5 + (−2) × 3− : « Tout est bien écrit » → moins-apres', () => {
       const o = c00.customCheck?.(erreurOf(row3), { line: null });
-      expect(o).toMatchObject({ correct: false, errorType: 'moins-apres', errorFamily: 'ecriture', given: 'Tout est bien écrit', expected: '3-' });
+      expect(o).toMatchObject({ correct: false, errorType: 'moins-apres', errorFamily: 'ecriture', given: 'Tout est bien écrit', expected: '-' });
     });
-    it('−6 − (−2 × 4 : touches « (−2 × 4 » → juste', () => {
-      expect(c00.customCheck?.(erreurOf(row4), { line: 2 })).toMatchObject({ correct: true, errorType: null });
+    it('−6 − (−2 × 4 : la case « ( » non fermée → juste', () => {
+      const q = erreurOf(row4);
+      expect(q.lines).toEqual(['-', '6', '-', '(', '-', '2', '\\times', '4']);
+      expect(q.accept).toEqual([3]);
+      expect(c00.customCheck?.(q, { line: 3 })).toMatchObject({ correct: true, errorType: null });
     });
   });
 
@@ -107,7 +127,7 @@ describe('Cours 0 — Bien écrire un calcul', () => {
         expect(leaves(ex.expr).some((n) => n < 0)).toBe(true);
         const expected = faultAt(ex) === null ? [] : [{ at: faultAt(ex), type: faultType(ex) }];
         expect(writingFaults(tokens(ex)), joinPieces(tokens(ex))).toEqual(expected);
-        expect(c00.resolution(ex)).toEqual(tokens(ex));
+        expect(c00.resolution(ex)).toEqual(erreurOf(ex).lines);
         if (faultAt(ex) === null) {
           wellWritten++;
           expect(joinPieces(tokens(ex))).toBe(shown);
@@ -133,11 +153,13 @@ describe('Cours 0 — Bien écrire un calcul', () => {
         for (let i = 0; i < DRAWS; i++) {
           const ex = err.trap(level, rng);
           expect(ex.level).toBe(level);
-          expect(faultType(ex)).toBe(err.id);
-          expect(writingFaults(tokens(ex))).toEqual([{ at: faultAt(ex), type: err.id }]);
+          // « parentheses-en-tete » n'est jamais produite par le générateur : son piège (Réécris) est un négatif en tête mal écrit
+          const made = err.id === 'parentheses-en-tete' ? 'moins-apres' : err.id;
+          expect(faultType(ex)).toBe(made);
+          expect(writingFaults(tokens(ex))).toEqual([{ at: faultAt(ex), type: made }]);
           const piece = tokens(ex)[faultAt(ex) as number] as string;
           if (err.id === 'signes-colles') expect(piece).toMatch(/^\\(times|div) -$/);
-          if (err.id === 'moins-apres') expect(faultAt(ex)).toBe(0);
+          if (made === 'moins-apres') expect(faultAt(ex)).toBe(0);
           if (err.id === 'parenthese') expect(piece).toMatch(/^\(/);
           expect(err.wrongValues(ex)).toEqual([]);
         }
@@ -146,19 +168,104 @@ describe('Cours 0 — Bien écrire un calcul', () => {
   describe('questions', () => {
     const ctx = (level: Level, seed: number, trapErrorType?: string) => ({ rng: seededRng(seed), level, timesSeen: 0, trapErrorType });
 
-    it('Trouver l’erreur d’écriture', () => {
-      for (const level of LEVELS) {
-        const c = ctx(level, 2000 + level);
-        for (let i = 0; i < 200; i++) {
-          const q = c00.customQuestion?.('erreur', c);
-          if (q?.kind !== 'erreur') throw new Error('erreur');
-          expect(q.lines).toEqual(tokens(q.ex));
-          expect(q.wrongLine).toBe(faultAt(q.ex));
-          expect(q.errorType).toBe(faultType(q.ex));
+    it('Toucher la faute : une case par symbole, les cases acceptées sont celles de la faute (500 tirages)', () => {
+      const SYMBOL = /^(\\times|\\div|\+|-|\(|\)|\d+)$/;
+      const traps = [undefined, 'signes-colles', 'moins-apres', 'parenthese'];
+      const c = ctx(1, 2000);
+      for (let i = 0; i < 500; i++) {
+        const level = LEVELS[i % 3] as Level;
+        const q = c00.customQuestion?.('erreur', { ...c, level, trapErrorType: traps[i % 4] });
+        if (q?.kind !== 'erreur') throw new Error('erreur');
+        const accept = q.accept as number[];
+        expect(accept, joinPieces(tokens(q.ex))).toBeDefined();
+        expect(accept.length > 0).toBe(q.wrongLine !== null);
+        expect(q.wrongLine).toBe(accept[0] ?? null);
+        expect(q.errorType).toBe(faultType(q.ex));
+        expect(q.shownLatex).toBe(joinPieces(tokens(q.ex)));
+        // un nombre = une case, jamais de signe collé à un nombre
+        expect(q.lines.every((l) => SYMBOL.test(l)), q.lines.join(' ')).toBe(true);
+        expect(q.lines.filter((l) => /^\d+$/.test(l)).length).toBe(tokens(q.ex).join(' ').match(/\d+/g)?.length);
+        for (const k of accept) expect(q.lines[k]).toMatch(/^(\\times|\\div|\+|-|\(|\))$/);
+        const type = faultType(q.ex);
+        if (type === 'signes-colles') {
+          expect(accept).toHaveLength(2);
+          expect(accept[1]).toBe((accept[0] as number) + 1);
+          expect(q.lines[accept[0] as number]).toMatch(/^(\\times|\\div|\+|-)$/);
+          expect(q.lines[accept[1] as number]).toBe('-');
         }
+        if (type === 'moins-apres') {
+          expect(accept).toHaveLength(1);
+          expect(q.lines[accept[0] as number]).toBe('-');
+          expect(q.lines[(accept[0] as number) - 1]).toMatch(/^\d+$/);
+        }
+        if (type === 'parenthese') {
+          expect(accept).toHaveLength(1);
+          expect(q.lines[accept[0] as number]).toMatch(/^[()]$/);
+          // la case acceptée est bien celle qui n'a pas sa pareille
+          const open = q.lines.filter((l) => l === '(').length;
+          const close = q.lines.filter((l) => l === ')').length;
+          expect(q.lines[accept[0] as number]).toBe(open > close ? '(' : ')');
+        }
+        if (type === null) expect(accept).toEqual([]);
       }
       const q = c00.customQuestion?.('erreur', ctx(2, 7, 'moins-apres'));
       expect(q?.kind === 'erreur' && q.errorType).toBe('moins-apres');
+    });
+
+    it('atomize : un nombre = une case, chaque signe et parenthèse = une case', () => {
+      expect(atomize(['4', '\\times -', '3'], { at: 1, type: 'signes-colles' })).toEqual({ symbols: ['4', '\\times', '-', '3'], accept: [1, 2] });
+      expect(atomize(['3-', '+', '4'], { at: 0, type: 'moins-apres' })).toEqual({ symbols: ['3', '-', '+', '4'], accept: [1] });
+      expect(atomize(['4', '\\times', '(', '-3', ')'], null)).toEqual({ symbols: ['4', '\\times', '(', '-', '3', ')'], accept: [] });
+      expect(atomize(['12', '+', '(', '-34', ')'], null).symbols).toEqual(['12', '+', '(', '-', '34', ')']);
+      expect(atomize(['4', '\\times', '(-3'], { at: 2, type: 'parenthese' })).toEqual({ symbols: ['4', '\\times', '(', '-', '3'], accept: [2] });
+      expect(atomize(['4', '\\times', '-3', ')'], { at: 3, type: 'parenthese' }).accept).toEqual([4]);
+    });
+
+    it('Quelle règle ? (généré) : 3 options fixes, la bonne selon la faute réelle', () => {
+      const c = ctx(1, 2500);
+      const labels = ['Deux signes se touchent', 'Le moins est après le nombre', "Une parenthèse n'est pas fermée"];
+      for (let i = 0; i < 300; i++) {
+        const q = c00.customQuestion?.('choix', { ...c, level: LEVELS[i % 3] as Level });
+        if (q?.kind !== 'choix') throw new Error('choix');
+        expect(q.prompt).toBe("Ce calcul est mal écrit. Quelle règle n'est pas respectée ?");
+        expect(q.options.map((o) => o.label)).toEqual(labels);
+        expect(q.calcLatex).toBe(joinPieces(tokens(q.ex)));
+        const type = faultType(q.ex);
+        expect(q.correctIndex).toBe(['signes-colles', 'moins-apres', 'parenthese'].indexOf(type as string));
+        expect(q.options.every((o) => o.why.length > 0)).toBe(true);
+        expect(checkAnswer(c00, q, { choice: q.correctIndex })).toMatchObject({ correct: true });
+        const wrongIndex = (q.correctIndex + 1) % 3;
+        expect(checkAnswer(c00, q, { choice: wrongIndex })).toMatchObject({ correct: false, message: q.options[wrongIndex]?.why });
+      }
+    });
+
+    it('Réécris correctement (généré) : bonne réponse, écriture fautive affichée, parenthèses en tête, nombres changés', () => {
+      const c = ctx(1, 2600);
+      let sawHead = false;
+      for (let i = 0; i < 300; i++) {
+        const q = c00.customQuestion?.('reecrire', { ...c, level: LEVELS[i % 3] as Level });
+        if (q?.kind !== 'reecrire') throw new Error('reecrire');
+        const type = faultType(q.ex);
+        expect(type).not.toBeNull();
+        expect(q.givenLatex).toBe(joinPieces(tokens(q.ex)));
+        expect(q.steps).toHaveLength(3);
+        expect(checkAnswer(c00, q, { text: q.expected })).toMatchObject({ correct: true });
+        expect(checkAnswer(c00, q, { text: ` ${q.expected.replace(/×/g, ' x ')} ` })).toMatchObject({ correct: true });
+        const shown = q.givenLatex.replace(/\\times ?/g, '×').replace(/\\div ?/g, '÷');
+        const o = checkAnswer(c00, q, { text: shown });
+        expect(o, shown).toMatchObject({ correct: false, errorType: type, errorFamily: 'ecriture' });
+        expect(o.message).toBeTruthy();
+        const head = q.expected.match(/^−(\d+)(?=[+−×÷]|$)/);
+        if (head) {
+          sawHead = true;
+          const withParens = q.expected.replace(/^−\d+/, `(−${head[1]})`);
+          expect(checkAnswer(c00, q, { text: withParens })).toMatchObject({ correct: false, errorType: 'parentheses-en-tete', errorFamily: 'ecriture' });
+        }
+        // même écriture, mais un nombre change
+        const changed = q.expected.replace(/\d+/, (d) => String(Number(d) + 10));
+        expect(checkAnswer(c00, q, { text: changed })).toMatchObject({ correct: false, errorType: null, message: 'Garde les mêmes nombres.' });
+      }
+      expect(sawHead).toBe(true);
     });
 
     it('QCM « Lequel est bien écrit ? » : 4 écritures, une seule correcte', () => {
@@ -247,34 +354,136 @@ describe('Cours 0 — Bien écrire un calcul', () => {
     });
   });
 
-  it('règle 2 : le contre-exemple « (−3) + 5 » est neutre (gris), pas ✗ (doc 07 #8A)', () => {
-    const rule2 = c00.parts[2];
-    if (rule2?.type !== 'explication') throw new Error('explication');
-    expect(rule2.blocks).toContainEqual({ t: 'text', text: '(−3) + 5', tone: 'neutre', note: 'Pas faux, mais inutile : en tête, pas de parenthèses.' });
-    expect(rule2.blocks.some((b) => b.t === 'text' && b.text.includes('✗'))).toBe(false);
+  it('règle 2 : « (−3) + 5 : pas faux, mais inutile » (doc 07 #8A), sans symbole « ~ »', () => {
+    const p = c00.parts[7];
+    if (p?.type !== 'question') throw new Error('question');
+    expect(p.activity).toBe('decouverte');
+    expect(p.outro).toEqual(['(−3) + 5 : pas faux, mais inutile']);
+    expect(p.outroRule).toEqual({ n: 2, text: "**En tête d'un calcul, pas de parenthèses** pour un nombre négatif." });
   });
 
-  it('leçon : déroulé', () => {
-    const kinds = c00.parts.map((p) => (p.type === 'explication' ? 'explication' : `${p.activity}:${p.question.kind}`));
+  it('leçon : 19 parties dans l’ordre du plan', () => {
+    expect(c00.parts).toHaveLength(19);
+    expect(c00.lessonLength).toBe(14);
+    const kinds = c00.parts.map((p) => (p.type === 'question' ? `${p.activity}:${p.question.kind}` : p.type));
     expect(kinds).toEqual([
-      'explication', 'explication', 'explication', 'explication', 'explication',
-      'lecon:classer', 'lecon:erreur', 'exemple:trou', 'exemple:trou',
+      'decouverte:choix', 'etapes', 'lecon:choix', 'lecon:choix', 'etapes', 'etapes', 'lecon:choix', 'decouverte:choix',
+      'etapes', 'lecon:choix', 'lecon:choix', 'etapes', 'lecon:choix', 'etapes', 'lecon:classer', 'lecon:choix',
+      'exemple:reecrire', 'exemple:reecrire', 'etapes',
     ]);
-    const classer = c00.parts[5];
+    expect(c00.parts[4]?.type).toBe('etapes');
+    const joined = c00.parts.flatMap((p, i) => (p.type === 'question' && p.joinPrevious ? [i] : []));
+    expect(joined).toEqual([3, 10]);
+    expect(lessonStep(c00, 0)).toEqual({ n: 1, total: 12 });
+    expect(lessonStep(c00, 2)).toEqual({ n: 3, total: 12 });
+    expect(lessonStep(c00, 3)).toEqual({ n: 3, total: 12 });
+    expect(lessonStep(c00, 4)).toEqual({ n: 4, total: 12 });
+    expect(lessonStep(c00, 10)).toEqual({ n: 9, total: 12 });
+    expect(lessonStep(c00, 13)).toEqual({ n: 12, total: 12 });
+    expect(lessonStep(c00, 14)).toBeNull();
+    expect(lessonStep(getCourse('c04-soustraire'), 0)).toBeNull();
+  });
+
+  it('leçon : textes du doc 06, mot pour mot', () => {
+    const part = (i: number) => c00.parts[i] as Extract<(typeof c00.parts)[number], { type: 'question' }>;
+    const choix = (i: number) => {
+      const q = part(i).question;
+      if (q.kind !== 'choix') throw new Error('choix');
+      return q;
+    };
+    const etapes = (i: number) => c00.parts[i] as Extract<(typeof c00.parts)[number], { type: 'etapes' }>;
+    expect(part(0).title).toBe('Bien écrire un calcul');
+    expect(part(0).intro).toEqual([
+      "En maths, un calcul doit se lire **d'une seule façon**. S'il est mal écrit, on peut se tromper même en connaissant la méthode.",
+      "Dans ce cours, tu vas apprendre **4 règles d'écriture**.",
+    ]);
+    expect(choix(0).prompt).toBe('Pour commencer, à ton avis : ce calcul est-il bien écrit ?');
+    expect(choix(0).options.map((o) => o.label)).toEqual(['Oui', 'Non']);
+    expect(choix(0).correctIndex).toBe(1);
+    expect(choix(0).options[0]?.why).toBe("Il est mal écrit. Ce n'est pas grave de ne pas le savoir encore : c'est justement ce que ce cours explique.");
+    expect(etapes(1).title).toBe('Le signe − a deux rôles');
+    expect(etapes(1).steps).toHaveLength(4);
+    expect(etapes(4).steps).toHaveLength(5);
+    expect(etapes(4).steps[4]?.rule).toEqual({ n: 1, text: '**Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met entre parenthèses.' });
+    expect(etapes(5).steps).toHaveLength(4);
+    expect(etapes(8).steps).toHaveLength(5);
+    expect(etapes(8).steps[3]?.scene?.calcs[0]?.tokens[0]).toEqual({ t: '−', hl: true, anim: 'slide' });
+    expect(etapes(11).steps).toHaveLength(5);
+    expect(etapes(13).steps[0]?.recap).toHaveLength(4);
+    expect(choix(2).prompt).toBe('Dans ce calcul, à quoi sert le − ?');
+    expect(choix(2).options[1]?.why).toBe("Ici le − est entre deux nombres : on enlève 5 à 8. C'est une soustraction.");
+    expect(choix(3).options[0]?.why).toBe("Il n'y a rien avant le − : on ne peut rien soustraire. C'est le signe du nombre −6.");
+    expect(choix(6).options.map((o) => o.label)).toEqual(['(5 + −2)', '5 + (−2)', '5 (+ −2)']);
+    expect(choix(6).options[2]?.why).toBe('Le + est une opération : il reste en dehors. Seul le nombre négatif −2 va entre parenthèses.');
+    expect(choix(9).options.map((o) => o.label)).toEqual(['avant le nombre', 'après le nombre']);
+    expect(choix(10).options.map((o) => o.label)).toEqual(['7−', '−7']);
+    expect(choix(12).options.map((o) => o.label)).toEqual(['(', ')', '−']);
+    expect(choix(12).options[0]?.why).toBe('Une parenthèse est déjà ouverte. Il manque celle qui la ferme : « ) ».');
+    expect(choix(15).options.map((o) => o.label)).toEqual(['Deux signes se touchent', 'Le moins est après le nombre', "Une parenthèse n'est pas fermée"]);
+    expect(choix(15).calcLatex).toBe('7 - -1 = 8');
+    expect(part(15).outro).toEqual(['On le corrige : 7 − (−1) = 8']);
+  });
+
+  it('Classer : 4 calculs, « 3− + 4 » affiché 3- + 4', () => {
+    const classer = c00.parts[14];
     if (classer?.type !== 'question' || classer.question.kind !== 'classer') throw new Error('classer');
+    expect(classer.consigne).toBe("Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case.");
     expect(classer.question.exs.map((e) => joinPieces(tokens(e)))).toEqual(['4 \\times (-3)', '5 + -2', '-3 + 5', '3- + 4']);
     expect(classer.question.expected).toEqual(['bien', 'mal', 'bien', 'mal']);
-    const erreur = c00.parts[6];
-    if (erreur?.type !== 'question' || erreur.question.kind !== 'erreur') throw new Error('erreur');
-    expect(erreur.question.lines).toEqual(pieces('7', '− −', '1', '=', '8'));
-    expect(erreur.question.wrongLine).toBe(1);
-    const hidden = [7, 8].map((i) => {
+  });
+
+  describe('exemples guidés « Réécris »', () => {
+    const reecrire = (i: number) => {
       const p = c00.parts[i];
-      return p?.type === 'question' && p.question.kind === 'trou' ? [p.question.promptLatex, p.question.hidden.n] : null;
+      if (p?.type !== 'question' || p.question.kind !== 'reecrire') throw new Error('reecrire');
+      return p.question;
+    };
+    const check = (i: number, text: string) => checkAnswer(c00, reecrire(i), { text });
+
+    it('Réécris 6 × −2', () => {
+      expect(reecrire(16).expected).toBe('6×(−2)');
+      expect(check(16, '6 × (−2)')).toMatchObject({ correct: true });
+      expect(check(16, '6*(-2)')).toMatchObject({ correct: true });
+      expect(check(16, '6×-2')).toMatchObject({ correct: false, errorType: 'signes-colles', message: 'Le × et le − se touchent encore. Mets −2 entre parenthèses.' });
+      expect(check(16, '6×(−2')).toMatchObject({ correct: false, errorType: 'parenthese', message: 'La parenthèse ouverte doit se fermer.' });
+      expect(check(16, '6×(2−)')).toMatchObject({ errorType: 'moins-apres', message: 'Le signe − se met avant le 2.' });
+      expect(check(16, '6×2−')).toMatchObject({ message: 'Le signe − se met avant le 2.' });
+      expect(check(16, '6×(−5)')).toMatchObject({ correct: false, message: "L'écriture est bonne, mais le nombre a changé. Garde −2." });
+      expect(check(16, '6×(−35)')).toMatchObject({ message: "L'écriture est bonne, mais le nombre a changé. Garde −2." });
+      expect(check(16, '(6×−2)')).toMatchObject({ message: 'Les parenthèses doivent entourer le nombre négatif, pas tout le calcul.' });
+      expect(check(16, '7')).toMatchObject({ correct: false, errorType: null, message: 'Garde le même calcul, et mets le nombre négatif entre parenthèses.' });
+      expect(reecrire(16).steps).toEqual([
+        'Repère les deux signes qui se touchent : × et −.',
+        'Mets le nombre négatif entre parenthèses : (−2).',
+        'Le calcul bien écrit : 6 × (−2).',
+      ]);
     });
-    expect(hidden).toEqual([
-      ['6 \\times (\\square)', -2],
-      ['9 + (\\square)', -4],
-    ]);
+
+    it('Réécris 3− + 4', () => {
+      expect(reecrire(17).givenLatex).toBe('3- + 4');
+      expect(check(17, '-3+4')).toMatchObject({ correct: true });
+      expect(check(17, '−3 + 4')).toMatchObject({ correct: true });
+      expect(check(17, '(-3)+4')).toMatchObject({
+        correct: false,
+        errorType: 'parentheses-en-tete',
+        message: "Pas tout à fait. En tête du calcul, on n'écrit pas de parenthèses : −3 + 4.",
+      });
+      expect(check(17, '3-+4')).toMatchObject({ errorType: 'moins-apres', message: 'Le − est toujours après le 3. Il doit aller devant.' });
+      expect(check(17, '3+4')).toMatchObject({ message: 'Le 3 est négatif : garde son signe −, devant le nombre.' });
+      expect(check(17, '+3+4')).toMatchObject({ message: 'Le 3 est négatif : garde son signe −, devant le nombre.' });
+      expect(check(17, '8')).toMatchObject({ message: 'Garde les mêmes nombres. Le signe − va devant le 3.' });
+      expect(reecrire(17).steps).toEqual([
+        'Le signe − est après le 3 : il doit aller devant.',
+        'Le nombre négatif est en tête du calcul : pas besoin de parenthèses.',
+        'Le calcul bien écrit : −3 + 4.',
+      ]);
+    });
+  });
+
+  it('annonce de la fin', () => {
+    const p = c00.parts[18];
+    if (p?.type !== 'etapes') throw new Error('etapes');
+    expect(p.title).toBe('Place aux 5 exercices de fin');
+    expect(p.steps.map((s) => s.text).join(' ')).toContain('au moins **4 exercices de fin justes sur 5**');
   });
 });

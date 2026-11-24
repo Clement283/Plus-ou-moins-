@@ -6,9 +6,10 @@
  *   counted today moves `nextReview` to tomorrow at the earliest (srs), so it is not proposed
  *   again today; an interrupted review changes nothing and stays due.
  * - Formats of a course's 3 questions: QCM by default; one of them is a « Vrai ou faux » with
- *   probability 1/4 (never for a course that checks its own questions, i.e. Cours 0), and
- *   another one a « Classer » with probability 1/4. So at least one QCM, ~2.5 on average.
- * - The trap (doc 01 §5) goes on one of the QCM: the most frequent recent error among the
+ *   probability 1/4, and another one a « Classer » with probability 1/4. So at least one QCM,
+ *   ~2.5 on average. Cours 0 (the course that checks its own questions) has 3 different formats
+ *   among QCM, Classer, « Quelle règle ? », « Réécris » and « Toucher la faute ».
+ * - The trap (doc 01 §5) goes on one of the QCM (Cours 0: on any question that is not a Classer): the most frequent recent error among the
  *   course's own errors (ties: the first in the course's list). « autre » and other errors with
  *   no trap calculation are not targeted.
  */
@@ -24,6 +25,8 @@ export const REVIEW_SESSION_COURSES = 5;
 const QUESTIONS_PER_COURSE = 3;
 const VRAIFAUX_CHANCE = 0.25;
 const CLASSER_CHANCE = 0.25;
+/** The formats of a Cours 0 review (doc 06): « Lequel est bien écrit ? », Classer, « Quelle règle ? », « Réécris », « Toucher la faute ». */
+const COURSE_0_KINDS: QuestionKind[] = ['qcm', 'classer', 'choix', 'reecrire', 'erreur'];
 
 export interface PendingReview {
   courseId: string;
@@ -68,9 +71,11 @@ function levelsFor(step: number, rng: Rng): Level[] {
 
 /** Doc 04 §9: mostly QCM, at most one « Vrai ou faux », at most one « Classer ». */
 function kindsFor(course: CourseDef, rng: Rng): QuestionKind[] {
+  // Cours 0 (doc 06): 3 different formats among its 5 (so at most one « Classer »)
+  if (course.customCheck) return shuffle(rng, COURSE_0_KINDS).slice(0, QUESTIONS_PER_COURSE);
   const kinds: QuestionKind[] = Array.from({ length: QUESTIONS_PER_COURSE }, () => 'qcm');
   const slots = shuffle(rng, [0, 1, 2]);
-  if (!course.customCheck && rng() < VRAIFAUX_CHANCE) kinds[slots[0]!] = 'vraifaux';
+  if (rng() < VRAIFAUX_CHANCE) kinds[slots[0]!] = 'vraifaux';
   if (rng() < CLASSER_CHANCE) kinds[slots[1]!] = 'classer';
   return kinds;
 }
@@ -99,8 +104,9 @@ function courseQuestions(state: ProgressState, c: CourseProgress, rng: Rng): Que
   const kinds = kindsFor(course, rng);
   const levels = shuffle(rng, levelsFor(c.step ?? 0, rng));
   const trap = trapFor(course, c.recentErrors);
-  const qcmSlots = kinds.flatMap((k, i) => (k === 'qcm' ? [i] : []));
-  const trapSlot = trap ? qcmSlots[randInt(rng, 0, qcmSlots.length - 1)] : undefined;
+  // the trap goes on a question that can show it: a QCM, or any format but « Classer » in a course with its own questions
+  const trapSlots = kinds.flatMap((k, i) => (k === 'qcm' || (course.customCheck && k !== 'classer') ? [i] : []));
+  const trapSlot = trap ? trapSlots[randInt(rng, 0, trapSlots.length - 1)] : undefined;
   const timesSeen = qcmSeen(state, c.courseId);
   return kinds.map((kind, i) =>
     buildQuestion(course, kind, {

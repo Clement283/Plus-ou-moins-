@@ -242,7 +242,8 @@ describe('après une erreur (doc 01 §6)', () => {
       s = answer(s, ko(err.id), 1000).state;
       const c = current(s)!;
       expect(c.type === 'question' && c.role).toBe('meme-type');
-      expect(c.type === 'question' && c.question.kind === 'erreur' && c.question.errorType).toBe(err.id);
+      // « parentheses-en-tete » n'est jamais produite par le générateur : son piège est un négatif en tête mal écrit
+      expect(c.type === 'question' && c.question.kind === 'erreur' && c.question.errorType).toBe(err.id === 'parentheses-en-tete' ? 'moins-apres' : err.id);
     }
   });
 
@@ -367,12 +368,13 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
       expect(items.length).toBe(course.parts.length + 5);
       course.parts.forEach((p, i) => {
         const it = items[i]!;
-        expect(it.type).toBe(p.type);
+        expect(it.type).toBe(p.type === 'etapes' ? 'explication' : p.type);
+        if (p.type === 'etapes' && it.type === 'explication') expect(it.steps).toBe(p.steps);
         if (p.type === 'question' && it.type === 'question') {
           expect(it.activity).toBe(p.activity);
           expect(it.question).toBe(p.question);
         }
-        if (p.type === 'explication' && it.type === 'explication') expect(it.partIndex).toBe(i);
+        if (p.type !== 'question' && it.type === 'explication') expect(it.partIndex).toBe(i);
       });
       const fin = items.slice(course.parts.length) as QuestionItem[];
       expect(fin.every((f) => f.type === 'question' && f.activity === 'fin')).toBe(true);
@@ -407,10 +409,10 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
     expect(steps).toEqual(['expl:e1', 'q1:original', 'expl:e2', 'q2:original', 'q0:meme-type', 'q3:original', 'q0:repetition']);
   });
 
-  it('un exemple du Cours 0 (trou fait à la main) raté n’a pas de calcul du même type : il repasse juste avant les exercices de fin', () => {
+  it('un exemple du Cours 0 (« Réécris » fait à la main) raté n’a pas de calcul du même type : il repasse juste avant les exercices de fin', () => {
     const course = getCourse(C0);
     const items = courseRunItems(course, seededRng(2));
-    const trou = items.find((x) => x.type === 'question' && x.question.kind === 'trou')!;
+    const trou = items.find((x) => x.type === 'question' && x.question.kind === 'reecrire')!;
     let s = createActivity('cours', items, { activityId: 'r', rng: seededRng(2) });
     while (head(s) !== `${trou.itemId}:original`) {
       const c = current(s)!;
@@ -529,7 +531,8 @@ describe('révision', () => {
         kinds.push(c.question.kind);
         s = answer(s, c.role === 'original' ? ko() : ok, 1).state;
       }
-      expect(kinds.every((k) => ['qcm', 'vraifaux', 'classer'].includes(k))).toBe(true);
+      // + les formats propres au Cours 0 (« Quelle règle ? », « Réécris », « Toucher la faute », son exercice de fin)
+      expect(kinds.every((k) => ['qcm', 'vraifaux', 'classer', 'choix', 'reecrire', 'erreur'].includes(k))).toBe(true);
     }
   });
 });
@@ -554,7 +557,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
         seenCourses.add(x.courseId);
       }
     }
-    expect(seenKinds.size).toBe(8);
+    expect(seenKinds.size).toBe(10); // 8 types communs + « choix » et « reecrire » du Cours 0
     expect(seenCourses.size).toBe(3);
   });
 
@@ -579,7 +582,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
   });
 
   it('types valides par cours : le Cours 0 n’a que ses formats (pas de « Vrai ou faux »), les autres les 8', () => {
-    expect(availableKinds(getCourse(C0)).sort()).toEqual(['classer', 'erreur', 'qcm']);
+    expect(availableKinds(getCourse(C0)).sort()).toEqual(['choix', 'classer', 'erreur', 'qcm', 'reecrire']);
     expect(availableKinds(getCourse(C5)).sort()).toEqual(['classer', 'erreur', 'ordre', 'paires', 'qcm', 'saisie', 'trou', 'vraifaux']);
   });
 

@@ -83,7 +83,7 @@ describe('Cours 2 — Additionner deux nombres de signes contraires', () => {
   });
 
   it('leçon : 5 parties, 2 exemples guidés', () => {
-    const kinds = c02.parts.map((p) => (p.type === 'explication' ? 'explication' : `${p.activity}:${p.question.kind}`));
+    const kinds = c02.parts.map((p) => (p.type !== 'question' ? p.type : `${p.activity}:${p.question.kind}`));
     expect(kinds).toEqual([
       'explication', 'explication', 'lecon:ordre', 'lecon:saisie', 'lecon:paires',
       'exemple:trou', 'exemple:trou', 'exemple:trou', 'exemple:trou',

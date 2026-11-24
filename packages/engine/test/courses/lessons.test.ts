@@ -10,15 +10,22 @@ const ordreOf = (calc: string): T => [`Remets les étapes de ${calc} dans l'ordr
 
 const DOC09: Record<string, T[]> = {
   'c00-bien-ecrire': [
-    ['Deux signes ne peuvent pas se toucher'],
-    ['Un négatif se met entre parenthèses', 'Après +, −, × ou ÷.'],
-    ['En tête, pas de parenthèses'],
+    ['Bien écrire un calcul'],
+    ['Le signe − a deux rôles'],
+    [null], [null],
+    ['Quand deux signes se touchent'],
+    ['Avec toutes les opérations'],
+    [null],
+    ['Et au début du calcul ?'],
     ['Le moins se met avant le nombre'],
+    [null], [null],
     ['Une parenthèse ouverte se ferme'],
     [null],
+    ['Les 4 règles à retenir'],
     [null],
-    EX,
-    EX,
+    [null],
+    EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c01-additionner-meme-signe': [
     ['Deux dettes font une plus grande dette', 'Tu dois 3 €, puis encore 5 €.'],
@@ -74,7 +81,7 @@ const DOC09: Record<string, T[]> = {
   ],
 };
 
-const textsOf = (p: LessonPart) => ({ title: p.title ?? null, subtitle: p.subtitle });
+const textsOf = (p: LessonPart) => ({ title: p.title ?? null, subtitle: 'subtitle' in p ? p.subtitle : undefined });
 const lines = (p: LessonPart): Extract<LessonBlock, { t: 'text' }>[] =>
   p.type === 'explication' ? p.blocks.filter((b): b is Extract<LessonBlock, { t: 'text' }> => b.t === 'text') : [];
 
@@ -102,9 +109,9 @@ describe('doc 09 : titres des écrans de leçon', () => {
   });
 
   it('consignes propres à doc 09 : Cours 0 « Classer » et Cours 5 « Classer »', () => {
-    const c0 = getCourse('c00-bien-ecrire').parts[5];
+    const c0 = getCourse('c00-bien-ecrire').parts[14];
     const c5 = getCourse('c05-multiplier-deux').parts[4];
-    expect(c0?.type === 'question' && c0.consigne).toBe('Classe chaque calcul : bien écrit ou mal écrit.');
+    expect(c0?.type === 'question' && c0.consigne).toBe("Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case.");
     expect(c5?.type === 'question' && c5.consigne).toBe('Sans calculer, le résultat est-il + ou − ?');
   });
 });
@@ -141,7 +148,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   }
 
   const OK: Record<string, string[]> = {
-    'c00-bien-ecrire': ['4 × (−3)', '5 + (−2)', '7 − (−1)'],
     'c01-additionner-meme-signe': ['−3 + (−5) = −(3 + 5) = **−8**', '4 + 6 = **10**'],
     'c02-additionner-signes-contraires': [
       '−3 + 5 = 5 − 3 = **2** (5 est le plus grand, il est positif)',
@@ -159,20 +165,17 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
     });
   }
 
-  it('Cours 0 : le bloc complet sur la règle 1 seulement, les règles 2 à 4 gardent leur ✓/✗', () => {
-    const id = 'c00-bien-ecrire';
-    expect(attention(id)).toBe(true);
-    expect(ko(id)).toEqual([{ t: 'text', text: '4 × −3', tone: 'ko', note: 'Deux signes ne se suivent jamais : 4 × (−3).' }]);
-    expect(neutral(id)).toEqual([]);
-    const parts = getCourse(id).parts;
-    const tone = (i: number, t: string) => lines(parts[i]!).filter((b) => b.tone === t).map((b) => b.text);
-    expect(tone(2, 'neutre')).toEqual(['(−3) + 5']);
-    expect((parts[2] as { blocks: LessonBlock[] }).blocks.some((b) => b.t === 'heading')).toBe(false);
-    expect(tone(2, 'ok')).toEqual(['−3 + 5']);
-    expect(tone(3, 'ok')).toEqual(['−3']);
-    expect(tone(3, 'ko')).toEqual(['3−']);
-    expect(tone(4, 'ok')).toEqual(['(−3)']);
-    expect(tone(4, 'ko')).toEqual(['(−3']);
+  it('Cours 0 : les 4 règles sont des encadrés des écrans pas à pas (parties 4, 8, 11) et de la question 7', () => {
+    const parts = getCourse('c00-bien-ecrire').parts;
+    const ruleOf = (i: number) => {
+      const p = parts[i];
+      return p?.type === 'etapes' ? p.steps.find((st) => st.rule)?.rule : undefined;
+    };
+    expect(ruleOf(4)?.n).toBe(1);
+    expect(ruleOf(8)).toEqual({ n: 3, text: "**Le signe − d'un nombre négatif s'écrit toujours avant le nombre :** −3, jamais 3−." });
+    expect(ruleOf(11)).toEqual({ n: 4, text: '**Une parenthèse ouverte doit toujours être fermée.**' });
+    const q7 = parts[7];
+    expect(q7?.type === 'question' && q7.outroRule?.n).toBe(2);
   });
 });
 
@@ -183,5 +186,16 @@ describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité
     expect(items[2]).toMatchObject({ type: 'question', texts: { title: 'Réécris 5 − (−3) comme une addition' } });
     expect(items[5]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
     expect(items[3]).not.toHaveProperty('texts');
+  });
+
+  it('courseRunItems : une partie etapes devient une explication avec steps, les textes de question suivent', () => {
+    const items = courseRunItems(getCourse('c00-bien-ecrire'), seededRng(1));
+    expect(items).toHaveLength(19 + 5);
+    expect(items[1]).toMatchObject({ type: 'explication', itemId: 'partie-1', partIndex: 1, blocks: [], texts: { title: 'Le signe − a deux rôles' } });
+    expect((items[1] as { steps?: unknown[] }).steps).toHaveLength(4);
+    expect(items[0]).toMatchObject({ type: 'question', activity: 'decouverte', texts: { title: 'Bien écrire un calcul' } });
+    expect(items[3]).toMatchObject({ type: 'question', activity: 'lecon', texts: { joinPrevious: true } });
+    expect(items[7]).toMatchObject({ texts: { outroRule: { n: 2 } } });
+    expect(items[19]).toMatchObject({ type: 'question', activity: 'fin' });
   });
 });

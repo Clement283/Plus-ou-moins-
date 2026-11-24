@@ -25,7 +25,7 @@ export default function EssaiLecon() {
       <AppBar onClose={() => history.back()} stepper={{ total, done, current: index }} />
       {part.type === 'explication' ? (
         <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} title={course.title} />
-      ) : (
+      ) : part.type === 'etapes' ? null /* écran « pas à pas » : pas encore affiché (Task 5) */ : (
         <QuestionView key={`${course.id}-${index}`} question={part.question} course={course} locked={false} onAnswer={() => undefined} header={<div className="row">{header}</div>} texts={{ ...(part.title ? { title: part.title } : {}), ...(part.subtitle ? { subtitle: part.subtitle } : {}), ...(part.consigne ? { consigne: part.consigne } : {}) }} />
       )}
     </main>
