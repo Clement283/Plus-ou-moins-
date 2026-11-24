@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { checkAnswer } from '@pom/engine';
+import { Bold } from '../Bold';
 import { Math as MathView } from '../../ui/Math';
 import { Prompt, QFrame, type QProps } from './Frame';
 import { symbolText, writingLatex } from './calc';
@@ -53,7 +54,9 @@ export function ErreurEcriture({ q, course, locked, onAnswer, header, footer, te
           </>
         }
       >
-        <p className="q-ask q-ask--lesson">{texts?.consigne ?? TOUCH_ASK}</p>
+        <p className="q-ask q-ask--lesson">
+          <Bold text={texts?.consigne ?? TOUCH_ASK} />
+        </p>
         {q.shownLatex && (
           <div className="q-calc" data-copie>
             <p className="t-math-xl">

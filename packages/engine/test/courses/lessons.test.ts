@@ -13,19 +13,18 @@ const DOC09: Record<string, T[]> = {
   'c00-bien-ecrire': [
     ['Bien écrire un calcul'],
     ['Le signe − a deux rôles'],
-    [null], [null],
     ['Quand deux signes se touchent'],
-    ['Avec toutes les opérations'],
-    [null],
+    ['La règle 1, à toi'],
     ['Et au début du calcul ?'],
     ['Le moins se met avant le nombre'],
-    [null], [null],
     ['Une parenthèse ouverte se ferme'],
+    ['Règles 3 et 4, à toi'],
     [null],
+    ['Comparer deux cas'],
     ['Les 4 règles à retenir'],
-    [null],
-    [null],
-    EX, EX,
+    ['Cours 0 · Pratique'],
+    ['Exemple 1 sur 2'],
+    [null], [null], [null],
     ['Place aux 5 exercices de fin'],
   ],
   'c01-additionner-meme-signe': [
@@ -117,10 +116,8 @@ describe('doc 09 : titres des écrans de leçon', () => {
     }
   });
 
-  it('consignes propres à doc 09 : Cours 0 « Classer » et Cours 5 « Classer »', () => {
-    const c0 = getCourse('c00-bien-ecrire').parts[14];
+  it('consigne propre à doc 09 : Cours 5 « Classer »', () => {
     const c5 = getCourse('c05-multiplier-deux').parts[4];
-    expect(c0?.type === 'question' && c0.consigne).toBe("Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case.");
     expect(c5?.type === 'question' && c5.consigne).toBe('Sans calculer, le résultat est-il + ou − ?');
   });
 });
@@ -172,17 +169,17 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
     });
   }
 
-  it('Cours 0 : les 4 règles sont des encadrés des écrans pas à pas (parties 4, 8, 11) et de la question 7', () => {
+  it('Cours 0 : les 4 règles sont des encadrés des écrans pas à pas (parties 2, 5, 6) et de la question de la partie 4', () => {
     const parts = getCourse('c00-bien-ecrire').parts;
     const ruleOf = (i: number) => {
       const p = parts[i];
       return p?.type === 'etapes' ? p.steps.find((st) => st.rule)?.rule : undefined;
     };
-    expect(ruleOf(4)?.n).toBe(1);
-    expect(ruleOf(8)).toEqual({ n: 3, text: "**Le signe − d'un nombre négatif s'écrit toujours avant le nombre :** −3, jamais 3−." });
-    expect(ruleOf(11)).toEqual({ n: 4, text: '**Une parenthèse ouverte doit toujours être fermée.**' });
-    const q7 = parts[7];
-    expect(q7?.type === 'question' && q7.outroRule?.n).toBe(2);
+    expect(ruleOf(2)?.n).toBe(1);
+    expect(ruleOf(5)).toEqual({ n: 3, text: "**Le signe − d'un nombre négatif s'écrit toujours avant le nombre :** −3, jamais 3−." });
+    expect(ruleOf(6)).toEqual({ n: 4, text: '**Une parenthèse ouverte doit toujours être fermée.**' });
+    const q4 = parts[4];
+    expect(q4?.type === 'question' && q4.outroRule?.n).toBe(2);
   });
 });
 
@@ -197,13 +194,15 @@ describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité
 
   it('courseRunItems : une partie etapes devient une explication avec steps, les textes de question suivent', () => {
     const items = courseRunItems(getCourse('c00-bien-ecrire'), seededRng(1));
-    expect(items).toHaveLength(19 + 5);
+    // 17 parties, dont la série de pratique (4 questions) : 20 éléments, puis les 5 fins
+    expect(items).toHaveLength(20 + 5);
     expect(items[1]).toMatchObject({ type: 'explication', itemId: 'partie-1', partIndex: 1, blocks: [], texts: { title: 'Le signe − a deux rôles' } });
     expect((items[1] as { steps?: unknown[] }).steps).toHaveLength(4);
     expect(items[0]).toMatchObject({ type: 'question', activity: 'decouverte', texts: { title: 'Bien écrire un calcul' } });
-    expect(items[3]).toMatchObject({ type: 'question', activity: 'lecon', texts: { joinPrevious: true } });
-    expect(items[7]).toMatchObject({ texts: { outroRule: { n: 2 } } });
-    expect(items[19]).toMatchObject({ type: 'question', activity: 'fin' });
+    expect(items[8]).toMatchObject({ type: 'question', activity: 'lecon', texts: { joinPrevious: true } });
+    expect(items[4]).toMatchObject({ texts: { outroRule: { n: 2 } } });
+    expect(items[11]).toMatchObject({ itemId: 'partie-11-0', activity: 'lecon', texts: { series: { n: 1, of: 4 } } });
+    expect(items[20]).toMatchObject({ type: 'question', activity: 'fin' });
   });
 });
 

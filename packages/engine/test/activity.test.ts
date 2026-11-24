@@ -365,14 +365,21 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
     for (const id of IDS) {
       const course = getCourse(id);
       const items = courseRunItems(course, seededRng(5));
-      const size = (p: (typeof course.parts)[number]): number => (p.type === 'pratique' ? p.questions.length : 1);
-      const total = course.parts.reduce((n, p) => n + size(p), 0);
-      expect(items.length).toBe(total + 5);
-      let offset = 0;
+      // une partie `pratique` donne un élément par question de la série
+      const partItems = course.parts.reduce((n, p) => n + (p.type === 'pratique' ? p.questions.length : 1), 0);
+      expect(items.length).toBe(partItems + 5);
+      let at = 0;
       course.parts.forEach((p, i) => {
-        const it = items[offset]!;
-        offset += size(p);
-        if (p.type === 'pratique') return;
+        if (p.type === 'pratique') {
+          p.questions.forEach((pq, k) => {
+            const it = items[at + k]!;
+            expect(it.type).toBe('question');
+            if (it.type === 'question') expect(it.question).toBe(pq.question);
+          });
+          at += p.questions.length;
+          return;
+        }
+        const it = items[at++]!;
         expect(it.type).toBe(p.type === 'etapes' ? 'explication' : p.type);
         if (p.type === 'etapes' && it.type === 'explication') expect(it.steps).toBe(p.steps);
         if (p.type === 'question' && it.type === 'question') {
@@ -381,7 +388,7 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
         }
         if (p.type !== 'question' && it.type === 'explication') expect(it.partIndex).toBe(i);
       });
-      const fin = items.slice(total) as QuestionItem[];
+      const fin = items.slice(partItems) as QuestionItem[];
       expect(fin.every((f) => f.type === 'question' && f.activity === 'fin')).toBe(true);
       expect(fin.every((f) => f.question.kind === course.endExercises.kind)).toBe(true);
       expect(id === C0 ? ['erreur'] : ['saisie', 'trou']).toContain(course.endExercises.kind);

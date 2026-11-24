@@ -36,7 +36,11 @@ export interface PreviousChoix {
  */
 export function Prompt({ texts, fallback, cls }: { texts?: PartTexts; fallback: string; cls: string }) {
   if (texts?.title) return <LessonHeading title={texts.title} subtitle={texts.subtitle} />;
-  return <p className={cls}>{texts?.consigne ?? fallback}</p>;
+  return (
+    <p className={cls}>
+      <Bold text={texts?.consigne ?? fallback} />
+    </p>
+  );
 }
 
 /** Titre d'un écran de leçon et son sous-titre (maquette cours.html : `t-h3` puis `t-body2` en gris). */

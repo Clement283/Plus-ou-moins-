@@ -11,11 +11,12 @@ export function Morceau({ tokens, action, onSolved }: { tokens: SceneToken[]; ac
     if (action.target.includes(i)) return onSolved();
     setErr(action.errors.find((f) => f.at.includes(i))?.message ?? action.fallback);
   };
-  const gap = (i: number) => (
-    <button key={`g${i}`} type="button" className="touch-gap" aria-label={`Endroit ${i + 1}`} onClick={() => pick(i)}>
-      <i />
-    </button>
-  );
+  const gap = (i: number) =>
+    action.gaps && !action.gaps.includes(i) ? null : (
+      <button key={`g${i}`} type="button" className="touch-gap" aria-label={`Endroit ${i + 1}`} onClick={() => pick(i)}>
+        <i />
+      </button>
+    );
   return (
     <div className="etape-touch">
       <p className="etape-touch__consigne">
