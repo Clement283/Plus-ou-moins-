@@ -258,7 +258,7 @@ describe('ActivityScreen', () => {
   });
 });
 
-describe('ActivityScreen : Cours 0 v2 (leçon pas à pas, petites questions)', () => {
+describe('ActivityScreen : Cours 0 v3 (leçon pas à pas, petites questions)', () => {
   const C00 = getCourse('c00-bien-ecrire');
   const all = () => courseRunItems(C00, seededRng(1));
   const at = (...ns: number[]) => ns.map((n) => all()[n]!);
@@ -266,36 +266,36 @@ describe('ActivityScreen : Cours 0 v2 (leçon pas à pas, petites questions)', (
   const choice = (t: ReturnType<typeof setup>, label: string) => fireEvent.click(t.$$('.answer-zone .choice').find((b) => b.textContent === label)!);
 
   it('une partie `etapes` s’affiche (plus d’écran vide) : « Suite » puis « Suivant » passe à la suite', () => {
-    const t = setup00(at(4, 6));
-    expect(t.$('h1')!.textContent).toBe('Quand deux signes se touchent');
-    expect(t.$('.stage')!.textContent).toContain('4 × −3');
+    const t = setup00(at(19, 20));
+    expect(t.$('h1')!.textContent).toBe('Place aux 5 exercices de fin');
+    expect(t.$('.stage')).toBeNull();
     expect(t.btn('Suite')).not.toBeNull();
-    for (let i = 0; i < 4; i++) fireEvent.click(t.btn('Suite')!);
+    for (let i = 0; i < 2; i++) fireEvent.click(t.btn('Suite')!);
     fireEvent.click(t.btn('Suivant')!);
-    expect(recorded[0]).toMatchObject({ kind: 'lesson_part_done', partIndex: 4 });
-    expect(t.container.textContent).toContain('Comment écrire correctement ce calcul ?');
+    expect(recorded[0]).toMatchObject({ kind: 'lesson_part_done', partIndex: 16 });
+    expect(t.container.textContent).toContain('Ce calcul est-il bien écrit ?');
   });
 
-  it('2 questions par écran : la 2e garde la 1re en résumé, « Ta réponse : À soustraire ✓ »', () => {
-    const t = setup00(at(2, 3));
+  it('2 questions par écran : la 2e garde la 1re en résumé, « Ta réponse : −7 ✓ »', () => {
+    const t = setup00(at(7, 8));
     expect(t.$('.q-summary')).toBeNull();
-    choice(t, 'À soustraire');
+    choice(t, '−7');
     t.next();
-    expect(t.container.textContent).toContain('Et ici, à quoi sert le');
-    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : À soustraire ✓');
-    expect(t.$('.q-summary')!.textContent).toContain('Dans ce calcul, à quoi sert le');
-    expect(t.$$('.answer-zone .choice').map((b) => b.textContent)).toEqual(['À soustraire', 'À dire que 6 est négatif']);
-    choice(t, 'À dire que 6 est négatif'); // une fois répondue, le résumé reste en haut
-    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : À soustraire ✓');
+    expect(t.container.textContent).toContain('Que manque-t-il à ce calcul ?');
+    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : −7 ✓');
+    expect(t.$('.q-summary')!.textContent).toContain('Lequel est bien écrit ?');
+    expect(t.$$('.answer-zone .choice').map((b) => b.textContent)).toEqual(['(', ')', '−']);
+    choice(t, ')'); // une fois répondue, le résumé reste en haut
+    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : −7 ✓');
   });
 
   it('une 1re réponse fausse : « Ta réponse : … ✗ » au-dessus de la 2e', () => {
-    const t = setup00(at(2, 3));
-    choice(t, 'À dire que 5 est négatif');
+    const t = setup00(at(7, 8));
+    choice(t, '7−');
     expect(t.$('.alert--error .alert__title')!.textContent).toBe('Pas tout à fait.'); // pas de préfixe en plus
-    expect(t.$('.alert--error')!.textContent).toContain("on enlève 5 à 8. C'est une soustraction.");
+    expect(t.$('.alert--error')!.textContent).toContain('Écrit après, on croirait une soustraction.');
     t.next();
-    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : À dire que 5 est négatif ✗');
+    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : 7− ✗');
   });
 
   it('question « pour découvrir » ratée : accueil sans note de répétition, enregistrée comme `decouverte`', () => {
@@ -308,12 +308,12 @@ describe('ActivityScreen : Cours 0 v2 (leçon pas à pas, petites questions)', (
   });
 
   it('petite question : le message de l’option, pas de note de repassage ; juste : « Juste ! » puis l’explication', () => {
-    const t = setup00(at(6, 4));
+    const t = setup00(at(3, 4));
     choice(t, '(5 + −2)');
     expect(t.$('.q-foot .t-caption')).toBeNull();
     expect(t.$('.alert--error')!.textContent).toContain('Les parenthèses doivent entourer le nombre négatif');
     cleanup();
-    const u = setup00(at(6, 4));
+    const u = setup00(at(3, 4));
     choice(u, '5 + (−2)');
     expect(u.$('.alert--success .alert__title')!.textContent).toBe('Juste !');
     expect(u.$('.alert--success')!.textContent).toContain('ne se touchent plus');

@@ -4,7 +4,7 @@ import { Bold } from '../Bold';
 import { Math as MathView } from '../../ui/Math';
 import { writingLatex } from './calc';
 import { Comparer } from './Comparer';
-import { LessonHeading, Mention, QFrame, type QProps } from './Frame';
+import { LessonHeading, Mention, QFrame, Resolution, type QProps } from './Frame';
 
 export const DECOUVERTE_NOTE = 'Question pour découvrir : elle ne compte pas dans la note.';
 
@@ -87,10 +87,13 @@ export function Choix({ q, course, locked, onAnswer, header, footer, texts, acti
     >
       {texts?.title && <LessonHeading title={texts.title} subtitle={texts.subtitle} />}
       {paragraphs(texts?.intro)}
+      <Resolution texts={texts} />
       {compare && <Comparer compare={compare} answered={answered} choice={picked ?? (locked ? q.correctIndex : null)} q={q} />}
       {previous && <Summary previous={previous} />}
       {!compare && q.calcLatex && <CalcBox latex={q.calcLatex} />}
-      <p className="q-ask">{q.prompt}</p>
+      <p className="q-ask">
+        <Bold text={q.prompt} />
+      </p>
       {answered && (
         <>
           {paragraphs(texts?.outro)}

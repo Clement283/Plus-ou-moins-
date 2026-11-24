@@ -155,7 +155,7 @@ describe('cours : résultat', () => {
     expect(t.text()).toContain('Parenthèse non fermée (règle 4)');
     expect(t.text()).toContain('1 fois');
     expect(t.text()).toContain('Prochaine étape : la série de validation.');
-    expect(t.$$('a').find((a) => a.textContent === 'Relire la règle 1')?.getAttribute('href')).toBe('#/cours/c00-bien-ecrire/relire/4');
+    expect(t.$$('a').find((a) => a.textContent === 'Relire la règle 1')?.getAttribute('href')).toBe('#/cours/c00-bien-ecrire/relire/2');
   });
 
   it('erreurs sans règle : ni bloc ni lien « Relire la règle »', () => {
@@ -293,14 +293,10 @@ describe('rattrapage', () => {
 
 describe('relire', () => {
   it('avec une partie : ne montre que cette partie, sans événement, puis revient à Mes cours', async () => {
-    const t = mount(<RelireScreen courseId="c00-bien-ecrire" part={4} rng={seededRng(1)} />);
+    const t = mount(<RelireScreen courseId="c00-bien-ecrire" part={10} rng={seededRng(1)} />);
     await settle();
-    // partie 4 = explication pas à pas : « Suite » jusqu'à la dernière étape, puis « Suivant »
-    expect(t.text()).toContain('Quand deux signes se touchent');
-    for (let i = 0; i < 10 && t.btn('Suite'); i++) {
-      fireEvent.click(t.btn('Suite')!);
-      await settle();
-    }
+    // partie 10 = « Les 4 règles à retenir » : une seule étape, puis « Suivant »
+    expect(t.text()).toContain('Les 4 règles à retenir');
     expect(t.btn('Suivant')).toBeTruthy();
     fireEvent.click(t.btn('Suivant')!);
     await settle();
@@ -325,22 +321,26 @@ describe('relire', () => {
 });
 
 describe('cours 0 : pastille de la leçon pas à pas', () => {
-  it('« Cours 0 · Leçon · étape N sur M », deux questions sur un même écran comptent une étape', () => {
+  it('« Cours 0 · Leçon · étape N sur 10 » : l’étape avance avec la leçon, étapes interactives comprises', () => {
     const c00 = getCourse('c00-bien-ecrire');
     const total = lessonStep(c00, 0)!.total;
+    expect(total).toBe(10);
     const t = mount(<CourseScreen courseId={c00.id} rng={seededRng(1)} />);
     const chip = () => t.$('.chip')!.textContent;
     const choose = (label: string) => fireEvent.click(t.$$('.answer-zone .choice').find((b) => b.textContent === label)!);
+    const tap = (label: string, nth = 0) => fireEvent.click(t.$$('button').filter((b) => b.textContent === label)[nth]!);
     expect(chip()).toBe(`Cours 0 · Leçon · étape 1 sur ${total}`);
     choose('Non');
     fireEvent.click(t.btn('Continuer')!);
     expect(chip()).toBe(`Cours 0 · Leçon · étape 2 sur ${total}`); // « Le signe − a deux rôles » (pas à pas)
-    for (let i = 0; i < 3; i++) fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.btn('Suite')!);
+    expect(t.btn('Suite')).toBeNull(); // l'action remplace « Suite »
+    tap('−', 1); // le 2e − du calcul −6 + 2 − 5
+    fireEvent.click(t.btn('Suite')!);
+    tap('le signe du nombre');
     fireEvent.click(t.btn('Suivant')!);
     expect(chip()).toBe(`Cours 0 · Leçon · étape 3 sur ${total}`);
-    choose('À soustraire');
-    fireEvent.click(t.btn('Continuer')!);
-    expect(chip()).toBe(`Cours 0 · Leçon · étape 3 sur ${total}`); // 2e question du même écran
   });
 });
 

@@ -5,7 +5,7 @@ import { type Expr, type Op, evaluate, num, op, toLatex } from '../../math/expr'
 import { rat } from '../../math/rational';
 import { type Rng, pick, randInt, shuffle } from '../../rng';
 import { normalizeCalc } from '../../exercises/rewrite';
-import type { CourseDef, ErrorDef, Exercise, Explanation, Level, LessonPart, Scene, SceneCalc, SceneToken } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, Explanation, Level, LessonPart, Scene, SceneToken, StepFault } from '../types';
 import { MODULE_ID, asking, choix, smallChoix, chance, decouverte, etapes, exemple, lecon, math, operands, redraw, signed, texted, toText } from './shared';
 
 const ID = 'c00-bien-ecrire';
@@ -269,21 +269,21 @@ const errors: ErrorDef[] = [
     'signes-colles',
     'Deux signes ne se suivent jamais : 4 × (−3).',
     (level, rng) => trapWith(level, rng, (v, p) => v.type === 'signes-colles' && (p[v.at] === '\\times' || p[v.at] === '\\div')),
-    { n: 1, label: 'Deux signes qui se touchent', partIndex: 4 },
+    { n: 1, label: 'Deux signes qui se touchent', partIndex: 2 },
   ),
   // never made by the generator: only a typed answer (« Réécris ») can show it
   writingError('parentheses-en-tete', "En tête du calcul, on n'écrit pas de parenthèses : −3 + 4.", headNegative, {
     n: 2,
     label: 'Parenthèses inutiles en tête',
-    partIndex: 7,
+    partIndex: 4,
   }),
-  writingError('moins-apres', "Le signe moins s'écrit avant le nombre : −3.", headNegative, { n: 3, label: 'Moins après le nombre', partIndex: 8 }),
+  writingError('moins-apres', "Le signe moins s'écrit avant le nombre : −3.", headNegative, { n: 3, label: 'Moins après le nombre', partIndex: 5 }),
   // with parentheses: one is not closed
   writingError(
     'parenthese',
     'Une parenthèse ouverte doit être fermée.',
     (level, rng) => trapWith(level, rng, (v) => v.type === 'parenthese' && (v.pieces[v.at] as string).startsWith('(')),
-    { n: 4, label: 'Parenthèse non fermée', partIndex: 11 },
+    { n: 4, label: 'Parenthèse non fermée', partIndex: 6 },
   ),
 ];
 
@@ -503,7 +503,7 @@ function customCheck(q: Question, a: Answer): Outcome | null {
   return null;
 }
 
-// ——— Lesson ———
+// ——— Lesson (doc 06, Cours 0 v3) ———
 
 const lessonWriting = (expr: Expr, ...pieces: string[]): Exercise => writingExercise(expr, pieces, 1);
 
@@ -515,18 +515,7 @@ const oneScene = (tokens: SceneToken[], extra: { label?: string; caption?: strin
   calcs: [{ tokens, ...(extra.label ? { label: extra.label } : {}) }],
   ...(extra.caption ? { caption: extra.caption } : {}),
 });
-const badGood = (bad: SceneToken[], good: SceneToken[]): SceneCalc[] => [
-  { tokens: bad, tag: 'mal écrit' },
-  { tokens: good, tag: 'bien écrit' },
-];
 const M = '−';
-
-const toClass = [
-  lessonWriting(op('*', num(4), num(-3)), '4', '\\times', '(', '-3', ')'),
-  lessonWriting(op('+', num(5), num(-2)), '5', '+ -', '2'),
-  lessonWriting(op('+', num(-3), num(5)), '-3', '+', '5'),
-  lessonWriting(op('+', num(-3), num(4)), '3-', '+', '4'),
-];
 
 /** Small question on a lesson writing: the calculation is its pieces, as written. */
 const small = (ex: Exercise, prompt: string, options: [string, string][], correctIndex: number): Question =>
@@ -534,10 +523,13 @@ const small = (ex: Exercise, prompt: string, options: [string, string][], correc
 /** The same, with no calculation shown. */
 const smallPlain = (ex: Exercise, prompt: string, options: [string, string][], correctIndex: number): Question =>
   smallChoix(ex, prompt, options.map(([label, why]) => ({ label, why })), correctIndex);
+/** A question of the practice series: not a « petite question » (a failed one comes back before the end exercises). */
+const practice = (ex: Exercise, prompt: string, options: [string, string][], correctIndex: number, calcLatex: string): Question =>
+  choix(ex, prompt, options.map(([label, why]) => ({ label, why })), correctIndex, calcLatex);
 
 const YES_NO = (yes: string, no: string): [string, string][] => [['Oui', yes], ['Non', no]];
 
-// « Réécris 6 × −2 » and « Réécris 3− + 4 » (doc 06, tableau « Retours d'erreur précis »)
+// « Réécris » (doc 06, tableau « Questions qui comptent »)
 const answerOf = (answer: string, message: string, errorType: string | null = null): Rewrite['specific'][number] => ({
   answer: normalizeCalc(answer),
   message,
@@ -554,26 +546,51 @@ const rewriteEx = (ex: Exercise, expected: string, specific: Rewrite['specific']
   steps,
 });
 
+/** « head(−n) » for every n ≠ keep: the writing is right, the number changed. */
+const otherNumbers = (head: string, keep: number, message: string): Rewrite['specific'] =>
+  Array.from({ length: 99 }, (_, i) => i + 1)
+    .filter((n) => n !== keep)
+    .map((n) => answerOf(`${head}(−${n})`, message));
+
+const PRACTICE_REWRITE = rewriteEx(
+  lessonWriting(op('+', num(9), num(-4)), '9', '+ -', '4'),
+  '9+(−4)',
+  [
+    answerOf('9+−4', `Le + et le ${M} se touchent encore. Mets ${M}4 entre parenthèses : 9 + (${M}4).`, 'signes-colles'),
+    answerOf('9+(−4', `La parenthèse ouverte doit se fermer : 9 + (${M}4).`, 'parenthese'),
+    answerOf('(9+−4)', `Les parenthèses doivent entourer le nombre négatif, pas tout le calcul : 9 + (${M}4).`, 'signes-colles'),
+    answerOf('9+(4−)', `Le signe ${M} se met avant le 4 : 9 + (${M}4).`, 'moins-apres'),
+    answerOf('9+4−', `Le signe ${M} se met avant le 4 : 9 + (${M}4).`, 'moins-apres'),
+    ...otherNumbers('9+', 4, `L'écriture est bonne, mais le nombre a changé. Garde ${M}4.`),
+  ],
+  `Garde le même calcul, et mets le nombre négatif entre parenthèses : 9 + (${M}4).`,
+  ['Repère les deux signes qui se touchent : + et −.', 'Mets le nombre négatif entre parenthèses : (−4).', 'Le calcul bien écrit : 9 + (−4).'],
+);
+
 const REWRITE_TIMES = lessonWriting(op('*', num(6), num(-2)), '6', '\\times -', '2');
 const REWRITE_HEAD = lessonWriting(op('+', num(-3), num(4)), '3-', '+', '4');
-const NUMBER_CHANGED = "L'écriture est bonne, mais le nombre a changé. Garde −2.";
 
 const rewriteTimes = rewriteEx(
   REWRITE_TIMES,
   '6×(−2)',
   [
-    answerOf('6×−2', 'Le × et le − se touchent encore. Mets −2 entre parenthèses.', 'signes-colles'),
+    answerOf('6×−2', `Le × et le ${M} se touchent encore. Mets ${M}2 entre parenthèses.`, 'signes-colles'),
     answerOf('6×(−2', 'La parenthèse ouverte doit se fermer.', 'parenthese'),
-    answerOf('6×(2−)', 'Le signe − se met avant le 2.', 'moins-apres'),
-    answerOf('6×2−', 'Le signe − se met avant le 2.', 'moins-apres'),
-    answerOf('(6×−2)', 'Les parenthèses doivent entourer le nombre négatif, pas tout le calcul.', 'signes-colles'),
-    // 6 × (−n), n ≠ 2: the writing is right, the number changed
-    ...Array.from({ length: 99 }, (_, i) => i + 1)
-      .filter((n) => n !== 2)
-      .map((n) => answerOf(`6×(−${n})`, NUMBER_CHANGED)),
   ],
-  'Garde le même calcul, et mets le nombre négatif entre parenthèses.',
+  `Recopie la ligne du dessus : 6 × (${M}2).`,
   ['Repère les deux signes qui se touchent : × et −.', 'Mets le nombre négatif entre parenthèses : (−2).', 'Le calcul bien écrit : 6 × (−2).'],
+);
+
+const rewriteHeadSign = rewriteEx(
+  REWRITE_HEAD,
+  '−3',
+  [
+    answerOf('3−', `Le ${M} est toujours après le 3. Il doit aller devant.`, 'moins-apres'),
+    answerOf('(−3)', `En tête du calcul, on n'écrit pas de parenthèses : ${M}3.`, 'parentheses-en-tete'),
+    answerOf('3', `Le 3 est négatif : garde son signe ${M}, devant le nombre.`),
+  ],
+  `Écris le nombre 3 avec son signe ${M} devant.`,
+  ['Le signe − est après le 3 : il doit aller devant.', 'Le nombre négatif est en tête du calcul : pas de parenthèses.', 'Le nombre bien écrit : −3.'],
 );
 
 const rewriteHead = rewriteEx(
@@ -581,17 +598,43 @@ const rewriteHead = rewriteEx(
   '−3+4',
   [
     // « (−3) + 4 » counts as a fault in this course (doc 08 n° 25)
-    answerOf('(−3)+4', "Pas tout à fait. En tête du calcul, on n'écrit pas de parenthèses : −3 + 4.", 'parentheses-en-tete'),
-    answerOf('3−+4', 'Le − est toujours après le 3. Il doit aller devant.', 'moins-apres'),
-    answerOf('3+4', 'Le 3 est négatif : garde son signe −, devant le nombre.'),
-    answerOf('+3+4', 'Le 3 est négatif : garde son signe −, devant le nombre.'),
+    answerOf('(−3)+4', `Pas tout à fait. En tête du calcul, on n'écrit pas de parenthèses : ${M}3 + 4.`, 'parentheses-en-tete'),
+    answerOf('3−+4', `Le ${M} est toujours après le 3. Il doit aller devant.`, 'moins-apres'),
+    answerOf('3+4', `Le 3 est négatif : garde son signe ${M}, devant le nombre.`),
+    answerOf('+3+4', `Le 3 est négatif : garde son signe ${M}, devant le nombre.`),
   ],
-  'Garde les mêmes nombres. Le signe − va devant le 3.',
+  `Garde les mêmes nombres. Le signe ${M} va devant le 3.`,
   ['Le signe − est après le 3 : il doit aller devant.', 'Le nombre négatif est en tête du calcul : pas besoin de parenthèses.', 'Le calcul bien écrit : −3 + 4.'],
 );
 
 const REWRITE_CONSIGNE = 'Ce calcul est mal écrit. Réécris-le correctement.';
-const CLASSER_CONSIGNE = "Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case.";
+
+// ——— Interactive steps ———
+
+const tk = (...t: string[]): SceneToken[] => t.map((x) => ({ t: x }));
+const fault = (message: string, ...at: number[]): StepFault => ({ at, message });
+/** « Toucher un morceau » / « Toucher un endroit » : `target` = le morceau ou l'espace juste ; `gaps` = les espaces proposés. */
+const touch = (
+  type: 'morceau' | 'endroit',
+  consigne: string,
+  target: number,
+  errors: StepFault[],
+  fallback: string,
+  extra: { gaps?: number[]; calc?: number } = {},
+): NonNullable<EtapeStep['action']> => ({
+  type,
+  consigne,
+  calc: extra.calc ?? 0,
+  target: [target],
+  errors,
+  fallback,
+  ...(extra.gaps ? { gaps: extra.gaps } : {}),
+});
+
+/** Exemple guidé résolu à l'écran : le calcul de départ, puis une ligne de plus à chaque « Je comprends ». */
+const GUIDE_START = toks('6 × −2');
+const GUIDE_LINE_1 = toks('Signes collés : ', hl('×'), ' et ', hl(M));
+const GUIDE_LINE_2 = toks(`On met ${M}2 entre parenthèses : 6 × `, hl('('), `${M}2`, hl(')'));
 
 const parts: LessonPart[] = [
   // 0 — Accroche + deviner (ne compte pas)
@@ -618,15 +661,8 @@ const parts: LessonPart[] = [
   // 1 — Le signe − a deux rôles
   etapes(`Le signe ${M} a deux rôles`, [
     {
-      scene: oneScene(toks(M), { caption: 'Le même petit trait, deux sens différents.' }),
-      text: 'Avant les règles, une chose à savoir sur le signe moins.',
-    },
-    {
-      scene: {
-        layout: 'row',
-        calcs: [{ tokens: toks('7 ', hl(M, 'pin'), ' 3'), label: 'soustraire' }, { tokens: [{ t: `${M}3`, dim: true }] }],
-      },
-      text: `**Rôle 1 : soustraire.** Le ${M} est entre deux nombres : on enlève 3 à 7.`,
+      scene: oneScene(toks('7 ', hl(M, 'pin'), ' 3'), { label: 'soustraire' }),
+      text: `Le signe **${M}** a **deux rôles**. Le premier : **soustraire**. Dans 7 ${M} 3, on enlève 3 à 7.`,
     },
     {
       scene: {
@@ -636,96 +672,91 @@ const parts: LessonPart[] = [
           { tokens: toks(hl(M, 'pin'), '3'), label: 'signe du nombre' },
         ],
       },
-      text: `**Rôle 2 : dire qu'un nombre est négatif.** Le signe fait partie du nombre : ${M}3 se lit « moins trois ».`,
+      text: `Le deuxième : **dire qu'un nombre est négatif**. Dans ${M}3, le signe fait partie du nombre : on lit « moins trois ».`,
     },
-    { text: `Quand tu lis un calcul, tu dois toujours savoir **quel rôle joue chaque ${M}**. Les 4 règles de ce cours servent à ça.` },
+    {
+      scene: { layout: 'one', calcs: [{ tokens: tk(M, '6', '+', '2', M, '5') }] },
+      text: `Ce ${M} est entre 2 et 5 : on enlève 5. Le ${M} du début est, lui, le signe de ${M}6.`,
+      action: touch(
+        'morceau',
+        `Touche le ${M} qui sert à soustraire.`,
+        4,
+        [fault(`Ce ${M} est tout au début : il n'y a rien à soustraire. C'est le signe de ${M}6.`, 0)],
+        `Ce n'est pas un ${M}. Cherche les deux traits ${M} du calcul.`,
+      ),
+    },
+    {
+      text: `Un ${M} placé tout au début d'un calcul est le signe du nombre. Quand tu lis un calcul, demande-toi toujours **quel rôle joue chaque ${M}**. Les 4 règles de ce cours servent à ça.`,
+      action: {
+        type: 'trou',
+        open: `Un ${M} placé tout au début d'un calcul est [ ? ].`,
+        choices: ['le signe du nombre', 'une soustraction'],
+        correct: 0,
+        errors: { 1: `Au début, il n'y a rien avant le ${M} : on ne peut rien soustraire.` },
+      },
+    },
   ]),
-  // 2, 3 — Quel rôle ? (2 petites questions sur le même écran)
-  lecon(
-    small(
-      lessonWriting(op('-', num(8), num(5)), '8', '-', '5'),
-      `Dans ce calcul, à quoi sert le ${M} ?`,
-      [
-        ['À soustraire', 'On enlève 5 à 8.'],
-        ['À dire que 5 est négatif', `Ici le ${M} est entre deux nombres : on enlève 5 à 8. C'est une soustraction.`],
-      ],
-      0,
-    ),
-  ),
+  // 2 — Règle 1 : deux signes collés
+  etapes('Quand deux signes se touchent', [
+    {
+      scene: oneScene(toks('4 ', hl('×', 'bump'), ' ', hl(M, 'bump'), '3'), { label: 'deux signes collés' }),
+      text: `Voici 4 × ${M}3. Le **×** et le **${M}** sont **collés** : deux signes se touchent.`,
+    },
+    {
+      scene: { layout: 'one', calcs: [{ tokens: tk('4', '×', M, '3') }] },
+      text: `Ce ${M}, est-ce qu'il soustrait ? Ou est-ce le signe de 3 ? **On ne sait plus.**`,
+      action: touch(
+        'morceau',
+        'Touche le signe qui se colle au ×.',
+        2,
+        [
+          fault("C'est le × lui-même. Cherche le signe qui le touche, juste à sa droite.", 1),
+          fault('4 est un nombre, pas un signe. Cherche le signe collé au ×.', 0),
+          fault('3 est un nombre, pas un signe. Cherche le signe collé au ×.', 3),
+        ],
+        'Cherche le signe collé au ×.',
+      ),
+    },
+    {
+      text: `La parenthèse se ferme après le 3. Elles entourent ${M}3 : c'est **un seul nombre**, le ${M} ne soustrait plus rien.`,
+      action: touch(
+        'endroit',
+        "Touche l'endroit où la parenthèse ouvrante doit aller.",
+        2,
+        [
+          fault('Là, la parenthèse entourerait le × aussi. Mais le × est une opération : il reste dehors.', 1),
+          fault(`Là, elle couperait ${M}3 en deux. Le ${M} fait partie du nombre : il doit être dedans.`, 3),
+        ],
+        'Cherche où commence le nombre négatif.',
+        { gaps: [1, 2, 3] },
+      ),
+    },
+    {
+      scene: oneScene(toks('4 × ', hl('(', 'pin'), `${M}3`, hl(')', 'pin')), { label: `${M}3 est un seul nombre` }),
+      rule: { n: 1, text: `**Deux signes ne se suivent jamais.** Après +, ${M}, × ou ÷, un nombre négatif se met entre parenthèses.` },
+    },
+  ]),
+  // 3 — Règle 1 : à toi (compte)
   texted(
     lecon(
       small(
-        lessonWriting(op('+', num(-6), num(2)), '-6', '+', '2'),
-        `Et ici, à quoi sert le ${M} ?`,
+        lessonWriting(op('+', num(5), num(-2)), '5', '+ -', '2'),
+        'Comment écrire correctement ce calcul ?',
         [
-          ['À soustraire', `Il n'y a rien avant le ${M} : on ne peut rien soustraire. C'est le signe du nombre ${M}6.`],
-          ['À dire que 6 est négatif', `${M}6, c'est « moins six ». Le signe fait partie du nombre.`],
+          [`(5 + ${M}2)`, `Les parenthèses doivent entourer le nombre négatif, pas tout le calcul. Ici + et ${M} se touchent encore.`],
+          [`5 + (${M}2)`, `Les parenthèses entourent le nombre négatif ${M}2. Le + et le ${M} ne se touchent plus.`],
+          [`5 (+ ${M}2)`, `Le + est une opération : il reste en dehors. Seul le nombre négatif ${M}2 va entre parenthèses.`],
         ],
         1,
       ),
     ),
-    { joinPrevious: true },
+    {
+      title: 'La règle 1, à toi',
+      intro: [`La règle marche aussi après un ${M} et un ÷. Le nombre ne change pas, le résultat non plus.`],
+      above: ['7 - -1 \\;\\to\\; 7 - (-1)', '8 \\div -4 \\;\\to\\; 8 \\div (-4)'],
+    },
   ),
-  // 4 — Règle 1
-  etapes('Quand deux signes se touchent', [
-    { scene: oneScene(toks(`4 × ${M}3`), { caption: 'Le calcul du début' }), text: 'Reprenons le calcul du début.' },
-    {
-      scene: oneScene(toks('4 ', hl(`× ${M}`, 'bump'), '3'), { label: 'deux signes collés' }),
-      text: `Le **×** et le **${M}** sont collés : **deux signes se touchent**.`,
-    },
-    {
-      scene: oneScene(toks('4 ', hl('×'), ' ', hl(M, 'bump'), '3'), { caption: `Ce ${M}, il soustrait ? Ou c'est le signe du 3 ?` }),
-      text: `On ne voit plus bien le rôle du ${M}. Est-ce qu'il soustrait ? Est-ce qu'il donne le signe de 3 ?`,
-    },
-    {
-      scene: oneScene(toks('4 × ', hl('(', 'pin'), `${M}3`, hl(')', 'pin')), { label: `${M}3 est un seul nombre` }),
-      text: `Solution : on met le nombre négatif **entre parenthèses**. Elles montrent que ${M}3 est un seul nombre.`,
-    },
-    { rule: { n: 1, text: `**Deux signes ne se suivent jamais.** Après +, ${M}, × ou ÷, un nombre négatif se met entre parenthèses.` } },
-  ]),
-  // 5 — Règle 1, exemples
-  etapes('Avec toutes les opérations', [
-    {
-      scene: { layout: 'pairs', calcs: badGood(toks(`5 + ${M}2`), toks('5 + ', hl('('), `${M}2`, hl(')'))) },
-      text: `La règle 1 marche après +, ${M}, × et ÷. Après un **+** :`,
-    },
-    {
-      scene: {
-        layout: 'pairs',
-        calcs: [
-          ...badGood(toks(`5 + ${M}2`), toks('5 + ', hl('('), `${M}2`, hl(')'))),
-          ...badGood(toks(`7 ${M} ${M}1`), toks(`7 ${M} `, hl('('), `${M}1`, hl(')'))),
-        ],
-      },
-      text: `Après un **${M}** :`,
-    },
-    {
-      scene: {
-        layout: 'pairs',
-        calcs: [
-          ...badGood(toks(`5 + ${M}2`), toks('5 + ', hl('('), `${M}2`, hl(')'))),
-          ...badGood(toks(`7 ${M} ${M}1`), toks(`7 ${M} `, hl('('), `${M}1`, hl(')'))),
-          ...badGood(toks(`8 ÷ ${M}4`), toks('8 ÷ ', hl('('), `${M}4`, hl(')'))),
-        ],
-      },
-      text: 'Après un **÷** :',
-    },
-    { text: 'À chaque fois, on ajoute deux parenthèses autour du nombre négatif. **Le nombre ne change pas**, le résultat non plus.' },
-  ]),
-  // 6 — Règle 1, à toi
-  lecon(
-    small(
-      lessonWriting(op('+', num(5), num(-2)), '5', '+ -', '2'),
-      'Comment écrire correctement ce calcul ?',
-      [
-        [`(5 + ${M}2)`, `Les parenthèses doivent entourer le nombre négatif, pas tout le calcul. Ici + et ${M} se touchent encore.`],
-        [`5 + (${M}2)`, `Les parenthèses entourent le nombre négatif ${M}2. Le + et le ${M} ne se touchent plus.`],
-        [`5 (+ ${M}2)`, `Le + est une opération : il reste en dehors. Seul le nombre négatif ${M}2 va entre parenthèses.`],
-      ],
-      1,
-    ),
-  ),
-  // 7 — Règle 2 : deviner puis expliquer (ne compte pas)
+  // 4 — Règle 2 : deviner puis expliquer (ne compte pas)
   texted(
     decouverte(
       small(
@@ -741,38 +772,91 @@ const parts: LessonPart[] = [
     {
       title: 'Et au début du calcul ?',
       outroRule: { n: 2, text: "**En tête d'un calcul, pas de parenthèses** pour un nombre négatif." },
-      outro: ['(−3) + 5 : pas faux, mais inutile'],
+      outro: [`${M}3 + 5 ✓`, `(${M}3) + 5 : pas faux, mais inutile`],
     },
   ),
-  // 8 — Règle 3
-  etapes(`Le moins se met avant le nombre`, [
-    { scene: oneScene(toks(`3${M} + 4`)), text: 'Regarde ce calcul.' },
+  // 5 — Règle 3 : le − avant le nombre
+  etapes('Le moins se met avant le nombre', [
     {
       scene: oneScene(toks('3', hl(M, 'bump'), ' + 4'), { label: `le ${M} est après le 3` }),
-      text: `Ici, le ${M} est écrit **après** le 3.`,
+      text: `Dans 3${M} + 4, le ${M} est écrit **après** le 3, et juste après lui, il y a un +.`,
     },
     {
-      scene: oneScene(toks('3', hl(M), ' ', hl('+', 'bump'), ' 4'), { caption: 'Soustraire quoi ? Juste après, il y a un +.' }),
-      text: "On croit qu'on va soustraire quelque chose au 3. Mais juste après, il y a un + : il n'y a rien à soustraire.",
+      scene: { layout: 'one', calcs: [{ tokens: tk('3', M, '+', '4') }] },
+      text: "On croit qu'on soustrait quelque chose au 3. Mais juste après, il y a un + : **il n'y a rien à soustraire**.",
+      action: touch(
+        'morceau',
+        `Touche le ${M} qui est mal placé.`,
+        1,
+        [
+          fault(`Le 3 est un nombre, il est bien écrit. Cherche le signe ${M} mal placé.`, 0),
+          fault(`Le + est bien placé : il additionne 4. Cherche le ${M}.`, 2),
+          fault(`Le 4 est bien écrit. Cherche le ${M}.`, 3),
+        ],
+        `Cherche le signe ${M} mal placé.`,
+      ),
+    },
+    {
+      scene: {
+        layout: 'one',
+        calcs: [{ tokens: [hl(M)], label: 'ce signe est à placer' }, { tokens: tk('3', '+', '4') }],
+      },
+      text: `Le signe d'un nombre négatif s'écrit **devant** le nombre : ${M}3 + 4.`,
+      action: touch(
+        'endroit',
+        `Le ${M} quitte sa place. Touche l'endroit où il doit aller.`,
+        0,
+        [
+          fault(`Là, le ${M} serait encore après le 3 : c'est la même faute. Le signe d'un nombre négatif se met avant le nombre.`, 1),
+          fault('Là, il se collerait au + : deux signes se touchent (règle 1). Et il rendrait le 4 négatif, pas le 3.', 2),
+        ],
+        'Cherche où le signe doit aller.',
+        { gaps: [0, 1, 2], calc: 1 },
+      ),
     },
     {
       scene: oneScene(toks(hl(M, 'slide'), '3 + 4'), { label: `le ${M} passe devant` }),
-      text: "Le signe d'un nombre négatif s'écrit **devant** le nombre.",
+      rule: { n: 3, text: `**Le signe ${M} d'un nombre négatif s'écrit toujours avant le nombre :** ${M}3, jamais 3${M}.` },
     },
-    { rule: { n: 3, text: `**Le signe ${M} d'un nombre négatif s'écrit toujours avant le nombre :** ${M}3, jamais 3${M}.` } },
   ]),
-  // 9, 10 — Avant ou après ? (2 petites questions sur le même écran)
-  lecon(
-    smallPlain(
-      lessonWriting(num(-7), '-7'),
-      `Le signe ${M} d'un nombre négatif se met…`,
-      [
-        ['avant le nombre', `On écrit ${M}7, « moins sept ».`],
-        ['après le nombre', `Le signe se met devant : ${M}7. Écrit après, on croirait une soustraction.`],
-      ],
-      0,
-    ),
-  ),
+  // 6 — Règle 4 : une parenthèse se ferme
+  etapes('Une parenthèse ouverte se ferme', [
+    {
+      scene: oneScene(toks('4 × ', hl('(', 'bump'), `${M}3`), { label: "elle s'ouvre ici" }),
+      text: `Dans 4 × (${M}3, une parenthèse **s'ouvre**. Rien ne la **ferme**.`,
+    },
+    {
+      text: "Sans parenthèse fermante, on ne sait pas où le nombre s'arrête. Les parenthèses vont toujours **par deux**, comme des guillemets.",
+      action: {
+        type: 'trou',
+        open: 'Sans parenthèse fermante, on ne sait pas où le nombre [ ? ].',
+        choices: ["s'arrête", 'commence'],
+        correct: 0,
+        errors: { 1: "Le nombre commence bien après la parenthèse ouverte. C'est la fin qu'on ne voit pas." },
+      },
+    },
+    {
+      scene: { layout: 'one', calcs: [{ tokens: tk('4', '×', '(', M, '3') }] },
+      text: `Maintenant, on voit où le nombre s'arrête : **${M}3** est bien entouré.`,
+      action: touch(
+        'endroit',
+        "Touche l'endroit où la parenthèse fermante doit aller.",
+        5,
+        [
+          fault(`Là, elle couperait ${M}3 en deux. Le nombre n'est fini qu'après le 3.`, 4),
+          fault("Là, elle se fermerait avant le nombre. Une parenthèse se ferme après ce qu'elle entoure.", 3),
+          fault("Là, elle se fermerait avant d'avoir été ouverte. Elle doit venir après l'ouverture.", 1, 2),
+        ],
+        'Cherche où le nombre finit.',
+        { gaps: [1, 2, 3, 4, 5] },
+      ),
+    },
+    {
+      scene: oneScene(toks('4 × ', hl('('), `${M}3`, hl(')', 'pin')), { label: 'une qui ouvre, une qui ferme' }),
+      rule: { n: 4, text: '**Une parenthèse ouverte doit toujours être fermée.**' },
+    },
+  ]),
+  // 7, 8 — Règles 3 et 4, à toi (2 petites questions sur le même écran, comptées)
   texted(
     lecon(
       smallPlain(
@@ -780,44 +864,57 @@ const parts: LessonPart[] = [
         'Lequel est bien écrit ?',
         [
           [`7${M}`, `Le signe se met devant : ${M}7. Écrit après, on croirait une soustraction.`],
-          [`${M}7`, 'Le signe est devant le nombre.'],
+          [`${M}7`, `Le signe est devant le nombre : ${M}7, « moins sept ».`],
+        ],
+        1,
+      ),
+    ),
+    { title: 'Règles 3 et 4, à toi' },
+  ),
+  texted(
+    lecon(
+      small(
+        lessonWriting(op('*', num(4), num(-3)), '4', '\\times', '(-3'),
+        'Que manque-t-il à ce calcul ?',
+        [
+          ['(', 'Une parenthèse est déjà ouverte. Il manque celle qui la ferme : « ) ».'],
+          [')', `La parenthèse ouverte est maintenant fermée : 4 × (${M}3).`],
+          [M, `Le ${M} est déjà là, devant le 3. Il manque la parenthèse qui ferme : « ) ».`],
         ],
         1,
       ),
     ),
     { joinPrevious: true },
   ),
-  // 11 — Règle 4
-  etapes('Une parenthèse ouverte se ferme', [
-    { scene: oneScene(toks(`4 × (${M}3`)), text: 'Regarde ce calcul.' },
-    {
-      scene: oneScene(toks('4 × ', hl('(', 'bump'), `${M}3`), { label: "elle s'ouvre ici" }),
-      text: "Une parenthèse s'ouvre ici…",
-    },
-    {
-      scene: oneScene(toks('4 × ', hl('('), `${M}3 `, { t: '?', hl: true, anim: 'bump', dim: true }), { caption: "Où s'arrête le nombre ?" }),
-      text: "… mais elle ne se ferme jamais. On ne sait pas où le nombre s'arrête.",
-    },
-    {
-      scene: oneScene(toks('4 × ', hl('('), `${M}3`, hl(')', 'pin')), { label: 'une qui ouvre, une qui ferme' }),
-      text: 'Les parenthèses vont toujours **par deux**, comme des guillemets.',
-    },
-    { rule: { n: 4, text: '**Une parenthèse ouverte doit toujours être fermée.**' } },
-  ]),
-  // 12 — Que manque-t-il ?
-  lecon(
-    small(
-      lessonWriting(op('*', num(4), num(-3)), '4', '\\times', '(-3'),
-      'Que manque-t-il à ce calcul ?',
-      [
-        ['(', 'Une parenthèse est déjà ouverte. Il manque celle qui la ferme : « ) ».'],
-        [')', `La parenthèse ouverte est maintenant fermée : 4 × (${M}3).`],
-        [M, `Le ${M} est déjà là, devant le 3. Il manque la parenthèse qui ferme : « ) ».`],
-      ],
-      1,
+  // 9 — Comparer deux cas (ne compte pas)
+  texted(
+    decouverte(
+      smallPlain(
+        lessonWriting(op('*', num(4), num(-3)), '4', '\\times', '(', '-3', ')'),
+        "Qu'est-ce qui change entre A et B ?",
+        [
+          ['Le résultat', `Le résultat est le même : 4 fois ${M}3 donne ${M}12 dans les deux cas. Ce n'est pas le calcul qui change.`],
+          ["La façon de l'écrire", "Le calcul et le résultat sont les mêmes. Seule l'écriture change : A a des parenthèses, B n'en a pas."],
+          ['Le nombre 3', `Le nombre est ${M}3 dans les deux calculs. Seule la façon de l'écrire change.`],
+        ],
+        1,
+      ),
     ),
+    {
+      title: 'Comparer deux cas',
+      mention: 'Question pour comprendre : elle ne compte pas dans la note.',
+      compare: {
+        a: { label: 'Calcul A', latex: '4 \\times (-3)' },
+        b: { label: 'Calcul B', latex: '4 \\times -3' },
+        note: 'Voici deux écritures du même calcul. Regarde-les bien.',
+        highlight: { a: toks('4 × ', hl('('), `${M}3`, hl(')')), b: toks('4 ', hl('×'), ' ', hl(M), '3') },
+        after: [
+          `Dans B, le × et le ${M} se touchent : on ne sait plus si le ${M} soustrait. Dans A, ${M}3 est **un seul nombre**, entouré de parenthèses. Le calcul A se lit d'**une seule façon** : c'est le bien écrit.`,
+        ],
+      },
+    },
   ),
-  // 13 — Récapitulatif
+  // 10 — Récapitulatif
   etapes('Les 4 règles à retenir', [
     {
       recap: [
@@ -826,45 +923,121 @@ const parts: LessonPart[] = [
         { title: `3. Le ${M} se met avant le nombre.`, ok: `${M}3`, ko: `3${M}` },
         { title: '4. Une parenthèse ouverte se ferme.', ok: `(${M}3)`, ko: `(${M}3` },
       ],
-      text: "Maintenant, à toi de les utiliser.",
+      text: 'Maintenant, à toi de les utiliser.',
     },
   ]),
-  // 14 — Classer en glisser-déposer
-  asking(
-    CLASSER_CONSIGNE,
-    lecon({
-      kind: 'classer',
-      exs: toClass,
-      classes: CLASSES.map(({ id, label }) => ({ id, label })),
-      expected: toClass.map(classOf),
-    }),
-  ),
-  // 15 — Quelle règle ? (le calcul corrigé apparaît après la réponse)
-  texted(
-    lecon(
-      small(
-        lessonWriting(op('-', num(7), num(-1)), '7', '- -', '1', '=', '8'),
-        "Ce calcul est mal écrit. Quelle règle n'est pas respectée ?",
-        [
-          [RULE_OPTIONS[0] as string, `Le ${M} de la soustraction et le ${M} de ${M}1 se touchent.`],
-          [RULE_OPTIONS[1] as string, `Le ${M} de ${M}1 est bien devant le 1. Le problème : deux ${M} se touchent.`],
-          [RULE_OPTIONS[2] as string, `Il n'y a aucune parenthèse ici. Le problème : deux ${M} se touchent.`],
-        ],
-        0,
-      ),
-    ),
-    { outro: [`On le corrige : 7 ${M} (${M}1) = 8`] },
-  ),
-  // 16, 17 — Exemples guidés
-  asking(REWRITE_CONSIGNE, exemple(rewriteTimes)),
-  asking(REWRITE_CONSIGNE, exemple(rewriteHead)),
-  // 18 — Annonce des exercices de fin
+  // 11 — Série de pratique (4 questions, notées, aide décroissante)
+  {
+    type: 'pratique',
+    title: 'Cours 0 · Pratique',
+    questions: [
+      {
+        question: practiceTouch(),
+        texts: { consigne: "Rappel de la règle 1 : **deux signes ne se suivent jamais**. Touche l'endroit mal écrit de ce calcul." },
+      },
+      {
+        question: practice(
+          lessonWriting(op('*', num(4), num(-3)), '4', '\\times', '(-3'),
+          "Ce calcul est mal écrit. **Touche la règle** qui n'est pas respectée.",
+          [
+            [RULE_OPTIONS[0] as string, "Il n'y a pas de signes collés ici : le × est suivi d'une parenthèse. Le problème est ailleurs."],
+            [RULE_OPTIONS[1] as string, `Le ${M} de ${M}3 est bien devant le 3. Le problème : la parenthèse reste ouverte.`],
+            [RULE_OPTIONS[2] as string, `La parenthèse ouverte ne se ferme pas : 4 × (${M}3).`],
+          ],
+          2,
+          '4 \\times (-3',
+        ),
+      },
+      {
+        question: practice(
+          lessonWriting(op('-', num(-6), op('*', num(-2), num(4))), '-6', '-', '(', '-2', ')', '\\times', '4'),
+          'Ce calcul est bien écrit.',
+          [
+            ['Vrai', `Vrai : ${M}6 est en tête sans parenthèses, et (${M}2) est entre parenthèses. Rien ne se touche.`],
+            [
+              'Faux',
+              `Cherche une faute : deux signes collés ? Non, ${M}2 est entre parenthèses. Un ${M} après un nombre ? Non. Une parenthèse ouverte ? Elle est fermée. Le calcul est bien écrit.`,
+            ],
+          ],
+          0,
+          '-6 - (-2) \\times 4',
+        ),
+        texts: { intro: ['Touche Vrai ou Faux.'] },
+      },
+      { question: PRACTICE_REWRITE, texts: { consigne: 'Ce calcul est mal écrit. **Réécris-le** en entier.' } },
+    ],
+  },
+  // 12 — Exemple 1 (résolution à l'écran)
+  etapes('Exemple 1 sur 2', [
+    {
+      scene: {
+        layout: 'lines',
+        calcs: [{ tokens: GUIDE_START }, { tokens: GUIDE_LINE_1 }],
+        caption: 'Voici la correction. Lis chaque ligne, puis touche « Je comprends ».',
+      },
+      text: `**Ligne 1** Le × et le ${M} se touchent : c'est la règle 1 qui n'est pas respectée.`,
+      action: { type: 'comprends' },
+    },
+    {
+      scene: { layout: 'lines', calcs: [{ tokens: GUIDE_START }, { tokens: GUIDE_LINE_1 }, { tokens: GUIDE_LINE_2 }] },
+      text: `**Ligne 2** ${M}2 est un seul nombre : on l'entoure de parenthèses. Le nombre ne change pas, le résultat non plus.`,
+      action: { type: 'comprends' },
+    },
+  ]),
+  // 13 — Exemple 1 : dernière ligne (compte)
+  texted(exemple(rewriteTimes), {
+    consigne: REWRITE_CONSIGNE,
+    above: [
+      '\\text{Signes collés : } \\times \\text{ et } -',
+      '\\text{On met } -2 \\text{ entre parenthèses : } 6 \\times (-2)',
+      '\\text{Le calcul bien écrit : } \\square',
+    ],
+    help: "**Dernière ligne** Écris le calcul en entier, bien écrit. Tu peux t'aider de la ligne du dessus.",
+  }),
+  // 14 — Exemple 2, case 1 (entraînement, ne compte pas)
+  texted(decouverte(rewriteHeadSign), {
+    consigne: 'Cette fois, deux cases sont à toi. Le calcul de départ reste affiché.',
+    above: ['\\text{Le } - \\text{ passe devant le 3 : } \\square + 4'],
+    uncounted: true,
+  }),
+  // 15 — Exemple 2, case 2 (compte)
+  texted(exemple(rewriteHead), {
+    consigne: 'Cette fois, deux cases sont à toi. Le calcul de départ reste affiché.',
+    above: ['\\text{Le } - \\text{ passe devant le 3 : } -3 + 4', '\\text{Le calcul bien écrit : } \\square'],
+  }),
+  // 16 — Annonce des exercices de fin
   etapes('Place aux 5 exercices de fin', [
     { text: "Cette fois, **pas d'aide**. Ils ressemblent à ce que tu verras en contrôle." },
     { text: 'Pour valider le cours, il faut : au moins **4 exercices de fin justes sur 5** ; et **80 % de bonnes réponses** sur tout le cours.' },
     { text: "Si tu n'y arrives pas, ce n'est pas grave : tu feras une **série de validation**. Ce sont 5 exercices, sans refaire la leçon." },
   ]),
 ];
+
+/** « Toucher la faute » de la série : 5 + −2 en 4 cases, le + et le − sont chacun une bonne case. */
+function practiceTouch(): Question {
+  const ex = lessonWriting(op('+', num(5), num(-2)), '5', '+ -', '2');
+  const { symbols, accept } = atomize(tokensOf(ex), faultOf(ex));
+  return { kind: 'erreur', ex, lines: symbols, wrongLine: accept[0] ?? null, errorType: faultTypeOf(ex), accept, shownLatex: joinPieces(tokensOf(ex)) };
+}
+
+// ——— Textes de retour propres au cours (doc 06, « Retours d'erreur précis ») ———
+
+const RIGHT_REWRITE: Record<string, string> = {
+  '6×(−2)': `Le × et le ${M} ne se touchent plus.`,
+  '−3': `Le ${M} est devant le 3, comme la règle 3 le demande.`,
+  '−3+4': `Le ${M} est devant le 3, et pas de parenthèses en tête.`,
+  '9+(−4)': `Le + et le ${M} ne se touchent plus : 9 + (${M}4).`,
+};
+const TOUCH_RIGHT = `Le + et le ${M} se touchent. On écrit 5 + (${M}2).`;
+const TOUCH_WRONG = `Les nombres sont bien écrits. Cherche les deux signes qui se touchent : + et ${M}.`;
+
+/** Les questions de leçon à texte propre : « Questions qui comptent » (écrans 4, 8, 11, 12, 13). */
+function feedbackText(q: Question, o: Outcome): string | null {
+  if (q.kind === 'choix') return q.options.find((opt) => opt.label === o.given)?.why ?? null;
+  if (q.kind === 'erreur' && q.shownLatex === '5 + -2' && q.accept?.join() === '1,2') return o.correct ? TOUCH_RIGHT : TOUCH_WRONG;
+  if (q.kind === 'reecrire' && q.specific.length > 0) return o.correct ? (RIGHT_REWRITE[q.expected] ?? null) : (o.message ?? null);
+  return null;
+}
 
 export const c00: CourseDef = {
   id: ID,
@@ -874,7 +1047,7 @@ export const c00: CourseDef = {
   shortTitle: 'Bien écrire',
   rule: RULE,
   parts,
-  lessonLength: 14,
+  lessonLength: 11,
   endExercises: { count: 5, kind: 'erreur' },
   generate,
   errors,
@@ -885,7 +1058,7 @@ export const c00: CourseDef = {
   expectInteger: true,
   customQuestion,
   customCheck,
-  // à valider avec la maquette cours-0-v3
+  feedbackText,
   memo: {
     rule: `**Un calcul s'écrit d'une seule façon.** On doit toujours savoir quel rôle joue chaque ${M} : soustraire, ou signe d'un nombre.`,
     ruleBullets: ['Deux signes ne se suivent jamais.', 'En tête, pas de parenthèses.', `Le ${M} se met avant le nombre.`, 'Une parenthèse ouverte se ferme.'],

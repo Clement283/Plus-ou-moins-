@@ -113,7 +113,10 @@ export interface Compare {
   a: { label: string; latex: string };
   b: { label: string; latex: string };
   note: string;
-  line: LineScene;
+  /** Les deux trajets sur la droite ; absent : pas de droite (Cours 0). */
+  line?: LineScene;
+  /** Après la réponse, sans droite : les deux calculs avec leurs morceaux surlignés. */
+  highlight?: { a: SceneToken[]; b: SceneToken[] };
   after: string[];
 }
 
@@ -131,7 +134,7 @@ export type StepAction =
   /** Bouton « Je comprends », pas d'erreur possible. */
   | { type: 'comprends'; label?: string }
   /** morceau : indices de tokens de `scene.calcs[calc]` ; endroit : indices d'espaces entre tokens (0 = avant le 1er). */
-  | { type: 'morceau' | 'endroit'; consigne: string; calc: number; target: number[]; errors: StepFault[]; fallback: string };
+  | { type: 'morceau' | 'endroit'; consigne: string; calc: number; target: number[]; errors: StepFault[]; fallback: string; /** `endroit` : les espaces proposés (tous par défaut). */ gaps?: number[] };
 
 /** Un morceau d'un calcul affiché dans une scène : `hl` = surligneur (« regarde ici »), `anim` = animation, `dim` = estompé. */
 export interface SceneToken {

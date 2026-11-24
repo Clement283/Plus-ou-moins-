@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { atomize, c00, joinPieces, writingExercise, writingFaults } from '../../src/courses/calculs/c00-bien-ecrire';
 import { lessonStep } from '../../src/courses/types';
 import { checkAnswer } from '../../src/exercises/check';
+import { answer, courseRunItems, createActivity, current, explanationDone } from '../../src/activity';
 import type { Exercise, Level } from '../../src/courses/types';
-import type { Question } from '../../src/exercises/types';
+import type { Outcome, Question } from '../../src/exercises/types';
 import { type Expr, toLatex } from '../../src/math/expr';
 import { seededRng } from '../../src/rng';
 import { rat } from '../../src/math/rational';
@@ -38,10 +39,10 @@ describe('Cours 0 — Bien écrire un calcul', () => {
       ['parenthese', 'ecriture'],
     ]);
     expect(c00.errors.map((e) => e.rule)).toEqual([
-      { n: 1, label: 'Deux signes qui se touchent', partIndex: 4 },
-      { n: 2, label: 'Parenthèses inutiles en tête', partIndex: 7 },
-      { n: 3, label: 'Moins après le nombre', partIndex: 8 },
-      { n: 4, label: 'Parenthèse non fermée', partIndex: 11 },
+      { n: 1, label: 'Deux signes qui se touchent', partIndex: 2 },
+      { n: 2, label: 'Parenthèses inutiles en tête', partIndex: 4 },
+      { n: 3, label: 'Moins après le nombre', partIndex: 5 },
+      { n: 4, label: 'Parenthèse non fermée', partIndex: 6 },
     ]);
     const ex = writingExercise(parseCalc('4 × (−3)'), pieces('4', '× −', '3'), 1);
     expect(c00.errors.map((e) => e.explain(ex).rule)).toEqual([
@@ -357,136 +358,115 @@ describe('Cours 0 — Bien écrire un calcul', () => {
     });
   });
 
-  it('règle 2 : « (−3) + 5 : pas faux, mais inutile » (doc 07 #8A), sans symbole « ~ »', () => {
-    const p = c00.parts[7];
-    if (p?.type !== 'question') throw new Error('question');
-    expect(p.activity).toBe('decouverte');
-    expect(p.outro).toEqual(['(−3) + 5 : pas faux, mais inutile']);
-    expect(p.outroRule).toEqual({ n: 2, text: "**En tête d'un calcul, pas de parenthèses** pour un nombre négatif." });
-  });
-
-  it('leçon : 19 parties dans l’ordre du plan', () => {
-    expect(c00.parts).toHaveLength(19);
-    expect(c00.lessonLength).toBe(14);
+  describe('Cours 0 v3 : structure de la leçon', () => {
     const kinds = c00.parts.map((p) => (p.type === 'question' ? `${p.activity}:${p.question.kind}` : p.type));
-    expect(kinds).toEqual([
-      'decouverte:choix', 'etapes', 'lecon:choix', 'lecon:choix', 'etapes', 'etapes', 'lecon:choix', 'decouverte:choix',
-      'etapes', 'lecon:choix', 'lecon:choix', 'etapes', 'lecon:choix', 'etapes', 'lecon:classer', 'lecon:choix',
-      'exemple:reecrire', 'exemple:reecrire', 'etapes',
-    ]);
-    expect(c00.parts[4]?.type).toBe('etapes');
-    const joined = c00.parts.flatMap((p, i) => (p.type === 'question' && p.joinPrevious ? [i] : []));
-    expect(joined).toEqual([3, 10]);
-    expect(lessonStep(c00, 0)).toEqual({ n: 1, total: 12 });
-    expect(lessonStep(c00, 2)).toEqual({ n: 3, total: 12 });
-    expect(lessonStep(c00, 3)).toEqual({ n: 3, total: 12 });
-    expect(lessonStep(c00, 4)).toEqual({ n: 4, total: 12 });
-    expect(lessonStep(c00, 10)).toEqual({ n: 9, total: 12 });
-    expect(lessonStep(c00, 13)).toEqual({ n: 12, total: 12 });
-    expect(lessonStep(c00, 14)).toBeNull();
-    expect(lessonStep(getCourse('c04-soustraire'), 0)).toBeNull();
-  });
 
-  it('leçon : textes du doc 06, mot pour mot', () => {
-    const part = (i: number) => c00.parts[i] as Extract<(typeof c00.parts)[number], { type: 'question' }>;
-    const choix = (i: number) => {
-      const q = part(i).question;
-      if (q.kind !== 'choix') throw new Error('choix');
-      return q;
-    };
-    const etapes = (i: number) => c00.parts[i] as Extract<(typeof c00.parts)[number], { type: 'etapes' }>;
-    expect(part(0).title).toBe('Bien écrire un calcul');
-    expect(part(0).intro).toEqual([
-      "En maths, un calcul doit se lire **d'une seule façon**. S'il est mal écrit, on peut se tromper même en connaissant la méthode.",
-      "Dans ce cours, tu vas apprendre **4 règles d'écriture**.",
-    ]);
-    expect(choix(0).prompt).toBe('Pour commencer, à ton avis : ce calcul est-il bien écrit ?');
-    expect(choix(0).options.map((o) => o.label)).toEqual(['Oui', 'Non']);
-    expect(choix(0).correctIndex).toBe(1);
-    expect(choix(0).options[0]?.why).toBe("Il est mal écrit. Ce n'est pas grave de ne pas le savoir encore : c'est justement ce que ce cours explique.");
-    expect(etapes(1).title).toBe('Le signe − a deux rôles');
-    expect(etapes(1).steps).toHaveLength(4);
-    expect(etapes(4).steps).toHaveLength(5);
-    expect(etapes(4).steps[4]?.rule).toEqual({ n: 1, text: '**Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met entre parenthèses.' });
-    expect(etapes(5).steps).toHaveLength(4);
-    expect(etapes(8).steps).toHaveLength(5);
-    expect(etapes(8).steps[3]?.scene?.calcs[0]?.tokens[0]).toEqual({ t: '−', hl: true, anim: 'slide' });
-    expect(etapes(11).steps).toHaveLength(5);
-    expect(etapes(13).steps[0]?.recap).toHaveLength(4);
-    expect(choix(2).prompt).toBe('Dans ce calcul, à quoi sert le − ?');
-    expect(choix(2).options[1]?.why).toBe("Ici le − est entre deux nombres : on enlève 5 à 8. C'est une soustraction.");
-    expect(choix(3).options[0]?.why).toBe("Il n'y a rien avant le − : on ne peut rien soustraire. C'est le signe du nombre −6.");
-    expect(choix(6).options.map((o) => o.label)).toEqual(['(5 + −2)', '5 + (−2)', '5 (+ −2)']);
-    expect(choix(6).options[2]?.why).toBe('Le + est une opération : il reste en dehors. Seul le nombre négatif −2 va entre parenthèses.');
-    expect(choix(9).options.map((o) => o.label)).toEqual(['avant le nombre', 'après le nombre']);
-    expect(choix(10).options.map((o) => o.label)).toEqual(['7−', '−7']);
-    expect(choix(12).options.map((o) => o.label)).toEqual(['(', ')', '−']);
-    expect(choix(12).options[0]?.why).toBe('Une parenthèse est déjà ouverte. Il manque celle qui la ferme : « ) ».');
-    expect(choix(15).options.map((o) => o.label)).toEqual(['Deux signes se touchent', 'Le moins est après le nombre', "Une parenthèse n'est pas fermée"]);
-    expect(choix(15).calcLatex).toBe('7 - -1 = 8');
-    expect(part(15).outro).toEqual(['On le corrige : 7 − (−1) = 8']);
-  });
-
-  it('Classer : 4 calculs, « 3− + 4 » affiché 3- + 4', () => {
-    const classer = c00.parts[14];
-    if (classer?.type !== 'question' || classer.question.kind !== 'classer') throw new Error('classer');
-    expect(classer.consigne).toBe("Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case.");
-    expect(classer.question.exs.map((e) => joinPieces(tokens(e)))).toEqual(['4 \\times (-3)', '5 + -2', '-3 + 5', '3- + 4']);
-    expect(classer.question.expected).toEqual(['bien', 'mal', 'bien', 'mal']);
-  });
-
-  describe('exemples guidés « Réécris »', () => {
-    const reecrire = (i: number) => {
-      const p = c00.parts[i];
-      if (p?.type !== 'question' || p.question.kind !== 'reecrire') throw new Error('reecrire');
-      return p.question;
-    };
-    const check = (i: number, text: string) => checkAnswer(c00, reecrire(i), { text });
-
-    it('Réécris 6 × −2', () => {
-      expect(reecrire(16).expected).toBe('6×(−2)');
-      expect(check(16, '6 × (−2)')).toMatchObject({ correct: true });
-      expect(check(16, '6*(-2)')).toMatchObject({ correct: true });
-      expect(check(16, '6×-2')).toMatchObject({ correct: false, errorType: 'signes-colles', message: 'Le × et le − se touchent encore. Mets −2 entre parenthèses.' });
-      expect(check(16, '6×(−2')).toMatchObject({ correct: false, errorType: 'parenthese', message: 'La parenthèse ouverte doit se fermer.' });
-      expect(check(16, '6×(2−)')).toMatchObject({ errorType: 'moins-apres', message: 'Le signe − se met avant le 2.' });
-      expect(check(16, '6×2−')).toMatchObject({ message: 'Le signe − se met avant le 2.' });
-      expect(check(16, '6×(−5)')).toMatchObject({ correct: false, message: "L'écriture est bonne, mais le nombre a changé. Garde −2." });
-      expect(check(16, '6×(−35)')).toMatchObject({ message: "L'écriture est bonne, mais le nombre a changé. Garde −2." });
-      expect(check(16, '(6×−2)')).toMatchObject({ message: 'Les parenthèses doivent entourer le nombre négatif, pas tout le calcul.' });
-      expect(check(16, '7')).toMatchObject({ correct: false, errorType: null, message: 'Garde le même calcul, et mets le nombre négatif entre parenthèses.' });
-      expect(reecrire(16).steps).toEqual([
-        'Repère les deux signes qui se touchent : × et −.',
-        'Mets le nombre négatif entre parenthèses : (−2).',
-        'Le calcul bien écrit : 6 × (−2).',
+    it('17 parties dans l’ordre du plan, lessonLength 11', () => {
+      expect(c00.parts).toHaveLength(17);
+      expect(c00.lessonLength).toBe(11);
+      expect(kinds).toEqual([
+        'decouverte:choix', 'etapes', 'etapes', 'lecon:choix', 'decouverte:choix', 'etapes', 'etapes', 'lecon:choix', 'lecon:choix',
+        'decouverte:choix', 'etapes', 'pratique', 'etapes', 'exemple:reecrire', 'decouverte:reecrire', 'exemple:reecrire', 'etapes',
       ]);
+      const joined = c00.parts.flatMap((p, i) => (p.type === 'question' && p.joinPrevious ? [i] : []));
+      expect(joined).toEqual([8]);
     });
 
-    it('Réécris 3− + 4', () => {
-      expect(reecrire(17).givenLatex).toBe('3- + 4');
-      expect(check(17, '-3+4')).toMatchObject({ correct: true });
-      expect(check(17, '−3 + 4')).toMatchObject({ correct: true });
-      expect(check(17, '(-3)+4')).toMatchObject({
-        correct: false,
-        errorType: 'parentheses-en-tete',
-        message: "Pas tout à fait. En tête du calcul, on n'écrit pas de parenthèses : −3 + 4.",
-      });
-      expect(check(17, '3-+4')).toMatchObject({ errorType: 'moins-apres', message: 'Le − est toujours après le 3. Il doit aller devant.' });
-      expect(check(17, '3+4')).toMatchObject({ message: 'Le 3 est négatif : garde son signe −, devant le nombre.' });
-      expect(check(17, '+3+4')).toMatchObject({ message: 'Le 3 est négatif : garde son signe −, devant le nombre.' });
-      expect(check(17, '8')).toMatchObject({ message: 'Garde les mêmes nombres. Le signe − va devant le 3.' });
-      expect(reecrire(17).steps).toEqual([
-        'Le signe − est après le 3 : il doit aller devant.',
-        'Le nombre négatif est en tête du calcul : pas besoin de parenthèses.',
-        'Le calcul bien écrit : −3 + 4.',
+    it('lessonStep : « étape N sur 10 », la partie 8 partage l’écran de la 7', () => {
+      const steps = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => lessonStep(c00, i)?.n);
+      expect(steps).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10]);
+      expect(lessonStep(c00, 0)?.total).toBe(10);
+      expect(lessonStep(c00, 11)).toBeNull();
+      expect(lessonStep(getCourse('c04-soustraire'), 0)).toBeNull();
+    });
+
+    it('la série de pratique : 4 questions, formats variés, aucune petite question', () => {
+      const p = c00.parts[11];
+      if (p?.type !== 'pratique') throw new Error('pratique');
+      expect(p.title).toBe('Cours 0 · Pratique');
+      expect(p.questions.map((x) => x.question.kind)).toEqual(['erreur', 'choix', 'choix', 'reecrire']);
+      for (const { question } of p.questions) if (question.kind === 'choix') expect(question.small).toBeUndefined();
+    });
+
+    it('courseRunItems : exactement 14 éléments notés (1 + 2 + 4 + 2 + 5)', () => {
+      const items = courseRunItems(c00, seededRng(11));
+      const counted = items.filter((it) => it.type === 'question' && it.activity !== 'decouverte');
+      expect(counted).toHaveLength(14);
+      expect(counted.map((it) => it.itemId)).toEqual([
+        'partie-3', 'partie-7', 'partie-8', 'partie-11-0', 'partie-11-1', 'partie-11-2', 'partie-11-3', 'partie-13', 'partie-15',
+        'fin-0', 'fin-1', 'fin-2', 'fin-3', 'fin-4',
       ]);
+      for (const it of counted) expect(['lecon', 'exemple', 'fin']).toContain(it.type === 'question' ? it.activity : '');
+      // les questions pour deviner, pour comprendre et la case 1 de l'exemple 2 ne comptent pas
+      for (const id of ['partie-0', 'partie-4', 'partie-9', 'partie-14']) {
+        expect(items.find((it) => it.itemId === id)).toMatchObject({ type: 'question', activity: 'decouverte' });
+      }
+      expect(items.find((it) => it.itemId === 'partie-14')).toMatchObject({ texts: { uncounted: true } });
+      expect(items.find((it) => it.itemId === 'partie-11-2')).toMatchObject({ texts: { series: { n: 3, of: 4 } } });
+    });
+
+    it('les explications ne portent aucune activité notée : les étapes interactives sont de simples données', () => {
+      const items = courseRunItems(c00, seededRng(11));
+      for (const it of items) if (it.type === 'explication') expect(it).not.toHaveProperty('activity');
+    });
+
+    it('rule.partIndex pointe la partie dont l’encadré porte le même numéro de règle', () => {
+      for (const e of c00.errors) {
+        const part = c00.parts[e.rule!.partIndex];
+        const n =
+          part?.type === 'etapes'
+            ? part.steps.find((s) => s.rule)?.rule?.n
+            : part?.type === 'question'
+              ? part.outroRule?.n
+              : undefined;
+        expect(n, e.id).toBe(e.rule!.n);
+      }
+    });
+
+    it('aucune couleur de signe : aucune scène du cours ne porte de droite graduée', () => {
+      for (const p of c00.parts) if (p.type === 'etapes') for (const st of p.steps) expect(st.scene?.line).toBeUndefined();
+    });
+
+    it('une question de la série ratée repasse avant le premier exercice de fin, la case 1 de l’exemple 2 ne repasse pas', () => {
+      const wrong: Outcome = { correct: false, unfinished: false, errorType: null, errorFamily: null, given: 'x', expected: 'y' };
+      const good: Outcome = { ...wrong, correct: true };
+      const items = courseRunItems(c00, seededRng(11));
+      const until = (state: ReturnType<typeof createActivity>, itemId: string) => {
+        let s = state;
+        for (;;) {
+          const cur = current(s);
+          if (cur?.type === 'question' && cur.item.itemId === itemId) return s;
+          s = cur?.type === 'explication' ? explanationDone(s, 1).state : answer(s, good, 1).state;
+        }
+      };
+      const start = createActivity('cours', items, { activityId: 'a', rng: seededRng(1) });
+      const first = answer(until(start, 'partie-11-1'), wrong, 1);
+      expect(first.event).toMatchObject({ kind: 'answer', correct: false, attempt: 1 });
+      const ids = first.state.queue.map((st) => (st.type === 'question' ? `${st.role}:${st.item.itemId}` : 'explication'));
+      const back = ids.indexOf('repetition:partie-11-1');
+      const firstFin = ids.findIndex((x) => x.endsWith(':fin-0'));
+      expect(back).toBeGreaterThan(-1);
+      expect(back).toBeLessThan(firstFin);
+      // la 2e réponse est la tentative 2 : seule la 1re compte pour la note
+      const again = answer(until(first.state, 'partie-11-1'), good, 1);
+      expect(again.event).toMatchObject({ kind: 'answer', correct: true, attempt: 2 });
+      const miss = answer(until(start, 'partie-14'), wrong, 1);
+      expect(miss.state.queue.some((st) => st.type === 'question' && st.item.itemId === 'partie-14')).toBe(false);
     });
   });
 
-  it('annonce de la fin', () => {
-    const p = c00.parts[18];
-    if (p?.type !== 'etapes') throw new Error('etapes');
-    expect(p.title).toBe('Place aux 5 exercices de fin');
-    expect(p.steps.map((s) => s.text).join(' ')).toContain('au moins **4 exercices de fin justes sur 5**');
+  it('les exercices de fin : « tout est bien écrit » environ 1 fois sur 5 (2 500 exercices)', () => {
+    let good = 0;
+    let total = 0;
+    for (let seed = 1; seed <= 500; seed++) {
+      const items = courseRunItems(c00, seededRng(seed)).filter((it) => it.type === 'question' && it.activity === 'fin');
+      for (const it of items) {
+        total++;
+        if (it.type === 'question' && it.question.kind === 'erreur' && it.question.accept?.length === 0) good++;
+      }
+    }
+    expect(total).toBe(2500);
+    expect(good / total).toBeGreaterThan(0.1);
+    expect(good / total).toBeLessThan(0.3);
   });
 });

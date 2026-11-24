@@ -38,7 +38,7 @@ describe('runErrors', () => {
     const choixKo = { ...(wrong(A, 'lecon', null) as object), questionKind: 'choix' } as AppEvent;
     const evts = [choixKo, wrong(A, 'fin', 'parenthese'), wrong(A, 'fin', null)];
     expect(runErrors(evts, A, C0)).toEqual([
-      { errorType: 'parenthese', label: 'Parenthèse non fermée', rule: 4, partIndex: 11, count: 1 },
+      { errorType: 'parenthese', label: 'Parenthèse non fermée', rule: 4, partIndex: 6, count: 1 },
       { errorType: 'autre', label: 'Autre erreur', rule: null, partIndex: null, count: 1 },
     ]);
   });
@@ -55,8 +55,8 @@ describe('runErrors', () => {
       wrong('other', 'fin', 'moins-apres'),
     ];
     expect(runErrors(evts, A, C0)).toEqual([
-      { errorType: 'signes-colles', label: 'Deux signes qui se touchent', rule: 1, partIndex: 4, count: 3 },
-      { errorType: 'parenthese', label: 'Parenthèse non fermée', rule: 4, partIndex: 11, count: 1 },
+      { errorType: 'signes-colles', label: 'Deux signes qui se touchent', rule: 1, partIndex: 2, count: 3 },
+      { errorType: 'parenthese', label: 'Parenthèse non fermée', rule: 4, partIndex: 6, count: 1 },
     ]);
   });
   it('ties follow the course error order; null/unknown types become « Autre erreur »', () => {
@@ -100,7 +100,7 @@ describe('lastAttempt', () => {
     const evts = [...lesson('r'), ...fin('r', 2)];
     expect(lastAttempt(foldProgress(evts), evts, C0)).toEqual({
       kind: 'cours', finOk: 2, fin: 5,
-      top: { errorType: 'signes-colles', label: 'Deux signes qui se touchent', rule: 1, partIndex: 4, count: 3 },
+      top: { errorType: 'signes-colles', label: 'Deux signes qui se touchent', rule: 1, partIndex: 2, count: 3 },
     });
   });
   it('takes the last attempt: a failed rattrapage after a failed course', () => {

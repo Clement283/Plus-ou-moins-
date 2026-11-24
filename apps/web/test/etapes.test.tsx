@@ -21,53 +21,27 @@ function setup(steps: EtapeStep[], title = 'Titre') {
   return { ...view, onDone, $, $$, btn };
 }
 
-describe('Etapes (règle 1, partie 4 du Cours 0)', () => {
-  const p = part(4);
+describe('Etapes (Cours 0 v3, écran 3 : règle 1)', () => {
+  const p = part(2);
   it('1re étape : la scène et la 1re phrase, bouton « Suite »', () => {
     const t = setup(p.steps, p.title);
     expect(t.$('h1')!.textContent).toBe(p.title);
     expect(t.$('.stage')!.textContent).toContain('4 × −3');
     expect(t.$$('.etape')).toHaveLength(1);
-    expect(t.$('.etape')!.textContent).toBe('Reprenons le calcul du début.');
+    expect(t.$('.etape')!.textContent).toBe('Voici 4 × −3. Le × et le − sont collés : deux signes se touchent.');
     expect(t.btn('Suite')).not.toBeNull();
     expect(t.btn('Suivant')).toBeNull();
   });
-  it('la scène est visible dès la 1re étape et fait au moins 190 px de haut (feuille de style)', () => {
+  it('le surligneur jaune marque « regarde ici » et la légende dit « deux signes collés »', () => {
     const t = setup(p.steps, p.title);
-    expect(t.$('.stage')).not.toBeNull();
+    expect(t.$$('.stage .scene-hl').map((m) => m.textContent)).toEqual(['×', '−']);
+    expect(t.$('.stage .anim-bump')).not.toBeNull();
+    expect(t.$('.scene-label')!.textContent).toBe('deux signes collés');
     expect(t.$$('.dots i')).toHaveLength(p.steps.length);
     expect(t.$$('.dots i.is-on')).toHaveLength(1);
   });
-  it('2 clics sur « Suite » : 3 phrases, les 2 anciennes ne sont plus « nouvelles »', () => {
-    const t = setup(p.steps, p.title);
-    fireEvent.click(t.btn('Suite')!);
-    fireEvent.click(t.btn('Suite')!);
-    expect(t.$$('.etape')).toHaveLength(3);
-    expect(t.$$('.etape.is-new')).toHaveLength(1);
-    expect(t.$$('.dots i.is-on')).toHaveLength(3);
-    expect(t.onDone).not.toHaveBeenCalled();
-  });
-  it('la scène change à chaque étape et le surligneur jaune marque « regarde ici »', () => {
-    const t = setup(p.steps, p.title);
-    fireEvent.click(t.btn('Suite')!);
-    expect(t.$('.stage .scene-hl')!.textContent).toBe('× −');
-    expect(t.$('.stage .anim-bump')).not.toBeNull();
-    expect(t.$('.scene-label')!.textContent).toBe('deux signes collés');
-    fireEvent.click(t.btn('Suite')!);
-    expect(t.$$('.stage .scene-hl').map((m) => m.textContent)).toEqual(['×', '−']);
-  });
-  it('dernière étape : « Suivant » appelle onDone, avec l’encadré de règle', () => {
-    const t = setup(p.steps, p.title);
-    for (let i = 1; i < p.steps.length; i++) fireEvent.click(t.btn('Suite')!);
-    expect(t.btn('Suite')).toBeNull();
-    expect(t.$('.rule-box')!.textContent).toContain('Règle 1');
-    expect(t.$('.rule-box b')!.textContent).toContain('Deux signes ne se suivent jamais.');
-    fireEvent.click(t.btn('Suivant')!);
-    expect(t.onDone).toHaveBeenCalledTimes(1);
-  });
   it('« Revoir » rejoue l’animation : la scène est remontée', () => {
     const t = setup(p.steps, p.title);
-    fireEvent.click(t.btn('Suite')!);
     const before = t.$('.stage')!;
     fireEvent.click(t.btn('Revoir')!);
     expect(t.$('.stage')).not.toBe(before);
@@ -76,9 +50,23 @@ describe('Etapes (règle 1, partie 4 du Cours 0)', () => {
 });
 
 describe('Etapes : autres mises en page', () => {
-  it('paires mal écrit → bien écrit (règle 1, exemples)', () => {
-    const p = part(5);
-    const t = setup(p.steps, p.title);
+  it('paires mal écrit → bien écrit', () => {
+    const steps: EtapeStep[] = [
+      { scene: { layout: 'pairs', calcs: [{ tokens: [{ t: '5 + −2' }], tag: 'mal écrit' }, { tokens: [{ t: '5 + (−2)' }], tag: 'bien écrit' }] }, text: 'Après un **+** :' },
+      {
+        scene: {
+          layout: 'pairs',
+          calcs: [
+            { tokens: [{ t: '5 + −2' }], tag: 'mal écrit' },
+            { tokens: [{ t: '5 + (−2)' }], tag: 'bien écrit' },
+            { tokens: [{ t: '7 − −1' }], tag: 'mal écrit' },
+            { tokens: [{ t: '7 − (−1)' }], tag: 'bien écrit' },
+          ],
+        },
+        text: 'Après un **−** :',
+      },
+    ];
+    const t = setup(steps, 'Avec toutes les opérations');
     expect(t.$('.stage--pairs')).not.toBeNull();
     expect(t.$$('.stage__pair')).toHaveLength(1);
     expect(t.$$('.scene-tag').map((x) => x.textContent)).toEqual(['mal écrit', 'bien écrit']);
@@ -91,17 +79,17 @@ describe('Etapes : autres mises en page', () => {
     fireEvent.click(t.btn('Suite')!);
     expect(t.$('.stage--row')).not.toBeNull();
     expect(t.$$('.stage__calc')).toHaveLength(2);
-    expect(t.$('.scene-dim')!.textContent).toBe('−3');
+    expect(t.$$('.scene-label').map((x) => x.textContent)).toEqual(['soustraire', 'signe du nombre']);
   });
   it('récapitulatif des 4 règles, avec « pas faux, mais inutile »', () => {
-    const p = part(13);
+    const p = part(10);
     const t = setup(p.steps, p.title);
     expect(t.$$('.recap li')).toHaveLength(4);
     expect(t.$('.recap')!.textContent).toContain('pas faux, mais inutile');
     expect(t.btn('Suivant')).not.toBeNull(); // une seule étape
   });
   it('sans scène (annonce des exercices de fin) : pas de grande zone vide', () => {
-    const p = part(18);
+    const p = part(16);
     const t = setup(p.steps, p.title);
     expect(t.$('.stage')).toBeNull();
     expect(t.$('.etape')!.textContent).toContain("pas d'aide");
@@ -115,10 +103,10 @@ describe('Etapes : autres mises en page', () => {
 describe('Cours 0 : numéro d’étape de la pastille', () => {
   it('les parties qui partagent un écran comptent pour une étape', () => {
     const total = lessonStep(C00, 0)!.total;
-    expect(lessonStep(C00, 2)!.n).toBe(lessonStep(C00, 3)!.n);
-    expect(lessonStep(C00, 4)!.n).toBe(lessonStep(C00, 3)!.n + 1);
-    expect(lessonStep(C00, 13)!.n).toBe(total);
-    expect(lessonStep(C00, 14)).toBeNull();
+    expect(lessonStep(C00, 7)!.n).toBe(lessonStep(C00, 8)!.n);
+    expect(lessonStep(C00, 9)!.n).toBe(lessonStep(C00, 8)!.n + 1);
+    expect(lessonStep(C00, 10)!.n).toBe(total);
+    expect(lessonStep(C00, 11)).toBeNull();
   });
 });
 
