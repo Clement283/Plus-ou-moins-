@@ -240,3 +240,28 @@ export function buildErrors(specs: ErrorSpec[], resolution: (ex: Exercise) => st
 /** Display text of a calculation (Unicode − × ÷), for explanation sentences. */
 export const toText = (e: Expr): string =>
   toLatex(e).replace(/\\times/g, '×').replace(/\\div/g, '÷').replace(/-/g, '−');
+
+// ——— Interactive lesson helpers (Cours 1 v2 onwards) ———
+
+/** « Toucher la droite » : les bonds sont dessinés, l'élève touche l'arrivée. */
+export const droiteQ = (ex: Exercise, line: { from: number; to: number }, jumps: { from: number; by: number }[]): Question => ({
+  kind: 'droite',
+  ex,
+  promptLatex: toLatex(ex.expr),
+  line,
+  jumps,
+  answer: ex.answer.n,
+});
+
+/** Une série de pratique : une question par élément, comptée dans la note sauf `uncounted`. */
+export const pratique = (title: string, questions: { question: Question; texts?: PartTexts }[]): LessonPart => ({
+  type: 'pratique',
+  title,
+  questions,
+});
+
+/** Une étape d'un écran « pas à pas ». */
+export const step = (text: string | undefined, extra: Omit<EtapeStep, 'text'> = {}): EtapeStep => ({
+  ...(text === undefined ? {} : { text }),
+  ...extra,
+});

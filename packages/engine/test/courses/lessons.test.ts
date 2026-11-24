@@ -29,11 +29,17 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c01-additionner-meme-signe': [
-    ['Deux dettes font une plus grande dette', 'Tu dois 3 €, puis encore 5 €.'],
-    ['Même signe : j\'additionne, je garde le signe'],
-    ordreOf('−2 + (−7)'),
-    CALC,
-    EX, EX, EX, EX,
+    ['Additionner deux nombres de même signe'],
+    ['La droite graduée et les bonds'],
+    ['Deux dettes qui s\'ajoutent'],
+    ['Comparer deux cas'],
+    ['J\'additionne les longueurs des bonds'],
+    ['Je garde le signe'],
+    ['Les 2 règles à retenir'],
+    ['Cours 1 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c02-additionner-signes-contraires': [
     ['Une dette, puis un gain', 'Tu dois 3 € et tu gagnes 5 €. Il te reste 2 €.'],
@@ -103,7 +109,9 @@ describe('doc 09 : titres des écrans de leçon', () => {
     for (const id of Object.keys(DOC09)) {
       for (const p of getCourse(id).parts) {
         if (p.type === 'question' && p.activity === 'exemple' && p.question.kind === 'trou') {
-          expect(p.consigne, id).toBe("Complète, une case après l'autre.");
+          // exception : la dernière ligne de l'exemple 1 du Cours 1 a sa consigne propre (doc 06, écran 9)
+          const own = 'Tape ce qui manque dans la case, avec les touches du clavier.';
+          expect([own, "Complète, une case après l'autre."], id).toContain(p.consigne);
         }
       }
     }
@@ -133,7 +141,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   });
 
   const KO: Record<string, [string, string]> = {
-    'c01-additionner-meme-signe': ['−3 + (−5) = 8', 'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !'],
     'c02-additionner-signes-contraires': ['3 + (−8) = 5', 'Le signe du résultat, c\'est celui du nombre le plus grand (sans son signe).'],
     'c03-additionner-plusieurs': ['−2 + 5 + (−4) = 1', 'Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe.'],
     'c05-multiplier-deux': ['−3 × (−4) = −12', '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.'],
@@ -149,7 +156,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   }
 
   const OK: Record<string, string[]> = {
-    'c01-additionner-meme-signe': ['−3 + (−5) = −(3 + 5) = **−8**', '4 + 6 = **10**'],
     'c02-additionner-signes-contraires': [
       '−3 + 5 = 5 − 3 = **2** (5 est le plus grand, il est positif)',
       '4 + (−9) = 9 − 4 = **−5** (9 est le plus grand, il est négatif)',
