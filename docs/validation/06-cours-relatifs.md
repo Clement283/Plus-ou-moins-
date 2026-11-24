@@ -153,32 +153,6 @@ Les écritures fausses sont fabriquées en appliquant l'une des fautes ci-dessou
 | 5 + (−2) × 3− | la case « − » après le 3 | « Tout est bien écrit » | `moins-apres` |
 | −6 − (−2 × 4 | la case « ( » non fermée | « ( » | — |
 
----|---|
-| 1 | une seule opération, de 1 à 9 : 4 × (−3) |
-| 2 | deux opérations : 5 + (−2) × 3 |
-| 3 | trois opérations ou plus, avec parenthèses : −6 − (−2) × (4 + (−1)) |
-
-Les écritures fausses sont fabriquées en appliquant l'une des fautes ci-dessous à un calcul bien écrit.
-
-**Erreurs reconnues**
-| Identifiant | La faute non repérée | Explication affichée | Calcul-piège |
-|---|---|---|---|
-| `signes-colles` | deux signes qui se suivent (4 × −3) | « Deux signes ne se suivent jamais : 4 × (−3). » | un négatif après × ou ÷ |
-| `moins-apres` | le − après le nombre (3−) | « Le signe moins s'écrit avant le nombre : −3. » | un négatif en tête |
-| `parenthese` | parenthèse non fermée ou en trop | « Une parenthèse ouverte doit être fermée. » | niveau 3, avec parenthèses |
-
-*Note :* (−3) + 5 en tête n'est pas faux, juste inutile. On ne le présente jamais comme une erreur.
-
-**Résolution type** (pour Trouver l'erreur) : le calcul lui-même, découpé en morceaux touchables (nombres, signes, parenthèses).
-
-**Exemples**
-| Calcul affiché | Bonne réponse | Elle touche | Erreur enregistrée |
-|---|---|---|---|
-| 4 × −3 | « × − » | « × − » | — |
-| 4 × (−3) | « Tout est bien écrit » | « × » | `relecture` |
-| 5 + (−2) × 3− | « 3− » | « Tout est bien écrit » | `moins-apres` |
-| −6 − (−2 × 4 | « (−2 × 4 » | « (−2 × 4 » | — |
-
 ---
 
 ## Cours 1 — Additionner deux nombres de même signe
