@@ -7,8 +7,11 @@ import App from './App';
 import './theme.css';
 import { startSync } from './store/sync';
 import { followSystemTheme } from './theme';
+import { registerSW } from 'virtual:pwa-register';
 
 followSystemTheme();
 startSync();
+// Nouvelle version en ligne : le service worker l'installe, puis la page se recharge toute seule.
+registerSW({ immediate: true });
 
 createRoot(document.getElementById('root')!).render(<App />);

@@ -2,16 +2,31 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { execSync } from 'node:child_process';
 
 /** Identifiant de version de l'appli : invalide le cache de progression à chaque nouveau déploiement. */
 const BUILD = String(Date.now());
 
+/** Version affichée dans l'appli : date et heure du build (Paris) et commit, ex. « 24/11 12:05 · 483cc19 ». */
+function appVersion(): string {
+  const when = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(Number(BUILD)));
+  let commit = '';
+  try {
+    commit = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    // pas de git (build hors dépôt) : la date suffit
+  }
+  return commit ? `${when.replace(' ', ' ')} · ${commit}` : when;
+}
+
 export default defineConfig({
-  define: { __APP_BUILD__: JSON.stringify(BUILD) },
+  define: { __APP_BUILD__: JSON.stringify(BUILD), __APP_VERSION__: JSON.stringify(appVersion()) },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Enregistré dans main.tsx (registerSW) : la page se recharge seule quand une nouvelle version est installée.
+      injectRegister: false,
       manifest: {
         name: 'Plus ou moins',
         short_name: 'Plus ou moins',

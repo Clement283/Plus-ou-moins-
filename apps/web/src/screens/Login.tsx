@@ -3,6 +3,7 @@ import { ApiError, login } from '../api';
 import { setSession } from '../store/sync';
 import { go } from '../router';
 import { Icon } from '../ui/Icon';
+import { AppVersion } from '../ui/AppVersion';
 
 type Status = 'repos' | 'envoi' | 'inconnu' | 'hors' | 'serveur';
 
@@ -125,6 +126,7 @@ export default function Login() {
         </button>
       </form>
       <p className="t-caption">Tu n'as pas de code ? Demande-le à la personne qui te suit.</p>
+      <AppVersion />
     </main>
   );
 }

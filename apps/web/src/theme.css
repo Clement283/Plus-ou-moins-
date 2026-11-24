@@ -926,3 +926,6 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .resolution--text{font:400 17px/1.5 var(--font-body)}
 .resolution--text .is-last{font-weight:600}
 .stage--glyph .stage__calc{font-size:84px;line-height:1}
+
+/* Numéro de version (accueil, connexion) */
+.app-version{color:var(--subtle);text-align:center;margin:var(--sp-8) 0 0}

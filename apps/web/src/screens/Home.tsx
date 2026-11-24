@@ -7,6 +7,7 @@ import { useProgress, useReady, useSession, useToday } from '../store/progress';
 import { useEvents } from '../store/sync';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
+import { AppVersion } from '../ui/AppVersion';
 
 /**
  * Accueil de l'élève (maquette `concept.html`, docs 02 §6 et 08 n° 19) : une pile calme, la jauge du jour,
