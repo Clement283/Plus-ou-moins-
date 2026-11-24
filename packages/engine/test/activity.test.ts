@@ -8,6 +8,8 @@ import { foldProgress, LADDER, type ProgressState } from '../src/srs';
 import { nextReviewSession } from '../src/reviews';
 import { addDays } from '../src/time';
 import {
+  CHOIX_REPEAT_DISTANCE,
+  LESSON_REPEAT_NOTE,
   MEME_TYPE_DISTANCE,
   TRAINING_SERIES_LENGTH,
   answer,
@@ -405,22 +407,20 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
     expect(steps).toEqual(['expl:e1', 'q1:original', 'expl:e2', 'q2:original', 'q0:meme-type', 'q3:original', 'q0:repetition']);
   });
 
-  it('le calcul du même type d’un exemple du Cours 0 (trou fait à la main) est un exercice de fin du cours', () => {
+  it('un exemple du Cours 0 (trou fait à la main) raté n’a pas de calcul du même type : il repasse juste avant les exercices de fin', () => {
     const course = getCourse(C0);
     const items = courseRunItems(course, seededRng(2));
     const trou = items.find((x) => x.type === 'question' && x.question.kind === 'trou')!;
-    const { state } = (() => {
-      let s = createActivity('cours', items, { activityId: 'r', rng: seededRng(2) });
-      while (head(s) !== `${trou.itemId}:original`) {
-        const c = current(s)!;
-        s = c.type === 'explication' ? explanationDone(s, 1).state : answer(s, ok, 1).state;
-      }
-      s = answer(s, ko(), 1).state;
-      while (head(s) !== `${trou.itemId}:meme-type`) s = answer(s, ok, 1).state;
-      return { state: s };
-    })();
-    const c = current(state)!;
-    expect(c.type === 'question' && c.question.kind).toBe('erreur');
+    let s = createActivity('cours', items, { activityId: 'r', rng: seededRng(2) });
+    while (head(s) !== `${trou.itemId}:original`) {
+      const c = current(s)!;
+      s = c.type === 'explication' ? explanationDone(s, 1).state : answer(s, ok, 1).state;
+    }
+    s = answer(s, ko(), 1).state;
+    const ids = s.queue.map((x) => (x.type === 'question' ? `${x.item.itemId}:${x.role}` : 'expl'));
+    expect(ids.some((x) => x.endsWith(':meme-type'))).toBe(false);
+    const rep = ids.indexOf(`${trou.itemId}:repetition`);
+    expect(ids[rep + 1]).toBe('fin-0:original');
   });
 
   it('seule la 1re réponse compte : 5 sur 5 aux exercices de fin malgré calculs du même type et repassages ratés → validé', () => {
@@ -625,5 +625,84 @@ describe('entraînement : cours à rattraper et sélection (doc 08 n° 1 et 3)',
     const seen = new Set<string>();
     for (let seed = 0; seed < 40; seed++) for (const x of trainingSeries(withC3, 'tout', seededRng(seed))) seen.add(x.courseId);
     expect(seen.has(c3)).toBe(true);
+  });
+});
+
+describe('repassage des questions de leçon (doc 08 n° 21 et 22)', () => {
+  const ex = (finItems(1)[0]!.question as Extract<Question, { kind: 'saisie' }>).ex;
+  const choixQ = (n: number): Question => ({
+    kind: 'choix',
+    ex,
+    calcLatex: null,
+    prompt: `Question ${n}`,
+    options: [
+      { label: 'A', why: 'a' },
+      { label: 'B', why: 'b' },
+      { label: 'C', why: 'c' },
+      { label: 'D', why: 'd' },
+    ],
+    correctIndex: 2,
+  });
+  const item = (itemId: string, activity: QuestionItem['activity'], question: Question): QuestionItem => ({ type: 'question', itemId, courseId: C5, activity, question });
+  const steps = (s: ActivityState) => s.queue.map((x) => (x.type === 'explication' ? `expl:${x.item.itemId}` : `${x.item.itemId}:${x.role}`));
+  const fins = () => finItems(2).map((f, i) => ({ ...f, itemId: `f${i}` }));
+  const expl = (itemId: string): ActivityItem => ({ type: 'explication', itemId, courseId: C5, partIndex: 0, blocks: [] });
+
+  it('constantes', () => {
+    expect(CHOIX_REPEAT_DISTANCE).toBe(2);
+    expect(LESSON_REPEAT_NOTE).toBe('Tu retrouveras ce calcul à la fin de la leçon.');
+  });
+
+  it('choix raté : revient 2 étapes plus loin, options remélangées, même bonne réponse', () => {
+    const s = start([item('c0', 'lecon', choixQ(0)), expl('e1'), item('c1', 'lecon', choixQ(1)), expl('e2'), item('c2', 'lecon', choixQ(2)), ...fins()]);
+    const r = answer(s, ko(), 1).state;
+    expect(steps(r).slice(0, 4)).toEqual(['expl:e1', 'c1:original', 'c0:repetition', 'expl:e2']);
+    expect(steps(r).filter((x) => x.startsWith('c0')).length).toBe(1);
+    const rep = r.queue[2]!;
+    if (rep.type !== 'question' || rep.question.kind !== 'choix') throw new Error('choix attendu');
+    expect(rep.question.options.map((o) => o.label)).not.toEqual(['A', 'B', 'C', 'D']);
+    expect(rep.question.options[rep.question.correctIndex]!.label).toBe('C');
+    expect(rep.item.itemId).toBe('c0');
+  });
+
+  it('choix raté juste avant le 1er fin : la répétition est avant ce fin', () => {
+    const s = start([item('c0', 'lecon', choixQ(0)), ...fins()]);
+    const r = answer(s, ko(), 1).state;
+    expect(steps(r)).toEqual(['c0:repetition', 'f0:original', 'f1:original']);
+    const s2 = start([item('c0', 'lecon', choixQ(0)), expl('e1'), ...fins()]);
+    expect(steps(answer(s2, ko(), 1).state)).toEqual(['expl:e1', 'c0:repetition', 'f0:original', 'f1:original']);
+  });
+
+  it('choix raté deux fois : revient encore, « Passer » à la 3e présentation', () => {
+    let s = start([item('c0', 'lecon', choixQ(0)), expl('e1'), item('c1', 'lecon', choixQ(1)), expl('e2'), ...fins()]);
+    s = answer(s, ko(), 1).state;
+    while (head(s) !== 'c0:repetition') {
+      const c = current(s)!;
+      s = c.type === 'explication' ? explanationDone(s, 1).state : answer(s, ok, 1).state;
+    }
+    expect((current(s) as { canSkip: boolean }).canSkip).toBe(false);
+    s = answer(s, ko(), 1).state;
+    expect(steps(s).filter((x) => x === 'c0:repetition').length).toBe(1);
+    while (head(s) !== 'c0:repetition') {
+      const c = current(s)!;
+      s = c.type === 'explication' ? explanationDone(s, 1).state : answer(s, ok, 1).state;
+    }
+    const c = current(s) as { canSkip: boolean; attempt: number };
+    expect(c.attempt).toBe(3);
+    expect(c.canSkip).toBe(true);
+  });
+
+  it('decouverte ratée : rien ne repasse', () => {
+    const s = start([item('d0', 'decouverte', choixQ(0)), ...fins()]);
+    expect(steps(answer(s, ko(), 1).state)).toEqual(['f0:original', 'f1:original']);
+  });
+
+  it('classer de leçon raté : pas de « même type », répétition juste avant le 1er fin', () => {
+    const q: Question = { kind: 'classer', exs: [ex], groups: [], answer: [] } as unknown as Question;
+    for (const act of ['lecon', 'exemple'] as const) {
+      const s = start([item('p0', act, q), expl('e1'), item('p1', act, choixQ(1)), ...fins()]);
+      expect(steps(answer(s, ko(), 1).state)).toEqual(['expl:e1', 'p1:original', 'p0:repetition', 'f0:original', 'f1:original']);
+    }
+    expect(steps(answer(start([item('p0', 'lecon', q)]), ko(), 1).state)).toEqual(['p0:repetition']);
   });
 });

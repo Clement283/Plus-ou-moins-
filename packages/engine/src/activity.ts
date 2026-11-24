@@ -25,6 +25,12 @@
  *   course's end exercise kind.
  * - A course run records 'lecon' / 'exemple' / 'fin' answers under one activityId; its activity_end
  *   says 'fin' (as srs expects). activity_end has courseId null when the activity spans several courses.
+ * - Lesson questions (doc 08 n° 21 et 22), on a wrong answer: a `decouverte` question never comes back;
+ *   a `choix` question comes back CHOIX_REPEAT_DISTANCE steps later (explanations counted), with its
+ *   options shuffled again, never later than the first 'fin' item, until it is answered right; any
+ *   other 'lecon' / 'exemple' question has no « même type » calcul and its exact repeat goes just
+ *   before the first 'fin' item (at the end when there is none). 'fin', 'rattrapage', 'revision' and
+ *   'entrainement' keep the rules above.
  * - Functions return new states and never change the one they receive. The state is plain data:
  *   `createActivity` draws one seed from the injected `rng`, and each « même type » calcul is drawn
  *   from a generator seeded by (seed, itemId), so `answer` gives the same result for the same state.
@@ -35,7 +41,7 @@ import type { Outcome, Question } from './exercises/types';
 import { buildQuestion } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
 import { toLatex } from './math/expr';
-import { type Rng, pick, seededRng } from './rng';
+import { type Rng, pick, seededRng, shuffle } from './rng';
 import type { ProgressState } from './srs';
 import { qcmSeen, type ReviewSession } from './reviews';
 
@@ -96,6 +102,10 @@ export type CurrentStep =
 
 /** The « même type » calcul comes this many positions after the failed question (doc 01 §6). */
 export const MEME_TYPE_DISTANCE = 3;
+/** A failed `choix` question comes back this many steps later, explanations included (doc 08 n° 21). */
+export const CHOIX_REPEAT_DISTANCE = 2;
+/** Shown by the screen when a failed lesson question will come back at the end of the lesson (doc 08 n° 22). */
+export const LESSON_REPEAT_NOTE = 'Tu retrouveras ce calcul à la fin de la leçon.';
 export const END_EXERCISES = 5;
 export const RATTRAPAGE_EXERCISES = 5;
 export const TRAINING_SERIES_LENGTH = 10;
@@ -184,6 +194,19 @@ function itemRng(seed: number, itemId: string): Rng {
   return seededRng(h >>> 0);
 }
 
+/** The same `choix` question with its options in another order (drawn from seed, item and attempt). */
+function reshuffled(q: Extract<Question, { kind: 'choix' }>, rng: Rng): Question {
+  const order = q.options.map((_, i) => i);
+  let next = shuffle(rng, order);
+  if (order.length > 1 && next.every((v, i) => v === i)) next = [...order.slice(1), order[0]!];
+  return { ...q, options: next.map((i) => q.options[i]!), correctIndex: next.indexOf(q.correctIndex) };
+}
+
+const firstFin = (queue: Step[]): number => {
+  const i = queue.findIndex((x) => x.type === 'question' && x.item.activity === 'fin');
+  return i < 0 ? queue.length : i;
+};
+
 /** Answer to the current question (outcome from checkAnswer). */
 export function answer(s: ActivityState, outcome: Outcome, durationMs: number): { state: ActivityState; event: NewAnswerEvent } {
   const step = headQuestion(s);
@@ -192,7 +215,21 @@ export function answer(s: ActivityState, outcome: Outcome, durationMs: number): 
   const id = step.item.itemId;
   const queue = s.queue.slice(1);
   const failures = { ...s.failures };
-  if (!outcome.correct && step.role !== 'meme-type') {
+  const activity = step.item.activity;
+  const isLesson = activity === 'lecon' || activity === 'exemple';
+  if (!outcome.correct && activity === 'decouverte') {
+    // nothing comes back
+  } else if (!outcome.correct && isLesson && step.role !== 'meme-type') {
+    failures[id] = (failures[id] ?? 0) + 1;
+    const q = step.question;
+    if (q.kind === 'choix') {
+      const attempt = (s.answered[id] ?? 0) + 1;
+      const question = reshuffled(q, itemRng(s.seed, `${id}#${attempt}`));
+      queue.splice(Math.min(CHOIX_REPEAT_DISTANCE, firstFin(queue)), 0, { type: 'question', item: step.item, role: 'repetition', question });
+    } else {
+      queue.splice(firstFin(queue), 0, { type: 'question', item: step.item, role: 'repetition', question: step.item.question });
+    }
+  } else if (!outcome.correct && step.role !== 'meme-type') {
     failures[id] = (failures[id] ?? 0) + 1;
     if (step.role === 'original') {
       const meme: Step = { type: 'question', item: step.item, role: 'meme-type', question: memeType(step.item, step.question, outcome.errorType, itemRng(s.seed, id)) };
