@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { foldProgress, getCourse, num, op, rat, seededRng, type ActivityItem, type ActivityKind, type ActivityState, type Question } from '@pom/engine';
+import { LESSON_REPEAT_NOTE, buildQuestion, courseRunItems, foldProgress, getCourse, num, op, rat, seededRng, type ActivityItem, type ActivityKind, type ActivityState, type Question } from '@pom/engine';
 
 const recorded: any[] = [];
 vi.mock('../src/store/sync', () => ({ recordEvent: vi.fn(async (e: unknown) => void recorded.push(e)) }));
@@ -252,5 +252,89 @@ describe('ActivityScreen', () => {
     fireEvent.click(t.btn('Suivant')!);
     expect(recorded[0]).toMatchObject({ kind: 'lesson_part_done', partIndex: 0, durationMs: 7_000 });
     expect(t.$('.q-expr')).not.toBeNull();
+  });
+});
+
+describe('ActivityScreen : Cours 0 v2 (leçon pas à pas, petites questions)', () => {
+  const C00 = getCourse('c00-bien-ecrire');
+  const all = () => courseRunItems(C00, seededRng(1));
+  const at = (...ns: number[]) => ns.map((n) => all()[n]!);
+  const setup00 = (items: ActivityItem[]) => setup(items, {}, 'cours');
+  const choice = (t: ReturnType<typeof setup>, label: string) => fireEvent.click(t.$$('.answer-zone .choice').find((b) => b.textContent === label)!);
+
+  it('une partie `etapes` s’affiche (plus d’écran vide) : « Suite » puis « Suivant » passe à la suite', () => {
+    const t = setup00(at(4, 6));
+    expect(t.$('h1')!.textContent).toBe('Quand deux signes se touchent');
+    expect(t.$('.stage')!.textContent).toContain('4 × −3');
+    expect(t.btn('Suite')).not.toBeNull();
+    for (let i = 0; i < 4; i++) fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.btn('Suivant')!);
+    expect(recorded[0]).toMatchObject({ kind: 'lesson_part_done', partIndex: 4 });
+    expect(t.container.textContent).toContain('Comment écrire correctement ce calcul ?');
+  });
+
+  it('2 questions par écran : la 2e garde la 1re en résumé, « Ta réponse : À soustraire ✓ »', () => {
+    const t = setup00(at(2, 3));
+    expect(t.$('.q-summary')).toBeNull();
+    choice(t, 'À soustraire');
+    t.next();
+    expect(t.container.textContent).toContain('Et ici, à quoi sert le');
+    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : À soustraire ✓');
+    expect(t.$('.q-summary')!.textContent).toContain('Dans ce calcul, à quoi sert le');
+    expect(t.$$('.answer-zone .choice').map((b) => b.textContent)).toEqual(['À soustraire', 'À dire que 6 est négatif']);
+    choice(t, 'À dire que 6 est négatif'); // une fois répondue, le résumé reste en haut
+    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : À soustraire ✓');
+  });
+
+  it('une 1re réponse fausse : « Ta réponse : … ✗ » au-dessus de la 2e', () => {
+    const t = setup00(at(2, 3));
+    choice(t, 'À dire que 5 est négatif');
+    expect(t.$('.alert--error .alert__title')!.textContent).toBe('Pas tout à fait.'); // pas de préfixe en plus
+    expect(t.$('.alert--error')!.textContent).toContain("on enlève 5 à 8. C'est une soustraction.");
+    t.next();
+    expect(t.$('.q-summary')!.textContent).toContain('Ta réponse : À dire que 5 est négatif ✗');
+  });
+
+  it('question « pour découvrir » ratée : accueil sans note de répétition, enregistrée comme `decouverte`', () => {
+    const t = setup00(at(0, 4));
+    expect(t.container.textContent).toContain('Question pour découvrir : elle ne compte pas dans la note.');
+    choice(t, 'Oui');
+    expect(t.$('.alert--info .alert__title')!.textContent).toBe("Pas tout à fait, et c'est normal.");
+    expect(t.$('.q-foot .t-caption')).toBeNull();
+    expect(recorded[0]).toMatchObject({ kind: 'answer', activity: 'decouverte' });
+  });
+
+  it('petite question : le message de l’option, pas de note de repassage ; juste : « Juste ! » puis l’explication', () => {
+    const t = setup00(at(6, 4));
+    choice(t, '(5 + −2)');
+    expect(t.$('.q-foot .t-caption')).toBeNull();
+    expect(t.$('.alert--error')!.textContent).toContain('Les parenthèses doivent entourer le nombre négatif');
+    cleanup();
+    const u = setup00(at(6, 4));
+    choice(u, '5 + (−2)');
+    expect(u.$('.alert--success .alert__title')!.textContent).toBe('Juste !');
+    expect(u.$('.alert--success')!.textContent).toContain('ne se touchent plus');
+  });
+
+  it('exercice de fin « Toucher la faute » raté : titre sans « ligne N », aucune couleur de signe dans la correction', () => {
+    const q = buildQuestion(C00, 'erreur', { rng: seededRng(3), level: 1, timesSeen: 0 });
+    if (q.kind !== 'erreur' || !q.accept) throw new Error('toucher la faute attendu');
+    const item: ActivityItem = { type: 'question', itemId: 'fin-0', courseId: C00.id, activity: 'fin', question: q };
+    const t = setup00([item]);
+    const wrong = q.lines.findIndex((_, i) => !q.accept!.includes(i));
+    fireEvent.click(t.$$('.answer-zone .tag--piece')[q.accept.length === 0 ? 0 : wrong]!);
+    if (q.accept.length > 0) {
+      expect(t.$('.alert--error .alert__title')!.textContent).toBe('Pas tout à fait.');
+      expect(t.$$('.resolution .neg, .resolution .pos')).toHaveLength(0);
+    }
+  });
+
+  it('exemple guidé « Réécris » raté : la note de repassage de la leçon', () => {
+    const t = setup00(at(16, 4));
+    for (const k of ['6', '×', '−', '2']) fireEvent.click(t.btn(k)!);
+    fireEvent.click(t.btn('Valider')!);
+    expect(t.$('.alert--error')!.textContent).toContain('Le × et le − se touchent encore');
+    expect(t.$('.resolution-label')!.textContent).toBe('Étape par étape');
+    expect(t.$('.q-foot .t-caption')!.textContent).toBe(LESSON_REPEAT_NOTE);
   });
 });

@@ -11,15 +11,24 @@ import { Bold } from './Bold';
  * `note` : légende de révision sous le bloc (« Un calcul du même genre reviendra plus loin… »).
  * « Continuer » est posé par l'écran appelant.
  */
-export function FeedbackPanel({ feedback: f, note }: { feedback: Feedback; note?: string }) {
+export function FeedbackPanel({ feedback: f, note, colorSigns = true }: { feedback: Feedback; note?: string; /** false : pas de couleur de signe dans les calculs corrigés (Cours 0). */ colorSigns?: boolean }) {
   let body: ReactNode;
   switch (f.tone) {
     case 'juste':
       body = (
         <div className="alert alert--success" role="status">
           <Icon name="check-circle" />
-          {/* une note dit déjà « Juste ! » : elle seule (décision du contrôleur) */}
-          <div className="alert__title">{f.note ?? f.title}</div>
+          {/* une note qui dit déjà « Juste ! » : elle seule (décision du contrôleur) ; sinon (message d'un choix, d'un « Réécris ») : « Juste ! » puis le message */}
+          {f.note && !/^Juste/.test(f.note) ? (
+            <>
+              <div className="alert__title">{f.title}</div>
+              <div>
+                <Bold text={f.note} />
+              </div>
+            </>
+          ) : (
+            <div className="alert__title">{f.note ?? f.title}</div>
+          )}
         </div>
       );
       break;
@@ -55,10 +64,10 @@ export function FeedbackPanel({ feedback: f, note }: { feedback: Feedback; note?
           {steps && steps.length > 0 ? (
             <>
               <div className="resolution-label">Étape par étape</div>
-              <div className="resolution" aria-label="Résolution">
+              <div className={steps.every((b) => b.t === 'text') ? 'resolution resolution--text' : 'resolution'} aria-label="Résolution">
                 {steps.map((b, i) => (
                   <div key={i} className={i === steps.length - 1 ? 'is-last' : undefined}>
-                    {b.t === 'math' ? <Math latex={b.latex} colorize={b.colorize} /> : b.t === 'text' ? <Bold text={b.text} /> : null}
+                    {b.t === 'math' ? <Math latex={b.latex} colorize={colorSigns && b.colorize} /> : b.t === 'text' ? <Bold text={b.text} /> : null}
                   </div>
                 ))}
               </div>

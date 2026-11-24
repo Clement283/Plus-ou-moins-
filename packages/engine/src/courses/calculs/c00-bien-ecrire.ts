@@ -597,7 +597,7 @@ const parts: LessonPart[] = [
   // 0 — Accroche + deviner (ne compte pas)
   texted(
     decouverte(
-      smallPlain(
+      small(
         lessonWriting(op('*', num(4), num(-3)), '4', '\\times -', '3'),
         'Pour commencer, à ton avis : ce calcul est-il bien écrit ?',
         YES_NO(

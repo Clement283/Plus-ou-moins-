@@ -1,10 +1,13 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import {
-  WRITING_TITLE, answer, createActivity, current, endEvent, explanationDone, feedbackFor, getCourse, isDone, skip, toLatex,
+  LESSON_REPEAT_NOTE, WRITING_TITLE, answer, createActivity, current, endEvent, explanationDone, feedbackFor, getCourse, isDone, skip, toLatex,
   type Activity, type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type PartTexts, type Question, type Rng,
 } from '@pom/engine';
+import { Etapes } from '../components/Etapes';
 import { FeedbackPanel } from '../components/Feedback';
 import { LessonPartScreen } from '../components/LessonPart';
+import type { PreviousChoix } from '../components/questions/Frame';
+import { WRITING_COURSE } from '../components/questions/calc';
 import { QuestionView } from '../components/questions/QuestionView';
 import { Bold } from '../components/Bold';
 import { recordEvent } from '../store/sync';
@@ -67,6 +70,8 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const [view, setView] = useState<View>(() => ({ phase: 'ask', step: current(state)!, notice: null }));
   const [results, setResults] = useState<StepResult[]>([]);
   const firsts = useRef<FirstAnswer[]>([]);
+  /** Les petites questions répondues, par partie : l'une se résume en haut de l'écran de la suivante (`joinPrevious`). */
+  const choixAnswers = useRef<Record<string, PreviousChoix>>({});
   const [shown, setShown] = useState(0); // une valeur par étape affichée : fait repartir le chronomètre
   const [asking, setAsking] = useState<'close' | 'action' | null>(null);
   const timer = useStepTimer(shown);
@@ -103,7 +108,9 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     const step = view.step;
     if (!o.unfinished && !once()) return;
     const ms = timer.read();
-    const feedback = feedbackFor(getCourse(step.item.courseId), step.question, a, o);
+    const lessonQuestion = step.item.activity === 'lecon' || step.item.activity === 'exemple' || step.item.activity === 'decouverte';
+    const feedback = feedbackFor(getCourse(step.item.courseId), step.question, a, o, { guess: step.item.activity === 'decouverte' });
+    if (step.question.kind === 'choix' && 'choice' in a) choixAnswers.current[step.item.itemId] = { question: step.question, choice: a.choice, correct: o.correct };
     const before = results.length + state.queue.length;
     const r = answer(state, o, ms);
     save(r.event);
@@ -114,11 +121,31 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
       return;
     }
     const failed = feedback.tone === 'faux';
+    // « Toucher la faute » : les cases ne sont pas des lignes, le titre du moteur (« ligne 3 ») ne convient pas
+    const touch = step.question.kind === 'erreur' && step.question.accept !== undefined;
+    const ownMessage = step.question.kind === 'choix' || step.question.kind === 'reecrire'; // le message est la réponse : pas de préfixe
     const shownFeedback: Feedback =
-      feedback.tone === 'faux' && feedback.title !== WRITING_TITLE ? { ...feedback, title: `${step.role === 'repetition' ? 'Pas encore.' : 'Pas tout à fait.'} ${feedback.title}` } : feedback;
-    const note = !failed ? null : step.role === 'original' ? NOTE_FIRST : step.role === 'repetition' ? NOTE_AGAIN : null;
+      feedback.tone !== 'faux'
+        ? feedback
+        : touch
+          ? { ...feedback, title: step.question.kind === 'erreur' && step.question.accept?.length === 0 ? 'Ce calcul était bien écrit.' : 'Pas tout à fait.' }
+          : feedback.title !== WRITING_TITLE && !ownMessage
+            ? { ...feedback, title: `${step.role === 'repetition' ? 'Pas encore.' : 'Pas tout à fait.'} ${feedback.title}` }
+            : feedback;
+    // leçon : une question ratée repasse avant les exercices de fin (sauf « pour découvrir » et les petites questions, qui ont leur propre règle)
+    const note = !failed
+      ? null
+      : lessonQuestion
+        ? step.item.activity === 'decouverte' || step.question.kind === 'choix'
+          ? null
+          : LESSON_REPEAT_NOTE
+        : step.role === 'original'
+          ? NOTE_FIRST
+          : step.role === 'repetition'
+            ? NOTE_AGAIN
+            : null;
     setState(r.state);
-    setResults((x) => [...x, o.correct ? 'ok' : 'ko']);
+    setResults((x) => [...x, o.correct || step.item.activity === 'decouverte' ? 'ok' : 'ko']); // « pour découvrir » ne compte jamais : pas de rouge
     setView({ phase: 'feedback', step, feedback: shownFeedback, note, total: before, correct: o.correct });
   };
 
@@ -245,6 +272,17 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const { step } = view;
   if (step.type === 'explication') {
     const course = getCourse(step.item.courseId);
+    if (step.item.steps) {
+      return frame(
+        <Etapes
+          key={shown}
+          title={step.item.texts?.title ?? course.title}
+          steps={step.item.steps}
+          header={<span className="chip chip--module">{chip(step, pos)}</span>}
+          onDone={onLessonNext}
+        />,
+      );
+    }
     return frame(
       <LessonPartScreen
         key={shown}
@@ -260,7 +298,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   const footer =
     view.phase === 'feedback' ? (
       <>
-        <FeedbackPanel feedback={view.feedback} />
+        <FeedbackPanel feedback={view.feedback} colorSigns={course.id !== WRITING_COURSE} />
         {view.note && <p className="t-caption">{view.note}</p>}
         <button className="btn btn--contained btn--block" type="button" onClick={() => advance(state)}>
           Continuer
@@ -276,9 +314,11 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
         locked={view.phase === 'feedback'}
         onAnswer={onAnswer}
         texts={textsOf(step)}
+        activity={step.item.activity}
+        previous={previousOf(step, choixAnswers.current)}
         header={chips(step, subChip(step))}
         footer={footer}
-        notice={view.phase === 'ask' && view.notice ? <FeedbackPanel feedback={view.notice} /> : undefined}
+        notice={view.phase === 'ask' && view.notice ? <FeedbackPanel feedback={view.notice} colorSigns={course.id !== WRITING_COURSE} /> : undefined}
       />
       {view.phase === 'ask' && step.canSkip && (
         <div className="foot">
@@ -299,4 +339,11 @@ function textsOf(step: Extract<CurrentStep, { type: 'question' }>): PartTexts | 
   const t = step.item.texts;
   if (!t || step.question === step.item.question) return t;
   return t.consigne === undefined ? undefined : { consigne: t.consigne };
+}
+
+/** La petite question d'avant, si l'écran la partage (`joinPrevious`) et qu'elle a été répondue (partie juste avant). */
+function previousOf(step: Extract<CurrentStep, { type: 'question' }>, answered: Record<string, PreviousChoix>): PreviousChoix | undefined {
+  if (step.item.texts?.joinPrevious !== true || step.question !== step.item.question) return undefined;
+  const n = Number(step.item.itemId.split('-')[1]);
+  return answered[`partie-${n - 1}`];
 }

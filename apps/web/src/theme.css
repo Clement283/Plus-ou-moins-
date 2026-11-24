@@ -40,6 +40,7 @@
   --feature-bg:var(--primary); --on-feature:var(--on-primary);        /* carte forte indigo */
   --feature-btn-bg:var(--surface); --feature-btn-fg:var(--primary-ink); /* bouton inversé sur carte forte */
   --scrim:rgb(17 19 28 / .45);
+  --highlight:#FFE27A;         --on-highlight:#5C4100;         /* surligneur « regarde ici » (leçons seulement) : 6.9:1 */
 
   /* ---- Espacement (une seule échelle, base 4) ---- */
   --sp-2:2px; --sp-4:4px; --sp-8:8px; --sp-12:12px; --sp-16:16px;
@@ -107,6 +108,7 @@
   --error-ink:#FF8FA1;
   --warning:#FFC93D; --on-warning:#11131C; --star:#FFC93D; --star-empty:#3A3F55;
   --scrim:rgb(0 0 0 / .6);
+  --highlight:#5A4A12;         --on-highlight:#FFE38C;         /* 6.8:1 */
   --shadow-ink:0 0 0;
   --elev-1:0 1px 2px rgb(0 0 0/.35), 0 6px 18px rgb(0 0 0/.25);
   --elev-2:0 2px 4px rgb(0 0 0/.4), 0 12px 32px rgb(0 0 0/.35);
@@ -833,3 +835,94 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 /* la bulle de la jauge reste dans la marge de 16 px de l'écran : --nudge est posé par DayGauge */
 .number-line__cursor{transform:translateX(calc(-50% + var(--nudge,0px)))}
 .number-line__cursor::after{margin-left:calc(-5px - var(--nudge,0px))}
+
+/* =========================================================================
+   Cours 0 v2 : leçon pas à pas, petites questions, réponses en bas, glisser-déposer
+   Structure de docs/design/ecrans/cours-0-v2.html, couleurs du design system.
+   ========================================================================= */
+/* La zone de réponse est collée en bas de l'écran (doc 08 n° 28) : tout ce qu'on touche y est. */
+.q-body.is-scroll{overflow:auto}
+.answer-zone{margin-top:auto;display:grid;gap:var(--sp-12);padding-top:var(--sp-8)}
+.answer-zone > .t-caption{text-align:center}
+.q-calc{display:grid;place-items:center;padding:var(--sp-16) var(--sp-8);border-radius:var(--r-lg);background:var(--surface-sunken);text-align:center}
+.q-calc .t-math-xl{font-size:clamp(26px,8vw,34px);white-space:normal}
+.q-calc--md .t-math-xl{font-size:clamp(22px,6.5vw,28px)}
+.q-ask{font:600 17px/1.45 var(--font-body);color:var(--on-surface)}
+.q-ask--lesson{margin-top:var(--sp-4)}
+
+/* Surligneur jaune : « regarde ici », jamais juste ou faux */
+.scene-hl{background:var(--highlight);color:var(--on-highlight);border-radius:var(--r-xs);padding:0 .08em}
+.scene-label{display:block;width:max-content;max-width:100%;margin:var(--sp-4) auto 0;padding:var(--sp-2) var(--sp-8);border-radius:var(--r-xs);background:var(--highlight);color:var(--on-highlight);font:600 13px/1.3 var(--font-body);white-space:normal;text-align:center}
+.scene-cap{font:500 14px/1.4 var(--font-body);color:var(--muted);text-align:center;white-space:normal}
+.scene-tag{display:block;font:600 12px/1.3 var(--font-body);color:var(--muted)}
+.scene-dim{opacity:.4}
+
+/* Leçon pas à pas */
+.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-8);min-height:190px;padding:var(--sp-16) var(--sp-8);border-radius:var(--r-lg);background:var(--surface-sunken);
+  font:500 clamp(30px,10.5vw,42px)/1.15 var(--font-math);font-variant-numeric:tabular-nums;color:var(--on-surface);white-space:pre;overflow:hidden}
+.stage__calc{display:grid;justify-items:center;gap:var(--sp-4)}
+.stage--row{flex-direction:row;justify-content:space-around;align-items:flex-start;font-size:clamp(26px,8.5vw,34px)}
+.stage--pairs{align-items:stretch;gap:var(--sp-12);font-size:clamp(17px,5.6vw,22px)}
+.stage__pair{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--sp-8);text-align:center}
+.stage__pair .scene-tag{margin-bottom:var(--sp-2)}
+.stage__arrow{color:var(--muted);font-size:16px}
+.dots{display:flex;gap:var(--sp-8);justify-content:center}
+.dots i{width:8px;height:8px;border-radius:var(--r-full);background:var(--border)}
+.dots i.is-on{background:var(--primary)}
+.etape-texts{display:grid;gap:var(--sp-12)}
+.etape{display:grid;gap:var(--sp-8)}
+.etape:not(.is-new) .t-body1{color:var(--muted)}
+.rule-box{border-radius:var(--r-md);box-shadow:inset 0 0 0 2px var(--primary);padding:var(--sp-12) var(--sp-16);display:grid;gap:var(--sp-4)}
+.rule-box__n{font:600 13px/1.3 var(--font-body);color:var(--primary-ink)}
+.rule-box__t{font:400 17px/1.5 var(--font-body);color:var(--on-surface)}
+.recap{display:grid;gap:var(--sp-8);list-style:none}
+.recap li{display:grid;gap:var(--sp-2);padding:var(--sp-12);border-radius:var(--r-md);background:var(--surface-sunken)}
+.recap__ex{display:flex;flex-wrap:wrap;gap:var(--sp-4) var(--sp-16);font:500 17px var(--font-math);color:var(--on-surface)}
+.recap__label{font:500 12px var(--font-body);padding:0 var(--sp-8);border-radius:var(--r-xs);background:var(--muted-surface);color:var(--on-muted-surface);align-self:center}
+.is-new{animation:pom-up .45s var(--ease) both}
+@keyframes pom-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.anim-pin,.anim-bump,.anim-slide{display:inline-block}
+.is-new .anim-pin{animation:pom-pin .7s .35s var(--ease-spring) both}
+@keyframes pom-pin{from{opacity:0;transform:scale(2.2)}to{opacity:1;transform:none}}
+.is-new .anim-bump{animation:pom-bump .6s .3s ease both}
+@keyframes pom-bump{0%,100%{transform:none}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.is-new .anim-slide{animation:pom-slide .8s .35s var(--ease) both}
+@keyframes pom-slide{from{transform:translateX(1.4em);opacity:.3}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.is-new,.is-new .anim-pin,.is-new .anim-bump,.is-new .anim-slide{animation:none}}
+
+/* Petites questions à un toucher */
+.choix-opts{display:grid;gap:var(--sp-8)}
+.choix-opts--row{grid-template-columns:repeat(var(--cols,2),1fr)}
+.choix-opts .choice{font:500 18px/1.3 var(--font-body);min-height:56px;padding:var(--sp-8) var(--sp-12);text-align:center}
+.choix-opts--big .choice{font:500 28px var(--font-math);min-height:64px}
+.q-summary{display:grid;gap:var(--sp-8);padding-bottom:var(--sp-12);border-bottom:1px solid var(--border-faint)}
+.q-summary .q-ask{font-weight:500;color:var(--muted)}
+
+/* Réécris : champ et clavier complet */
+.answer--text{font-size:clamp(22px,7vw,30px);white-space:nowrap;overflow:hidden}
+.keypad--expr .key--sign{font-size:24px}
+.keypad--expr{border-radius:var(--r-lg) var(--r-lg) 0 0}
+
+/* Toucher la faute : une case de même taille par symbole */
+.pieces{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-8)}
+.pieces .tag--piece{width:44px;min-width:0;height:56px;padding:0;font-size:24px}
+.btn.is-correct{background:var(--success-container);color:var(--on-surface);box-shadow:inset 0 0 0 2px var(--success)}
+.btn.is-wrong{background:var(--error-container);color:var(--on-surface);box-shadow:inset 0 0 0 2px var(--error)}
+
+/* Classer : glisser-déposer */
+.tag[data-drag]{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.tag.is-lifted{opacity:.3}
+.bin.is-over{background:var(--primary-container);box-shadow:inset 0 0 0 2px var(--primary)}
+.bins--top .bin{min-height:150px}
+.tag-ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-50%) scale(1.05);box-shadow:var(--elev-2)}
+.tag-fix{display:block;font:400 13px/1.35 var(--font-body);color:var(--muted);white-space:normal;margin-top:var(--sp-2)}
+.bin .tag--fixed{display:grid;justify-items:start;height:auto;padding:var(--sp-8) var(--sp-12);min-height:var(--target-min)}
+.class-note{display:grid;gap:var(--sp-2)}
+/* Le pied d'une leçon pas à pas reste visible quand le texte dépasse l'écran ; la dernière phrase s'arrête au-dessus */
+.lesson-screen--etapes .c-foot{position:sticky;bottom:0;background:var(--bg);z-index:2}
+.lesson-screen--etapes .etape{scroll-margin-bottom:150px}
+.recap__item{display:inline-flex;align-items:center;gap:var(--sp-8)}
+.recap__item .ico{color:var(--muted)}
+.resolution--text{font:400 17px/1.5 var(--font-body)}
+.resolution--text .is-last{font-weight:600}
+.stage--glyph .stage__calc{font-size:84px;line-height:1}

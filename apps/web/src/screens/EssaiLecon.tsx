@@ -1,4 +1,5 @@
 import { QuestionView } from '../components/questions/QuestionView';
+import { Etapes } from '../components/Etapes';
 import { LessonPartScreen } from '../components/LessonPart';
 import { AppBar } from '../ui/AppBar';
 import type { StepResult } from '../ui/Stepper';
@@ -25,8 +26,10 @@ export default function EssaiLecon() {
       <AppBar onClose={() => history.back()} stepper={{ total, done, current: index }} />
       {part.type === 'explication' ? (
         <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} title={course.title} />
-      ) : part.type === 'etapes' ? null /* écran « pas à pas » : pas encore affiché (Task 5) */ : (
-        <QuestionView key={`${course.id}-${index}`} question={part.question} course={course} locked={false} onAnswer={() => undefined} header={<div className="row">{header}</div>} texts={{ ...(part.title ? { title: part.title } : {}), ...(part.subtitle ? { subtitle: part.subtitle } : {}), ...(part.consigne ? { consigne: part.consigne } : {}) }} />
+      ) : part.type === 'etapes' ? (
+        <Etapes key={`${course.id}-${index}`} title={part.title} steps={part.steps} onDone={() => undefined} header={header} />
+      ) : (
+        <QuestionView key={`${course.id}-${index}`} question={part.question} course={course} locked={false} onAnswer={() => undefined} header={<div className="row">{header}</div>} activity={part.activity} texts={{ ...(part.title ? { title: part.title } : {}), ...(part.subtitle ? { subtitle: part.subtitle } : {}), ...(part.consigne ? { consigne: part.consigne } : {}), ...(part.intro ? { intro: part.intro } : {}), ...(part.outro ? { outro: part.outro } : {}), ...(part.outroRule ? { outroRule: part.outroRule } : {}) }} />
       )}
     </main>
   );

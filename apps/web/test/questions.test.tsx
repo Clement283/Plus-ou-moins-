@@ -5,6 +5,8 @@ import {
   type Answer, type CourseDef, type Exercise, type Outcome, type Question,
 } from '@pom/engine';
 import { QuestionView } from '../src/components/questions/QuestionView';
+import { calcLatex, writingLatex } from '../src/components/questions/calc';
+import { prettyCalc } from '../src/components/questions/Reecrire';
 
 afterEach(cleanup);
 
@@ -88,7 +90,7 @@ describe('consignes', () => {
     [ordre, "Remets les étapes dans l'ordre."],
     [erreur, 'Une ligne est fausse. Touche-la.'],
     [paires, 'Relie chaque calcul à son résultat.'],
-    [classer, 'Range chaque calcul.'],
+    [classer, 'Fais glisser chaque calcul du bas de l\'écran vers la bonne case.'],
     [qcm, 'Choisis la bonne réponse.'],
     [vraifaux, 'Vrai ou faux ?'],
   ] as [Question, string][])('%# : %s', (q, text) => {
@@ -235,7 +237,8 @@ describe('Trouver l’erreur d’écriture (cours 0)', () => {
   it('consigne et pièces touchables', () => {
     const t = setup(q, c00);
     expect(t.$('[data-copie]').textContent).toBeTruthy();
-    expect(t.container.textContent).toContain("Touche l'endroit mal écrit.");
+    expect(t.container.textContent).toContain('Ce calcul est-il bien écrit ?');
+    expect(t.container.textContent).toContain("S'il est mal écrit, touche l'endroit de la faute dans les cases en bas. Chaque symbole du calcul a sa case.");
     expect(t.$$('.tag--piece')).toHaveLength(q.lines.length);
   });
   it('toucher le mauvais endroit', () => {
@@ -477,5 +480,256 @@ describe('titre, sous-titre et consigne d\'un écran de leçon (doc 09)', () => 
     expect(withTexts(trou, { consigne: "Complète, une case après l'autre." }).textContent).toContain("Complète, une case après l'autre.");
     expect(withTexts(classer, { consigne: 'Sans calculer, le résultat est-il + ou − ?' }).textContent).toContain('Sans calculer, le résultat est-il + ou − ?');
     expect(withTexts(erreur, { title: 'Trouve la ligne fausse', subtitle: 'Touche la ligne où le calcul se trompe.' }).textContent).not.toContain('Une ligne est fausse.');
+  });
+});
+
+const C00 = getCourse('c00-bien-ecrire');
+/** Un calcul du cours 0 écrit en morceaux (`faultType` : la règle enfreinte, null si bien écrit). */
+const writingEx = (expr: ReturnType<typeof op>, faultType: string | null, ...pieces: string[]): Exercise => ({
+  courseId: 'c00-bien-ecrire',
+  level: 1,
+  expr,
+  answer: rat(0),
+  meta: { tokens: pieces, faultAt: faultType ? 0 : null, faultType },
+});
+
+describe('Choix (petite question à un toucher)', () => {
+  const q: Extract<Question, { kind: 'choix' }> = {
+    kind: 'choix',
+    ex: writingEx(op('-', num(8), num(5)), null, '8', '-', '5'),
+    calcLatex: '8 - 5',
+    prompt: 'Dans ce calcul, à quoi sert le − ?',
+    options: [{ label: 'À soustraire', why: 'On enlève 5 à 8.' }, { label: 'À dire que 5 est négatif', why: 'Non.' }],
+    correctIndex: 0,
+  };
+  it('le calcul et la question sont en haut, les options dans la zone de réponse en bas', () => {
+    const t = setup(q, C00);
+    expect(t.$('.q-calc')).not.toBeNull();
+    expect(t.$('.q-ask')!.textContent).toContain('à quoi sert le');
+    expect(t.$$('.answer-zone button').map((b) => b.textContent)).toEqual(['À soustraire', 'À dire que 5 est négatif']);
+    expect(t.$('.q-body .answer-zone')).not.toBeNull();
+  });
+  it('toucher la bonne option envoie { choice } et juge juste', () => {
+    const t = setup(q, C00);
+    fireEvent.click(t.$$('.answer-zone .choice')[0]!);
+    expect(t.calls[0]![0]).toEqual({ choice: 0 });
+    expect(t.calls[0]![1].correct).toBe(true);
+  });
+  it('un seul envoi ; la mauvaise option est jugée fausse, avec son explication', () => {
+    const t = setup(q, C00);
+    fireEvent.click(t.$$('.answer-zone .choice')[1]!);
+    fireEvent.click(t.$$('.answer-zone .choice')[0]!);
+    expect(t.calls).toHaveLength(1);
+    expect(t.calls[0]![1].correct).toBe(false);
+    expect(t.calls[0]![1].message).toBe('Non.');
+  });
+  it('aucune couleur avant la réponse ; vert et rouge après', () => {
+    const t = setup(q, C00);
+    expect(t.$$('.is-correct, .is-wrong')).toHaveLength(0);
+    fireEvent.click(t.$$('.answer-zone .choice')[1]!);
+    t.rerender(true);
+    expect(t.$$('.choice.is-correct')).toHaveLength(1);
+    expect(t.$$('.choice.is-wrong')).toHaveLength(1);
+  });
+  it('« pour découvrir » : la mention, et la mauvaise option reste neutre', () => {
+    const view = render(<QuestionView question={q} course={C00} locked={false} onAnswer={() => undefined} activity="decouverte" />);
+    expect(view.container.textContent).toContain('Question pour découvrir : elle ne compte pas dans la note.');
+    fireEvent.click(view.container.querySelectorAll<HTMLElement>('.answer-zone .choice')[1]!);
+    expect(view.container.querySelector('.is-wrong')).toBeNull();
+  });
+  it('intro au-dessus, outro et encadré de règle seulement après la réponse', () => {
+    const texts = { intro: ['Bonjour **toi**'], outro: ['On le corrige.'], outroRule: { n: 2, text: '**Pas de parenthèses.**' } };
+    const view = render(<QuestionView question={q} course={C00} locked={false} onAnswer={() => undefined} texts={texts} />);
+    expect(view.container.querySelector('b')!.textContent).toBe('toi');
+    expect(view.container.textContent).not.toContain('On le corrige.');
+    fireEvent.click(view.container.querySelectorAll<HTMLElement>('.answer-zone .choice')[0]!);
+    expect(view.container.textContent).toContain('On le corrige.');
+    expect(view.container.querySelector('.rule-box')!.textContent).toContain('Règle 2');
+  });
+  it('2 questions sur un écran : la précédente est résumée en haut', () => {
+    const view = render(<QuestionView question={q} course={C00} locked={false} onAnswer={() => undefined} previous={{ question: q, choice: 0, correct: true }} />);
+    expect(view.container.querySelector('.q-summary')!.textContent).toContain('Ta réponse : À soustraire ✓');
+  });
+});
+
+describe('Réécris', () => {
+  const times: Question = {
+    kind: 'reecrire',
+    ex: writingEx(op('*', num(6), num(-2)), 'signes-colles', '6', '\\times -', '2'),
+    givenLatex: '6 \\times -2',
+    expected: '6×(−2)',
+    specific: [],
+    fallback: 'Garde le même calcul.',
+    steps: ['a'],
+  };
+  const typeKeys = (t: ReturnType<typeof setup>, ...ks: string[]) => {
+    for (const k of ks) fireEvent.click(t.$$('.keypad button').find((b) => (b.getAttribute('aria-label') ?? b.textContent) === k)!);
+  };
+  it('clavier complet : chiffres, + − × ÷ ( ), effacer', () => {
+    const t = setup(times, C00);
+    const labels = t.$$('.keypad button').map((b) => b.getAttribute('aria-label') ?? b.textContent);
+    for (const k of ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '−', '×', '÷', '(', ')', 'effacer', 'Valider']) expect(labels).toContain(k);
+  });
+  it('taper 6 × ( − 2 ) puis Valider envoie { text: "6×(−2)" }', () => {
+    const t = setup(times, C00);
+    typeKeys(t, '6', '×', '(', '−', '2', ')');
+    expect(t.$('.answer')!.textContent).toBe('6 × (−2)');
+    fireEvent.click(t.valider());
+    expect(t.calls[0]![0]).toEqual({ text: '6×(−2)' });
+    expect(t.calls[0]![1].correct).toBe(true);
+  });
+  it('Valider est inactif tant que rien n’est tapé ; effacer retire le dernier symbole', () => {
+    const t = setup(times, C00);
+    expect((t.valider() as HTMLButtonElement).disabled).toBe(true);
+    typeKeys(t, '6', '×', 'effacer');
+    expect(t.$('.answer')!.textContent).toBe('6');
+  });
+  it('mal écrit : jugé faux, avec un message', () => {
+    const t = setup(times, C00);
+    typeKeys(t, '6', '×', '−', '2');
+    fireEvent.click(t.valider());
+    expect(t.calls[0]![1].correct).toBe(false);
+    expect(t.calls[0]![1].message).toBeTruthy();
+  });
+  it('prettyCalc : espaces autour des opérateurs', () => {
+    expect(prettyCalc('6×(−2)')).toBe('6 × (−2)');
+    expect(prettyCalc('−3+4')).toBe('−3 + 4');
+    expect(prettyCalc('8−5')).toBe('8 − 5');
+  });
+});
+
+describe('Toucher la faute (cours 0)', () => {
+  const symbols = ['-', '6', '-', '-', '2', '\\times', '4'];
+  const q: Question = {
+    kind: 'erreur',
+    ex: writingEx(op('*', op('-', num(-6), num(-2)), num(4)), 'signes-colles', '-6', '- -', '2', '\\times', '4'),
+    lines: symbols,
+    wrongLine: 2,
+    errorType: 'signes-colles',
+    accept: [2, 3],
+    shownLatex: '-6 - -2 \\times 4',
+  };
+  it('une case par symbole, dans la zone du bas ; consigne et calcul en haut', () => {
+    const t = setup(q, C00);
+    expect(t.$$('.answer-zone .tag--piece')).toHaveLength(7);
+    expect(t.$$('.answer-zone .tag--piece').map((b) => b.textContent)).toEqual(['−', '6', '−', '−', '2', '×', '4']);
+    expect(t.container.textContent).toContain('Ce calcul est-il bien écrit ?');
+    expect(t.$('.q-calc')).not.toBeNull();
+    expect(t.$$('button').some((b) => b.textContent === 'Tout est bien écrit')).toBe(true);
+  });
+  it('aucune couleur avant la réponse', () => {
+    const t = setup(q, C00);
+    expect(t.$$('.is-correct, .is-wrong')).toHaveLength(0);
+    fireEvent.click(t.$$('.tag--piece')[0]!);
+    expect(t.$$('.is-correct, .is-wrong')).toHaveLength(0);
+  });
+  it('les deux cases de la faute sont justes, une autre est fausse ; vert et rouge après la réponse', () => {
+    for (const [i, ok] of [[2, true], [3, true], [0, false]] as const) {
+      const t = setup(q, C00);
+      fireEvent.click(t.$$('.tag--piece')[i]!);
+      expect(t.calls[0]![0]).toEqual({ line: i });
+      expect(t.calls[0]![1].correct).toBe(ok);
+      t.rerender(true);
+      expect(t.$$('.tag--piece.is-correct')).toHaveLength(2);
+      expect(t.$$('.tag--piece.is-wrong')).toHaveLength(ok ? 0 : 1);
+      cleanup();
+    }
+  });
+  it('« Tout est bien écrit » sur un calcul faux est faux', () => {
+    const t = setup(q, C00);
+    fireEvent.click(t.$$('button').find((b) => b.textContent === 'Tout est bien écrit')!);
+    expect(t.calls[0]![1].correct).toBe(false);
+  });
+});
+
+describe('Classer, glisser-déposer', () => {
+  const writing = [
+    writingEx(op('*', num(4), num(-3)), null, '4', '\\times', '(', '-3', ')'),
+    writingEx(op('+', num(5), num(-2)), 'signes-colles', '5', '+ -', '2'),
+  ];
+  const q: Question = {
+    kind: 'classer',
+    exs: writing,
+    classes: [{ id: 'bien', label: 'Bien écrit' }, { id: 'mal', label: 'Mal écrit' }],
+    expected: ['bien', 'mal'],
+  };
+  const consigne = "Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case.";
+  afterEach(() => {
+    delete (document as { elementFromPoint?: unknown }).elementFromPoint;
+  });
+  it('la consigne de deux phrases s’affiche en deux lignes, la 2e en petit', () => {
+    const view = render(<QuestionView question={q} course={C00} locked={false} onAnswer={() => undefined} texts={{ consigne }} />);
+    const ps = [...view.container.querySelectorAll('.class-note p')];
+    expect(ps.map((p) => p.textContent)).toEqual(["Fais glisser chaque calcul du bas de l'écran vers la bonne case.", 'Tu peux aussi toucher un calcul, puis toucher la case.']);
+    expect(ps[1]!.className).toBe('t-body2');
+  });
+  it('les calculs sont en bas, les cases en haut', () => {
+    const t = setup(q, C00);
+    expect(t.$$('.answer-zone .tags .tag')).toHaveLength(2);
+    expect(t.$$('.bin .tag')).toHaveLength(0);
+    expect(t.$('.tag[data-drag]')!.getAttribute('data-drag')).toBe('0');
+  });
+  it('pointerdown, pointermove, pointerup d’un calcul vers « Mal écrit » le range', () => {
+    const t = setup(q, C00);
+    const mal = t.$$('.bin').find((b) => b.getAttribute('aria-label') === 'Mal écrit')!;
+    (document as { elementFromPoint?: unknown }).elementFromPoint = () => mal;
+    const tile = t.$$('.answer-zone .tags .tag')[1]!;
+    fireEvent.pointerDown(tile, { clientX: 20, clientY: 400, pointerId: 1 });
+    fireEvent.pointerMove(tile, { clientX: 60, clientY: 300, pointerId: 1 });
+    expect(t.$('.tag-ghost')).not.toBeNull();
+    expect(mal.classList.contains('is-over')).toBe(true);
+    fireEvent.pointerUp(tile, { clientX: 60, clientY: 300, pointerId: 1 });
+    expect(mal.querySelectorAll('.tag')).toHaveLength(1);
+    expect(t.$$('.answer-zone .tags .tag')).toHaveLength(1);
+    expect(t.$('.tag-ghost')).toBeNull();
+  });
+  it('lâché hors d’une case : le calcul reste en bas', () => {
+    const t = setup(q, C00);
+    (document as { elementFromPoint?: unknown }).elementFromPoint = () => document.body;
+    const tile = t.$$('.answer-zone .tags .tag')[0]!;
+    fireEvent.pointerDown(tile, { clientX: 20, clientY: 400, pointerId: 1 });
+    fireEvent.pointerMove(tile, { clientX: 60, clientY: 300, pointerId: 1 });
+    fireEvent.pointerUp(tile, { clientX: 60, clientY: 300, pointerId: 1 });
+    expect(t.$$('.answer-zone .tags .tag')).toHaveLength(2);
+  });
+  it('un simple toucher ne glisse pas : toucher le calcul puis la case marche toujours', () => {
+    const t = setup(q, C00);
+    const tile = t.$$('.answer-zone .tags .tag')[0]!;
+    fireEvent.pointerDown(tile, { clientX: 20, clientY: 400, pointerId: 1 });
+    fireEvent.pointerUp(tile, { clientX: 20, clientY: 400, pointerId: 1 });
+    fireEvent.click(tile);
+    expect(tile.classList.contains('is-selected')).toBe(true);
+    fireEvent.click(t.$$('.bin')[0]!);
+    expect(t.$$('.bin')[0]!.querySelectorAll('.tag')).toHaveLength(1);
+  });
+  it('après Valider, sous un calcul mal écrit : la correction et le numéro de la règle', () => {
+    const t = setup(q, C00);
+    fireEvent.click(t.$$('.answer-zone .tags .tag')[0]!);
+    fireEvent.click(t.$$('.bin')[0]!);
+    fireEvent.click(t.$$('.answer-zone .tags .tag')[0]!);
+    fireEvent.click(t.$$('.bin')[1]!);
+    fireEvent.click(t.valider());
+    t.rerender(true);
+    const fixes = t.$$('.tag-fix');
+    expect(fixes).toHaveLength(1);
+    expect(fixes[0]!.textContent).toContain('règle 1');
+  });
+});
+
+describe('Calculs du cours 0 : « 3− + 4 »', () => {
+  it('le « − » après le 3 est posé tel quel : KaTeX ne le prend pas pour une soustraction', () => {
+    expect(writingLatex('3- + 4')).toBe('3{-} + 4');
+    expect(writingLatex('(2-)')).toBe('(2{-})');
+    expect(writingLatex('7 - -1')).toBe('7 - -1');
+    expect(writingLatex('-3 + 4')).toBe('-3 + 4');
+    expect(calcLatex(writingEx(op('+', num(-3), num(4)), 'moins-apres', '3-', '+', '4'))).toBe('3{-} + 4');
+  });
+  it('rendu : le « − » colle au 3, le « + » a ses espaces', () => {
+    const q: Question = { kind: 'choix', ex: writingEx(op('+', num(-3), num(4)), 'moins-apres', '3-', '+', '4'), calcLatex: '3- + 4', prompt: '?', options: [{ label: 'a', why: '' }], correctIndex: 0 };
+    const view = render(<QuestionView question={q} course={C00} locked={false} onAnswer={() => undefined} />);
+    expect(view.container.querySelector('.q-calc annotation')!.textContent).toBe('3{-} + 4');
+    const mo = [...view.container.querySelectorAll('.q-calc math mo')].map((m) => [m.textContent, m.getAttribute('lspace')]);
+    expect(mo[0]).toEqual(['−', '0em']); // un « − » seul : pas d'espace autour
+    expect(mo[1]![1]).toBeNull(); // le « + » garde son espacement
   });
 });
