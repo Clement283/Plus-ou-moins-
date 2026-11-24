@@ -348,7 +348,7 @@ Légende de chaque fiche : **Règle** (une phrase) · **Idée de départ** (le p
 
 ### Module D. Carrés et identités remarquables (cours 19 à 24)
 
-*Les cours 22 à 24 se font d'abord **avec des nombres** (21², 19², 51 × 49), dans l'esprit calcul mental ; les identités remarquables avec lettres viendront plus tard dans un module « Calcul littéral » (§5, décisions). Selon une présentation académique de la réforme de 2026, les identités remarquables sont déplacées de la seconde vers la première (S8) : raison de plus de les préparer ici.*
+*Les cours 22 à 24 se font d'abord **avec des nombres** (21², 19², 51 × 49), dans l'esprit calcul mental ; les identités remarquables avec lettres viendront plus tard dans un module « Calcul littéral » (§5, décisions). Les identités remarquables sont au programme de 3e (cycle 4, p. 11) et de seconde (p. 7), et la première les réutilise (p. 5) : ces cours sont des consolidations.*
 
 #### Cours 19 — Le carré d'un nombre
 - **Règle :** *Le carré d'un nombre, c'est ce nombre multiplié par lui-même ; le carré d'un nombre négatif est positif.*
