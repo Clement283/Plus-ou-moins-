@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { MODULES, getCourse, lastAttempt, type CourseProgress, type LastAttempt } from '@pom/engine';
+import { MODULES, canOpenMemo, getCourse, lastAttempt, type CourseProgress, type LastAttempt } from '@pom/engine';
 import { Stars, courseLabel, lastAttemptText, ruleLink } from '../components/CourseBits';
 import { go } from '../router';
 import { useProgress, useReady } from '../store/progress';
@@ -32,6 +32,15 @@ function Status({ c }: { c: CourseProgress }) {
   return <span className="status status--todo">À faire</span>;
 }
 
+function MemoButton({ c }: { c: CourseProgress }) {
+  if (!canOpenMemo(c.status, getCourse(c.courseId).memo !== undefined)) return null;
+  return (
+    <button className="btn btn--outlined btn--block" type="button" onClick={() => go({ name: 'fiche', id: c.courseId })}>
+      Fiche
+    </button>
+  );
+}
+
 function Actions({ c, last }: { c: CourseProgress; last: LastAttempt | null }) {
   const order = getCourse(c.courseId).order;
   if (c.status === 'valide')
@@ -41,6 +50,7 @@ function Actions({ c, last }: { c: CourseProgress; last: LastAttempt | null }) {
           <Icon name="eye" />
           Relire la leçon
         </button>
+        <MemoButton c={c} />
         <p className="t-caption">Relire ne change ni tes étoiles ni tes révisions.</p>
       </>
     );
@@ -52,6 +62,7 @@ function Actions({ c, last }: { c: CourseProgress; last: LastAttempt | null }) {
         <button className="btn btn--outlined btn--block" type="button" onClick={() => go({ name: 'rattrapage', id: c.courseId })}>
           Faire la série de validation
         </button>
+        <MemoButton c={c} />
         <div className="row row--wrap" style={{ justifyContent: 'center' }}>
           {rule && (
             <button className="btn btn--text" type="button" onClick={() => go({ name: 'relire', id: c.courseId, part: rule.part })}>
@@ -71,6 +82,7 @@ function Actions({ c, last }: { c: CourseProgress; last: LastAttempt | null }) {
       <button className="btn btn--ink btn--block" type="button" onClick={() => go({ name: 'cours-detail', id: c.courseId })}>
         Commencer le cours {order}
       </button>
+      <MemoButton c={c} />
       <p className="t-caption">Le cours se termine par 5 exercices. Il te faut 4 justes pour le valider.</p>
     </>
   );

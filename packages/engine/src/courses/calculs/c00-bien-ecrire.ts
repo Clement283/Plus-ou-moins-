@@ -885,4 +885,12 @@ export const c00: CourseDef = {
   expectInteger: true,
   customQuestion,
   customCheck,
+  // à valider avec la maquette cours-0-v3
+  memo: {
+    rule: `**Un calcul s'écrit d'une seule façon.** On doit toujours savoir quel rôle joue chaque ${M} : soustraire, ou signe d'un nombre.`,
+    ruleBullets: ['Deux signes ne se suivent jamais.', 'En tête, pas de parenthèses.', `Le ${M} se met avant le nombre.`, 'Une parenthèse ouverte se ferme.'],
+    examples: [`4 × (${M}3)`, `${M}3 + 5`],
+    mistake: { wrong: `4 × ${M}3`, why: `Le × et le ${M} se touchent. On écrit 4 × (${M}3).` },
+    tip: `Cherche d'abord les signes qui se touchent, puis demande-toi pour chaque ${M} : il soustrait, ou c'est le signe d'un nombre ?`,
+  },
 };

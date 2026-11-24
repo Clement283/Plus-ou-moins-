@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { getCourse, validationOf, type RunErrorLine, type RunResult } from '@pom/engine';
+import { canOpenMemo, getCourse, validationOf, type RunErrorLine, type RunResult } from '@pom/engine';
 import { go, toHash } from '../router';
 import { playSound } from '../sound';
 import { AppBar } from '../ui/AppBar';
@@ -48,6 +48,7 @@ function ErrorsBlock({ courseId, errors }: { courseId: string; errors: RunErrorL
 
 export function RunResultView({ variant, courseId, result, results, errors = [], onRetry }: RunResultViewProps) {
   const course = getCourse(courseId);
+  const hasMemo = canOpenMemo('valide', course.memo !== undefined);
   const nextCourse = result.nextCourseId ? getCourse(result.nextCourseId) : null;
   // Une seule fois à l'affichage de l'écran « Cours N validé ».
   useEffect(() => {
@@ -94,8 +95,19 @@ export function RunResultView({ variant, courseId, result, results, errors = [],
               <Icon name="clock" />
               <span>{`Première révision dans ${result.firstReviewInHours} heures.`}</span>
             </div>
+            {hasMemo && (
+              <div className="tick">
+                <Icon name="check-circle" />
+                <span>Ta fiche mémo est prête.</span>
+              </div>
+            )}
           </div>
           <div style={{ flex: 1 }} />
+          {hasMemo && (
+            <button className="btn btn--outlined btn--block" type="button" onClick={() => go({ name: 'fiche', id: courseId })}>
+              Voir la fiche mémo
+            </button>
+          )}
           {nextCourse && (
             <button className="btn btn--contained btn--block" type="button" onClick={() => go({ name: 'cours-detail', id: nextCourse.id })}>
               {`Commencer le cours ${nextCourse.order}`}
