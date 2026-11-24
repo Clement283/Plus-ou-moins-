@@ -213,6 +213,11 @@ function step(s: ProgressState, e: AppEvent): void {
     return;
   }
   if (e.activity === 'decouverte') return; // ne compte jamais (ni note, ni suivi, ni répétition espacée)
+  if (e.activity === 'echauffement') {
+    // Échauffement : jamais dans une note ni dans l'échelle. Une 1re réponse fausse sur un cours validé le rend dû (étape inchangée).
+    if (e.attempt === 1 && !e.unfinished && !(e.correct && !e.skipped) && c.status === 'valide' && c.nextReview !== null && e.day < c.nextReview) c.nextReview = e.day;
+    return;
+  }
   const isCourseRun = e.activity === 'lecon' || e.activity === 'exemple' || e.activity === 'fin';
   if (isCourseRun) markStarted(c);
   const key = `${e.activityId}|${e.courseId}`;

@@ -238,7 +238,9 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
   const from14 = addDays(today, -13);
   const calculs28 = calculs.filter((e) => inWindow(e.day, from28, today));
   const calculs14 = calculs.filter((e) => inWindow(e.day, from14, today));
-  const wrong28 = calculs28.filter((e) => !isRight(e));
+  // Une erreur d'échauffement est une vraie erreur : elle compte dans les erreurs, pas dans les taux de réussite.
+  const warmupWrong28 = all.filter((e): e is Answer => e.kind === 'answer' && e.activity === 'echauffement' && e.attempt === 1 && !e.unfinished && !isRight(e) && inWindow(e.day, from28, today));
+  const wrong28 = [...calculs28.filter((e) => !isRight(e)), ...warmupWrong28].sort((a, b) => a.at - b.at || (a.id < b.id ? -1 : 1));
 
   // 28 derniers jours, and the série.
   const activeDays = new Set(all.filter((e) => e.kind !== 'activity_end').map((e) => e.day));

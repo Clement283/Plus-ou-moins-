@@ -68,6 +68,7 @@ describe('dailyTime — catégories et objectif', () => {
       reviewMs: 10 * S,
       courseMs: 200 * S,
       trainingMs: 70 * S,
+      warmupMs: 0,
       goalReached: false,
     });
   });
@@ -97,6 +98,6 @@ describe('dailyTime — catégories et objectif', () => {
   });
 
   it('aucun événement : 0 et objectif non atteint', () => {
-    expect(dailyTime([], DAY)).toEqual({ totalMs: 0, reviewMs: 0, courseMs: 0, trainingMs: 0, goalReached: false });
+    expect(dailyTime([], DAY)).toEqual({ totalMs: 0, reviewMs: 0, courseMs: 0, trainingMs: 0, warmupMs: 0, goalReached: false });
   });
 });

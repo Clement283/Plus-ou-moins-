@@ -1,7 +1,9 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
+import { warmupDue } from '@pom/engine';
 import { IconSprite } from './ui/icons';
 import { go, useRoute } from './router';
-import { useSession } from './store/progress';
+import { useProgress, useReady, useSession, useToday } from './store/progress';
+import { useEvents } from './store/sync';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
 import DashModule from './screens/DashModule';
@@ -38,8 +40,25 @@ function Redirect({ to }: { to: string }) {
   return null;
 }
 
+/** Échauffement : à la première ouverture du jour (une fois par chargement), l'accueil mène à l'écran dédié. */
+function useWarmupGate(): void {
+  const route = useRoute();
+  const ready = useReady();
+  const progress = useProgress();
+  const events = useEvents();
+  const today = useToday();
+  const checked = useRef(false);
+  useEffect(() => {
+    if (!ready || checked.current) return;
+    checked.current = true;
+    if (route.name === 'accueil' && warmupDue(progress, events, today)) go('#/echauffement');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+}
+
 function StudentRoutes() {
   const route = useRoute();
+  useWarmupGate();
   if (route.name === 'suivi' || route.name === 'suivi-module' || route.name === 'suivi-cours' || route.name === 'suivi-question') return <Redirect to="#/" />;
   if (route.name === 'essai') {
     if (!ESSAI) return <Redirect to="#/" />;
