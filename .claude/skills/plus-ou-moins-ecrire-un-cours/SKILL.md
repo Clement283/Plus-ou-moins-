@@ -99,3 +99,11 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 | Une phrase à deux trous avec des choix sans contexte (« 3 / −3 ») | Un seul trou, des choix qui se lisent dans la phrase, qui remplace une phrase existante |
 | Une droite graduée touchable qui ne se voit pas comme touchable | Pastilles visibles, consigne au-dessus, main animée la première fois |
 | Tout le texte de l'explication empilé à l'écran | Les 2 dernières phrases, le reste derrière « Relire le début » |
+
+## Précisions (tirées des Cours 0 à 2)
+
+- **Compter les écrans** : les 12 à 15 écrans « pour apprendre » comptent tout ce qui précède l'annonce de la fin, écrans de petites questions compris.
+- **Plusieurs petites questions sur un écran** : chacune garde son retour visible ; « Question suivante » fait passer à la suivante, la précédente remonte en résumé (« Ta réponse : … ✓ »).
+- **« Autres façons de faire »** : les techniques en cartes (nom, quand, exemple chiffré, explication) ; le choix se fait avec les boutons en bas de l'écran (pas en touchant les cartes) ; un essai libre non noté suit ; on peut continuer sans essayer.
+- **Droite graduée** : deux bonds qui se superposent prennent des hauteurs d'arc différentes (champ `h`) pour rester lisibles ; 8 graduations au plus quand elle est touchable.
+- **Fiche mémo et Écouter** : présents dans chaque cours (moteur de référence `cours-0-v3.html` et `cours-2-v2.html`).
