@@ -19,6 +19,7 @@ Vocabulaire : dans l'appli, un *module* (ex. « Calculs ») regroupe des *cours*
    - les méthodes et astuces que les profs ne donnent pas toujours (sites de profs, manuels, vidéos de méthode) ;
    - les erreurs classiques des élèves sur ce chapitre ;
    - ce qui servira l'année suivante (prérequis de la terminale ou du chapitre suivant).
+   - **Les programmes officiels sont téléchargés et enregistrés dans `docs/sources/`** (PDF + texte extrait avec `pdftotext -layout`), puis lus : les points du plan citent le texte exact et la page ; ne jamais s'appuyer sur un simple extrait de recherche. Selon les besoins : programme de la classe, de la classe précédente et du cycle 4. Signaler tout écart entre le plan et le programme.
 
 Chaque élément du plan dit d'où il vient (document ou lien).
 
@@ -31,7 +32,7 @@ Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `doc
 3. **Pour chaque module, la liste ordonnée des cours** (une nouvelle méthode = un nouveau cours) ; pour chaque cours :
    - la règle (en une phrase) et l'idée de départ (le *pourquoi*) envisagée ;
    - les erreurs classiques attendues (deviendront les erreurs reconnues) ;
-   - l'astuce trouvée (deviendra la fiche mémo) ;
+   - une rubrique **« Astuces et techniques »** de **2 à 4 entrées** (pas une seule astuce) : pour chaque entrée, le nom court de la technique, quand l'utiliser, un exemple chiffré et, si utile, le piège qu'elle évite. Varier les types : réordonner ou regrouper (commutativité, associativité), compter les signes, passer par l'opposé, ordre de grandeur, calcul mental, vérification par l'opération inverse, schéma, méthode des blocs, etc. Indiquer laquelle va dans la fiche mémo (la principale) et lesquelles deviennent des étapes de la leçon ou un écran « Autres façons de faire ». L'élève choisit sa technique. Chercher activement les techniques que les profs ne donnent pas toujours : le porteur du projet en veut beaucoup ;
    - les **reprises** : ce qu'il reprend des cours précédents (voir ci-dessous) ;
    - ce qui rend ses niveaux 2 et 3 plus difficiles ;
    - les sources.
@@ -42,7 +43,7 @@ Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `doc
 ## Reprises entre cours (règles)
 
 - **Reprise naturelle** : un cours contient souvent les méthodes d'avant (le cours « additionner plusieurs nombres » contient les additions des cours précédents). Le noter.
-- **Comparer deux cas** et **série de pratique** : à partir du 2e cours du module, un des deux cas comparés et **une des 4 questions de la série de pratique viennent d'un cours précédent** (entraînement intercalé : elle apprend à reconnaître quelle règle s'applique).
+- **Comparer deux cas** et **série de pratique** : un des deux cas comparés et **une des 4 questions de la série de pratique viennent d'un cours précédent** (entraînement intercalé : elle apprend à reconnaître quelle règle s'applique). **Le 1er cours d'un module les tire du module précédent** (s'il existe) ; les autres cours, du cours précédent du module.
 - **Pas d'écran de rappel** des cours précédents : les cours se suivent, elle s'en souvient.
 - **Jamais de calculs d'anciens cours dans les 5 exercices de fin** : ils valident ce cours-ci. Le mélange va dans la série de pratique, les révisions et l'entraînement.
 
@@ -66,5 +67,7 @@ Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `doc
 | Écrire les cours avant que le plan soit validé | Plan validé d'abord |
 | Écrire un cours sans le skill cours | Toujours `plus-ou-moins-ecrire-un-cours` |
 | Fixer un nombre de cours par module | Un module par défaut, coupe proposée et justifiée si besoin |
+| Une seule astuce par cours | 2 à 4 techniques par cours, l'élève choisit |
+| Citer le programme d'après un extrait de recherche | Télécharger le PDF dans `docs/sources/`, citer texte et page |
 | Mettre des calculs d'anciens cours dans les exercices de fin | Seulement dans la série de pratique, les révisions et l'entraînement |
 | Mettre deux méthodes dans un même cours | Une nouvelle méthode = un nouveau cours |
