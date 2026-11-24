@@ -73,6 +73,16 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Choix technique : les fichiers de l'appli sont intégrés au Worker (l'envoi « Static Assets » est cassé par l'injection du jeton dans l'environnement cloud).
 - Corrigé au passage : le serveur ignore maintenant tous les espaces du code (pas seulement ceux du début et de la fin).
 
+## Cours 0 v2 (2026-11-24)
+- Nouveaux types de question : petite question à un toucher (choix), « Réécris » au clavier à l'écran, « Toucher la faute » (une case par symbole), Classer en glisser-déposer ou toucher-puis-case.
+- Explications pas à pas (« Suite » puis « Suivant », « Revoir » rejoue l'animation) ; une question ratée en leçon revient plus loin (repassage).
+- Les réponses sont en bas de l'écran, le calcul et la consigne en haut.
+- Résultat raté : les deux conditions, puis « Tes erreurs : » avec une ligne par règle et « Relire la règle N ».
+- Mes cours et accueil : « Dernier essai : … » avec la raison (cours à valider) et lien vers la règle.
+- Point B8 (écran de résultat sauté) : `e2e/resultat.spec.ts` fait tout le Cours 0 en ratant les 5 exercices de fin et arrive sur « Le cours 0 n'est pas encore validé » ; bug non reproduit, rien à corriger.
+- Les e2e existants suivent le Cours 0 v2 (`e2e/driver.ts` : étapes, choix, Réécris, Classer, cases de la faute, « Passer »).
+- Tests : moteur 613, web 272, api 19, scripts 7 ; e2e 4 parcours verts.
+
 ## Reprendre : développement des écrans (nouvelle session)
 1. Lire ce fichier, le plan, `docs/validation/01` à `08` (08 et 07 priment), `docs/design/design-system/README.md` et `docs/design/ecrans/BRIEF.md` + les pages d'écrans.
 2. Mettre à jour le plan (superpowers:writing-plans) : remplacer les parties UI des tâches 6, 7, 10, 13, 14 par des tâches d'écrans qui suivent les maquettes validées et le design system (tokens dans `apps/web/src/theme.css`), en s'appuyant sur les fonctions du moteur déjà construites (`@pom/engine` : buildQuestion/checkAnswer, readRaw/pressKey, createActivity/answer/skip, nextReviewSession, trainingSeries, foldProgress/applyEvent, dailyTime, computeDashboard) et sur `apps/web/src/store/sync.ts`.

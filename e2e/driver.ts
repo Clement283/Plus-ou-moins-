@@ -6,7 +6,28 @@
  */
 import { expect, type Locator, type Page } from '@playwright/test';
 import { getCourse, type AppEvent, type Question, type Rational } from '@pom/engine';
-import { writingFaults } from '../packages/engine/src/courses/calculs/c00-bien-ecrire';
+
+const isSign = (s: string | undefined): boolean => s === '+' || s === '−' || s === '×' || s === '÷';
+
+/**
+ * La case à toucher pour la faute d'une écriture du Cours 0 (une case par symbole), ou null si elle est bien écrite :
+ * le « − » après un nombre, deux signes qui se touchent (le premier), une parenthèse sans sa paire.
+ */
+export function faultBox(symbols: string[]): number | null {
+  const open: number[] = [];
+  let lonely: number | null = null;
+  for (const [k, s] of symbols.entries()) {
+    if (s === '(') open.push(k);
+    else if (s === ')' && open.pop() === undefined) lonely ??= k;
+  }
+  lonely ??= open[0] ?? null;
+  for (const [k, s] of symbols.entries()) {
+    if (isSign(s) && isSign(symbols[k - 1])) return k - 1;
+    const after = symbols[k + 1];
+    if (s === '−' && /^\d+$/.test(symbols[k - 1] ?? '') && (after === undefined || isSign(after) || after === ')')) return k;
+  }
+  return lonely;
+}
 
 export const NOTE_FIRST = 'Un calcul du même genre reviendra plus loin, et celui-ci à la fin.';
 
@@ -58,7 +79,7 @@ export async function typeInteger(page: Page, n: number): Promise<void> {
 
 const submitKeypad = (page: Page) => page.locator('.keypad').getByRole('button', { name: 'Valider' }).click();
 
-type Screen = 'resultat' | 'retour' | 'lecon' | 'clavier' | 'morceaux' | 'ordre' | 'classer';
+type Screen = 'resultat' | 'retour' | 'etapes' | 'lecon' | 'choix' | 'reecrire' | 'clavier' | 'morceaux' | 'ordre' | 'classer';
 
 /** Ce que l'écran montre maintenant (on attend qu'un des écrans connus apparaisse). */
 async function screenNow(page: Page): Promise<Screen> {
@@ -69,8 +90,11 @@ async function screenNow(page: Page): Promise<Screen> {
         found = await page.evaluate((): Screen | null => {
           const q = (s: string) => document.querySelector(s);
           if (q('main[data-screen="resultat"] h1')) return 'resultat';
-          if (q('.feedback')) return 'retour';
+          if (q('.feedback') || q('.walk')) return 'retour'; // retour de réponse, ou « On le fait ensemble » d'un calcul passé
+          if (q('.lesson-screen--etapes')) return 'etapes';
           if (q('.lesson-screen')) return 'lecon';
+          if (q('.choice')) return 'choix';
+          if (q('.keypad--expr')) return 'reecrire';
           if (q('.keypad')) return 'clavier';
           if (q('.tag--piece')) return 'morceaux';
           if (q('.slots')) return 'ordre';
@@ -102,15 +126,26 @@ async function answerPart(page: Page, q: Question): Promise<void> {
       for (const id of q.solution) await tile(page, q.tiles.findIndex((t) => t.id === id)).click();
       await page.getByRole('button', { name: 'Valider' }).click();
       return;
-    case 'erreur':
-      if (q.wrongLine === null) await page.getByRole('button', { name: 'Tout est bien écrit' }).click();
-      else await page.locator('.tag--piece').nth(q.wrongLine).click();
+    case 'erreur': {
+      const at = q.accept ? (q.accept[0] ?? null) : q.wrongLine;
+      if (at === null) await page.getByRole('button', { name: 'Tout est bien écrit' }).click();
+      else await page.locator('.tag--piece').nth(at).click();
       return;
+    }
+    case 'choix':
+      await page.locator('.choice').nth(q.correctIndex).click();
+      return;
+    case 'reecrire': {
+      const pad = page.locator('.keypad--expr');
+      for (const k of q.expected) await pad.getByRole('button', { name: k, exact: true }).click();
+      await pad.getByRole('button', { name: 'Valider' }).click();
+      return;
+    }
     case 'classer':
-      // Les calculs rangés quittent la liste du haut : le premier restant est toujours le suivant.
+      // Les calculs rangés quittent la liste à ranger : le premier restant est toujours le suivant.
       for (const c of q.expected) {
-        await page.locator('.stack--top > .tags > .tag').first().click();
-        await page.getByRole('group', { name: q.classes.find((x) => x.id === c)!.label }).click();
+        await page.locator('.tags:not(.bin .tags) > button.tag').first().click();
+        await page.getByRole('group', { name: q.classes.find((x) => x.id === c)!.label }).locator('p.t-h6').click(); // l'en-tête de la case : jamais un calcul déjà rangé
       }
       await page.getByRole('button', { name: 'Valider' }).click();
       return;
@@ -122,6 +157,8 @@ async function answerPart(page: Page, q: Question): Promise<void> {
 export interface RunOptions {
   /** Se trompe volontairement au premier exercice de fin (la valeur juste + 1). */
   wrongFirstFin?: boolean;
+  /** Se trompe volontairement à tous les exercices de fin (touche « Tout est bien écrit » s'il y a une faute, une case sinon). */
+  failAllFin?: boolean;
   /** S'arrête sur le retour de la n-ième réponse (leçons et exemples), sans finir le cours. */
   stopAfterAnswers?: number;
 }
@@ -144,7 +181,7 @@ export async function runCourse(page: Page, courseId: string, opts: RunOptions =
   let answers = 0;
   // L'ancien écran (résultat du cours d'avant) doit avoir laissé la place à l'activité.
   await expect(page.locator('main[data-screen="activite"]')).toBeVisible();
-  for (let guard = 0; guard < 80; guard++) {
+  for (let guard = 0; guard < 200; guard++) {
     const screen = await screenNow(page);
     if (screen === 'resultat') return report;
     if (screen === 'retour') {
@@ -153,18 +190,29 @@ export async function runCourse(page: Page, courseId: string, opts: RunOptions =
     }
     if (part < course.parts.length) {
       const p = course.parts[part++]!;
-      if (screen === 'lecon') {
+      if (screen === 'etapes') {
+        expect(p.type, `partie ${part - 1}`).toBe('etapes');
+        // « Suite » montre l'étape suivante, puis le bouton devient « Suivant ».
+        while (await page.getByRole('button', { name: 'Suite', exact: true }).isVisible()) await page.getByRole('button', { name: 'Suite', exact: true }).click();
+        await page.getByRole('button', { name: 'Suivant', exact: true }).click();
+      } else if (screen === 'lecon') {
         expect(p.type, `partie ${part - 1}`).toBe('explication');
         await page.getByRole('button', { name: 'Suivant' }).click();
       } else {
         expect(p.type, `partie ${part - 1}`).toBe('question');
         await answerPart(page, (p as { question: Question }).question);
-        await expect(page.locator('.feedback .alert--success'), `réponse juste, partie ${part - 1}`).toBeVisible();
+        // une question « pour découvrir » ne compte pas : son retour n'est pas un succès
+        if ((p as { activity?: string }).activity !== 'decouverte') await expect(page.locator('.feedback .alert--success'), `réponse juste, partie ${part - 1}`).toBeVisible();
         if (++answers === opts.stopAfterAnswers) return report;
       }
       continue;
     }
-    // Exercices de fin : lus à l'écran.
+    // Exercices de fin : lus à l'écran. Un calcul raté deux fois peut être passé : compté raté aussi.
+    const skip = page.getByRole('button', { name: 'Passer', exact: true });
+    if (opts.failAllFin && (await skip.isVisible())) {
+      await skip.click();
+      continue;
+    }
     report.fin++;
     if (screen === 'clavier') {
       const right = evalLatex(await promptLatex(page));
@@ -179,11 +227,13 @@ export async function runCourse(page: Page, courseId: string, opts: RunOptions =
         report.explained = true;
       } else await expect(page.locator('.feedback .alert--success')).toBeVisible();
     } else if (screen === 'morceaux') {
-      const pieces = await page.locator('.tag--piece .katex-mathml annotation').allTextContents();
-      const fault = writingFaults(pieces)[0];
-      if (fault) await page.locator('.tag--piece').nth(fault.at).click();
-      else await page.getByRole('button', { name: 'Tout est bien écrit' }).click();
-      await expect(page.locator('.feedback .alert--success')).toBeVisible();
+      const fault = faultBox(await page.locator('.tag--piece').allTextContents());
+      const wrongNow = !!opts.failAllFin;
+      // juste : la faute touchée (ou « Tout est bien écrit ») ; exprès faux : l'inverse
+      if (fault !== null && !wrongNow) await page.locator('.tag--piece').nth(fault).click();
+      else if (fault !== null || !wrongNow) await page.getByRole('button', { name: 'Tout est bien écrit' }).click();
+      else await page.locator('.tag--piece').first().click();
+      await expect(page.locator(`.feedback .alert--${wrongNow ? 'error' : 'success'}`)).toBeVisible();
     } else throw new Error(`Exercice de fin inattendu : ${screen}`);
   }
   throw new Error('Le cours ne se termine pas');
