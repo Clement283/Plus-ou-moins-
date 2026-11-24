@@ -2,7 +2,7 @@
 
 *2026-11-23 : « rattrapage » s'appelle désormais « série de validation » dans l'interface (doc 08).*
 
-*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
+*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23 ; n° 20 à 31 ajoutés le 2026-11-24). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
 
 | # | Question | Décision |
 |---|---|---|
@@ -25,6 +25,18 @@
 | 17 | « Relire la leçon » (Mes cours, série de validation) | **Lecture sans rien compter** : la leçon complète (explications et questions de leçon, qu'elle peut faire), mais rien n'est enregistré, pas même le temps. |
 | 18 | Bouton de déconnexion | **Pas de bouton en V1**, comme sur les maquettes. |
 | 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
+| 20 | Nouveau Cours 0 (retours du porteur du projet après le premier essai en ligne) | **Réécrit d'après la maquette `docs/design/ecrans/cours-0-v2.html`** (doc 06, Cours 0 version 2). Il sert de modèle aux autres cours ; un skill « écrire un bon cours » en sera tiré après le test réel. |
+| 21 | Note d'un cours | Les **questions pour deviner** (posées avant l'explication) **ne comptent pas** et ne repassent pas. Les **petites questions** posées après une explication **comptent** dans les 80 %. |
+| 22 | Petite question ratée | **Elle repasse 2 écrans plus loin**, choix remélangés, jusqu'à la bonne réponse ; « Passer » à partir du 2e échec. Seule la 1re réponse compte (doc 01 §6). Classer, Quelle règle ?, Réécris gardent le repassage habituel ; le message devient « Tu retrouveras ce calcul à la fin de la leçon. » |
+| 23 | Cours quitté au milieu | **Inchangé (n° 16) : on reprend au début**, même avec un cours plus long. |
+| 24 | Explications animées | **Elles avancent quand elle touche « Suite »**, jamais toutes seules. Un bouton **« Revoir »** rejoue l'animation de l'étape affichée. Une grande zone de calcul occupe le haut dès le départ : l'écran n'est jamais vide. |
+| 25 | Exemples guidés « Réécris » | **Elle tape le calcul en entier** avec le **clavier complet** (chiffres, + − × ÷, parenthèses) : le clavier ne doit jamais dicter la réponse. Principe : **dans le cours qui enseigne une règle, aucune erreur sur cette règle n'est tolérée** ((−3) + 4 est une faute dans le Cours 0). Dans les cours et modules suivants, une parenthèse inutile sera une erreur d'attention moins grave. |
+| 26 | Toucher la faute | **Le calcul en haut, écrit normalement ; en bas, le même calcul découpé en cases de même taille** (un nombre = une case, chaque signe et chaque parenthèse = une case), puis « Tout est bien écrit ». Même présentation aux exercices de fin, en révision et en entraînement. |
+| 27 | Code couleur, **le même pour tous les cours** | **Surligneur jaune** = « regarde ici », dans les explications. **Vert** = juste, **rouge** = faux, **seulement après une réponse**. **Aucune couleur qui donne un indice** pendant une question (exercices, révisions, entraînement compris). Si un cours doit distinguer les signes (droite graduée) : négatifs en **orange**, positifs en **bleu**, jamais en rouge. Le Cours 0 n'utilise pas de couleur de signe. Remplace « négatifs en rouge, positifs en bleu » du doc 06. |
+| 28 | Où sont les réponses à l'écran | **Tout ce qu'on touche est en bas de l'écran**, sous le pouce (choix, cases, clavier, calculs à ranger). Le calcul, la consigne et les explications restent en haut. La manière de répondre (glisser, toucher, taper) est écrite dans la consigne. |
+| 29 | Cours raté | L'écran de résultat donne les chiffres (bonnes réponses et %, exercices de fin), **les erreurs par règle** (« Deux signes qui se touchent (règle 1), 3 fois ») et un lien **« Relire la règle N »** qui ouvre l'écran de cette règle (lecture sans rien compter, comme n° 17). **Mes cours et l'accueil gardent la raison** : « Dernier essai : 3 exercices de fin justes sur 5. À revoir : deux signes qui se touchent. » + « Relire la règle 1 ». |
+| 30 | Textes | **De vraies phrases** : consignes complètes, explication du pourquoi. Comprendre une consigne fait partie de ce que l'élève travaille. Une idée par écran. |
+| 31 | Plus tard (hors V1 actuelle) | **Erreurs d'attention qui reviennent** : dans un cours plus avancé, une erreur d'écriture isolée compte moins ; si elle revient souvent, l'appli réaffiche le cours concerné. À concevoir. |
 
 Autres décisions du 2026-11-23 :
 - Entraînement : la phrase sur les cours pas encore disponibles devient « Les cours 5 à 7 apparaîtront ici quand tu auras fini ces cours. ».

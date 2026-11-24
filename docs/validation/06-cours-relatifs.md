@@ -26,7 +26,7 @@
 
 **Ce qui vaut pour tous les cours :**
 - **Intuitif, lisible et compréhensible.** Des phrases courtes, une idée par écran, une étape par ligne.
-- **Des couleurs et des animations dans les leçons et les explications**, pour faire comprendre : nombres colorés, bonds qui s'animent sur une droite graduée, étapes qui apparaissent l'une après l'autre, flèches… Les **exercices, révisions et l'entraînement** restent écrits **comme sur une copie**, sans couleur (spec §3).
+- **Des couleurs et des animations dans les leçons et les explications**, pour faire comprendre : nombres colorés, bonds qui s'animent sur une droite graduée, étapes qui apparaissent l'une après l'autre, flèches… Les **exercices, révisions et l'entraînement** sont écrits **comme sur une copie** : aucune couleur qui donne un indice avant la réponse ; après la réponse, vert = juste et rouge = faux (doc 08 n° 27).
 - **Le déroulé est propre à chaque cours.** Un cours est une suite de parties : explications, questions de leçon, exemples guidés, exercices. Il peut alterner, par exemple « explication → exemple guidé → 2e explication → exemple guidé → exercices ». Ce qui ne change pas : un cours se **termine par 5 exercices de fin**, sans aide, qui servent à le valider (doc 01 §2).
 - **Les niveaux sont propres à chaque cours.** Chaque cours dit ce qui rend son niveau 2 et son niveau 3 plus difficiles : des nombres plus grands, plus de termes, des fractions, des puissances, une inconnue… Le seul principe commun : **même méthode, plus difficile**. Une nouvelle méthode = un nouveau cours.
 - **Chaque cours fournit :**
@@ -38,7 +38,7 @@
 - **Déroulé :** mini-leçon en 4 ou 5 parties, puis 2 exemples guidés, puis les 5 exercices de fin.
 - **Niveaux :** pour ces cours, la difficulté vient de la taille des nombres. Niveau 1 : de 1 à 9 ; niveau 2 : des dizaines (ou plus de termes) ; niveau 3 : des centaines. *Ce choix est propre à ces cours, pas une règle générale.*
 - **Écriture des calculs :** un nombre négatif est entre parenthèses, sauf s'il est le premier terme : −3 + (−5), 4 × (−7).
-- **Aides visuelles des leçons :** négatifs en rouge, positifs en bleu, droite graduée animée.
+- **Aides visuelles des leçons :** négatifs en orange, positifs en bleu (jamais en rouge, réservé aux erreurs), droite graduée animée (doc 08 n° 27).
 - **Erreurs reconnues :** chaque cours a sa liste. Une réponse fausse qui n'y correspond pas est classée **« autre »**, avec l'explication générale du cours. Quand une réponse pourrait correspondre à deux erreurs, on retient la première de la liste.
 - **Famille signe** 🔴 : ces erreurs comptent, comme les autres, dans « Erreurs les plus communes » de ta page de suivi (doc 05).
 - **Erreurs d'écriture** (moins après le nombre, double signe, parenthèse, écriture invalide) : communes à tous les cours (doc 03 §3), vérifiées **avant** les erreurs de calcul.
@@ -50,32 +50,110 @@
 
 ## Cours 0 — Bien écrire un calcul (introduction du module)
 
+*Version 2 (2026-11-24), remplace la version 1. Maquette validée : `docs/design/ecrans/cours-0-v2.html`. Ce cours sert de **modèle** pour réécrire les cours 1 à 7 (voir doc 08, n° 20 à 31).*
+
 **La règle :** *Un calcul s'écrit d'une seule façon correcte : il faut savoir le lire et l'écrire sans ambiguïté.*
 
+**L'idée de départ :** le signe − a **deux rôles**, soustraire (7 − 3) ou dire qu'un nombre est négatif (−3). Les 4 règles servent à toujours savoir quel rôle joue chaque −.
+
 **Les règles d'écriture enseignées**
-1. **Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met **entre parenthèses** : 4 × (−3), 5 + (−2), 7 − (−1). ✗ 4 × −3 · ✗ 5 + −2
-2. **En tête d'un calcul, pas de parenthèses** pour un négatif : −3 + 5.
-3. **Le signe − s'écrit avant le nombre** : −3, jamais 3−.
+1. **Deux signes ne se suivent jamais.** Après +, −, × ou ÷, un nombre négatif se met **entre parenthèses** : 4 × (−3), 5 + (−2), 7 − (−1), 8 ÷ (−4).
+2. **En tête d'un calcul, pas de parenthèses** pour un négatif : −3 + 5. (−3) + 5 n'est pas faux mais inutile : dans ce cours, une réponse tapée « (−3) + 5 » compte **comme une faute** (doc 08 n° 25).
+3. **Le signe − d'un nombre négatif s'écrit avant le nombre** : −3, jamais 3−.
 4. **Une parenthèse ouverte se ferme** : (−3), jamais (−3 tout seul.
 
-**Mini-leçon**
-1. **Explication animée :** « 4 × −3 » apparaît. Le × et le − se « cognent » (petit choc animé, croix rouge), puis des parenthèses viennent entourer −3 : 4 × (−3) ✓.
-2. **Explication des 4 règles**, une par écran, chacune avec un exemple ✓ en vert et un contre-exemple ✗ en rouge.
-3. **Classer** (bien écrit / mal écrit) : 4 × (−3) → bien · 5 + −2 → mal · −3 + 5 → bien · 3− + 4 → mal
-4. **Trouver l'erreur d'écriture :** « 7 − −1 = 8 ». Elle touche « − − ». Correction : 7 − (−1).
+**Déroulé (20 écrans)**
 
-**Exemples guidés**
-- Réécrire 6 × −2 : elle complète « 6 × ( ▢ ) » → −2
-- Réécrire 9 + −4 : elle complète « 9 + ( ▢ ) » → −4
+Types d'écrans utilisés : **explication pas à pas** (une grande zone de calcul en haut qui se transforme à chaque « Suite », les phrases s'ajoutent dessous, bouton « Revoir » pour rejouer l'animation de l'étape) ; **petite question** (un toucher) ; **question pour deviner** (ne compte pas) ; Classer, Quelle règle ?, Réécris, Toucher la faute. Tout ce qu'on touche est en bas de l'écran.
 
-**Exercices de fin (exception à la règle des 5 réponses écrites)**
-Ce cours ne porte pas sur un résultat, mais sur l'écriture. Ses **5 exercices de fin** sont donc des « **Trouver l'erreur d'écriture** » : un calcul s'affiche, elle touche l'endroit mal écrit, ou « **Tout est bien écrit** » (1 fois sur 5, tout est bien écrit). La validation suit le doc 01 (80 % sur l'ensemble, et au moins 4 exercices de fin sur 5).
+*Leçon (12 écrans, pastille « Cours 0 · Leçon · étape N sur 12 »)*
+1. **Accroche + deviner.** « En maths, un calcul doit se lire d'une seule façon. S'il est mal écrit, on peut se tromper même en connaissant la méthode. Dans ce cours, tu vas apprendre 4 règles d'écriture. » Question pour deviner : « Pour commencer, à ton avis : ce calcul est-il bien écrit ? 4 × −3 » [Oui] [Non]. Réponse attendue : Non. Retour : « Il est mal écrit. Ce n'est pas grave de ne pas le savoir encore : c'est justement ce que ce cours explique. »
+2. **Explication « Le signe − a deux rôles »** (4 étapes). Rôle 1 : soustraire, 7 − 3 (« on enlève 3 à 7 »). Rôle 2 : dire qu'un nombre est négatif, −3 (« moins trois »). « Quand tu lis un calcul, tu dois toujours savoir quel rôle joue chaque −. Les 4 règles de ce cours servent à ça. »
+3. **Petites questions (2).** « Dans 8 − 5, à quoi sert le − ? » [À soustraire] [À dire que 5 est négatif] → À soustraire. « Et dans −6 + 2 ? » → À dire que 6 est négatif.
+4. **Explication règle 1** (5 étapes) : 4 × −3 ; les signes collés surlignés qui tremblent (« deux signes se touchent ») ; « Ce −, il soustrait ? Ou c'est le signe du 3 ? » ; les parenthèses arrivent, 4 × (−3) (« −3 est un seul nombre ») ; encadré Règle 1.
+5. **Explication règle 1, exemples** (4 étapes) : 5 + −2 → 5 + (−2) ; 7 − −1 → 7 − (−1) ; 8 ÷ −4 → 8 ÷ (−4), parenthèses surlignées. « Le nombre ne change pas, le résultat non plus. »
+6. **Petite question.** « Comment écrire correctement 5 + −2 ? » [(5 + −2)] [5 + (−2)] [5 (+ −2)]. Chaque mauvais choix a son explication.
+7. **Règle 2, deviner puis expliquer.** « Ce calcul commence par un nombre négatif. Faut-il des parenthèses autour de −3 ? −3 + 5 » [Oui] [Non] → Non (« Devant −3, il n'y a aucun signe. Rien ne se touche. »). Puis encadré Règle 2 et « (−3) + 5 : pas faux, mais inutile » (pastille grise, pas de symbole « ~ »).
+8. **Explication règle 3** (5 étapes) : 3− + 4 ; le − après le 3 surligné ; « Soustraire quoi ? Juste après, il y a un + » ; le − glisse devant le 3 ; encadré Règle 3.
+9. **Petites questions (2).** « Le signe − d'un nombre négatif se met… » [avant le nombre] [après le nombre]. « Lequel est bien écrit ? » [7−] [−7].
+10. **Explication règle 4** (5 étapes) : 4 × (−3 ; la parenthèse ouverte surlignée ; « Où s'arrête le nombre ? » ; la parenthèse fermante arrive (« comme des guillemets ») ; encadré Règle 4.
+11. **Petite question.** « Que manque-t-il à ce calcul ? 4 × (−3 » [(] [)] [−].
+12. **Récapitulatif** des 4 règles, chacune avec un exemple juste et un exemple faux.
 
-**En révision :** des QCM du type « **Lequel est bien écrit ?** » (4 écritures du même calcul, une seule correcte) et des « Classer » bien écrit / mal écrit.
+*À toi*
+13. **Classer en glisser-déposer.** « Fais glisser chaque calcul du bas de l'écran vers la bonne case. Tu peux aussi toucher un calcul, puis toucher la case. » Cases « Bien écrit » / « Mal écrit » en haut, calculs en bas : 4 × (−3) → bien · 5 + −2 → mal · −3 + 5 → bien · 3− + 4 → mal (affiché exactement « 3− + 4 »). Après Valider, chaque calcul mal écrit montre sa correction et le numéro de la règle.
+14. **Quelle règle ?** Calcul en haut : 7 − −1 = 8. « Ce calcul est mal écrit. Quelle règle n'est pas respectée ? » [Deux signes se touchent] [Le moins est après le nombre] [Une parenthèse n'est pas fermée]. Après la réponse, la correction 7 − (−1) = 8 apparaît.
+
+*Exemples guidés*
+15. **Réécris 6 × −2.** « Ce calcul est mal écrit. Réécris-le correctement. » Elle tape le calcul **en entier** avec le clavier complet. Attendu : 6 × (−2).
+16. **Réécris 3− + 4.** Attendu : −3 + 4. « (−3) + 4 » compte comme une faute.
+
+*Fin*
+17. **Annonce** : « Place aux 5 exercices de fin. Cette fois, pas d'aide. Ils ressemblent à ce que tu verras en contrôle. Pour valider le cours, il faut : au moins 4 exercices de fin justes sur 5 ; et 80 % de bonnes réponses sur tout le cours. Si tu n'y arrives pas, ce n'est pas grave : tu feras une série de validation. Ce sont 5 exercices, sans refaire la leçon. »
+18. **5 exercices de fin « Toucher la faute »** (générés, 1 fois sur 5 tout est bien écrit). « Ce calcul est-il bien écrit ? » Le calcul en haut, écrit normalement. « S'il est mal écrit, touche l'endroit de la faute dans les cases en bas. Chaque symbole du calcul a sa case. » En bas : le même calcul découpé en cases de même taille (un nombre = une case, chaque signe et chaque parenthèse = une case), puis « Tout est bien écrit ». Aucune couleur avant la réponse.
+19. **Résultat** (validé ou non, voir doc 08 n° 29).
+20. **Mes cours** garde la raison d'un échec (doc 08 n° 29).
+
+**Note du cours** (doc 08 n° 21) : comptent les 7 petites questions (écrans 3, 6, 9, 11), Classer, Quelle règle ?, les 2 exemples guidés et les 5 exercices de fin, soit 16 questions. Les 2 questions pour deviner (écrans 1 et 7) ne comptent pas. Validation : 80 % sur les 16 **et** au moins 4 exercices de fin sur 5.
+
+**Retours d'erreur précis**
+| Écran | Réponse | Message |
+|---|---|---|
+| 3 | « À dire que 5 est négatif » | « Ici le − est entre deux nombres : on enlève 5 à 8. C'est une soustraction. » |
+| 3 | « À soustraire » (−6 + 2) | « Il n'y a rien avant le − : on ne peut rien soustraire. C'est le signe du nombre −6. » |
+| 6 | (5 + −2) | « Les parenthèses doivent entourer le nombre négatif, pas tout le calcul. Ici + et − se touchent encore. » |
+| 6 | 5 (+ −2) | « Le + est une opération : il reste en dehors. Seul le nombre négatif −2 va entre parenthèses. » |
+| 9 | après le nombre / 7− | « Le signe se met devant : −7. Écrit après, on croirait une soustraction. » |
+| 11 | ( | « Une parenthèse est déjà ouverte. Il manque celle qui la ferme : « ) ». » |
+| 11 | − | « Le − est déjà là, devant le 3. Il manque la parenthèse qui ferme : « ) ». » |
+| 14 | Le moins est après le nombre | « Le − de −1 est bien devant le 1. Le problème : deux − se touchent. » |
+| 14 | Une parenthèse n'est pas fermée | « Il n'y a aucune parenthèse ici. Le problème : deux − se touchent. » |
+| 15 | 6 × −2 | « Le × et le − se touchent encore. Mets −2 entre parenthèses. » |
+| 15 | 6 × (−2 | « La parenthèse ouverte doit se fermer. » |
+| 15 | 6 × (2−) ou 6 × 2− | « Le signe − se met avant le 2. » |
+| 15 | 6 × (−n), n ≠ 2 | « L'écriture est bonne, mais le nombre a changé. Garde −2. » |
+| 15 | (6 × −2) | « Les parenthèses doivent entourer le nombre négatif, pas tout le calcul. » |
+| 15 | autre | « Garde le même calcul, et mets le nombre négatif entre parenthèses. » |
+| 16 | (−3) + 4 | « Pas tout à fait. En tête du calcul, on n'écrit pas de parenthèses : −3 + 4. » |
+| 16 | 3− + 4 | « Le − est toujours après le 3. Il doit aller devant. » |
+| 16 | 3 + 4 | « Le 3 est négatif : garde son signe −, devant le nombre. » |
+| 16 | autre | « Garde les mêmes nombres. Le signe − va devant le 3. » |
+| 18 | faute non repérée | l'explication de la faute (tableau des erreurs reconnues) + le calcul corrigé |
+
+« Étape par étape » après une erreur aux écrans 15 et 16 : 3 vraies étapes (écran 15 : « Repère les deux signes qui se touchent : × et −. » · « Mets le nombre négatif entre parenthèses : (−2). » · « Le calcul bien écrit : 6 × (−2). » ; écran 16 : « Le signe − est après le 3 : il doit aller devant. » · « Le nombre négatif est en tête du calcul : pas besoin de parenthèses. » · « Le calcul bien écrit : −3 + 4. »).
+
+**En révision et en entraînement :** « Lequel est bien écrit ? » (4 écritures du même calcul, une seule correcte), Classer bien écrit / mal écrit, **Quelle règle n'est pas respectée ?** (calcul généré avec une faute, 3 choix), **Réécris correctement** (calcul généré avec une faute, elle tape le calcul entier) et **Toucher la faute** (même présentation qu'aux exercices de fin).
 
 **Générateur**
 | Niveau | Calculs affichés |
 |---|---|
+| 1 | une seule opération, de 1 à 9 : 4 × (−3) |
+| 2 | deux opérations : 5 + (−2) × 3 |
+| 3 | trois opérations ou plus, avec parenthèses : −6 − (−2) × (4 + (−1)) |
+
+Les écritures fausses sont fabriquées en appliquant l'une des fautes ci-dessous à un calcul bien écrit.
+
+**Erreurs reconnues**
+| Identifiant | La faute non repérée | Explication affichée | Règle | Calcul-piège |
+|---|---|---|---|---|
+| `signes-colles` | deux signes qui se suivent (4 × −3) | « Deux signes ne se suivent jamais : 4 × (−3). » | 1 | un négatif après × ou ÷ |
+| `parentheses-en-tete` | parenthèses autour d'un négatif en tête, dans une réponse tapée | « En tête du calcul, on n'écrit pas de parenthèses : −3 + 4. » | 2 | (Réécris uniquement) un négatif en tête |
+| `moins-apres` | le − après le nombre (3−) | « Le signe moins s'écrit avant le nombre : −3. » | 3 | un négatif en tête |
+| `parenthese` | parenthèse non fermée ou en trop | « Une parenthèse ouverte doit être fermée. » | 4 | niveau 3, avec parenthèses |
+
+*Note :* dans « Toucher la faute », « Classer » et « Lequel est bien écrit ? », (−3) + 5 n'est jamais affiché comme une faute : on ne montre que de vraies fautes. La faute `parentheses-en-tete` n'existe que pour une réponse tapée dans ce cours.
+
+**Résolution type** (pour Toucher la faute) : le calcul lui-même, découpé en cases (un nombre = une case, chaque signe et chaque parenthèse = une case).
+
+**Exemples (Toucher la faute)**
+| Calcul affiché | Bonne réponse | Elle touche | Erreur enregistrée |
+|---|---|---|---|
+| 4 × −3 | la case « × » ou la case « − » | « − » | — |
+| 4 × (−3) | « Tout est bien écrit » | « × » | `relecture` |
+| 5 + (−2) × 3− | la case « − » après le 3 | « Tout est bien écrit » | `moins-apres` |
+| −6 − (−2 × 4 | la case « ( » non fermée | « ( » | — |
+
+---|---|
 | 1 | une seule opération, de 1 à 9 : 4 × (−3) |
 | 2 | deux opérations : 5 + (−2) × 3 |
 | 3 | trois opérations ou plus, avec parenthèses : −6 − (−2) × (4 + (−1)) |
