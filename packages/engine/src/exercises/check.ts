@@ -1,7 +1,7 @@
 // checkAnswer: is the first answer right, and which error to record (doc 04, doc 03 §3).
 import type { ErrorFamily } from '../events';
 import { type RawInput, rawToString, readRaw } from '../input/raw';
-import { type Rational, eqRat, neg, ratToString } from '../math/rational';
+import { type Rational, eqRat, neg, rat, ratToString } from '../math/rational';
 import { diagnose } from '../courses';
 import type { CourseDef } from '../courses/types';
 import type { Answer, Outcome, Question } from './types';
@@ -191,6 +191,16 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
         expected: q.expected,
         message: hit ? hit.message : q.fallback,
       };
+    }
+
+    case 'droite': {
+      if (!('point' in a)) return mismatch(q);
+      const mark = (n: number): string => `${n}`.replace(/-/g, '−');
+      const given = mark(a.point);
+      const expected = mark(q.answer);
+      if (a.point === q.answer) return right(given, expected);
+      const d = diagnose(course, q.ex, rat(a.point));
+      return wrong(d?.errorType ?? 'autre', d?.family ?? 'autre', given, expected);
     }
 
     case 'vraifaux': {

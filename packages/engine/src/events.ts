@@ -1,5 +1,5 @@
-export type Activity = 'lecon' | 'exemple' | 'fin' | 'rattrapage' | 'revision' | 'entrainement' | 'decouverte';
-export type QuestionKind = 'saisie' | 'trou' | 'ordre' | 'erreur' | 'paires' | 'classer' | 'qcm' | 'vraifaux' | 'choix' | 'reecrire';
+export type Activity = 'lecon' | 'exemple' | 'fin' | 'rattrapage' | 'revision' | 'entrainement' | 'decouverte' | 'echauffement';
+export type QuestionKind = 'saisie' | 'trou' | 'ordre' | 'erreur' | 'paires' | 'classer' | 'qcm' | 'vraifaux' | 'choix' | 'reecrire' | 'droite';
 export type ErrorFamily = 'signe' | 'ecriture' | 'calcul' | 'autre';
 
 export type AppEvent = { id: string; userId: string; at: number; day: string } & (
@@ -26,8 +26,8 @@ export type AppEvent = { id: string; userId: string; at: number; day: string } &
   | { kind: 'activity_end'; activityId: string; activity: Activity; moduleId: string; courseId: string | null; completed: boolean }
 );
 
-const ACTIVITIES: readonly string[] = ['lecon', 'exemple', 'fin', 'rattrapage', 'revision', 'entrainement', 'decouverte'];
-const QUESTION_KINDS: readonly string[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'choix', 'reecrire'];
+const ACTIVITIES: readonly string[] = ['lecon', 'exemple', 'fin', 'rattrapage', 'revision', 'entrainement', 'decouverte', 'echauffement'];
+const QUESTION_KINDS: readonly string[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'choix', 'reecrire', 'droite'];
 const ERROR_FAMILIES: readonly string[] = ['signe', 'ecriture', 'calcul', 'autre'];
 
 type Rec = Record<string, unknown>;

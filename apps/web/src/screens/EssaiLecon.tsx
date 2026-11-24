@@ -28,6 +28,8 @@ export default function EssaiLecon() {
         <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} title={course.title} />
       ) : part.type === 'etapes' ? (
         <Etapes key={`${course.id}-${index}`} title={part.title} steps={part.steps} onDone={() => undefined} header={header} />
+      ) : part.type === 'pratique' ? (
+        <p className="t-body1">Série de pratique : {part.questions.length} questions (écran ajouté par la tâche 9).</p>
       ) : (
         <QuestionView key={`${course.id}-${index}`} question={part.question} course={course} locked={false} onAnswer={() => undefined} header={<div className="row">{header}</div>} activity={part.activity} texts={{ ...(part.title ? { title: part.title } : {}), ...(part.subtitle ? { subtitle: part.subtitle } : {}), ...(part.consigne ? { consigne: part.consigne } : {}), ...(part.intro ? { intro: part.intro } : {}), ...(part.outro ? { outro: part.outro } : {}), ...(part.outroRule ? { outroRule: part.outroRule } : {}) }} />
       )}

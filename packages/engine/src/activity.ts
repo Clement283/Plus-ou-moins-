@@ -326,6 +326,8 @@ export function promptOf(q: Question): string {
       return q.calcLatex ? `${q.prompt} ${q.calcLatex}` : q.prompt;
     case 'reecrire':
       return q.givenLatex;
+    case 'droite':
+      return q.promptLatex;
   }
 }
 
@@ -376,23 +378,41 @@ function withTexts(p: LessonPart): { texts?: PartTexts } {
     if (p.outro !== undefined) texts.outro = p.outro;
     if (p.outroRule !== undefined) texts.outroRule = p.outroRule;
     if (p.joinPrevious !== undefined) texts.joinPrevious = p.joinPrevious;
+    for (const k of ['series', 'above', 'help', 'mention', 'compare', 'uncounted'] as const) {
+      if (p[k] !== undefined) Object.assign(texts, { [k]: p[k] });
+    }
   }
   return Object.keys(texts).length > 0 ? { texts } : {};
 }
 
 /** Doc 01 §2: the course's parts in order, then its 5 end exercises. */
 export function courseRunItems(course: CourseDef, rng: Rng): ActivityItem[] {
-  const parts = course.parts.map((p, i): ActivityItem =>
-    p.type === 'explication'
-      ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: p.blocks, ...withTexts(p) }
-      : p.type === 'etapes'
-        ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: [], steps: p.steps, ...withTexts(p) }
-        : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) },
+  const parts = course.parts.flatMap((p, i): ActivityItem[] =>
+    p.type === 'pratique'
+      ? p.questions.map(({ question, texts }, k): ActivityItem => ({
+          type: 'question',
+          itemId: `partie-${i}-${k}`,
+          courseId: course.id,
+          activity: texts?.uncounted ? 'decouverte' : 'lecon',
+          question,
+          texts: { ...texts, series: { n: k + 1, of: p.questions.length } },
+        }))
+      : [partItem(course, p, i)],
   );
   const fin = typedSeries(course, END_EXERCISES, rng).map(
     (question, i): ActivityItem => ({ type: 'question', itemId: `fin-${i}`, courseId: course.id, activity: 'fin', question }),
   );
   return [...parts, ...fin];
+}
+
+function partItem(course: CourseDef, p: Exclude<LessonPart, { type: 'pratique' }>, i: number): ActivityItem {
+  return (
+    p.type === 'explication'
+      ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: p.blocks, ...withTexts(p) }
+      : p.type === 'etapes'
+        ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: [], steps: p.steps, ...withTexts(p) }
+        : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) }
+  );
 }
 
 /** Doc 01 §2: 5 typed exercises, like the end exercises. */

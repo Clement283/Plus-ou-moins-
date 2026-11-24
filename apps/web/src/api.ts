@@ -1,4 +1,4 @@
-import type { AppEvent } from '@pom/engine';
+import type { AppEvent, ClementQuestion, NewClementQuestion } from '@pom/engine';
 
 export type Role = 'eleve' | 'suiveur';
 export type User = { id: string; name: string; role: Role };
@@ -56,4 +56,27 @@ export async function getStudents(token: string): Promise<{ id: string; name: st
 
 export async function getStudentEvents(token: string, studentId: string): Promise<AppEvent[]> {
   return (await request<{ events: AppEvent[] }>(`/api/students/${encodeURIComponent(studentId)}/events`, { token })).events;
+}
+
+const enc = encodeURIComponent;
+
+/** « Demander à Clément » : l'id client rend l'envoi idempotent (rejouer le même id n'ajoute rien). */
+export async function postQuestion(token: string, q: NewClementQuestion): Promise<void> {
+  await request('/api/questions', { method: 'POST', token, body: JSON.stringify(q) });
+}
+
+export async function getMyQuestions(token: string): Promise<ClementQuestion[]> {
+  return (await request<{ questions: ClementQuestion[] }>('/api/questions', { token })).questions;
+}
+
+export async function markQuestionRead(token: string, id: string): Promise<void> {
+  await request(`/api/questions/${enc(id)}/read`, { method: 'POST', token });
+}
+
+export async function getStudentQuestions(token: string, studentId: string): Promise<ClementQuestion[]> {
+  return (await request<{ questions: ClementQuestion[] }>(`/api/students/${enc(studentId)}/questions`, { token })).questions;
+}
+
+export async function answerQuestion(token: string, studentId: string, id: string, answer: string): Promise<void> {
+  await request(`/api/students/${enc(studentId)}/questions/${enc(id)}/answer`, { method: 'POST', token, body: JSON.stringify({ answer }) });
 }

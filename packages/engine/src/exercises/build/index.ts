@@ -2,6 +2,7 @@
 import type { CourseDef } from '../../courses/types';
 import type { BuildCtx, Question, QuestionKind } from '../types';
 import { buildClasser } from './classer';
+import { buildDroite } from './droite';
 import { buildErreur } from './erreur';
 import { buildOrdre } from './ordre';
 import { buildPaires } from './paires';
@@ -21,6 +22,7 @@ const BUILDERS: Record<GenericKind, (course: CourseDef, ctx: BuildCtx) => Questi
   classer: buildClasser,
   qcm: buildQcm,
   vraifaux: buildVraiFaux,
+  droite: (course, ctx) => buildDroite(course, ctx.rng),
 };
 
 /**

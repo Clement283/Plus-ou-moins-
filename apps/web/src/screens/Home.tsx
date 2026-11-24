@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
 import { DAILY_GOAL_MS, getCourse, lastAttempt, studentHome, trainingPool, type AppEvent, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
+import { ClementCard } from '../components/ClementCard';
+import { HomeBubble } from '../components/HomeBubble';
+import { WarmupChip } from '../components/WarmupChip';
 import { DayGauge } from '../components/DayGauge';
 import { Stars, isTodo, lastAttemptText, ruleLink } from '../components/CourseBits';
 import { go } from '../router';
@@ -227,6 +230,7 @@ export default function Home() {
                 {plural(home.streak, 'jour', 'jours')}
               </span>
             )}
+            <HomeBubble />
             <SoundButton />
           </div>
         </header>
@@ -248,6 +252,9 @@ export default function Home() {
             <ReviewCard reviews={home.reviews} started={home.today.reviewMs > 0} />
           </section>
         )}
+
+        <WarmupChip />
+        <ClementCard />
 
         <CourseCard home={home} progress={progress} events={events} reviewsLeft={home.reviews !== null} />
 

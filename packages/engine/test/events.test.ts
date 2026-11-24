@@ -27,6 +27,11 @@ describe('isAppEvent découverte', () => {
   it('accepts reecrire', () => expect(isAppEvent({ ...answer, questionKind: 'reecrire' })).toBe(true));
 });
 
+describe('isAppEvent échauffement et droite', () => {
+  it('accepts echauffement', () => expect(isAppEvent({ ...answer, activity: 'echauffement', questionKind: 'qcm' })).toBe(true));
+  it('accepts droite', () => expect(isAppEvent({ ...answer, questionKind: 'droite' })).toBe(true));
+});
+
 describe('isAppEvent invalid', () => {
   it.each([null, undefined, 42, 'x', [], {}, { kind: 'answer' }])('rejects %j', (x) => expect(isAppEvent(x)).toBe(false));
   it('rejects unknown kind', () => expect(isAppEvent({ ...base, kind: 'other' })).toBe(false));

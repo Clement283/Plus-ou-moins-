@@ -85,6 +85,8 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
     }
     case 'reecrire':
       return { title: 'Pas tout à fait.', rightLatex: latexOfCalc(q.expected) };
+    case 'droite':
+      return { title: `La bonne réponse est ${plain(`${q.answer}`)}.`, rightLatex: `${q.answer}` };
     case 'vraifaux':
       return { title: q.isTrue ? "C'était vrai." : "C'était faux.", rightLatex: text(q.isTrue ? 'Vrai' : 'Faux') };
     case 'erreur':
@@ -107,7 +109,15 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
   }
 }
 
+/** `course.feedbackText` (texte propre au cours) passe en premier, pour tout type de question. */
 export function feedbackFor(course: CourseDef, q: Question, a: Answer, o: Outcome, opts?: { guess?: boolean }): Feedback {
+  const f = engineFeedback(course, q, a, o, opts);
+  const own = course.feedbackText?.(q, o) ?? null;
+  if (own === null) return f;
+  return f.tone === 'juste' ? { ...f, note: own } : { ...f, message: own };
+}
+
+function engineFeedback(course: CourseDef, q: Question, a: Answer, o: Outcome, opts?: { guess?: boolean }): Feedback {
   const raw = 'raw' in a ? a.raw : null;
 
   if (q.kind === 'choix' || q.kind === 'reecrire') {

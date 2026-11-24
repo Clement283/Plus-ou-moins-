@@ -12,6 +12,11 @@ export type Route =
   | { name: 'suivi' }
   | { name: 'suivi-module'; eleve: string; id: string }
   | { name: 'suivi-cours'; eleve: string; id: string }
+  | { name: 'fiche'; id: string }
+  | { name: 'echauffement' }
+  | { name: 'questions' }
+  | { name: 'question'; id: string }
+  | { name: 'suivi-question'; eleve: string; id: string }
   | { name: 'essai'; what: string }
   /** Adresse qui ne correspond à aucun écran : l'appli renvoie à l'accueil de la personne. */
   | { name: 'inconnu' };
@@ -32,8 +37,14 @@ export function parseRoute(hash: string): Route {
   if (a === 'cours') {
     if (n === 1) return { name: 'cours' };
     if (n === 2) return { name: 'cours-detail', id: b! };
+    if (n === 3 && c === 'fiche') return { name: 'fiche', id: b! };
     if (n === 3 && c === 'relire') return { name: 'relire', id: b! };
     if (n === 4 && c === 'relire' && /^\d+$/.test(d!)) return { name: 'relire', id: b!, part: Number(d) };
+  }
+  if (a === 'echauffement' && n === 1) return { name: 'echauffement' };
+  if (a === 'questions') {
+    if (n === 1) return { name: 'questions' };
+    if (n === 2) return { name: 'question', id: b! };
   }
   if (a === 'rattrapage' && n === 2) return { name: 'rattrapage', id: b! };
   if (a === 'revisions' && n === 1) return { name: 'revisions' };
@@ -45,6 +56,7 @@ export function parseRoute(hash: string): Route {
     if (n === 1) return { name: 'suivi' };
     if (n === 4 && c === 'module') return { name: 'suivi-module', eleve: b!, id: d! };
     if (n === 4 && c === 'cours') return { name: 'suivi-cours', eleve: b!, id: d! };
+    if (n === 4 && c === 'question') return { name: 'suivi-question', eleve: b!, id: d! };
   }
   if (a === 'essai' && n === 2) return { name: 'essai', what: b! };
   return { name: 'inconnu' };
@@ -64,6 +76,11 @@ export function toHash(r: Route): string {
     case 'suivi': return '#/suivi';
     case 'suivi-module': return `#/suivi/${e(r.eleve)}/module/${e(r.id)}`;
     case 'suivi-cours': return `#/suivi/${e(r.eleve)}/cours/${e(r.id)}`;
+    case 'fiche': return `#/cours/${e(r.id)}/fiche`;
+    case 'echauffement': return '#/echauffement';
+    case 'questions': return '#/questions';
+    case 'question': return `#/questions/${e(r.id)}`;
+    case 'suivi-question': return `#/suivi/${e(r.eleve)}/question/${e(r.id)}`;
     case 'essai': return `#/essai/${e(r.what)}`;
     case 'inconnu': return '#/';
   }

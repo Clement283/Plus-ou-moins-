@@ -10,6 +10,11 @@ import EssaiClavier from './screens/EssaiClavier';
 import Home from './screens/Home';
 import Courses from './screens/Courses';
 import Training, { TrainingSeries } from './screens/Training';
+import Memo from './screens/Memo';
+import Warmup from './screens/Warmup';
+import Questions from './screens/Questions';
+import QuestionDetail from './screens/QuestionDetail';
+import SuiviQuestion from './screens/SuiviQuestion';
 import Review from './screens/Review';
 import { CourseScreen, RattrapageScreen, RelireScreen } from './screens/Course';
 
@@ -35,7 +40,7 @@ function Redirect({ to }: { to: string }) {
 
 function StudentRoutes() {
   const route = useRoute();
-  if (route.name === 'suivi' || route.name === 'suivi-module' || route.name === 'suivi-cours') return <Redirect to="#/" />;
+  if (route.name === 'suivi' || route.name === 'suivi-module' || route.name === 'suivi-cours' || route.name === 'suivi-question') return <Redirect to="#/" />;
   if (route.name === 'essai') {
     if (!ESSAI) return <Redirect to="#/" />;
     if (route.what === 'clavier') return <EssaiClavier />;
@@ -51,6 +56,10 @@ function StudentRoutes() {
   if (route.name === 'cours-detail') return <CourseScreen key={route.id} courseId={route.id} />;
   if (route.name === 'rattrapage') return <RattrapageScreen key={route.id} courseId={route.id} />;
   if (route.name === 'relire') return <RelireScreen key={`${route.id}/${route.part ?? ''}`} courseId={route.id} {...(route.part === undefined ? {} : { part: route.part })} />;
+  if (route.name === 'fiche') return <Memo key={route.id} courseId={route.id} />;
+  if (route.name === 'echauffement') return <Warmup />;
+  if (route.name === 'questions') return <Questions />;
+  if (route.name === 'question') return <QuestionDetail key={route.id} id={route.id} />;
   if (route.name === 'accueil') return <Home />;
   if (route.name === 'cours') return <Courses />;
   if (route.name === 'entrainement') return <Training />;
@@ -63,6 +72,7 @@ function FollowerRoutes() {
   const route = useRoute();
   if (route.name === 'suivi-module') return <DashModule key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
   if (route.name === 'suivi-cours') return <DashCourse key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
+  if (route.name === 'suivi-question') return <SuiviQuestion key={route.eleve + route.id} eleve={route.eleve} id={route.id} />;
   if (route.name !== 'suivi') return <Redirect to="#/suivi" />;
   return <Dashboard />;
 }

@@ -57,6 +57,14 @@ export type Question =
       specific: { answer: string; message: string; errorType: string | null; correct: boolean }[];
       fallback: string;
       steps: string[];
+    }
+  | {
+      kind: 'droite';
+      ex: Exercise;
+      promptLatex: string;
+      line: { from: number; to: number };
+      jumps: { from: number; by: number }[];
+      answer: number;
     };
 
 export interface BuildCtx {
@@ -79,7 +87,8 @@ export type Answer =
   | { pairs: [number, number][] }
   | { classes: string[] }
   | { bool: boolean }
-  | { text: string };
+  | { text: string }
+  | { point: number };
 
 export interface Outcome {
   correct: boolean;

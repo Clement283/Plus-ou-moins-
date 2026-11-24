@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { courseRunItems, getCourse, seededRng } from '../../src';
-import type { LessonBlock, LessonPart } from '../../src';
+import type { CourseDef, LessonBlock, LessonPart } from '../../src';
+import { lessonStep } from '../../src/courses/types';
 
 /** Doc 09 : titre et sous-titre de chaque écran de leçon, dans l'ordre des `parts` (null = pas de titre, la consigne reste). */
 type T = [title: string | null, subtitle?: string];
@@ -197,5 +198,32 @@ describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité
     expect(items[3]).toMatchObject({ type: 'question', activity: 'lecon', texts: { joinPrevious: true } });
     expect(items[7]).toMatchObject({ texts: { outroRule: { n: 2 } } });
     expect(items[19]).toMatchObject({ type: 'question', activity: 'fin' });
+  });
+});
+
+describe('partie pratique', () => {
+  const q = (calc: string) => ({ kind: 'choix' as const, ex: getCourse('c01-additionner-meme-signe').generate(1, seededRng(1)), calcLatex: calc, prompt: 'p', options: [{ label: 'a', why: '' }, { label: 'b', why: '' }], correctIndex: 0 });
+  const base = getCourse('c01-additionner-meme-signe');
+  const fake = {
+    ...base,
+    lessonLength: 2,
+    parts: [
+      { type: 'explication', blocks: [] },
+      { type: 'pratique', title: 'Pratique', questions: [0, 1, 2, 3].map((i) => ({ question: q(`${i}`), texts: i === 3 ? { uncounted: true as const } : undefined })) },
+    ],
+  } as unknown as CourseDef;
+
+  it('gives one item per question with series texts', () => {
+    const items = courseRunItems(fake, seededRng(1)).filter((i) => i.type === 'question' && i.itemId.startsWith('partie-1-'));
+    expect(items.map((i) => i.itemId)).toEqual(['partie-1-0', 'partie-1-1', 'partie-1-2', 'partie-1-3']);
+    items.forEach((i, k) => expect(i.type === 'question' && i.texts?.series).toEqual({ n: k + 1, of: 4 }));
+  });
+  it('counts the series as one lesson screen', () => {
+    expect(lessonStep(fake, 1)).toEqual({ n: 2, total: 2 });
+  });
+  it('makes an uncounted question a decouverte', () => {
+    const items = courseRunItems(fake, seededRng(1)).filter((i) => i.type === 'question');
+    expect(items.find((i) => i.itemId === 'partie-1-3')?.type === 'question' && items.find((i) => i.itemId === 'partie-1-3')).toMatchObject({ activity: 'decouverte' });
+    expect(items.find((i) => i.itemId === 'partie-1-0')).toMatchObject({ activity: 'lecon' });
   });
 });

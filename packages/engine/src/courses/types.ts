@@ -79,7 +79,59 @@ export interface PartTexts {
   outroRule?: { n: number; text: string };
   /** La question s'affiche sur le même écran que la précédente (2 questions par écran, doc 08 n° 20) ; le moteur garde 2 éléments distincts. */
   joinPrevious?: boolean;
+  /** Série de pratique : « Question n sur of ». */
+  series?: { n: number; of: number };
+  /** Lignes LaTeX de résolution déjà posées au-dessus de la case (exemples guidés). */
+  above?: string[];
+  /** Encadré d'aide de la ligne en cours. */
+  help?: string;
+  /** Mention sous la question (« ne compte pas » ; '' = aucune). */
+  mention?: string;
+  /** Entraînement non noté : l'élément devient `decouverte` (ne compte pas, ne repasse pas). */
+  uncounted?: true;
+  /** « Comparer deux cas ». */
+  compare?: Compare;
 }
+
+/** La droite graduée d'une scène. */
+export interface LineScene {
+  from: number;
+  to: number;
+  /** `after` : dessiné seulement une fois l'action réussie. */
+  jumps: { from: number; by: number; label?: string; after?: boolean }[];
+  /** Graduations surlignées en jaune (ex. [0]). */
+  highlight?: number[];
+  /** « départ », « arrivée ». */
+  marks?: { at: number; text: string }[];
+  /** « négatifs à gauche · positifs à droite ». */
+  legend?: string;
+  /** 'neutral' = grise. */
+  tone: 'color' | 'neutral';
+}
+
+export interface Compare {
+  a: { label: string; latex: string };
+  b: { label: string; latex: string };
+  note: string;
+  line: LineScene;
+  after: string[];
+}
+
+/** Indices touchés → message. */
+export interface StepFault {
+  at: number[];
+  message: string;
+}
+
+export type StepAction =
+  /** `open` contient « [ ? ] » et remplace la phrase ; `step.text` = la phrase remplie. */
+  | { type: 'trou'; open: string; choices: string[]; correct: number; errors: Record<number, string> }
+  /** Toucher une graduation de `scene.line` ; le bon toucher dessine les jumps `after`. */
+  | { type: 'graduation'; consigne: string; target: number; errors: StepFault[]; fallback: string }
+  /** Bouton « Je comprends », pas d'erreur possible. */
+  | { type: 'comprends'; label?: string }
+  /** morceau : indices de tokens de `scene.calcs[calc]` ; endroit : indices d'espaces entre tokens (0 = avant le 1er). */
+  | { type: 'morceau' | 'endroit'; consigne: string; calc: number; target: number[]; errors: StepFault[]; fallback: string };
 
 /** Un morceau d'un calcul affiché dans une scène : `hl` = surligneur (« regarde ici »), `anim` = animation, `dim` = estompé. */
 export interface SceneToken {
@@ -99,10 +151,12 @@ export interface SceneCalc {
 
 /** La grande zone de calcul d'un écran « pas à pas » ; `pairs` : les calculs par paires (mal écrit puis bien écrit). */
 export interface Scene {
-  layout: 'one' | 'row' | 'pairs';
+  layout: 'one' | 'row' | 'pairs' | 'line' | 'lines';
   calcs: SceneCalc[];
   /** Phrase sous la scène. */
   caption?: string;
+  /** 'line' : calcs[0] = le calcul au-dessus de la droite ; 'lines' : résolution ligne à ligne, la dernière calc est surlignée. */
+  line?: LineScene;
 }
 
 /** Une étape d'un écran « pas à pas » (doc 08 n° 20). */
@@ -113,12 +167,15 @@ export interface EtapeStep {
   text?: string;
   rule?: { n: number; text: string };
   recap?: { title: string; ok: string; ko: string; koLabel?: string }[];
+  /** Action de l'élève (remplace « Suite » ; rien n'est noté). */
+  action?: StepAction;
 }
 
 export type LessonPart =
   | ({ type: 'explication'; blocks: LessonBlock[] } & Pick<PartTexts, 'title' | 'subtitle'>)
   | { type: 'etapes'; title: string; steps: EtapeStep[] }
-  | ({ type: 'question'; activity: 'lecon' | 'exemple' | 'decouverte'; question: Question } & PartTexts);
+  | ({ type: 'question'; activity: 'lecon' | 'exemple' | 'decouverte'; question: Question } & PartTexts)
+  | { type: 'pratique'; title: string; questions: { question: Question; texts?: PartTexts }[] };
 
 /**
  * Numéro d'écran de leçon (les parties `joinPrevious` partagent l'écran de la précédente) et nombre d'écrans
@@ -137,6 +194,17 @@ export function lessonStep(course: CourseDef, partIndex: number): { n: number; t
   }
   return { n, total };
 }
+
+/** Fiche mémo d'un cours. */
+export interface MemoCard {
+  rule: string;
+  ruleBullets?: string[];
+  examples: string[];
+  mistake: { wrong: string; why: string };
+  tip: string;
+}
+
+export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur';
 
 export interface CourseDef {
   id: string;
@@ -165,4 +233,8 @@ export interface CourseDef {
   customQuestion?(kind: QuestionKind, ctx: BuildCtx): Question | null;
   /** Course-specific checking (Cours 0). null = use the generic check. */
   customCheck?(q: Question, a: Answer): Outcome | null;
+  memo?: MemoCard;
+  formats?: ReviewFormat[];
+  /** Texte propre au cours pour une réponse (juste ou fausse) ; null = texte du moteur. */
+  feedbackText?(q: Question, o: Outcome): string | null;
 }

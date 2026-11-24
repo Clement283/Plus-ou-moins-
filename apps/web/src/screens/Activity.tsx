@@ -3,6 +3,8 @@ import {
   LESSON_REPEAT_NOTE, WRITING_TITLE, answer, createActivity, current, endEvent, explanationDone, feedbackFor, getCourse, isDone, skip, toLatex,
   type Activity, type ActivityItem, type ActivityKind, type ActivityState, type Answer, type CurrentStep, type Feedback, type NewEvent, type Outcome, type PartTexts, type Question, type Rng,
 } from '@pom/engine';
+import { AskClement } from '../components/AskClement';
+import { ListenButton } from '../components/ListenButton';
 import { Etapes } from '../components/Etapes';
 import { FeedbackPanel } from '../components/Feedback';
 import { LessonPartScreen } from '../components/LessonPart';
@@ -61,7 +63,7 @@ export interface ActivityScreenProps {
 
 type View =
   | { phase: 'ask'; step: CurrentStep; notice: Feedback | null }
-  | { phase: 'feedback'; step: Extract<CurrentStep, { type: 'question' }>; feedback: Feedback; note: string | null; total: number; correct: boolean }
+  | { phase: 'feedback'; step: Extract<CurrentStep, { type: 'question' }>; feedback: Feedback; note: string | null; total: number; correct: boolean; outcome: Outcome }
   | { phase: 'skipped'; step: Extract<CurrentStep, { type: 'question' }>; total: number };
 
 const exerciseOf = (q: Question) => ('ex' in q ? q.ex : q.exs[0]!);
@@ -148,7 +150,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
             : null;
     setState(r.state);
     setResults((x) => [...x, o.correct || step.item.activity === 'decouverte' ? 'ok' : 'ko']); // « pour découvrir » ne compte jamais : pas de rouge
-    setView({ phase: 'feedback', step, feedback: shownFeedback, note, total: before, correct: o.correct });
+    setView({ phase: 'feedback', step, feedback: shownFeedback, note, total: before, correct: o.correct, outcome: o });
   };
 
   const onSkip = () => {
@@ -207,9 +209,13 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
   );
 
   const pos: ChipPosition = { n: Math.min(results.length + (answered ? 0 : 1), total), total };
+  const bodyRef = useRef<HTMLElement | null>(null);
+  const lessonScreen =
+    view.step.type === 'explication' || ['lecon', 'exemple', 'decouverte'].includes(view.step.item.activity);
   const frame = (body: ReactNode) => (
-    <main className="app-body app-body--grow" data-screen="activite" style={{ padding: 0, gap: 0 }}>
+    <main ref={bodyRef} className="app-body app-body--grow" data-screen="activite" style={{ padding: 0, gap: 0 }}>
       {bar}
+      {lessonScreen && <ListenButton rootRef={bodyRef} />}
       {body}
       {dialog}
     </main>
@@ -301,6 +307,9 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     view.phase === 'feedback' ? (
       <>
         <FeedbackPanel feedback={view.feedback} colorSigns={course.id !== WRITING_COURSE} />
+        {record && !view.correct && view.feedback.tone === 'faux' && (
+          <AskClement courseId={course.id} question={step.question} outcome={view.outcome} correction={view.feedback.message} />
+        )}
         {view.note && <p className="t-caption">{view.note}</p>}
         <button className="btn btn--contained btn--block" type="button" onClick={() => advance(state)}>
           Continuer

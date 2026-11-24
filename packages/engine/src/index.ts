@@ -17,3 +17,5 @@ export { checkAnswer, checkParts } from './exercises/check';
 export * from './home';
 export * from './feedback';
 export * from './attempts';
+export * from './questions';
+export { droiteExercise } from './exercises/build/droite';
