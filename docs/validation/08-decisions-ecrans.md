@@ -2,7 +2,7 @@
 
 *2026-11-23 : « rattrapage » s'appelle désormais « série de validation » dans l'interface (doc 08).*
 
-*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23 ; n° 20 à 31 puis n° 32 à 42 ajoutés le 2026-11-24). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
+*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23 ; n° 20 à 31 puis n° 32 à 42 ajoutés le 2026-11-24 ; n° 43 à 50 ajoutés le 2026-11-25, après la maquette `cours-0-v3.html`). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
 
 | # | Question | Décision |
 |---|---|---|
@@ -25,7 +25,7 @@
 | 17 | « Relire la leçon » (Mes cours, série de validation) | **Lecture sans rien compter** : la leçon complète (explications et questions de leçon, qu'elle peut faire), mais rien n'est enregistré, pas même le temps. |
 | 18 | Bouton de déconnexion | **Pas de bouton en V1**, comme sur les maquettes. |
 | 19 | Accueil quand tous les cours du module sont validés | **Carte « Module terminé »** à la place de « Prochain cours » : « Module Calculs terminé. Tous les cours sont validés. » avec le bouton « S'entraîner ». Les révisions continuent. |
-| 20 | Nouveau Cours 0 (retours du porteur du projet après le premier essai en ligne) | **Réécrit d'après la maquette `docs/design/ecrans/cours-0-v2.html`** (doc 06, Cours 0 version 2). Il sert de modèle aux autres cours ; un skill « écrire un bon cours » en sera tiré après le test réel. |
+| 20 | Nouveau Cours 0 (retours du porteur du projet après le premier essai en ligne) | **Réécrit d'après la maquette `docs/design/ecrans/cours-0-v2.html`** (doc 06, Cours 0 version 2). Il sert de modèle aux autres cours ; un skill « écrire un bon cours » en sera tiré après le test réel. *(Remplacé par la version 3, voir n° 43 à 50.)* |
 | 21 | Note d'un cours | Les **questions pour deviner** (posées avant l'explication) **ne comptent pas** et ne repassent pas. Les **petites questions** posées après une explication **comptent** dans les 80 %. |
 | 22 | Petite question ratée | **Elle repasse 2 écrans plus loin**, choix remélangés, jusqu'à la bonne réponse ; « Passer » à partir du 2e échec. Seule la 1re réponse compte (doc 01 §6). Classer, Quelle règle ?, Réécris gardent le repassage habituel ; le message devient « Tu retrouveras ce calcul à la fin de la leçon. » |
 | 23 | Cours quitté au milieu | **Inchangé (n° 16) : on reprend au début**, même avec un cours plus long. |
@@ -43,11 +43,19 @@
 | 35 | Série de pratique | **4 questions à la suite**, compteur « 2 sur 4 », retour immédiat, **aide décroissante** et **formats variés** (toucher sur la droite avec bonds dessinés, signe du résultat, vrai ou faux, taper le résultat). **Notée comme les petites questions** (dans les 80 %). **À partir du 2e cours d'un module**, une des 4 questions vient d'un cours précédent. |
 | 36 | Comparer deux cas | Un écran court : deux calculs presque identiques côte à côte, « Qu'est-ce qui change ? » (question pour comprendre, **ne compte pas**), puis la scène montre les deux. À partir du 2e cours d'un module, l'un des deux vient du cours précédent. |
 | 37 | L'aide qui s'efface ; longueur d'un cours | **Exemples guidés à aide décroissante** : le 1er résolu à l'écran (elle valide chaque ligne), le 2e à moitié (deux cases) ; le calcul de départ reste **toujours affiché**. **Un cours fait 12 à 15 écrans.** |
-| 38 | Fiche mémo (version A, voir `docs/design/ecrans/nouvelles-fonctions.html`) | **Fiche plein écran** : la règle, 1 ou 2 exemples, l'erreur à éviter, l'astuce. Bouton **« Fiche »** sur la ligne du cours validé dans **Mes cours** et **« Voir la fiche mémo »** sur l'écran **« Cours validé »**. **Disponible hors ligne.** |
-| 39 | Échauffement (version A retravaillée) | **Écran dédié à la 1re ouverture du jour**, contenu centré : **une question sur un cours déjà validé**, à revoir en priorité ; **« Passer »** discret. **Compte dans le temps du jour, pas dans la note.** Une erreur **ajoute le cours aux révisions**. |
+| 38 | Fiche mémo (version A, voir `docs/design/ecrans/nouvelles-fonctions.html`) | **Fiche plein écran** : la règle, 1 ou 2 exemples, l'erreur à éviter, l'astuce. Bouton **« Fiche »** sur la ligne du cours validé dans **Mes cours** et **« Voir la fiche mémo »** sur l'écran **« Cours validé »**. **Disponible hors ligne.** *(Étendu par le n° 46 : aussi avant la validation.)* |
+| 39 | Échauffement (version A retravaillée) | **Écran dédié à la 1re ouverture du jour**, contenu centré : **une question sur un cours déjà validé**, à revoir en priorité ; **« Passer »** discret. **Compte dans le temps du jour, pas dans la note.** Une erreur **ajoute le cours aux révisions**. *(Précisé par le n° 50.)* |
 | 40 | Demander une explication à Clément (version A, bouton discret) | **Élève :** bouton **« Demander à Clément »** sous le retour d'erreur, **petit mot facultatif**, envoi des **données de la question** (pas d'une photo), **hors ligne puis envoi au retour du réseau**. **Côté suiveur :** badge et demande dans la page de suivi, **réponse en texte**. **Côté élève :** petit **bouton rond (bulle)** dans la barre du haut de l'accueil, **gris** sans nouveauté, **coloré avec un point** si réponse non lue, qui ouvre **« Mes questions »** ; carte **« Clément a répondu à ta question »** seulement si une réponse n'est pas lue. |
 | 41 | Bouton « Écouter » | **Haut-parleur dans un coin en haut des écrans de leçon** : lecture à voix haute (**synthèse vocale du téléphone, fr-FR**) du **titre, de la phrase affichée et de la consigne**. **À tester par le porteur du projet.** |
 | 42 | Plus tard (hors V1 actuelle) | **Carnet d'erreurs** (version suivante) ; **contrôle blanc / bilan de module** ; **brouillon de calcul** ; **« voir où elle bloque »** (à concevoir). **Pas de « Sûre / pas sûre ».** |
+| 43 | Note du Cours 0 (maquette `cours-0-v3.html`) | **14 questions** (au lieu de 15) : les petites questions « À quoi sert le − ? » deviennent des étapes interactives non notées (doc 06, Cours 0 version 3). |
+| 44 | Cours 0 : placer le − devant le 3 (règle 3) | **Elle touche l'endroit** où le − doit aller, **pas de glisser** (même geste pour la parenthèse ouvrante, règle 1, et fermante, règle 4). Le glisser-déposer reste réservé à « Classer » en révision et en entraînement. |
+| 45 | La série de pratique compte-t-elle dans la note ? | **Oui, au Cours 0 comme au Cours 1** : ses 4 questions sont dans les 80 % (précise le n° 35). |
+| 46 | Fiche mémo avant la validation | **Consultable avant la validation**, depuis Mes cours (« Voir la fiche mémo » sur un cours « À valider », « Fiche » ensuite), pas seulement après. Un cours verrouillé n'a pas de fiche (n° 2). Étend le n° 38. |
+| 47 | Astuce de la fiche du Cours 0 | « Cherche d'abord les signes qui se touchent, puis demande-toi pour chaque − : il soustrait, ou c'est le signe d'un nombre ? » |
+| 48 | Exemple guidé à deux cases (exemple 2) | **Seule la dernière case (le résultat) compte** dans la note ; la case 1 est un entraînement non noté. Cours 1 : 11 questions au total. Cours 0 : même principe (case 2 de l'exemple 2), 14 questions. |
+| 49 | Question ratée de la série de pratique | **Elle revient avant les exercices de fin**, comme les autres questions de leçon (n° 22) : correction, suite, puis « Tu retrouveras ce calcul à la fin de la leçon. » Seule la 1re réponse compte. |
+| 50 | Erreur à l'échauffement (n° 39) | **Elle apparaît dans « Erreurs les plus communes »** de la page de suivi, mais **ne compte pas dans la note** du cours. |
 
 Autres décisions du 2026-11-23 :
 - Entraînement : la phrase sur les cours pas encore disponibles devient « Les cours 5 à 7 apparaîtront ici quand tu auras fini ces cours. ».
