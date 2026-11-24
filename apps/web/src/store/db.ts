@@ -1,5 +1,5 @@
 import { openDB, deleteDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { AppEvent, ProgressState } from '@pom/engine';
+import type { AppEvent, ClementQuestion, NewClementQuestion, ProgressState } from '@pom/engine';
 import type { User } from '../api';
 
 export type Session = { token: string; user: User };
@@ -15,12 +15,18 @@ interface PomDB extends DBSchema {
   progress: { key: string; value: ProgressCache };
   /** Page de suivi : liste des élèves ('students'), dernier élève consulté ('last') et événements par élève ('events:<id>'), lisibles hors ligne. */
   follow: { key: string; value: unknown };
+  /** « Demander à Clément » : envois en attente de réseau (id client = clé d'idempotence côté serveur). */
+  asks: { key: string; value: PendingAsk; indexes: { byUser: string } };
+  /** Copie locale des questions de l'élève, une entrée par compte (clé = id de l'élève). */
+  questions: { key: string; value: ClementQuestion[] };
 }
+
+export type PendingAsk = NewClementQuestion & { userId: string };
 
 export type ProgressCache = { build: string; state: ProgressState };
 
 export const DB_NAME = 'pom';
-export const DB_VERSION = 4;
+export const DB_VERSION = 5;
 /** Magasin de la session et clé de son unique entrée. */
 export const SESSION_STORE = 'session';
 export const SESSION_KEY = 'current';
@@ -31,6 +37,8 @@ export const DB_SCHEMA: { name: keyof PomDB & string; keyPath?: string; indexes:
   { name: SESSION_STORE, indexes: [] },
   { name: 'progress', indexes: [] },
   { name: 'follow', indexes: [] },
+  { name: 'asks', keyPath: 'id', indexes: [{ name: 'byUser', keyPath: 'userId' }] },
+  { name: 'questions', indexes: [] },
 ];
 let dbPromise: Promise<IDBPDatabase<PomDB>> | null = null;
 
@@ -52,6 +60,10 @@ export function getDb(): Promise<IDBPDatabase<PomDB>> {
         }
         if (oldVersion < 4) {
           db.createObjectStore('follow');
+        }
+        if (oldVersion < 5) {
+          db.createObjectStore('asks', { keyPath: 'id' }).createIndex('byUser', 'userId');
+          db.createObjectStore('questions');
         }
       },
     });

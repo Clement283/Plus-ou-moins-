@@ -3,6 +3,7 @@ import { dailyTime, foldProgress, parisDay, type AppEvent, type ProgressState } 
 import { announceGoal } from '../sound';
 import { ApiError, getEvents, postEvents } from '../api';
 import { getDb, SESSION_KEY, type Session } from './db';
+import { flushAsks, refreshQuestions, resetQuestions } from './questions';
 import { advanceProgress, loadProgressCache, saveProgressCache } from './foldcache';
 
 const BATCH = 500;
@@ -65,6 +66,7 @@ function init(): Promise<void> {
 /** Remet le magasin à zéro (tests). */
 export function resetStore(): void {
   seq++;
+  resetQuestions();
   started = null;
   remoteRun = null;
   snap = INITIAL;
@@ -131,6 +133,7 @@ export async function getSession(): Promise<Session | undefined> {
 export async function setSession(s: Session): Promise<void> {
   await (await getDb()).put('session', s, SESSION_KEY);
   started ??= Promise.resolve();
+  resetQuestions();
   seed = null;
   set({ session: s, events: [], progress: EMPTY_PROGRESS, ready: false });
   // Première connexion sur ce téléphone : on attend un peu les événements du serveur pour ne pas afficher une progression vide.
@@ -141,6 +144,7 @@ export async function setSession(s: Session): Promise<void> {
 /** Déconnexion : efface la session ; le cache et l'outbox restent (jamais perdus). */
 export async function clearSession(): Promise<void> {
   await (await getDb()).delete('session', SESSION_KEY);
+  resetQuestions();
   started ??= Promise.resolve();
   set({ session: null, events: [], progress: EMPTY_PROGRESS, ready: true });
 }
@@ -193,6 +197,7 @@ export function flush(): Promise<void> {
         again = false;
         await drainOutbox();
       } while (again);
+      await flushAsks();
     } finally {
       running = null;
     }
@@ -245,6 +250,7 @@ export function refreshRemote(): Promise<void> {
       const tx = db.transaction('events', 'readwrite');
       await Promise.all([...remote.map((e) => tx.store.put(e)), tx.done]);
       if (snap.session?.user.id === session.user.id) await loadLocal();
+      await refreshQuestions();
     } catch (e) {
       await dropSessionIf401(e);
     }

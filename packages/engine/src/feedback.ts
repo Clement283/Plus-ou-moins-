@@ -110,6 +110,12 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
 }
 
 /** `course.feedbackText` (texte propre au cours) passe en premier, pour tout type de question. */
+/** Texte brut d'un retour (titre puis message), sans mise en forme : ce qu'on envoie à Clément comme « correction ». */
+export function feedbackText(f: Feedback): string {
+  if (f.tone === 'juste') return f.note ? `${f.title} ${f.note}` : f.title;
+  return f.message ? `${f.title} ${f.message}` : f.title;
+}
+
 export function feedbackFor(course: CourseDef, q: Question, a: Answer, o: Outcome, opts?: { guess?: boolean }): Feedback {
   const f = engineFeedback(course, q, a, o, opts);
   const own = course.feedbackText?.(q, o) ?? null;

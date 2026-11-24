@@ -1,1 +1,17 @@
-/* questions : rempli par une tâche suivante. */
+/* « Demander à Clément » (élève) : bouton discret, feuille, bulle d'accueil, Mes questions. */
+.ask{display:grid;justify-items:center;gap:var(--sp-4)}
+.ask__btn{color:var(--muted)}
+.ask__sum{display:grid;gap:var(--sp-8);margin:0}
+.ask__sum>div{display:flex;justify-content:space-between;gap:var(--sp-12)}
+.ask__sum dt{color:var(--muted)}
+.ask__sum dd{margin:0;font-weight:600}
+.ask__note{width:100%;box-sizing:border-box;font:inherit;padding:var(--sp-12);border:0;border-radius:var(--r-md);background:var(--surface-sunken);color:var(--on-surface);resize:vertical}
+.ask-bubble{position:relative;width:48px;height:48px;border:0;border-radius:50%;display:inline-grid;place-items:center;cursor:pointer;
+  background:var(--surface-sunken);color:var(--muted)}
+.ask-bubble[data-unread="true"]{background:var(--primary-container);color:var(--on-primary-container)}
+.ask-bubble[data-unread="true"]::after{content:"";position:absolute;top:6px;right:6px;width:12px;height:12px;border-radius:50%;
+  background:var(--primary);box-shadow:0 0 0 2px var(--surface)}
+.qlist{list-style:none;margin:0;padding:0;display:grid;gap:var(--sp-12)}
+.qitem{display:grid;gap:var(--sp-8)}
+.qitem__answer{white-space:pre-wrap}
+.clement-card{margin-top:var(--sp-12)}
