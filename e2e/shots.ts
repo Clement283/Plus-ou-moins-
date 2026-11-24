@@ -279,7 +279,7 @@ export const SCREENS: Record<string, ScreenDef> = {
   },
   accueil: {
     route: '#/',
-    scenarios: (['debut-de-journee', 'apres-une-seance', 'objectif-atteint', 'cours-a-rattraper', 'module-termine'] as const).map((fixture): Shot => ({ name: fixture, fixture, before: (page) => page.waitForTimeout(500) })),
+    scenarios: (['debut-de-journee', 'apres-une-seance', 'objectif-atteint', 'cours-a-rattraper', 'module-termine', 'debut-du-module'] as const).map((fixture): Shot => ({ name: fixture, fixture, before: (page) => page.waitForTimeout(500) })),
   },
   'mes-cours': {
     route: '#/cours',

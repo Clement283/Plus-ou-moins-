@@ -94,7 +94,7 @@ describe('Accueil', () => {
     expect(v.btn('Commencer le cours 5')?.className).toContain('btn--outlined');
   });
 
-  it('objectif atteint : 22 / 15, jauge verte, « Révisions faites », bouton du cours plein', () => {
+  it('objectif atteint, révisions faites, cours entraînables : pas de grande carte, la carte du cours puis une ligne « Révisions faites »', () => {
     load('objectif-atteint');
     const v = mount(<Home />);
     expect(v.text()).toContain('22 / 15 min');
@@ -104,11 +104,30 @@ describe('Accueil', () => {
     expect(v.$('.number-line__cursor')?.textContent).toBe('22 min');
     expect(v.$$('.number-line__num').map((n) => n.textContent)).toEqual(['0', '5', '10', '15', '20', '25']);
     expect(v.$('.card--feature')).toBeNull();
-    expect(v.text()).toContain('Révisions faites');
-    expect(v.text()).toContain('Tout est révisé pour aujourd\'hui');
+    expect(v.$('.card--done')).toBeNull();
+    expect(v.text()).not.toContain('Tout est révisé');
+    // ordre : jauge, carte du cours, ligne discrète
+    const order = ['.day', 'section[aria-label="Prochain cours"]', '.done-line'].map((s) => v.$(s));
+    expect(order.every(Boolean)).toBe(true);
+    expect(order[0]!.compareDocumentPosition(order[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(order[1]!.compareDocumentPosition(order[2]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(order[2]!.textContent).toContain('Révisions faites');
+    expect(order[2]!.classList.contains('card')).toBe(false);
+    expect(order[2]!.querySelector('button')?.textContent).toBe('S\'entraîner');
     fireEvent.click(v.btn('S\'entraîner')!);
     expect(window.location.hash).toBe('#/entrainement');
     expect(v.btn('Commencer le cours 5')?.className).toContain('btn--ink');
+  });
+
+  it('aucun cours entraînable (rien de validé) : ni ligne ni bouton « S\'entraîner », la carte du cours suit la jauge', () => {
+    load('debut-du-module');
+    const v = mount(<Home />);
+    expect(v.$('.card--feature')).toBeNull();
+    expect(v.$('.done-line')).toBeNull();
+    expect(v.text()).not.toContain('Révisions faites');
+    expect(v.btn('S\'entraîner')).toBeNull();
+    expect(v.$('.day')!.nextElementSibling?.matches('section[aria-label="Prochain cours"]')).toBe(true);
+    expect(v.btn('Commencer le cours 0')?.className).toContain('btn--ink');
   });
 
   it('cours à rattraper : la carte propose la série de validation et la leçon', () => {
@@ -139,6 +158,26 @@ describe('Accueil', () => {
     load('debut-de-journee');
     const v = mount(<Home />);
     expect(v.$('.bottomnav__item.is-active')?.textContent).toBe('Accueil');
+  });
+});
+
+describe('Accueil, bouton du son', () => {
+  it('bascule le son et met aria-pressed à jour, avec ou sans série', () => {
+    localStorage.clear();
+    load('debut-de-journee');
+    const v = mount(<Home />);
+    const b = v.$('button[aria-label="Couper le son"]')!;
+    expect(b.getAttribute('aria-pressed')).toBe('false');
+    expect(v.$('.top .streak')).toBeTruthy();
+    fireEvent.click(b);
+    const on = v.$('button[aria-label="Remettre le son"]')!;
+    expect(on.getAttribute('aria-pressed')).toBe('true');
+    expect(localStorage.getItem('pom-son')).toBe('0');
+    fireEvent.click(on);
+    expect(v.$('button[aria-label="Couper le son"]')?.getAttribute('aria-pressed')).toBe('false');
+    cleanup();
+    load(null);
+    expect(mount(<Home />).$('button[aria-label="Couper le son"]')).toBeTruthy();
   });
 });
 

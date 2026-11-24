@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { DAILY_GOAL_MS, getCourse, lastAttempt, studentHome, type AppEvent, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
+import { useMemo, useState } from 'react';
+import { DAILY_GOAL_MS, getCourse, lastAttempt, studentHome, trainingPool, type AppEvent, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
 import { DayGauge } from '../components/DayGauge';
 import { Stars, isTodo, lastAttemptText, ruleLink } from '../components/CourseBits';
 import { go } from '../router';
@@ -8,10 +8,12 @@ import { useEvents } from '../store/sync';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
 import { AppVersion } from '../ui/AppVersion';
+import { isSoundOn, setSoundOn } from '../sound';
 
 /**
  * Accueil de l'élève (maquette `concept.html`, docs 02 §6 et 08 n° 19) : une pile calme, la jauge du jour,
- * la carte des révisions (la seule carte forte), le prochain cours, puis la progression du module.
+ * la carte des révisions (la seule carte forte) tant qu'il en reste, le prochain cours, puis la progression du module.
+ * Révisions faites : plus de carte, une ligne discrète sous le cours (avec « S'entraîner » s'il y a de quoi s'entraîner).
  */
 
 const plural = (n: number, one: string, many: string) => `${n} ${n > 1 ? many : one}`;
@@ -165,6 +167,42 @@ function ModuleStrip({ home, progress }: { home: StudentHome; progress: Progress
   );
 }
 
+/** Révisions faites : une ligne discrète, pas une carte (l'accueil montre d'abord ce qui reste à faire). */
+function DoneLine({ trainButton }: { trainButton: boolean }) {
+  return (
+    <div className="done-line">
+      <span className="done-line__text">
+        <Icon name="check" size="sm" />
+        Révisions faites
+      </span>
+      {trainButton && (
+        <button className="btn btn--text" type="button" onClick={() => go('#/entrainement')}>
+          S'entraîner
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Couper ou remettre les sons (réglage mémorisé dans ce navigateur). */
+function SoundButton() {
+  const [on, setOn] = useState(isSoundOn);
+  return (
+    <button
+      className="icon-btn"
+      type="button"
+      aria-label={on ? 'Couper le son' : 'Remettre le son'}
+      aria-pressed={!on}
+      onClick={() => {
+        setSoundOn(!on);
+        setOn(!on);
+      }}
+    >
+      <Icon name={on ? 'volume' : 'volume-off'} />
+    </button>
+  );
+}
+
 export default function Home() {
   const progress = useProgress();
   const events = useEvents();
@@ -174,6 +212,7 @@ export default function Home() {
   const home = useMemo(() => studentHome(progress, events, today), [progress, events, today]);
   const minutes = Math.floor(home.today.totalMs / 60_000);
   const goal = DAILY_GOAL_MS / 60_000;
+  const canTrain = useMemo(() => trainingPool(progress).length > 0, [progress]);
   // Rien tant que la session et les événements locaux ne sont pas chargés : jamais de prénom absent ni de « 0 cours » faux.
   if (!ready) return <main className="app-body" data-screen="accueil" aria-busy="true" />;
   return (
@@ -181,12 +220,15 @@ export default function Home() {
       <main className="app-body" data-screen="accueil">
         <header className="top">
           <h1 className="t-h2">{name ? `Bonjour ${name} !` : 'Bonjour !'}</h1>
-          {home.streak > 0 && (
-            <span className="streak" aria-label={`${plural(home.streak, 'jour', 'jours')} d'affilée avec l'objectif atteint`}>
-              <Icon name="flame" />
-              {plural(home.streak, 'jour', 'jours')}
-            </span>
-          )}
+          <div className="top__side">
+            {home.streak > 0 && (
+              <span className="streak" aria-label={`${plural(home.streak, 'jour', 'jours')} d'affilée avec l'objectif atteint`}>
+                <Icon name="flame" />
+                {plural(home.streak, 'jour', 'jours')}
+              </span>
+            )}
+            <SoundButton />
+          </div>
         </header>
         <AppVersion />
 
@@ -201,11 +243,15 @@ export default function Home() {
           <p className={minutes >= goal ? 't-body2 is-goal' : 't-body2'}>{dayText(minutes, goal)}</p>
         </section>
 
-        <section aria-live="polite">
-          <ReviewCard reviews={home.reviews} started={home.today.reviewMs > 0} />
-        </section>
+        {home.reviews && (
+          <section aria-live="polite">
+            <ReviewCard reviews={home.reviews} started={home.today.reviewMs > 0} />
+          </section>
+        )}
 
         <CourseCard home={home} progress={progress} events={events} reviewsLeft={home.reviews !== null} />
+
+        {!home.reviews && canTrain && <DoneLine trainButton={home.next !== null} />}
       </main>
       <div className="app-foot">
         <BottomNav active="accueil" />

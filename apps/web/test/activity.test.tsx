@@ -5,6 +5,8 @@ import { LESSON_REPEAT_NOTE, buildQuestion, courseRunItems, foldProgress, getCou
 const recorded: any[] = [];
 vi.mock('../src/store/sync', () => ({ recordEvent: vi.fn(async (e: unknown) => void recorded.push(e)) }));
 import { recordEvent } from '../src/store/sync';
+vi.mock('../src/sound', () => ({ playSound: vi.fn() }));
+import { playSound } from '../src/sound';
 import { ActivityScreen } from '../src/screens/Activity';
 
 const C05 = getCourse('c05-multiplier-deux');
@@ -30,6 +32,7 @@ afterEach(() => {
   setVisibility('visible');
   recorded.length = 0;
   vi.mocked(recordEvent).mockClear();
+  vi.mocked(playSound).mockClear();
 });
 
 function setup(items: ActivityItem[], extra: Partial<React.ComponentProps<typeof ActivityScreen>> = {}, kind: ActivityKind = 'revision') {
@@ -367,5 +370,29 @@ describe('ActivityScreen : Cours 0 v2 (leçon pas à pas, petites questions)', (
     expect(t.$('.alert--error')!.textContent).toContain('Le × et le − se touchent encore');
     expect(t.$('.resolution-label')!.textContent).toBe('Étape par étape');
     expect(t.$('.q-foot .t-caption')!.textContent).toBe(LESSON_REPEAT_NOTE);
+  });
+});
+
+describe('ActivityScreen : sons', () => {
+  it('juste → « juste », faux → « faux », passer → rien', () => {
+    const t = setup(five());
+    t.submit('6');
+    expect(playSound).toHaveBeenCalledTimes(1);
+    expect(playSound).toHaveBeenLastCalledWith('juste');
+    t.next();
+    t.submit('1');
+    expect(playSound).toHaveBeenCalledTimes(2);
+    expect(playSound).toHaveBeenLastCalledWith('faux');
+  });
+
+  it('« Passer » ne joue aucun son', () => {
+    const t = setup([qItem(0, 3, 4)]);
+    for (let i = 0; i < 3; i++) {
+      t.submit('1');
+      t.next();
+    }
+    expect(playSound).toHaveBeenCalledTimes(3);
+    fireEvent.click(t.btn('Passer')!);
+    expect(playSound).toHaveBeenCalledTimes(3);
   });
 });

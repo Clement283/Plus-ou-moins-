@@ -519,6 +519,9 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 
 /* ---- accueil et question (concept.html) ---- */
 .top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-12)}
+.top__side{display:flex;align-items:center;gap:var(--sp-4);flex:none}
+.done-line{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-12);padding:0 var(--sp-4)}
+.done-line__text{display:inline-flex;align-items:center;gap:var(--sp-8);font:600 15px var(--font-body);color:var(--on-success-container)}
 .day{display:grid;gap:var(--sp-4)}
 .day-head{display:flex;justify-content:space-between;align-items:baseline}
 .day p.is-goal{color:var(--success);font-weight:600}

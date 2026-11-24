@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { getCourse, validationOf, type RunErrorLine, type RunResult } from '@pom/engine';
 import { go, toHash } from '../router';
+import { playSound } from '../sound';
 import { AppBar } from '../ui/AppBar';
 import { Icon } from '../ui/Icon';
 import type { StepResult } from '../ui/Stepper';
@@ -47,6 +49,10 @@ function ErrorsBlock({ courseId, errors }: { courseId: string; errors: RunErrorL
 export function RunResultView({ variant, courseId, result, results, errors = [], onRetry }: RunResultViewProps) {
   const course = getCourse(courseId);
   const nextCourse = result.nextCourseId ? getCourse(result.nextCourseId) : null;
+  // Une seule fois à l'affichage de l'écran « Cours N validé ».
+  useEffect(() => {
+    if (result.validated) playSound('valide');
+  }, [result.validated]);
   const close = result.validated ? '#/' : '#/cours';
   const bar = <AppBar onClose={() => go(close)} closeLabel="Fermer" stepper={{ total: results.length, done: results, current: -1, label: `${results.length} étapes terminées` }} />;
   const relire = (

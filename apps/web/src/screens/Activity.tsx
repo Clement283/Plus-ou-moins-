@@ -10,6 +10,7 @@ import type { PreviousChoix } from '../components/questions/Frame';
 import { WRITING_COURSE } from '../components/questions/calc';
 import { QuestionView } from '../components/questions/QuestionView';
 import { Bold } from '../components/Bold';
+import { playSound } from '../sound';
 import { recordEvent } from '../store/sync';
 import { useStepTimer } from '../store/timer';
 import { AppBar } from '../ui/AppBar';
@@ -121,6 +122,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
       return;
     }
     const failed = feedback.tone === 'faux';
+    playSound(o.correct ? 'juste' : 'faux');
     // « Toucher la faute » : les cases ne sont pas des lignes, le titre du moteur (« ligne 3 ») ne convient pas
     const touch = step.question.kind === 'erreur' && step.question.accept !== undefined;
     const ownMessage = step.question.kind === 'choix' || step.question.kind === 'reecrire'; // le message est la réponse : pas de préfixe

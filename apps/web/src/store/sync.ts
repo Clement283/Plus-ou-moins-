@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
-import { foldProgress, parisDay, type AppEvent, type ProgressState } from '@pom/engine';
+import { dailyTime, foldProgress, parisDay, type AppEvent, type ProgressState } from '@pom/engine';
+import { announceGoal } from '../sound';
 import { ApiError, getEvents, postEvents } from '../api';
 import { getDb, SESSION_KEY, type Session } from './db';
 import { advanceProgress, loadProgressCache, saveProgressCache } from './foldcache';
@@ -162,6 +163,11 @@ export async function recordEvent(e: NewEvent): Promise<AppEvent> {
   await Promise.all([tx.objectStore('events').put(event), tx.objectStore('outbox').put(event), tx.done]);
   // L'événement est déjà dans le cache local : on relit en local, sans aller chercher le serveur.
   await loadLocal();
+  // Objectif du jour franchi par cette réponse ou cette partie de leçon : un son, une seule fois par jour.
+  if (event.kind === 'answer' || event.kind === 'lesson_part_done') {
+    const before = dailyTime(snap.events.filter((x) => x.id !== event.id), event.day).goalReached;
+    if (!before && dailyTime(snap.events, event.day).goalReached) announceGoal(event.day);
+  }
   void flush();
   return event;
 }
