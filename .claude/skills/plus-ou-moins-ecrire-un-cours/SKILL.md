@@ -18,7 +18,7 @@ L'élève : première spécialité maths, **dyslexique**. Elle connaît les mét
 | Le modèle complet (textes, ordre, retours d'erreur) | `docs/validation/06-cours-relatifs.md`, partie « Cours 0 » v2 |
 | Les règles transversales (couleurs, repassage, réponses en bas, note…) | `docs/validation/08-decisions-ecrans.md` n° 20 à 31 |
 | Le code du modèle (briques, scènes, messages, tests) | `packages/engine/src/courses/calculs/c00-bien-ecrire.ts`, `shared.ts`, `test/courses/c00.test.ts` |
-| La maquette cliquable du modèle | `docs/design/ecrans/cours-0-v2.html` |
+| Les maquettes cliquables (moteur `reveal` / `quiz` / `typed` / `trous`, bouton « Revoir », droite graduée SVG `line()`) | `docs/design/ecrans/cours-0-v2.html`, `docs/design/ecrans/cours-1-v2.html` (partir de la plus récente) |
 | La version actuelle du cours à réécrire | sa partie dans le doc 06 + son fichier `cXX-*.ts` |
 
 ## Déroulé d'un cours (recette)
@@ -29,11 +29,12 @@ L'élève : première spécialité maths, **dyslexique**. Elle connaît les mét
 2. **L'idée de départ** : le *pourquoi* de la méthode, avant toute règle (Cours 0 : « le − a deux rôles » ; Cours 1 : par exemple une dette, une droite graduée). Explication pas à pas (`etapes`).
 3. **Pour chaque règle** :
    - une **explication pas à pas** (`etapes`, 3 à 5 étapes) : la scène montre le calcul qui se transforme, les phrases expliquent chaque transformation, la dernière étape pose l'**encadré de la règle** (`rule`) ;
+   - une « règle » du doc 06 qui contient deux gestes (ex. « j'additionne… et je garde le signe ») peut être coupée en deux règles **si chacune correspond à une erreur reconnue** ; sinon, une seule règle. Le dire dans les questions « À décider » ;
    - si utile, un écran d'**exemples** (`layout: 'pairs'` ou une suite de calculs) ;
    - **une ou deux petites questions** (`choix` avec `small`), qui comptent. Varier : parfois deux questions sur le même écran (`joinPrevious`), parfois une question à deviner *avant* l'explication quand l'élève peut trouver seule.
 4. **Récapitulatif** de toutes les règles, chacune avec un exemple juste et un faux (`recap`).
 5. **À toi** : un ou deux exercices de leçon variés (Classer, Quelle règle ?, étiquettes, Réécris…).
-6. **Exemples guidés** (2) : le calcul de départ est **toujours affiché** ; l'élève fait une vraie action (taper le résultat ou le calcul, compléter des cases qui ont un sens).
+6. **Exemples guidés** (2) : le calcul de départ est **toujours affiché** ; l'élève fait une vraie action. Le 1er guide davantage (cases tapées l'une après l'autre, chacune avec un sens), le 2e moins (résultat ou calcul tapé seul, avec « Étape par étape » si erreur).
 7. **Annonce de la fin** : ce qu'il faut réussir (4 exercices de fin sur 5 **et** 80 % sur tout le cours) et ce qui se passe sinon (série de validation, sans refaire la leçon).
 8. **5 exercices de fin**, générés, sans aide, comme en contrôle.
 
@@ -45,9 +46,10 @@ L'élève : première spécialité maths, **dyslexique**. Elle connaît les mét
 | Texte | Phrases courtes et complètes, **gras** sur l'idée clé, une idée par écran. Dire *pourquoi*, pas seulement *quoi*. Pas de répétition titre / phrase / encadré mot pour mot. |
 | Rythme | L'élève avance avec « Suite » ; « Revoir » rejoue l'animation. Rien ne défile seul. |
 | Couleurs | Surligneur jaune = « regarde ici » (leçon seulement). Vert / rouge **seulement après une réponse**. **Aucune couleur qui donne un indice** pendant une question. Si les signes doivent être distingués (droite graduée) : négatifs **orange**, positifs **bleu**, jamais rouge. Les mêmes dans tous les cours. |
-| Réponses | Tout ce qu'on touche est **en bas de l'écran** ; la manière de répondre (toucher, glisser, taper) est **écrite dans la consigne**. |
+| Scènes pendant une question | Une scène (droite graduée, image) affichée pendant une question est **neutre** : grise, sans couleur de signe ni surlignage. Les couleurs reviennent après la réponse. |
+| Réponses | Tout ce qu'on touche est **en bas de l'écran** ; la manière de répondre (toucher, glisser, taper) est **écrite dans la consigne**. Étiquettes à ordonner : on les **touche dans l'ordre** (toucher une étiquette placée la retire) ; Classer : glisser-déposer + toucher. |
 | Clavier | Toujours complet (chiffres, + − × ÷, parenthèses) : il ne dicte jamais la réponse. |
-| Retours d'erreur | **Chaque mauvaise réponse prévisible a son message** (tableau « Retours d'erreur précis » dans le doc 06). Jamais la règle générale du cours comme seule explication. « Étape par étape » montre de vraies étapes. |
+| Retours d'erreur | **Chaque mauvaise réponse prévisible a son message** (tableau « Retours d'erreur précis » dans le doc 06). Jamais la règle générale du cours comme seule explication. « Étape par étape » montre de vraies étapes ; après une erreur à un exercice de fin, on montre aussi la résolution type. Question pour deviner ratée : titre « Pas tout à fait, et c'est normal. », puis un message qui ne répète pas ce titre. |
 | Tolérance | Dans le cours qui enseigne une règle, **aucune erreur sur cette règle n'est tolérée**. Une erreur sur une règle d'un cours précédent peut être traitée comme une erreur d'attention. |
 | Repassage | Petite question ratée : revient 2 écrans plus loin, choix remélangés. Autres questions de leçon : avant les exercices de fin. Question pour deviner : ne revient pas. (Déjà codé ; ne rien réinventer.) |
 | Sons | Juste, faux, cours validé, objectif atteint : déjà branchés dans l'appli. Le cours n'ajoute pas de son à lui. |
