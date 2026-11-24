@@ -365,9 +365,14 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
     for (const id of IDS) {
       const course = getCourse(id);
       const items = courseRunItems(course, seededRng(5));
-      expect(items.length).toBe(course.parts.length + 5);
+      const size = (p: (typeof course.parts)[number]): number => (p.type === 'pratique' ? p.questions.length : 1);
+      const total = course.parts.reduce((n, p) => n + size(p), 0);
+      expect(items.length).toBe(total + 5);
+      let offset = 0;
       course.parts.forEach((p, i) => {
-        const it = items[i]!;
+        const it = items[offset]!;
+        offset += size(p);
+        if (p.type === 'pratique') return;
         expect(it.type).toBe(p.type === 'etapes' ? 'explication' : p.type);
         if (p.type === 'etapes' && it.type === 'explication') expect(it.steps).toBe(p.steps);
         if (p.type === 'question' && it.type === 'question') {
@@ -376,7 +381,7 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
         }
         if (p.type !== 'question' && it.type === 'explication') expect(it.partIndex).toBe(i);
       });
-      const fin = items.slice(course.parts.length) as QuestionItem[];
+      const fin = items.slice(total) as QuestionItem[];
       expect(fin.every((f) => f.type === 'question' && f.activity === 'fin')).toBe(true);
       expect(fin.every((f) => f.question.kind === course.endExercises.kind)).toBe(true);
       expect(id === C0 ? ['erreur'] : ['saisie', 'trou']).toContain(course.endExercises.kind);
@@ -390,7 +395,7 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
     const course = getCourse(C1);
     const { events } = play(createActivity('cours', courseRunItems(course, seededRng(2)), { activityId: 'r', rng: seededRng(2) }));
     const parts = events.filter((e) => e.kind === 'lesson_part_done');
-    const expected = course.parts.flatMap((p, i) => (p.type === 'explication' ? [i] : []));
+    const expected = course.parts.flatMap((p, i) => (p.type === 'explication' || p.type === 'etapes' ? [i] : []));
     expect(parts.map((e) => e.kind === 'lesson_part_done' && e.partIndex)).toEqual(expected);
     expect(parts[0]).toEqual({ kind: 'lesson_part_done', activityId: 'r', moduleId: 'calculs', courseId: C1, partIndex: expected[0], durationMs: 1000 });
   });
@@ -428,14 +433,14 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
   it('seule la 1re réponse compte : 5 sur 5 aux exercices de fin malgré calculs du même type et repassages ratés → validé', () => {
     const course = getCourse(C1);
     const items = courseRunItems(course, seededRng(9));
-    const firstQ = items.find((x) => x.type === 'question')!;
+    const firstQ = items.find((x) => x.type === 'question' && x.activity !== 'decouverte')!;
     const { events } = play(createActivity('cours', items, { activityId: 'run-1', rng: seededRng(9) }), {
       [`${firstQ.itemId}:original`]: [ko()],
       [`${firstQ.itemId}:meme-type`]: [ko()],
       [`${firstQ.itemId}:repetition`]: [ko(), ko(), ok],
     });
     const state = foldProgress(stamp(events));
-    const questions = items.filter((x) => x.type === 'question').length;
+    const questions = items.filter((x) => x.type === 'question' && x.activity !== 'decouverte').length;
     expect(state.journal.runs[`run-1|${C1}`]).toMatchObject({ first: questions, ok: questions - 1, fin: 5, finOk: 5, done: true });
     expect(state.courses[C1]!.status).toBe('valide');
   });
@@ -532,7 +537,7 @@ describe('révision', () => {
         s = answer(s, c.role === 'original' ? ko() : ok, 1).state;
       }
       // + les formats propres au Cours 0 (« Quelle règle ? », « Réécris », « Toucher la faute », son exercice de fin)
-      expect(kinds.every((k) => ['qcm', 'vraifaux', 'classer', 'choix', 'reecrire', 'erreur'].includes(k))).toBe(true);
+      expect(kinds.every((k) => ['qcm', 'vraifaux', 'classer', 'choix', 'reecrire', 'erreur', 'droite', 'saisie'].includes(k))).toBe(true);
     }
   });
 });
@@ -557,7 +562,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
         seenCourses.add(x.courseId);
       }
     }
-    expect(seenKinds.size).toBe(10); // 8 types communs + « choix » et « reecrire » du Cours 0
+    expect(seenKinds.size).toBe(11); // 8 types communs + « choix » et « reecrire » du Cours 0 + « droite » du Cours 1
     expect(seenCourses.size).toBe(3);
   });
 

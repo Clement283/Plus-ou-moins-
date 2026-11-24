@@ -96,15 +96,14 @@ describe('Cours 1 — Additionner deux nombres de même signe', () => {
     expect(c01.classes[0]?.of(exOf(c01, '4 + 6'))).toBe('positif');
   });
 
-  it('leçon : déroulé en 4 parties, 2 exemples guidés', () => {
-    const kinds = c01.parts.map((p) => (p.type !== 'question' ? p.type : `${p.activity}:${p.question.kind}`));
-    expect(kinds).toEqual([
-      'explication', 'explication', 'lecon:ordre', 'lecon:saisie',
-      'exemple:trou', 'exemple:trou', 'exemple:trou', 'exemple:trou',
+  it('formats, fiche mémo et règles des erreurs', () => {
+    expect(c01.formats).toEqual(['saisie', 'droite', 'signe', 'vraifaux', 'erreur']);
+    expect(c01.lessonLength).toBe(7);
+    expect(c01.memo?.examples).toHaveLength(2);
+    expect(c01.memo?.rule).toBe(c01.rule);
+    expect(c01.errors.map((e) => e.rule)).toEqual([
+      { n: 2, label: 'Je garde le signe des deux nombres', partIndex: 5 },
+      { n: 1, label: "J'additionne les nombres sans leur signe", partIndex: 4 },
     ]);
-    const saisie = c01.parts[3];
-    expect(saisie?.type === 'question' && saisie.question.kind === 'saisie' && saisie.question.ex.answer).toEqual({ n: -8, d: 1 });
-    const hidden = c01.parts.slice(4).map((p) => (p.type === 'question' && p.question.kind === 'trou' ? p.question.hidden.n : null));
-    expect(hidden).toEqual([9, -13, 6, -7]);
   });
 });
