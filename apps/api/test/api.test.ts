@@ -51,6 +51,11 @@ describe('login', () => {
     expect((await SELF.fetch('https://x/api/login', post({ code: 'ZZZZ9999' }))).status).toBe(401);
     expect((await SELF.fetch('https://x/api/login', post({}))).status).toBe(401);
   });
+  it('majuscules et espaces sans importance (« aaaa 2222 »)', async () => {
+    for (const code of ['aaaa 2222', ' AAAA  2222 ', 'aaaa2222']) {
+      expect((await SELF.fetch('https://x/api/login', post({ code }))).status).toBe(200);
+    }
+  });
 
   it('le jeton est stocke hache, jamais en clair', async () => {
     const token = await login('AAAA2222');

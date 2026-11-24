@@ -13,7 +13,7 @@ app.post('/api/login', async (c) => {
   if (typeof raw !== 'string' || raw.trim() === '') return c.json({ error: 'unauthorized' }, 401);
   // Les codes sont en majuscules : on tolère espaces et minuscules à la saisie du code (pas un calcul).
   const user = await c.env.DB.prepare('SELECT id, name, role FROM users WHERE code_hash = ?')
-    .bind(await sha256Hex(raw.trim().toUpperCase()))
+    .bind(await sha256Hex(raw.replace(/\s+/g, '').toUpperCase()))
     .first<AuthUser>();
   if (!user) return c.json({ error: 'unauthorized' }, 401);
   const token = newToken();

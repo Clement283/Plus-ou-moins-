@@ -1,6 +1,7 @@
 name = "plus-ou-moins"
 main = "src/index.ts"
 compatibility_date = "2025-09-01"
+preview_urls = false
 
 # La PWA (apps/web/dist) est embarquée dans le script : scripts/embed-assets.ts -> src/assets.generated.ts.
 
