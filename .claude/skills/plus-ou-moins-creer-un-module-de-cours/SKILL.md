@@ -24,7 +24,7 @@ Chaque élément du plan dit d'où il vient (document ou lien).
 
 ## Le plan du module (ce que le skill produit)
 
-Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `docs/validation/`), publié aussi en page lisible (artefact) pour validation. Il contient, dans cet ordre :
+Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `docs/validation/`), publié aussi en page lisible (artefact HTML : convertir le Markdown en une page à une colonne, tableaux défilants, clair et sombre) pour validation. Les cours gardent une **numérotation continue dans toute l'appli**, d'un module à l'autre. En tête : un résumé simple d'une dizaine de lignes ; à la fin : « Questions pour toi » (5 au plus, chacune avec une recommandation). Il contient, dans cet ordre :
 
 1. **Le chapitre** : intitulé, classe, documents reçus, objectifs (ce que l'élève saura faire en contrôle).
 2. **Le découpage en modules** : **un seul module par défaut**. Proposer d'en faire plusieurs seulement si le module devient trop long ou si le chapitre a deux parties qu'on peut apprendre indépendamment ; donner les raisons. Le porteur du projet décide.
@@ -36,7 +36,7 @@ Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `doc
    - ce qui rend ses niveaux 2 et 3 plus difficiles ;
    - les sources.
 4. **Les reprises entre cours** (tableau cours × cours précédents).
-5. **Ce qui manque dans l'appli** pour ce module (nouvelle brique d'écran, nouveau type de calcul, reprise de calculs d'un autre cours dans le moteur…) : à développer au moment de coder le premier cours qui en a besoin.
+5. **Ce qui manque dans l'appli** pour ce module (vérifié en lisant le code du moteur et de l'appli, sans le modifier) (nouvelle brique d'écran, nouveau type de calcul, reprise de calculs d'un autre cours dans le moteur…) : à développer au moment de coder le premier cours qui en a besoin.
 6. **Les sources** (liste des liens et documents).
 
 ## Reprises entre cours (règles)
