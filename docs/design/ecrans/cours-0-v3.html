@@ -188,6 +188,8 @@ h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
 .slot:focus-visible,.etq:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .etq{font:inherit;font-size:1.05rem;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 14px;cursor:pointer}
 .eqs{display:grid;gap:4px;text-align:left;font-size:1.5rem;padding:12px 16px;white-space:normal}
+.eqs .step{display:block}
+.eqs .blank{min-width:3em;border-bottom-width:3px}
 .slotb{display:inline-block;min-width:4.6em;min-height:1.9em;vertical-align:middle;text-align:center;line-height:1.9em;font-weight:700;border:2.5px dashed var(--primary);background:var(--sunken);color:var(--muted);border-radius:12px;padding:0 12px;margin:2px 3px}
 .slotb.ok{border:2.5px solid var(--ok);background:var(--ok-bg);color:var(--ok)}
 .relire{font:inherit;font-size:.85rem;background:none;border:0;padding:4px 0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
@@ -968,12 +970,13 @@ add({ chg: true, id: 'mes-cours', sec: 'Après', name: 'Mes cours après échec'
   what: "La fiche du cours dans « Mes cours » garde la raison de l'échec et propose maintenant aussi « Voir la fiche mémo » (le bouton du bas ouvre la fiche).",
   why: "Quand elle revient plus tard, elle sait encore ce qui lui manque, et elle peut relire la fiche sans refaire la leçon.",
   ask: ["Avant validation, la fiche mémo est-elle déjà consultable depuis Mes cours, ou seulement après avoir validé ? Je propose : toujours consultable (elle aide à réussir la série de validation)."] },
-  { init: () => ({}), foot: () => ({ label: 'Voir la fiche mémo', a: 'next' }), on() {},
+  { init: () => ({}), foot: () => ({ none: true }), on() {},
     render: () => `<h2 class="t">Mes cours</h2>
       <div class="card"><div style="display:flex;gap:12px;align-items:center"><span class="num">0</span><div><b>Cours 0, bien écrire un calcul</b><br><span class="small" style="color:var(--ko)">À valider</span></div></div>
       <p class="small">Dernier essai : 3 exercices de fin justes sur 5. À revoir : <b>deux signes qui se touchent</b>.</p>
       <button class="btn btn-main" type="button">Faire la série de validation</button>
-      <p class="lead" style="text-align:center"><span class="link">Relire la règle 1</span> · <span class="link">Relire la leçon</span> · <span class="link chg">Fiche mémo</span></p></div>` });
+      <button class="btn btn-line chg" type="button" data-a="next">Voir la fiche mémo</button>
+      <p class="lead" style="text-align:center"><span class="link">Relire la règle 1</span> · <span class="link">Relire la leçon</span></p></div>` });
 
 /* ——— 18. Fiche mémo (version A, plein écran) ——— */
 add({ chg: true, id: 'fiche', sec: 'Fiche mémo', name: 'Fiche mémo',
