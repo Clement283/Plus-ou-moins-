@@ -1,5 +1,5 @@
 ---
-name: ecrire-un-cours
+name: plus-ou-moins-ecrire-un-cours
 description: Use when writing, rewriting or reviewing a course (« cours ») of the Plus ou moins app — its lesson screens, small questions, guided examples, end exercises, error messages or feedback — for any module (relatifs, priorités, fractions, second degré…), or when a course feels empty, unclear, too fast, or "just shows examples without explaining".
 ---
 
