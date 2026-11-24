@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { newToken, requireAuth, sha256Hex, type AppEnv, type AuthUser } from './auth';
 import { eventsRoutes } from './routes/events';
+import { questionsRoutes } from './routes/questions';
 import { studentsRoutes } from './routes/students';
 import { assets } from './assets.generated';
 import { serveStatic } from './static';
@@ -27,7 +28,10 @@ app.use('/api/events/*', requireAuth);
 app.use('/api/events', requireAuth);
 app.use('/api/students/*', requireAuth);
 app.use('/api/students', requireAuth);
+app.use('/api/questions/*', requireAuth);
+app.use('/api/questions', requireAuth);
 app.route('/api/events', eventsRoutes);
+app.route('/api/questions', questionsRoutes);
 app.route('/api/students', studentsRoutes);
 
 app.all('/api/*', (c) => c.json({ error: 'not found' }, 404));
