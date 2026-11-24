@@ -121,3 +121,148 @@ describe('Cours 0 : numéro d’étape de la pastille', () => {
     expect(lessonStep(C00, 14)).toBeNull();
   });
 });
+
+// --- étapes interactives (faux cours « Cours 1 » et « Cours 0 ») ---
+const line = (tone: 'color' | 'neutral') => ({
+  from: -5,
+  to: 2,
+  jumps: [{ from: 0, by: -3, after: true }],
+  tone,
+});
+const tk = (...t: string[]) => t.map((x) => ({ t: x }));
+const C1: EtapeStep[] = [
+  { scene: { layout: 'line', calcs: [{ tokens: tk('2', ' + ', '(−3)') }], line: line('color') }, text: 'On part de 2.' },
+  {
+    text: 'Ajouter un nombre négatif, c’est **reculer**.',
+    action: {
+      type: 'trou',
+      open: 'Ajouter un nombre négatif, c’est [ ? ].',
+      choices: ['avancer', 'reculer'],
+      correct: 1,
+      errors: { 0: 'Ajouter un nombre négatif, c’est reculer : vers la gauche.' },
+    },
+  },
+  {
+    text: 'Le bond est dessiné.',
+    action: {
+      type: 'graduation',
+      consigne: 'Touche l’arrivée.',
+      target: -3,
+      errors: [{ at: [0], message: 'Tu es resté au départ : le bond fait 3 graduations.' }],
+      fallback: 'Compte 3 graduations vers la gauche.',
+    },
+  },
+  { text: 'Tu as compris.', action: { type: 'comprends' } },
+];
+const C0: EtapeStep[] = [
+  {
+    scene: { layout: 'one', calcs: [{ tokens: tk('4', ' × ', '−', '3') }] },
+    text: 'Regarde ce calcul.',
+    action: {
+      type: 'morceau',
+      consigne: 'Touche le morceau qui cloche.',
+      calc: 0,
+      target: [2],
+      errors: [{ at: [0], message: 'Le 4 est bien écrit.' }],
+      fallback: 'Cherche deux signes collés.',
+    },
+  },
+  {
+    scene: { layout: 'one', calcs: [{ tokens: tk('4', '×', '−3') }] },
+    text: 'Il manque des parenthèses.',
+    action: { type: 'endroit', consigne: 'Touche l’endroit.', calc: 0, target: [2], errors: [], fallback: 'Pas ici.' },
+  },
+];
+
+describe('Etapes : actions interactives', () => {
+  it('trou faux : message, trou toujours ouvert ; juste : phrase remplie, jamais de « Suite » pendant le trou', () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    const t = setup(C1);
+    fireEvent.click(t.btn('Suite')!);
+    expect(t.btn('Suite')).toBeNull();
+    expect(t.$('.trou-slot')).not.toBeNull();
+    fireEvent.click(t.btn('avancer')!);
+    expect(t.$('.etape-error')!.textContent).toBe('Pas tout à fait. Ajouter un nombre négatif, c’est reculer : vers la gauche. Essaie encore.');
+    expect(t.$('.trou-slot')).not.toBeNull();
+    fireEvent.click(t.btn('reculer')!);
+    expect(t.$('.trou-slot')).toBeNull();
+    expect(t.$$('.etape').at(-1)!.textContent).toBe('Ajouter un nombre négatif, c’est reculer.');
+    expect(t.btn('Suite')).not.toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+  it('la droite est grise tant que le trou est ouvert, en couleur ensuite avec le bond dessiné', () => {
+    const t = setup(C1);
+    fireEvent.click(t.btn('Suite')!);
+    expect(t.$('.line-view')!.className).toContain('is-neutral');
+    expect(t.$('.line-view__arc')!.className).not.toContain('is-shown');
+    fireEvent.click(t.btn('reculer')!);
+    expect(t.$('.line-view')!.className).toContain('is-color');
+    expect(t.$('.line-view__arc')!.className).toContain('is-shown');
+  });
+  it('graduation : 0 → message dédié, 1 → fallback, −3 → bond dessiné', () => {
+    const t = setup(C1);
+    fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.btn('reculer')!);
+    fireEvent.click(t.btn('Suite')!);
+    expect(t.$('.line-view__consigne')!.textContent).toBe('Touche l’arrivée.');
+    expect(t.btn('Suite')).toBeNull();
+    fireEvent.click(t.$('[aria-label="Graduation 0"]')!);
+    expect(t.$('.etape-error')!.textContent).toBe('Pas tout à fait. Tu es resté au départ : le bond fait 3 graduations. Essaie encore.');
+    fireEvent.click(t.$('[aria-label="Graduation 1"]')!);
+    expect(t.$('.etape-error')!.textContent).toContain('Compte 3 graduations vers la gauche.');
+    expect(t.$('.line-view__arc')!.className).not.toContain('is-shown');
+    fireEvent.click(t.$('[aria-label="Graduation −3"]')!);
+    expect(t.$('.line-view__arc')!.className).toContain('is-shown');
+    expect(t.$('.line-view')!.className).toContain('is-color');
+    expect(t.btn('Suite')).not.toBeNull();
+  });
+  it('comprends : un seul bouton, aucune erreur, avance', () => {
+    const t = setup(C1);
+    fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.btn('reculer')!);
+    fireEvent.click(t.btn('Suite')!);
+    fireEvent.click(t.$('[aria-label="Graduation −3"]')!);
+    fireEvent.click(t.btn('Suite')!);
+    expect(t.btn('Suite')).toBeNull();
+    expect(t.btn('Je comprends')).not.toBeNull();
+    expect(t.$('.etape-error')).toBeNull();
+    fireEvent.click(t.btn('Je comprends')!);
+    expect(t.onDone).toHaveBeenCalledTimes(1);
+  });
+  it('morceau : mauvais token → message, bon → texte et « Suite »', () => {
+    const t = setup(C0);
+    expect(t.btn('Suite')).toBeNull();
+    fireEvent.click(t.btn('4')!);
+    expect(t.$('.etape-error')!.textContent).toBe('Pas tout à fait. Le 4 est bien écrit. Essaie encore.');
+    fireEvent.click(t.btn('−')!);
+    expect(t.$('.etape-error')).toBeNull();
+    expect(t.btn('Suite')).not.toBeNull();
+  });
+  it('endroit : 4 cibles d’espaces, fallback puis succès', () => {
+    const t = setup(C0);
+    fireEvent.click(t.btn('−')!);
+    fireEvent.click(t.btn('Suite')!);
+    const gaps = t.$$('.touch-gap');
+    expect(gaps).toHaveLength(4);
+    fireEvent.click(gaps[0]!);
+    expect(t.$('.etape-error')!.textContent).toContain('Pas ici.');
+    fireEvent.click(gaps[2]!);
+    expect(t.btn('Suivant')).not.toBeNull();
+  });
+  it('2 phrases visibles au plus : « Relire le début » montre les autres, « Replier le début » les cache', () => {
+    const steps: EtapeStep[] = ['A.', 'B.', 'C.', 'D.'].map((text) => ({ text }));
+    steps[0]!.scene = { layout: 'one', calcs: [{ tokens: tk('1') }] };
+    const t = setup(steps);
+    for (let i = 0; i < 3; i++) fireEvent.click(t.btn('Suite')!);
+    const visible = () => t.$$('.etape').filter((e) => !e.hidden).map((e) => e.textContent);
+    expect(visible()).toEqual(['C.', 'D.']);
+    const fold = t.btn('Relire le début')!;
+    expect(fold.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(fold);
+    expect(visible()).toEqual(['A.', 'B.', 'C.', 'D.']);
+    fireEvent.click(t.btn('Replier le début')!);
+    expect(visible()).toEqual(['C.', 'D.']);
+  });
+});
