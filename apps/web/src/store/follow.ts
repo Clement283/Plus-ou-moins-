@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { computeDashboard, type AppEvent, type Dashboard } from '@pom/engine';
-import { getStudentEvents, getStudents } from '../api';
+import { computeDashboard, type AppEvent, type ClementQuestion, type Dashboard } from '@pom/engine';
+import { getStudentEvents, getStudentQuestions, getStudents } from '../api';
 import { getDb } from './db';
 import { useSession, useToday } from './progress';
 import { dropSessionIf401 } from './sync';
@@ -16,6 +16,7 @@ export type Student = { id: string; name: string };
 const studentsKey = (uid: string) => `${uid}|students`;
 const lastKey = (uid: string) => `${uid}|last`;
 const eventsKey = (uid: string, id: string) => `${uid}|events:${id}`;
+const questionsKey = (uid: string, id: string) => `${uid}|questions:${id}`;
 
 async function readCache<T>(key: string): Promise<T | undefined> {
   try {
@@ -38,6 +39,9 @@ export const loadLastStudent = (uid: string): Promise<string | undefined> => rea
 export const saveLastStudent = (uid: string, id: string): Promise<void> => writeCache(lastKey(uid), id);
 export const loadStudentsCache = (uid: string): Promise<Student[] | undefined> => readCache<Student[]>(studentsKey(uid));
 export const loadEventsCache = (uid: string, id: string): Promise<AppEvent[] | undefined> => readCache<AppEvent[]>(eventsKey(uid, id));
+
+/** Met à jour le cache des questions d'un élève (après l'envoi d'une réponse). */
+export const saveQuestionsCache = (uid: string, id: string, list: ClementQuestion[]): Promise<void> => writeCache(questionsKey(uid, id), list);
 
 /** Mémorise le dernier élève consulté pour la personne connectée. */
 export function useRememberStudent(eleve: string): void {
@@ -91,6 +95,11 @@ export function useStudents(): Loaded<Student[]> {
 /** Événements d'un élève (le cache IndexedDB sert d'abord, puis le serveur). */
 export function useStudentEvents(id: string | undefined): Loaded<AppEvent[]> {
   return useCachedFetch<AppEvent[]>(id ? (uid) => eventsKey(uid, id) : null, (token) => getStudentEvents(token, id!));
+}
+
+/** Questions à Clément d'un élève (cache d'abord, lisible hors ligne, puis serveur). */
+export function useStudentQuestions(id: string | undefined): Loaded<ClementQuestion[]> {
+  return useCachedFetch<ClementQuestion[]>(id ? (uid) => questionsKey(uid, id) : null, (token) => getStudentQuestions(token, id!));
 }
 
 /**
