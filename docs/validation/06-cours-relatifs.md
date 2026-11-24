@@ -183,34 +183,153 @@ Les écritures fausses sont fabriquées en appliquant l'une des fautes ci-dessou
 
 ## Cours 1 — Additionner deux nombres de même signe
 
+*Version 2 (2026-11-24), remplace la version 1. Maquette validée : `docs/design/ecrans/cours-1-v2.html` (version 4 de la maquette ; le porteur du projet a dit « ça me convient parfaitement » : pour chaque point « À décider », la proposition de la maquette est retenue). Ce cours suit le Cours 0 v2 et les décisions du doc 08 n° 20 à 42.*
+
 **La règle :** *Même signe : j'additionne les nombres sans leur signe, et je garde le signe.*
 
-**Mini-leçon**
-1. **Explication, avec une image.** « Tu dois 3 €, puis encore 5 €. Tu dois 8 € en tout. » Droite graduée : départ de 0, bond de −3, puis bond de −5, arrivée à −8. Le calcul s'écrit −3 + (−5) = −8.
-2. **Explication de la règle.**
-   - −3 + (−5) → les deux sont négatifs → 3 + 5 = 8 → je garde le − → **−8**
-   - 4 + 6 → les deux sont positifs → **10**
-3. **Étiquettes à ordonner** pour −2 + (−7) : `Les deux sont négatifs` · `2 + 7 = 9` · `Je garde le signe −` · `Résultat : −9`
-4. **Réponse à écrire :** −2 + (−6) = ? (réponse : −8)
+**L'idée de départ :** deux dettes qui s'ajoutent font une dette plus grande. Sur la droite graduée, deux bonds dans le **même sens** vont **plus loin ensemble** : on additionne les longueurs, et on arrive du côté où vont les bonds, donc on garde le signe.
 
-**Exemples guidés**
-- −4 + (−9) = −( 4 + ▢ ) = ▢ → 9, puis −13
-- −6 + (−1) = −( ▢ + 1 ) = ▢ → 6, puis −7
+**Les règles enseignées** (la règle du doc 06 v1 est coupée en deux, chacune correspond à une erreur reconnue)
+1. **J'additionne les nombres sans leur signe.** −3 + (−5) : 3 + 5 = 8. *(erreur reconnue `soustraction-au-lieu-addition`)*
+2. **Je garde le signe des deux nombres.** −3 + (−5) = −8 ; 4 + 6 = 10. *(erreur reconnue `signe-oublie`)*
 
-**Générateur**
+**Déroulé (15 écrans dans la maquette : 7 de leçon, 1 de pratique, 2 exemples guidés, l'annonce, 2 modèles d'exercice de fin — les 5 exercices de fin sont générés —, le résultat et « Mes cours »)**
+
+Types d'écrans utilisés : **explication pas à pas** (scène en haut, la droite graduée, qui se transforme à chaque « Suite » ; « Revoir cette étape » rejoue l'animation ; points « Étape N sur M » ; seules les **2 dernières phrases** restent affichées, les précédentes sont repliées derrière « Relire le début » / « Replier le début ») ; **étape interactive** (voir ci-dessous) ; **question pour deviner** (ne compte pas) ; **série de pratique** ; **exemple guidé**. Jamais plus de 2 étapes de lecture d'affilée sans une action. Couleurs (doc 08 n° 27) : négatifs **orange**, positifs **bleu**, surligneur jaune « regarde ici », **dans les explications seulement** ; pendant une question, la droite est **grise** (aucune couleur qui donne un indice) ; vert / rouge **après** la réponse.
+
+**Étapes interactives** (dans les explications ; elles remplacent « Suite », l'action est en bas de l'écran ; une erreur = un message court « Pas tout à fait. <message> Essaie encore. » et elle réessaie ; **rien n'est noté**)
+- *Phrase à trous* : un seul trou à la fois, qui remplace une phrase de l'explication ; les choix se lisent dans la phrase. Consigne : « Touche le mot qui complète la phrase. » Le trou est un grand emplacement visible, rempli par le mot juste.
+- *Toucher la droite* : pastilles rondes visibles sur chaque graduation qui « respirent », consigne en gras au-dessus de la droite « Touche la droite à l'endroit où l'on arrive. », petite main animée la **première fois seulement**, cibles de 44 px de large au moins, 8 graduations au plus (la droite tient dans l'écran, sans défiler ni être coupée). La droite est grise ; au bon toucher, le bond se dessine en couleur.
+
+*Leçon (7 écrans, pastille « Cours 1 · Leçon · étape N sur 7 »)*
+
+1. **Accroche + deviner.** Titre : « Additionner deux nombres de même signe ». « Quand tu additionnes deux nombres **négatifs**, ou deux nombres **positifs**, on dit qu'ils ont le **même signe**. » « Dans ce cours, tu vas apprendre à les additionner sans te tromper de signe, avec une image : **la droite graduée**. » Question pour deviner : « Pour commencer, à ton avis : tu dois 3 € à une amie, puis encore 5 €. Combien dois-tu en tout ? » [2 €] [8 €] [15 €]. Réponse attendue : 8 €. Mention : « Question pour découvrir : elle ne compte pas dans la note. » Retour si juste (« Juste ! ») : « Deux dettes qui s'ajoutent font une dette plus grande. Le cours va t'expliquer comment l'écrire avec des nombres négatifs. » Si faux : titre « Pas tout à fait, et c'est normal. » (voir tableau).
+2. **La droite graduée et les bonds** (titre « La droite graduée et les bonds », 5 étapes).
+   - Étape 1 : droite de −5 à 5, 0 surligné en jaune. Légende « Une droite où les nombres sont rangés dans l'ordre ». « Pour additionner des relatifs, on les dessine sur une **droite graduée**. Au milieu, **0** : notre point de **départ**. »
+   - Étape 2 : même droite, négatifs orange à gauche, positifs bleu à droite. Légende « négatifs à gauche · positifs à droite ». « À droite de 0, les **positifs**, en bleu. À gauche, les **négatifs**, en orange. Mêmes couleurs dans tout le module. »
+   - Étape 3 (**interactive : toucher la droite**) : droite de −3 à 4, grise. « **Ajouter un nombre positif**, c'est faire un bond vers la **droite**. On part de 0 et on ajoute 3. » Elle touche l'arrivée (3). Le bond de 3 se dessine, le calcul « 0 + 3 » apparaît. Phrase de suite : « Le bond de 3 vers la droite arrive en **3**. »
+   - Étape 4 (**interactive : toucher la droite**) : droite de −4 à 3, grise. « **Ajouter un nombre négatif**, c'est faire un bond vers la **gauche**. On repart de 0 et on ajoute −3. » Elle touche l'arrivée (−3). Le bond se dessine, le calcul « 0 + (−3) » apparaît.
+   - Étape 5 (**interactive : phrase à trous**) : « Le bond de −3 va vers la [ ? ]. » Choix : [droite] [gauche]. Attendu : gauche. Phrase de suite : « Il fait 3 graduations : autant que le nombre sans son signe. »
+3. **Deux dettes qui s'ajoutent** (3 étapes). Droite de −10 à 2.
+   - Étape 1 : un bond de 3 graduations vers la gauche, légende « Une dette, c'est un nombre négatif », calcul −3, repères « départ » / « arrivée ». « Une **dette** se note avec un nombre **négatif**. Tu dois **3 €** : un bond de 3 graduations vers la gauche, tu es à −3. »
+   - Étape 2 : un deuxième bond de 5 graduations, calcul −3 + (−5). « Tu dois encore **5 €** : un deuxième bond de 5 graduations, vers la gauche aussi, **dans le même sens**. »
+   - Étape 3 (**interactive : phrase à trous**) : droite grise, calcul « −3 + (−5) = ? ». « Les deux bonds vont vers la [ ? ]. » Choix : [gauche] [droite]. Attendu : gauche. Après la réussite : la droite reprend ses couleurs, l'arrivée −8 est marquée, calcul −3 + (−5) = −8. « Tu arrives à −8 : **8 € en tout**. Deux bonds de même sens vont **plus loin ensemble**. »
+4. **Comparer deux cas.** Titre « Comparer deux cas ». « Voici deux calculs presque identiques. Regarde-les bien. » Côte à côte : « Calcul A » −3 + (−5) · « Calcul B » −3 + 5. Petit texte : « Le calcul B est un aperçu : au prochain cours, tu apprendras à le calculer. Ici, tu observes seulement ce qui change. » Question : « Qu'est-ce qui change entre A et B ? » [Le premier nombre] [La longueur du deuxième bond] [Le signe du deuxième nombre]. Attendu : le signe du deuxième nombre. Mention : « Question pour comprendre : elle ne compte pas dans la note. » Après la réponse, la droite (−9 à 3) montre les deux trajets (A arrive en −8 : −3 + (−5) = −8 ; B arrive en 2 : −3 + 5 = 2), le retour (voir tableau), puis : « Dans A, les deux bonds vont vers la **gauche** : ils s'ajoutent. Dans B, le deuxième bond repart vers la **droite** : on revient vers 0. Ce cours ne traite que le cas A, le même signe. »
+5. **Règle 1 : j'additionne** (titre « J'additionne les longueurs des bonds », 3 étapes). Droite de −10 à 2.
+   - Étape 1 : les deux bonds −3 puis −5, calcul −3 + (−5). « Reprenons −3 + (−5) : même signe, donc les deux bonds vont dans le même sens, **bout à bout**. »
+   - Étape 2 (**interactive : phrase à trous**) : les bonds sont étiquetés par leur longueur (3 et 5) ; droite grise pendant la question, calcul « 3 + 5 = ? ». « Les longueurs des bonds sont les nombres **sans leur signe** : 3 et 5. » La phrase à trous remplace une phrase : « Le trajet total fait 3 + 5 = [ ? ] graduations. » Choix : [2] [8] [15]. Attendu : 8. Après la réussite : couleurs et surligneur jaune reviennent, « 3 + 5 = 8 » surligné.
+   - Étape 3 : encadré **Règle 1 : Deux nombres de même signe : j'additionne les nombres sans leur signe.**
+6. **Règle 2 : je garde le signe** (titre « Je garde le signe », 4 étapes). Droite de −10 à 2.
+   - Étape 1 : trajet de 8 graduations, −8 surligné, calcul −3 + (−5) = ?. « Le trajet fait 8 graduations : on arrive à **8** ou à **−8** ? Les deux bonds vont vers la **gauche** : côté **négatif**. »
+   - Étape 2 (**interactive : phrase à trous**) : droite grise, calcul « −3 + (−5) = ? ». Phrase : « Du côté négatif : −3 + (−5) = [ ? ] » Choix : [8] [−8] [−2]. Attendu : −8. Après la réussite : couleurs, arrivée −8. « On garde le signe − des deux nombres. »
+   - Étape 3 : droite de −2 à 11, bonds 0 → 4 → 10 vers la droite, calcul 4 + 6 = 10. « Même chose avec 4 + 6 : bonds vers la **droite**, côté **positif**. On garde le signe + : 10. »
+   - Étape 4 : encadré **Règle 2 : Je garde le signe des deux nombres.**
+7. **Récapitulatif** (titre « Les 2 règles à retenir »). Règle 1 « J'additionne les nombres sans leur signe. » exemple juste « −3 + (−5) : 3 + 5 = 8 », faux « 5 − 3 = 2 » ; Règle 2 « Je garde le signe des deux nombres. » juste « −3 + (−5) = −8 », faux « −3 + (−5) = 8 ». Encadré « En une phrase » : « Même signe : j'additionne les nombres sans leur signe, et je garde le signe. » « Maintenant, tu t'entraînes avec quatre questions. » Bouton « Suivant ».
+
+*Pratique*
+
+8. **Série de 4 questions** (pastille « Cours 1 · Pratique », compteur « Question N sur 4 » et 4 points, retour immédiat, pas de nouvel essai : on montre la correction et on passe à la suivante ; **aide décroissante, formats variés** ; pendant une question aucune couleur de signe). Bouton « Question suivante » ; après la 4e, un encadré « N sur 4 » et « Maintenant, deux exemples pour t'aider à les résoudre en entier. », puis « Continuer ».
+   - **Question 1 (toucher l'arrivée, bonds dessinés).** Calcul −2 + (−5). Droite de −7 à 0, grise, bonds 0 → −2 → −7 dessinés sans étiquette, départ en 0, pastilles et consigne « Touche la droite à l'endroit où l'on arrive. » Attendu : −7. Juste : « Les deux bonds vont vers la gauche, bout à bout : 2 + 5 = 7, on arrive à −7. » Faux : « Le deuxième bond part de −2 et fait 5 graduations vers la gauche : −3, −4, −5, −6, −7. On arrive à −7. »
+   - **Question 2 (le signe).** « Touche le signe du résultat. Tu n'as pas besoin de calculer. » Calcul −4 + (−3), « Quel est le signe du résultat ? » [+] [−]. Attendu : −. Juste : « Les deux nombres sont négatifs : on garde le signe −. Le résultat est négatif. » Faux (+) : message `signe-oublie`.
+   - **Question 3 (vrai ou faux).** « Touche Vrai ou Faux. » Calcul −4 + (−3) = 7. [Vrai] [Faux]. Attendu : Faux. Juste : « Faux : 4 + 3 = 7, mais on garde le signe −. Le bon résultat est −7. » Faux (Vrai) : « On a bien additionné 4 et 3, mais les deux nombres sont négatifs : le résultat est négatif aussi. −4 + (−3) = −7. »
+   - **Question 4 (taper, sans aide).** « Calcule. **Tape le résultat.** » Calcul −8 + (−9) ; « Tape le résultat avec les touches du clavier. » (clavier complet). Attendu : −17. Juste : « 8 + 9 = 17, et on garde le signe − : −17. »
+
+*Exemples guidés (l'aide s'efface ; le calcul de départ reste toujours affiché)*
+
+9. **Exemple 1 sur 2 : tout est résolu à l'écran, elle valide.** « Voici la résolution complète. Lis chaque ligne, puis touche « Je comprends ». » Calcul −4 + (−9). Les lignes apparaissent une à une, la ligne en cours est surlignée et expliquée dans un encadré :
+   - Ligne 1 : = −(4 + 9). « Les deux nombres sont négatifs : j'additionne 4 et 9 sans leur signe, et je garde le signe − devant la parenthèse. » [Je comprends]
+   - Ligne 2 : = −(13). « 4 + 9 = 13. Le signe − est toujours devant : c'est le signe des deux nombres. » [Je comprends]
+   - Dernière ligne : = ▢ (une case à taper). « Dernière ligne » : « Écris le résultat, avec son signe. Tu peux t'aider de la ligne du dessus. » « Tape ce qui manque dans la case, avec les touches du clavier. » Attendu : −13. Juste : « On garde le signe − : −13. »
+10. **Exemple 2 sur 2 : à moitié, deux cases à taper.** « Cette fois, deux cases sont à toi. Les deux nombres sont négatifs : je garde le signe, et j'additionne. » Calcul −6 + (−1). Case 1 : −6 + (−1) = −(6 + ▢). Attendu : 1. Case 2 : −6 + (−1) = −(6 + 1) = ▢. Attendu : −7. Les cases s'enchaînent dans l'ordre (« Case suivante ») ; une erreur montre le message et la bonne réponse.
+
+*Fin*
+
+11. **Annonce** : « Place aux 5 exercices de fin. Cette fois, **pas d'aide**. Ils ressemblent à ce que tu verras en contrôle. Pour valider le cours, il faut : au moins **4 exercices de fin justes sur 5** ; et **80 % de bonnes réponses** sur tout le cours. Si tu n'y arrives pas, ce n'est pas grave : tu feras une **série de validation**. Ce sont 5 exercices, sans refaire la leçon. » Bouton « Commencer les exercices ».
+12. **5 exercices de fin (modèle : deux négatifs, 7 fois sur 10).** « Calcule. **Tape le résultat.** » Le calcul est écrit en haut comme sur une copie, clavier complet, aucune couleur avant la réponse, pas de droite. Ex. −8 + (−7). Juste : « 8 + 7 = 15, et on garde le signe − : −15. » Après une erreur : le message du tableau, puis la résolution type : −8 + (−7) · = −(8 + 7) · = −15.
+13. **Modèle avec deux positifs (3 fois sur 10).** Ex. 7 + 6. Juste : « 7 + 6 = 13, et le résultat reste positif. » Résolution type : 7 + 6 · = +(7 + 6) · = 13.
+14. **Résultat** (validé ou non, doc 08 n° 29). Ex. cours raté : « Le cours 1 n'est pas encore validé », les deux conditions avec ✗ / ✓ (« N bonnes réponses sur 11, soit X %. Il en faut au moins 80 %. » et « N exercices de fin justes sur 5. Il en faut au moins 4. »), « Tes erreurs : » « J'oublie le signe du résultat (règle 2), 3 fois » · « Je soustrais au lieu d'additionner (règle 1), 1 fois », liens « Relire la règle 2 » · « Relire la règle 1 », « Prochaine étape : la série de validation. 5 exercices, 4 justes pour valider le cours. » Bouton « Faire la série de validation ». *(Les chiffres de la maquette, « 9 sur 13 », sont inventés ; au codage ils suivent la note ci-dessous : 11 questions.)*
+15. **Mes cours** garde la raison de l'échec : « À valider », « Dernier essai : 3 exercices de fin justes sur 5. À revoir : le signe du résultat. », boutons « Faire la série de validation », « Relire la règle 2 », « Relire la leçon ».
+
+**Note du cours** (doc 08 n° 21 et 32 à 37) : comptent les **4 questions de la série de pratique** (écran 8), les **2 exemples guidés** (écrans 9 et 10) et les **5 exercices de fin**, soit **11 questions**. Ne comptent pas : la question pour deviner (écran 1), la question pour comprendre (écran 4) et **toutes les étapes interactives des explications** (écrans 2, 3, 5 et 6, notées nulle part, qu'elle se trompe ou non). Validation : **80 % sur les 11 et au moins 4 exercices de fin sur 5**. Il n'y a pas de petite question isolée dans ce cours : elles sont remplacées par la série de pratique. Il n'y a pas de cours précédent sur ce thème : les 4 questions de la série sont sur ce cours.
+
+**Retours d'erreur précis**
+
+Étapes interactives (message court puis « Essaie encore. », rien n'est noté) :
+| Écran | Réponse | Message |
+|---|---|---|
+| 2, étape 3 | toucher 0 | « Tu es resté au départ : le bond fait 3 graduations. » |
+| 2, étape 3 | toucher une graduation négative | « Ajouter un nombre positif, c'est avancer vers la droite. Tu es parti vers la gauche. » |
+| 2, étape 3 | toucher plus loin que 3 | « Une graduation de trop : le bond fait exactement 3 graduations. » |
+| 2, étape 3 | toucher 1 ou 2 | « Il manque des graduations : le bond en fait 3. Compte-les une par une à partir de 0. » |
+| 2, étape 4 | toucher 0 | « Tu es resté au départ : le bond fait 3 graduations. » |
+| 2, étape 4 | toucher une graduation positive | « Ajouter un nombre négatif, c'est reculer vers la gauche. Tu es parti vers la droite. » |
+| 2, étape 4 | toucher plus loin que −3 | « Une graduation de trop : le bond fait exactement 3 graduations. » |
+| 2, étape 4 | toucher −1 ou −2 | « Il manque des graduations : le bond en fait 3. Compte-les une par une à partir de 0. » |
+| 2, étape 5 | droite | « Ajouter un nombre négatif, c'est reculer : vers la gauche. » |
+| 3, étape 3 | droite | « Regarde la droite : les deux bonds reculent, comme une dette qui grandit. » |
+| 5, étape 2 | 2 | « Soustraire, ce serait pour des bonds de sens contraires. Ici les deux bonds vont dans le même sens : ils s'ajoutent. » |
+| 5, étape 2 | 15 | « On additionne les longueurs, on ne les multiplie pas : 3 + 5. » |
+| 6, étape 2 | 8 | « Le trajet fait bien 8 graduations, mais on arrive à gauche de 0 : il faut garder le signe. » |
+| 6, étape 2 | −2 | « −2 viendrait de 5 − 3. Ici les bonds s'ajoutent : 3 + 5 = 8, avec le signe −. » |
+
+Questions pour deviner et pour comprendre (ne comptent pas ; titre « Pas tout à fait, et c'est normal. » puis un message qui ne répète pas le titre) :
+| Écran | Réponse | Message |
+|---|---|---|
+| 1 | 2 € | « Tu dois déjà 3 €, puis tu dois encore 5 € de plus : ta dette grandit, elle ne diminue pas. Tu dois 8 €. » |
+| 1 | 15 € | « On additionne les deux dettes : 3 + 5 = 8, pas 3 × 5. Tu dois 8 €. » |
+| 4 | Le premier nombre | « Le premier nombre est −3 dans les deux calculs : il ne change pas. » |
+| 4 | La longueur du deuxième bond | « Le deuxième bond fait 5 graduations dans les deux calculs : ce n'est pas sa longueur qui change, c'est son sens. » |
+| 4 | Le signe du deuxième nombre (juste) | « Le deuxième nombre est négatif dans le calcul A, positif dans le calcul B : un signe change, donc le sens du bond change. » |
+
+Questions qui comptent :
+| Écran | Réponse | Message |
+|---|---|---|
+| 8, Q1 | toute autre graduation que −7 | « Le deuxième bond part de −2 et fait 5 graduations vers la gauche : −3, −4, −5, −6, −7. On arrive à −7. » |
+| 8, Q2 | + | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
+| 8, Q3 | Vrai | « On a bien additionné 4 et 3, mais les deux nombres sont négatifs : le résultat est négatif aussi. −4 + (−3) = −7. » |
+| 8, Q4 | 17 | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
+| 8, Q4 | −1 ou 1 | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 8 + 9 = 17, donc −17. » |
+| 8, Q4 | autre | « Additionne 8 et 9 sans les signes, puis garde le signe −. Le résultat est −17. » |
+| 9, dernière ligne | 13 | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
+| 9, dernière ligne | autre | « Le résultat de la ligne du dessus est −(13), c'est-à-dire −13. » |
+| 10, case 1 | −1 | « On écrit le nombre sans son signe : 1. Le signe − est déjà devant la parenthèse. » |
+| 10, case 1 | autre | « Dans −(6 + ▢), on remet le deuxième nombre du calcul sans son signe : 1. » |
+| 10, case 2 | 7 | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
+| 10, case 2 | −5 ou 5 | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 6 + 1 = 7, donc −7. » |
+| 10, case 2 | autre | « Additionne 6 et 1, puis garde le signe − devant le résultat. » |
+| 12, −8 + (−7) | 15 | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
+| 12, −8 + (−7) | −1 ou 1 | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 8 + 7 = 15, donc −15. » |
+| 12, −8 + (−7) | autre | « Additionne 8 et 7 sans les signes, puis garde le signe −. » |
+| 13, 7 + 6 | −13 | « Les deux nombres sont positifs : le résultat est positif aussi. » |
+| 13, 7 + 6 | −1 ou 1 | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 7 + 6 = 13, donc 13. » |
+| 13, 7 + 6 | autre | « Additionne 7 et 6 : le résultat reste positif. » |
+
+*Notes :* la détection de `soustraction-au-lieu-addition` est celle de la v1 (la réponse vaut ±(grand − petit)) ; les cas ±1 ci-dessus en sont des exemples. Pour les exercices de fin générés, les messages suivent le même modèle avec les nombres tirés, et le message d'une erreur de signe suit le **signe des nombres** (négatifs : « Je garde le signe − ! » ; positifs : « Les deux nombres sont positifs : le résultat est positif aussi. », doc 07 n° 6A). Après une erreur à un exercice de fin, on montre aussi la résolution type.
+
+**Fiche mémo** (écran plein, doc 08 n° 38 ; proposée ici, non figurée dans la maquette, à valider avec le reste de la spec)
+- **La règle :** Même signe : j'additionne les nombres sans leur signe, et je garde le signe.
+- **Exemples :** −3 + (−5) : 3 + 5 = 8, je garde le − : **−8**. · 4 + 6 : 4 + 6 = 10, je garde le + : **10**.
+- **Erreur à éviter :** oublier le signe (−3 + (−5) = 8) ou soustraire au lieu d'additionner (−3 + (−5) = −2).
+- **Astuce :** deux bonds dans le même sens vont plus loin ensemble : on additionne les longueurs, et on arrive du côté où vont les bonds.
+
+**En révision et en entraînement :** taper le résultat d'un calcul de même signe ; toucher l'arrivée sur la droite (bonds dessinés, droite grise, 8 graduations au plus) ; « Quel est le signe du résultat ? » ; vrai ou faux sur un résultat ; **Trouver l'erreur** sur la résolution type. Un calcul de même signe revient aussi en question « intercalée » dans les cours suivants.
+
+**Générateur** (inchangé depuis la v1 ; la maquette n'y touche pas)
 | Niveau | Forme | Nombres |
 |---|---|---|
 | 1 | a + b, de même signe (négatifs 7 fois sur 10) | de 1 à 9 |
 | 2 | même chose | de 10 à 99 |
 | 3 | même chose | de 100 à 999 |
 
-**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 + (−5) · = −(3 + 5) · = −8
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 + (−5) · = −(3 + 5) · = −8. Pour deux positifs : 4 + 6 · = +(4 + 6) · = 10.
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée | Calcul-piège |
-|---|---|---|---|
-| `signe-oublie` 🔴 | la réponse est l'opposé de la bonne réponse | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » | deux négatifs |
-| `soustraction-au-lieu-addition` | la réponse vaut ±(grand − petit) | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 3 + 5 = 8, donc −8. » | deux nombres d'écart important, ex. −2 + (−9) |
+| Identifiant | Détection | Explication affichée | Règle | partIndex | Calcul-piège |
+|---|---|---|---|---|---|
+| `signe-oublie` 🔴 | la réponse est l'opposé de la bonne réponse | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » (positifs : « Les deux nombres sont positifs : le résultat est positif aussi. ») | 2 | à fixer | deux négatifs |
+| `soustraction-au-lieu-addition` | la réponse vaut ±(grand − petit) | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 3 + 5 = 8, donc −8. » | 1 | à fixer | deux nombres d'écart important, ex. −2 + (−9) |
+
+(Le `partIndex` est l'indice de la partie du cours à rouvrir par « Relire la règle N » ; il est fixé au codage.)
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -226,6 +345,8 @@ Les écritures fausses sont fabriquées en appliquant l'une des fautes ci-dessou
 | 3 | −120 + (−880) | −1000 |
 
 **Réponse donnée → erreur reconnue** (calcul −3 + (−5) = −8) : 8 → `signe-oublie` · −2 → `soustraction-au-lieu-addition` · 2 → `soustraction-au-lieu-addition` · −7 → autre
+
+**Choix de la maquette retenus (« À décider » validés)** : dette comme accroche (écran 1) ; accroche et question pour deviner ajoutées ; étapes interactives sans note, message court puis nouvel essai ; pastilles qui respirent et main la 1re fois ; fusion des deux écrans de la droite ; dette conservée comme idée de départ ; cas B (−3 + 5) en simple aperçu du Cours 2 ; écran « Comparer » avant la règle 1 ; règle coupée en deux (règles 1 et 2) ; cas positif 4 + 6 en une seule étape de lecture (sans action) ; les 4 questions de la série comptent dans la note ; pas de nouvel essai en pratique (correction puis suite ; une petite question ratée repasse comme au doc 08 n° 22) ; case finale de l'exemple 1 conservée ; pas d'exemple guidé positif (cas positif dans les exercices de fin) ; résolution type de 3 lignes affichée après une erreur à un exercice de fin.
 
 ---
 
