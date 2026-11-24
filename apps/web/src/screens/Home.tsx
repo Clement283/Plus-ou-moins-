@@ -188,6 +188,7 @@ export default function Home() {
             </span>
           )}
         </header>
+        <AppVersion />
 
         <section className="day" aria-label="Temps du jour">
           <div className="day-head">
