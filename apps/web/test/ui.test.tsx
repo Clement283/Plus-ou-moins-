@@ -49,6 +49,7 @@ describe('router', () => {
     expect(parseRoute('#/nimporte/quoi')).toEqual({ name: 'inconnu' });
     expect(parseRoute('#/cours/c3')).toEqual({ name: 'cours-detail', id: 'c3' });
     expect(parseRoute('#/cours/c3/relire')).toEqual({ name: 'relire', id: 'c3' });
+    expect(parseRoute('#/cours/c00-bien-ecrire/relire/4')).toEqual({ name: 'relire', id: 'c00-bien-ecrire', part: 4 });
     expect(parseRoute('#/rattrapage/c3')).toEqual({ name: 'rattrapage', id: 'c3' });
     expect(parseRoute('#/revisions')).toEqual({ name: 'revisions' });
     expect(parseRoute('#/entrainement')).toEqual({ name: 'entrainement' });
@@ -59,7 +60,7 @@ describe('router', () => {
     expect(parseRoute('#/essai/keypad')).toEqual({ name: 'essai', what: 'keypad' });
   });
   it('toHash est l’inverse de parseRoute', () => {
-    for (const h of ['#/', '#/cours', '#/cours/c3', '#/cours/c3/relire', '#/rattrapage/c3', '#/revisions', '#/entrainement', '#/entrainement/serie', '#/suivi', '#/suivi/u1/module/m1', '#/suivi/u1/cours/c2']) {
+    for (const h of ['#/', '#/cours', '#/cours/c3', '#/cours/c3/relire', '#/cours/c3/relire/4', '#/rattrapage/c3', '#/revisions', '#/entrainement', '#/entrainement/serie', '#/suivi', '#/suivi/u1/module/m1', '#/suivi/u1/cours/c2']) {
       expect(toHash(parseRoute(h))).toBe(h);
     }
   });

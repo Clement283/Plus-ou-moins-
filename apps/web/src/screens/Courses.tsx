@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { MODULES, getCourse, type CourseProgress } from '@pom/engine';
-import { Stars, courseLabel } from '../components/CourseBits';
+import { MODULES, getCourse, lastAttempt, type CourseProgress, type LastAttempt } from '@pom/engine';
+import { Stars, courseLabel, lastAttemptText, ruleLink } from '../components/CourseBits';
 import { go } from '../router';
 import { useProgress, useReady } from '../store/progress';
+import { useEvents } from '../store/sync';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
 
@@ -31,7 +32,7 @@ function Status({ c }: { c: CourseProgress }) {
   return <span className="status status--todo">À faire</span>;
 }
 
-function Actions({ c }: { c: CourseProgress }) {
+function Actions({ c, last }: { c: CourseProgress; last: LastAttempt | null }) {
   const order = getCourse(c.courseId).order;
   if (c.status === 'valide')
     return (
@@ -43,18 +44,28 @@ function Actions({ c }: { c: CourseProgress }) {
         <p className="t-caption">Relire ne change ni tes étoiles ni tes révisions.</p>
       </>
     );
-  if (c.status === 'a-rattraper')
+  if (c.status === 'a-rattraper') {
+    const rule = ruleLink(last);
     return (
       <>
+        {last && <p className="t-body2">{lastAttemptText(last)}</p>}
         <button className="btn btn--outlined btn--block" type="button" onClick={() => go({ name: 'rattrapage', id: c.courseId })}>
           Faire la série de validation
         </button>
-        <button className="btn btn--text self-center" type="button" onClick={() => go({ name: 'relire', id: c.courseId })}>
-          Relire la leçon
-        </button>
+        <div className="row row--wrap" style={{ justifyContent: 'center' }}>
+          {rule && (
+            <button className="btn btn--text" type="button" onClick={() => go({ name: 'relire', id: c.courseId, part: rule.part })}>
+              {`Relire la règle ${rule.n}`}
+            </button>
+          )}
+          <button className="btn btn--text" type="button" onClick={() => go({ name: 'relire', id: c.courseId })}>
+            Relire la leçon
+          </button>
+        </div>
         <p className="t-caption">5 exercices, 4 justes pour valider. Tu peux recommencer autant de fois que tu veux.</p>
       </>
     );
+  }
   return (
     <>
       <button className="btn btn--ink btn--block" type="button" onClick={() => go({ name: 'cours-detail', id: c.courseId })}>
@@ -73,6 +84,7 @@ export default function Courses() {
 
 function CoursesList() {
   const progress = useProgress();
+  const events = useEvents();
   const module = MODULES.find((m) => !progress.modules[m.id]?.done) ?? MODULES[0]!;
   const mp = progress.modules[module.id]!;
   // Ouvert au départ : le prochain cours à faire ou à rattraper.
@@ -155,7 +167,7 @@ function CoursesList() {
                   <Icon name="chevron-right" className="crow__chev" />
                 </summary>
                 <div className="crow__body">
-                  <Actions c={c} />
+                  <Actions c={c} last={lastAttempt(progress, events, id)} />
                 </div>
               </details>
             );

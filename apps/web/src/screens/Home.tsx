@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { DAILY_GOAL_MS, getCourse, studentHome, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
+import { DAILY_GOAL_MS, getCourse, lastAttempt, studentHome, type AppEvent, type ProgressState, type SessionSize, type StudentHome } from '@pom/engine';
 import { DayGauge } from '../components/DayGauge';
-import { Stars, isTodo } from '../components/CourseBits';
+import { Stars, isTodo, lastAttemptText, ruleLink } from '../components/CourseBits';
 import { go } from '../router';
 import { useProgress, useReady, useSession, useToday } from '../store/progress';
 import { useEvents } from '../store/sync';
@@ -56,7 +56,7 @@ export function ReviewCard({ reviews, started, onTrain = () => go('#/entrainemen
 }
 
 /** Le bouton du cours est à contour tant qu'il reste des révisions, plein ensuite (maquette). */
-function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progress: ProgressState; reviewsLeft: boolean }) {
+function CourseCard({ home, progress, events, reviewsLeft }: { home: StudentHome; progress: ProgressState; events: AppEvent[]; reviewsLeft: boolean }) {
   const btn = reviewsLeft ? 'btn--outlined' : 'btn--ink';
   if (!home.next) {
     return (
@@ -72,6 +72,8 @@ function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progre
   const { courseId, status } = home.next;
   const course = getCourse(courseId);
   const retry = status === 'a-rattraper';
+  const last = retry ? lastAttempt(progress, events, courseId) : null;
+  const rule = ruleLink(last);
   return (
     <section className="card" aria-label={retry ? 'Cours à valider' : 'Prochain cours'}>
       <div className="course-head">
@@ -82,6 +84,7 @@ function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progre
           <div className={`t-subtitle2 ${retry ? 'ink-error' : 'ink-secondary'}`}>{retry ? 'Cours à valider' : 'Prochain cours'}</div>
           <h3 className="t-h4">{course.title}</h3>
           {retry && <p className="t-body2 mt-4">5 exercices. Avec 4 justes, le cours est validé.</p>}
+          {last && <p className="t-body2 mt-4">{lastAttemptText(last)}</p>}
         </div>
       </div>
       {retry ? (
@@ -89,9 +92,16 @@ function CourseCard({ home, progress, reviewsLeft }: { home: StudentHome; progre
           <button className={`btn ${btn} btn--block`} type="button" onClick={() => go({ name: 'rattrapage', id: courseId })}>
             Faire la série de validation
           </button>
-          <button className="btn btn--text self-center" type="button" onClick={() => go({ name: 'relire', id: courseId })}>
-            Relire la leçon
-          </button>
+          <div className="row row--wrap" style={{ justifyContent: 'center' }}>
+            {rule && (
+              <button className="btn btn--text" type="button" onClick={() => go({ name: 'relire', id: courseId, part: rule.part })}>
+                {`Relire la règle ${rule.n}`}
+              </button>
+            )}
+            <button className="btn btn--text" type="button" onClick={() => go({ name: 'relire', id: courseId })}>
+              Relire la leçon
+            </button>
+          </div>
         </div>
       ) : (
         <button className={`btn ${btn} btn--block`} type="button" onClick={() => go({ name: 'cours-detail', id: courseId })}>
@@ -193,7 +203,7 @@ export default function Home() {
           <ReviewCard reviews={home.reviews} started={home.today.reviewMs > 0} />
         </section>
 
-        <CourseCard home={home} progress={progress} reviewsLeft={home.reviews !== null} />
+        <CourseCard home={home} progress={progress} events={events} reviewsLeft={home.reviews !== null} />
       </main>
       <div className="app-foot">
         <BottomNav active="accueil" />

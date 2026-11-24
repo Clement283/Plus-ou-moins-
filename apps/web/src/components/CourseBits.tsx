@@ -1,4 +1,4 @@
-import { getCourse, type CourseStatus } from '@pom/engine';
+import { getCourse, type CourseStatus, type LastAttempt } from '@pom/engine';
 import { Icon } from '../ui/Icon';
 
 /** Étoiles d'un cours validé (1 à 3), vides comprises : `.rating` du design system. */
@@ -22,3 +22,17 @@ export function courseLabel(courseId: string): string {
 
 /** « à faire » couvre un cours disponible ou commencé (un cours quitté recommence, doc 08 n° 16). */
 export const isTodo = (s: CourseStatus) => s === 'disponible' || s === 'en-cours';
+
+/** « Dernier essai : … À revoir : … » (doc 08 n° 29), seulement pour un cours à valider qui a un essai terminé. */
+export function lastAttemptText(a: LastAttempt): string {
+  const base = a.kind === 'cours' ? `Dernier essai : ${a.finOk} exercices de fin justes sur ${a.fin}.` : `Dernier essai : ${a.finOk} sur ${a.fin}.`;
+  if (!a.top || a.top.rule === null) return base;
+  const label = a.top.label.charAt(0).toLowerCase() + a.top.label.slice(1);
+  return `${base} À revoir : ${label}.`;
+}
+
+/** Lien « Relire la règle N » de l'erreur la plus fréquente, s'il y a une règle. */
+export function ruleLink(a: LastAttempt | null): { n: number; part: number } | null {
+  const t = a?.top;
+  return t && t.rule !== null && t.partIndex !== null ? { n: t.rule, part: t.partIndex } : null;
+}

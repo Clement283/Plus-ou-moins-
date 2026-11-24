@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
-import { getCourse, resultOfTally, num, op, rat, seededRng, type ActivityItem, type Question } from '@pom/engine';
+import { getCourse, resultOfTally, runErrors, num, op, rat, seededRng, type ActivityItem, type Question } from '@pom/engine';
 
 const h = vi.hoisted(() => ({ events: [] as any[], items: [] as any[], record: null as any, listeners: new Set<() => void>(), fixed: null as any }));
 vi.mock('../src/store/sync', () => ({
+  useEvents: () => h.events,
   recordEvent: vi.fn(h.record = async (e: any) => {
     h.events.push({ ...e, id: `e${h.events.length}`, userId: 'u1', at: Date.UTC(2026, 10, 22, 11) + h.events.length, day: '2026-11-22' });
     h.listeners.forEach((l) => l());
@@ -118,6 +119,37 @@ describe('cours : résultat', () => {
     expect(t.btn('Faire la série de validation')).toBeTruthy();
     fireEvent.click(t.btn('Relire la leçon')!);
     expect(window.location.hash).toBe('#/cours/' + encodeURIComponent(C04.id) + '/relire');
+  });
+
+  it('erreurs par règle et lien « Relire la règle N » vers la partie de la règle', () => {
+    const C00 = getCourse('c00-bien-ecrire');
+    const ans = (i: number, correct: boolean, errorType?: string) =>
+      ({ kind: 'answer', activityId: 'a1', courseId: C00.id, activity: 'fin', attempt: 1, correct, ...(errorType ? { errorType } : {}), id: `x${i}`, userId: 'u1', at: i, day: '2026-11-22' }) as any;
+    const events = [ans(0, false, 'signes-colles'), ans(1, false, 'signes-colles'), ans(2, false, 'signes-colles'), ans(3, false, 'parenthese'), ans(4, true)];
+    const t = mount(
+      <RunResultView variant="cours" courseId={C00.id} results={['ko', 'ko', 'ko', 'ko', 'ok']} result={resultOfTally({ first: 5, ok: 1, fin: 5, finOk: 1 }, C00.id)} errors={runErrors(events, 'a1', C00.id)} />,
+    );
+    expect(t.text()).toContain('Tes erreurs :');
+    expect(t.text()).toContain('Deux signes qui se touchent (règle 1)');
+    expect(t.text()).toContain('3 fois');
+    expect(t.text()).toContain('Parenthèse non fermée (règle 4)');
+    expect(t.text()).toContain('1 fois');
+    expect(t.text()).toContain('Prochaine étape : la série de validation.');
+    expect(t.$$('a').find((a) => a.textContent === 'Relire la règle 1')?.getAttribute('href')).toBe('#/cours/c00-bien-ecrire/relire/4');
+  });
+
+  it('erreur la plus fréquente sans règle : pas de lien « Relire la règle »', () => {
+    const t = mount(
+      <RunResultView
+        variant="cours"
+        courseId={C04.id}
+        results={['ko']}
+        result={{ validated: false, ok: 1, first: 5, finOk: 1, fin: 5, percent: 20, nextCourseId: null, firstReviewInHours: 48 }}
+        errors={[{ errorType: 'autre', label: 'Autre erreur', rule: null, partIndex: null, count: 2 }]}
+      />,
+    );
+    expect(t.text()).toContain('Autre erreur');
+    expect(t.text()).not.toContain('Relire la règle');
   });
 
   it('le critère rempli est en vert', () => {
@@ -240,6 +272,14 @@ describe('rattrapage', () => {
 });
 
 describe('relire', () => {
+  it('avec une partie : ne montre que cette partie, sans événement, puis revient à Mes cours', async () => {
+    const t = mount(<RelireScreen courseId="c00-bien-ecrire" part={4} rng={seededRng(1)} />);
+    await settle();
+    expect(t.btn('Suivant') ?? t.btn('Continuer') ?? t.btn('Terminer')).toBeTruthy();
+    expect(h.events).toEqual([]);
+    expect(t.text()).toContain('Quand deux signes se touchent');
+  });
+
   it('rejoue les parties de leçon sans exercice de fin et sans aucun événement', async () => {
     const t = mount(<RelireScreen courseId={C04.id} rng={seededRng(1)} />);
     const { courseRunItems } = await import('@pom/engine');

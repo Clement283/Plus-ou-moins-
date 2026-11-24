@@ -4,7 +4,7 @@ export type Route =
   | { name: 'accueil' }
   | { name: 'cours' }
   | { name: 'cours-detail'; id: string }
-  | { name: 'relire'; id: string }
+  | { name: 'relire'; id: string; part?: number }
   | { name: 'rattrapage'; id: string }
   | { name: 'revisions' }
   | { name: 'entrainement' }
@@ -33,6 +33,7 @@ export function parseRoute(hash: string): Route {
     if (n === 1) return { name: 'cours' };
     if (n === 2) return { name: 'cours-detail', id: b! };
     if (n === 3 && c === 'relire') return { name: 'relire', id: b! };
+    if (n === 4 && c === 'relire' && /^\d+$/.test(d!)) return { name: 'relire', id: b!, part: Number(d) };
   }
   if (a === 'rattrapage' && n === 2) return { name: 'rattrapage', id: b! };
   if (a === 'revisions' && n === 1) return { name: 'revisions' };
@@ -55,7 +56,7 @@ export function toHash(r: Route): string {
     case 'accueil': return '#/';
     case 'cours': return '#/cours';
     case 'cours-detail': return `#/cours/${e(r.id)}`;
-    case 'relire': return `#/cours/${e(r.id)}/relire`;
+    case 'relire': return `#/cours/${e(r.id)}/relire${r.part === undefined ? '' : `/${r.part}`}`;
     case 'rattrapage': return `#/rattrapage/${e(r.id)}`;
     case 'revisions': return '#/revisions';
     case 'entrainement': return '#/entrainement';

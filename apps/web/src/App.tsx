@@ -50,7 +50,7 @@ function StudentRoutes() {
   // `key` : chaque ouverture repart de zéro (un autre cours, une nouvelle série).
   if (route.name === 'cours-detail') return <CourseScreen key={route.id} courseId={route.id} />;
   if (route.name === 'rattrapage') return <RattrapageScreen key={route.id} courseId={route.id} />;
-  if (route.name === 'relire') return <RelireScreen key={route.id} courseId={route.id} />;
+  if (route.name === 'relire') return <RelireScreen key={`${route.id}/${route.part ?? ''}`} courseId={route.id} {...(route.part === undefined ? {} : { part: route.part })} />;
   if (route.name === 'accueil') return <Home />;
   if (route.name === 'cours') return <Courses />;
   if (route.name === 'entrainement') return <Training />;

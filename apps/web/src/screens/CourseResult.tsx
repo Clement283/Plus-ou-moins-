@@ -1,5 +1,5 @@
-import { getCourse, validationOf, type RunResult } from '@pom/engine';
-import { go } from '../router';
+import { getCourse, validationOf, type RunErrorLine, type RunResult } from '@pom/engine';
+import { go, toHash } from '../router';
 import { AppBar } from '../ui/AppBar';
 import { Icon } from '../ui/Icon';
 import type { StepResult } from '../ui/Stepper';
@@ -14,11 +14,37 @@ export interface RunResultViewProps {
   result: RunResult;
   /** Une valeur par étape faite, pour la barre du haut. */
   results: StepResult[];
+  /** Erreurs des 1res réponses de l'essai, par règle (`runErrors`). */
+  errors?: RunErrorLine[];
   /** Rattrapage : relance une nouvelle série. */
   onRetry?: () => void;
 }
 
-export function RunResultView({ variant, courseId, result, results, onRetry }: RunResultViewProps) {
+/** « Tes erreurs : » une ligne par type, et le lien vers la règle la plus fréquente qui en a une. */
+function ErrorsBlock({ courseId, errors }: { courseId: string; errors: RunErrorLine[] }) {
+  if (!errors.length) return null;
+  const top = errors.find((e) => e.rule !== null && e.partIndex !== null);
+  return (
+    <div className="stack" style={{ gap: 'var(--sp-8)' }}>
+      <p className="t-subtitle2">Tes erreurs :</p>
+      <ul className="list" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {errors.map((e) => (
+          <li key={e.errorType} className="list-item" style={{ minHeight: 0 }}>
+            <span className="list-item__text">{e.rule !== null ? `${e.label} (règle ${e.rule})` : e.label}</span>
+            <span className="list-item__trail t-body2">{`${e.count} fois`}</span>
+          </li>
+        ))}
+      </ul>
+      {top && (
+        <a className="link link--target t-body2 self-start" href={toHash({ name: 'relire', id: courseId, part: top.partIndex! })}>
+          {`Relire la règle ${top.rule}`}
+        </a>
+      )}
+    </div>
+  );
+}
+
+export function RunResultView({ variant, courseId, result, results, errors = [], onRetry }: RunResultViewProps) {
   const course = getCourse(courseId);
   const nextCourse = result.nextCourseId ? getCourse(result.nextCourseId) : null;
   const close = result.validated ? '#/' : '#/cours';
@@ -98,6 +124,7 @@ export function RunResultView({ variant, courseId, result, results, onRetry }: R
               <span>{`Le cours ${nextCourse.order} se débloque quand le cours ${course.order} est validé.`}</span>
             </div>
           )}
+          <ErrorsBlock courseId={courseId} errors={errors} />
           <div style={{ flex: 1 }} />
           <button className="btn btn--contained btn--block" type="button" onClick={onRetry}>
             Refaire une série de 5
@@ -130,7 +157,10 @@ export function RunResultView({ variant, courseId, result, results, onRetry }: R
             <div>{`Tu en as réussi ${result.finOk}. Ces exercices vérifient que tu sais calculer seule.`}</div>
           </div>
         </div>
-        <p className="t-body2" style={{ color: 'var(--muted)' }}>Pas besoin de refaire la leçon : 5 exercices, 4 justes pour valider. Tu peux recommencer.</p>
+        <ErrorsBlock courseId={courseId} errors={errors} />
+        <p className="t-body2">
+          <b>Prochaine étape : la série de validation.</b> 5 exercices, 4 justes pour valider le cours.
+        </p>
         <div style={{ flex: 1 }} />
         <button className="btn btn--contained btn--block" type="button" onClick={() => go({ name: 'rattrapage', id: courseId })}>
           Faire la série de validation

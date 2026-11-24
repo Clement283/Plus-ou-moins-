@@ -200,6 +200,7 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'relire', fixture: 'debut-de-journee', route: '#/cours/c04-soustraire/relire', before: (page) => page.waitForTimeout(3500) },
       { name: 'resultat-valide', fixture: 'debut-de-journee', route: '#/essai/cours?cas=valide' },
       { name: 'resultat-non-valide', fixture: 'debut-de-journee', route: '#/essai/cours?cas=non-valide' },
+      { name: 'resultat-non-valide-erreurs', fixture: 'debut-de-journee', route: '#/essai/cours?cas=non-valide-erreurs' },
       { name: 'resultat-dernier-cours', fixture: 'debut-de-journee', route: '#/essai/cours?cas=dernier' },
       { name: 'rattrapage-serie', fixture: 'debut-de-journee', route: '#/rattrapage/c04-soustraire', before: async (page) => { for (let i = 0; i < 2; i++) { await tapKeys(page, '1', 'Valider'); await page.click('button:text-is("Continuer")'); await page.waitForTimeout(80); } await freezeCaret(page); } },
       { name: 'rattrapage-quitter-relire', fixture: 'debut-de-journee', route: '#/rattrapage/c04-soustraire', before: async (page) => { await page.click('.chip-action'); await page.waitForSelector('[role=dialog]'); } },

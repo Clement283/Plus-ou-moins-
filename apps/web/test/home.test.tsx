@@ -43,6 +43,16 @@ afterEach(() => {
   h.recorded.length = 0;
 });
 
+describe('Accueil, cours à valider', () => {
+  it('« Dernier essai » après un essai raté, rien sans essai', () => {
+    load('cours-a-rattraper');
+    expect(mount(<Home />).text()).toContain('Dernier essai : 2 exercices de fin justes sur 5.');
+    cleanup();
+    load('debut-de-journee');
+    expect(mount(<Home />).text()).not.toContain('Dernier essai');
+  });
+});
+
 describe('Accueil', () => {
   it('début de journée : prénom, série, jauge à 0, révisions à faire, bouton du cours à contour', () => {
     load('debut-de-journee');
@@ -178,6 +188,15 @@ describe('Mes cours', () => {
     // retoucher la ligne ouverte la referme
     fireEvent.click(first.querySelector('summary')!);
     expect(open()).toHaveLength(0);
+  });
+
+  it('à valider : « Dernier essai » après un essai raté, rien pour un cours validé', () => {
+    load('cours-a-rattraper');
+    const v = mount(<Courses />);
+    expect(v.text()).toContain('Dernier essai : 2 exercices de fin justes sur 5.');
+    cleanup();
+    load('debut-de-journee');
+    expect(mount(<Courses />).text()).not.toContain('Dernier essai');
   });
 
   it('à valider : série de validation et leçon', () => {

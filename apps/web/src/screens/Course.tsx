@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { courseRunItems, getCourse, rattrapageItems, resultOfTally, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
+import { courseRunItems, getCourse, rattrapageItems, resultOfTally, runErrors, runResult, type ActivityItem, type CurrentStep, type Rng, type RunResult } from '@pom/engine';
 import { go } from '../router';
 import { FOLD_WAIT_MS } from '../store/foldcache';
 import { useProgress } from '../store/progress';
+import { useEvents } from '../store/sync';
 import type { StepResult } from '../ui/Stepper';
 import { AppBar } from '../ui/AppBar';
 import { ActivityScreen, type ChipPosition, type FirstAnswer } from './Activity';
@@ -48,6 +49,7 @@ function memoryResult(courseId: string, firsts: FirstAnswer[]): RunResult {
  */
 function Finished({ variant, courseId, activityId, ended, onRetry }: { variant: 'cours' | 'rattrapage'; courseId: string; activityId: string; ended: Ended; onRetry?: () => void }) {
   const progress = useProgress();
+  const events = useEvents();
   const [late, setLate] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setLate(true), FOLD_WAIT_MS);
@@ -62,7 +64,7 @@ function Finished({ variant, courseId, activityId, ended, onRetry }: { variant: 
       </main>
     );
   }
-  return <RunResultView variant={variant} courseId={courseId} result={result} results={ended.results} onRetry={onRetry} />;
+  return <RunResultView variant={variant} courseId={courseId} result={result} results={ended.results} errors={runErrors(events, activityId, courseId)} onRetry={onRetry} />;
 }
 
 export function CourseScreen({ courseId, rng }: { courseId: string; rng?: Rng }) {
@@ -113,8 +115,16 @@ export function RattrapageScreen({ courseId, rng }: { courseId: string; rng?: Rn
   );
 }
 
-export function RelireScreen({ courseId, rng }: { courseId: string; rng?: Rng }) {
+/** `part` : ne montre que cette partie de la leçon (« Relire la règle N »), toujours sans rien enregistrer. */
+export function RelireScreen({ courseId, part, rng }: { courseId: string; part?: number; rng?: Rng }) {
   const course = getCourse(courseId);
-  const items = useMemo((): ActivityItem[] => courseRunItems(course, rng ?? Math.random).filter((i) => !(i.type === 'question' && i.activity === 'fin')), [course, rng]);
+  const items = useMemo((): ActivityItem[] => {
+    const all = courseRunItems(course, rng ?? Math.random);
+    if (part !== undefined) {
+      const one = all.filter((i) => i.itemId === `partie-${part}`);
+      if (one.length) return one;
+    }
+    return all.filter((i) => !(i.type === 'question' && i.activity === 'fin'));
+  }, [course, rng, part]);
   return <ActivityScreen kind="cours" items={items} chip={courseChip(courseId)} record={false} onEnd={() => go('#/cours')} {...(rng ? { rng } : {})} />;
 }
