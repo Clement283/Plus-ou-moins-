@@ -67,6 +67,12 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Page de suivi : noms des erreurs (16 inventés), raison « sous 70 % », messages de cas rares, ligne « Calculs, terminé » pour un module fini.
 - Cours 4, écran 1 : texte du doc 06 gardé (la maquette avait une autre phrase).
 
+## Mise en ligne (2026-11-24) — tâche 15 faite
+- En ligne : https://plus-ou-moins.ballam-clement3.workers.dev (compte Cloudflare « Clement »). Voir `docs/deploiement.md`.
+- Comptes réels : Myms (élève) et Clément (suiveur). Codes remis au porteur du projet dans le chat, une seule fois.
+- Choix technique : les fichiers de l'appli sont intégrés au Worker (l'envoi « Static Assets » est cassé par l'injection du jeton dans l'environnement cloud).
+- Corrigé au passage : le serveur ignore maintenant tous les espaces du code (pas seulement ceux du début et de la fin).
+
 ## Reprendre : développement des écrans (nouvelle session)
 1. Lire ce fichier, le plan, `docs/validation/01` à `08` (08 et 07 priment), `docs/design/design-system/README.md` et `docs/design/ecrans/BRIEF.md` + les pages d'écrans.
 2. Mettre à jour le plan (superpowers:writing-plans) : remplacer les parties UI des tâches 6, 7, 10, 13, 14 par des tâches d'écrans qui suivent les maquettes validées et le design system (tokens dans `apps/web/src/theme.css`), en s'appuyant sur les fonctions du moteur déjà construites (`@pom/engine` : buildQuestion/checkAnswer, readRaw/pressKey, createActivity/answer/skip, nextReviewSession, trainingSeries, foldProgress/applyEvent, dailyTime, computeDashboard) et sur `apps/web/src/store/sync.ts`.

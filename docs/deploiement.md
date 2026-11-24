@@ -1,0 +1,41 @@
+# Mise en ligne (Cloudflare)
+
+*Fait le 2026-11-24.* L'appli est en ligne : **https://plus-ou-moins.ballam-clement3.workers.dev**
+
+## Ce qui existe sur le compte Cloudflare « Clement »
+- Un Worker `plus-ou-moins` : il sert l'appli (fichiers intégrés au Worker) et l'API `/api/*`.
+- Une base D1 `plus-ou-moins` (id `885a9237-8316-45eb-b27f-4383c4333b45`), migration `0001_init.sql` appliquée.
+- Deux comptes : l'élève « Myms » et le suiveur « Clément », qui la suit. Les codes ont été donnés une seule fois au porteur du projet ; seuls leurs hachages sont stockés.
+
+## Remettre l'appli en ligne après une modification
+Il faut un jeton d'API Cloudflare (Workers Scripts : Modifier, D1 : Modifier, Account Settings : Lu, User Details et Memberships : Lu).
+
+```bash
+npm ci
+```
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npm run deploy
+```
+
+`npm run deploy` construit l'appli (sans les pages d'essai), intègre ses fichiers dans le Worker (`scripts/embed-assets.ts`) puis lance `wrangler deploy`.
+
+Pourquoi les fichiers sont intégrés au Worker : dans l'environnement cloud de Claude, le jeton est ajouté automatiquement à chaque requête vers l'API Cloudflare, ce qui casse l'envoi des « Static Assets » (qui utilise un autre jeton temporaire). Les fichiers font 566 Kio compressés, sous la limite de 3 Mio de l'offre gratuite.
+
+## Nouvelle migration de la base
+
+```bash
+cd apps/api && npx wrangler d1 migrations apply plus-ou-moins --remote
+```
+
+## Créer un compte
+
+```bash
+npx tsx scripts/create-user.ts --name Prénom --role eleve --remote
+```
+
+```bash
+npx tsx scripts/create-user.ts --name Prénom --role suiveur --follows <idDeLeleve> --remote
+```
+
+Le code s'affiche une seule fois. Les majuscules et les espaces du code n'ont pas d'importance à la connexion.
