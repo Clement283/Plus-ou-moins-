@@ -14,6 +14,8 @@ export interface DailyTime {
   reviewMs: number;
   courseMs: number;
   trainingMs: number;
+  /** Échauffement du jour (au plus 2 min). */
+  warmupMs: number;
   goalReached: boolean;
 }
 
@@ -21,6 +23,7 @@ export function dailyTime(events: AppEvent[], day: string): DailyTime {
   let reviewMs = 0;
   let courseMs = 0;
   let trainingMs = 0;
+  let warmupMs = 0;
   for (const e of events) {
     if (e.day !== day) continue;
     if (e.kind === 'lesson_part_done') {
@@ -29,9 +32,10 @@ export function dailyTime(events: AppEvent[], day: string): DailyTime {
       const ms = Math.min(e.durationMs, ANSWER_MAX_MS);
       if (e.activity === 'revision') reviewMs += ms;
       else if (e.activity === 'entrainement') trainingMs += ms;
+      else if (e.activity === 'echauffement') warmupMs += ms;
       else courseMs += ms; // 'lecon', 'exemple', 'fin', 'rattrapage'
     }
   }
-  const totalMs = reviewMs + courseMs + trainingMs;
-  return { totalMs, reviewMs, courseMs, trainingMs, goalReached: totalMs >= DAILY_GOAL_MS };
+  const totalMs = reviewMs + courseMs + trainingMs + warmupMs;
+  return { totalMs, reviewMs, courseMs, trainingMs, warmupMs, goalReached: totalMs >= DAILY_GOAL_MS };
 }

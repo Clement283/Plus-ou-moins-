@@ -19,3 +19,4 @@ export * from './feedback';
 export * from './attempts';
 export * from './questions';
 export { droiteExercise } from './exercises/build/droite';
+export * from './warmup';

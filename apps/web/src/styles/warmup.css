@@ -1,1 +1,12 @@
-/* warmup : rempli par une tâche suivante. */
+/* Échauffement du jour : écran dédié centré (nouvelles-fonctions.html n° 2, version A). */
+.warmup .q-body{justify-content:center;text-align:center}
+.warmup .q-body .q-expr{text-align:center}
+.warmup .choice-grid{width:100%}
+.warmup__head{display:flex;flex-direction:column;align-items:center;gap:var(--sp-12);text-align:center}
+.warmup__ico{width:56px;height:56px;border-radius:var(--r-full);display:grid;place-items:center;
+  background:var(--primary-container);color:var(--on-primary-container)}
+.warmup__ico.is-ok{background:var(--success-container);color:var(--on-success-container)}
+.warmup__ico.is-ko{background:var(--muted-surface);color:var(--on-muted-surface)}
+.warmup__why{text-align:center}
+.warmup .q-foot{text-align:center}
+.warmup-chip{align-self:flex-start}
