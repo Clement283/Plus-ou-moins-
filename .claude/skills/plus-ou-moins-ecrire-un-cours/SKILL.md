@@ -43,6 +43,10 @@ Environ **12 à 15 écrans**. Elle apprend en faisant : **jamais plus de 2 étap
 
 Une étape interactive remplace « Suite » par une action en bas de l'écran. Une erreur donne un message court et elle réessaie ; rien n'est noté.
 
+- **La phrase à trous remplace une phrase de l'explication, elle ne s'ajoute pas.** Un seul trou à la fois ; les choix se lisent dans la phrase (« Un bond de −3 va vers la [gauche | droite]. »), jamais des valeurs sans contexte.
+- **Ce qui se touche doit se voir** : sur une scène touchable (droite graduée…), pastilles rondes visibles qui « respirent », consigne écrite juste au-dessus (« Touche la droite à l'endroit où l'on arrive. »), petite main animée la première fois, cibles d'au moins 44 px, rien de coupé.
+- **Peu de texte à l'écran** : seules les 2 dernières phrases d'une explication restent affichées ; les précédentes se replient derrière « Relire le début ». Phrases courtes.
+
 | Action | Exemple |
 |---|---|
 | Phrase à trous (toucher le bon mot) | « Les deux bonds vont vers la [gauche \| droite], donc le résultat est [négatif \| positif]. » |
