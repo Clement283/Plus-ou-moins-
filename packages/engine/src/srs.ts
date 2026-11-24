@@ -212,6 +212,7 @@ function step(s: ProgressState, e: AppEvent): void {
     markStarted(c);
     return;
   }
+  if (e.activity === 'decouverte') return; // ne compte jamais (ni note, ni suivi, ni répétition espacée)
   const isCourseRun = e.activity === 'lecon' || e.activity === 'exemple' || e.activity === 'fin';
   if (isCourseRun) markStarted(c);
   const key = `${e.activityId}|${e.courseId}`;

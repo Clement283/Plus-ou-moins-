@@ -305,6 +305,16 @@ describe('course status and first answers', () => {
     expect(course(foldProgress(withoutEnd.slice(0, -1)), FIRST).status).toBe('en-cours');
   });
 
+  it('a wrong « decouverte » answer changes neither the run count nor the recent errors', () => {
+    const run = courseRun(FIRST, D, ok(7), ok(5));
+    const noise = [0, 1, 2].map(() => answer({ day: D, activityId: 'disc', activity: 'decouverte', courseId: FIRST, correct: false }));
+    const base = foldProgress(run);
+    const withNoise = foldProgress([...noise, ...run]);
+    expect(withNoise.journal.runs).toEqual(base.journal.runs);
+    expect(course(withNoise, FIRST)).toEqual(course(base, FIRST));
+    expect(course(foldProgress(noise), FIRST).status).toBe('disponible');
+  });
+
   it('only first answers count: retries (attempt > 1) are ignored', () => {
     const activityId = 'run-retry';
     const evts: AppEvent[] = [];

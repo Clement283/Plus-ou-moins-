@@ -10,7 +10,9 @@ import { buildSaisie } from './saisie';
 import { buildTrou } from './trou';
 import { buildVraiFaux } from './vraifaux';
 
-const BUILDERS: Record<QuestionKind, (course: CourseDef, ctx: BuildCtx) => Question> = {
+/** « choix » et « reecrire » n'ont pas de générateur : ils viennent du contenu d'un cours. */
+type GenericKind = Exclude<QuestionKind, 'choix' | 'reecrire'>;
+const BUILDERS: Record<GenericKind, (course: CourseDef, ctx: BuildCtx) => Question> = {
   saisie: buildSaisie,
   trou: buildTrou,
   ordre: buildOrdre,
@@ -29,5 +31,6 @@ export function buildQuestion(course: CourseDef, kind: QuestionKind, ctx: BuildC
   const custom = course.customQuestion?.(kind, ctx);
   if (custom) return custom;
   if (course.customCheck) throw new Error(`Exercice « ${kind} » indisponible pour ${course.id}`);
+  if (kind === 'choix' || kind === 'reecrire') throw new Error(`Exercice « ${kind} » sans générateur`);
   return BUILDERS[kind](course, ctx);
 }

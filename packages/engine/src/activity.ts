@@ -273,7 +273,7 @@ export function promptOf(q: Question): string {
     case 'trou':
       return q.promptLatex;
     case 'erreur':
-      return q.lines.join(' \\\\ ');
+      return q.shownLatex ?? q.lines.join(' \\\\ ');
     case 'paires':
       return q.left.join(' ; ');
     case 'classer':
@@ -283,6 +283,10 @@ export function promptOf(q: Question): string {
     case 'ordre':
     case 'qcm':
       return exLatex(q.ex);
+    case 'choix':
+      return q.calcLatex ? `${q.prompt} ${q.calcLatex}` : q.prompt;
+    case 'reecrire':
+      return q.givenLatex;
   }
 }
 

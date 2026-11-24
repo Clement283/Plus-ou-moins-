@@ -59,6 +59,8 @@ export function latexToText(latex: string): string {
 const ratText = (r: Rational): string => plain(r.d === 1 ? `${r.n}` : `${r.n}/${r.d}`);
 const ratLatex = (r: Rational): string => (r.d === 1 ? `${r.n}` : `${r.n < 0 ? '-' : ''}\\frac{${Math.abs(r.n)}}{${r.d}}`);
 const exText = (ex: Exercise): string => plain(toLatex(ex.expr)).replace(/\\times/g, '×').replace(/\\div/g, '÷');
+/** « 6×(−2) » texte vers LaTeX. */
+const latexOfCalc = (s: string): string => s.replace(/×/g, '\\times ').replace(/÷/g, '\\div ');
 const text = (s: string): string => `\\text{${s}}`;
 
 function exerciseOf(q: Question): Exercise {
@@ -77,6 +79,12 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
       const right = q.choices[q.correctIndex]!;
       return { title: `La bonne réponse est ${latexToText(right.latex)}.`, rightLatex: right.latex };
     }
+    case 'choix': {
+      const right = q.options[q.correctIndex]?.label ?? o.expected;
+      return { title: 'Pas tout à fait.', rightLatex: text(right) };
+    }
+    case 'reecrire':
+      return { title: 'Pas tout à fait.', rightLatex: latexOfCalc(q.expected) };
     case 'vraifaux':
       return { title: q.isTrue ? "C'était vrai." : "C'était faux.", rightLatex: text(q.isTrue ? 'Vrai' : 'Faux') };
     case 'erreur':
@@ -99,8 +107,23 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
   }
 }
 
-export function feedbackFor(course: CourseDef, q: Question, a: Answer, o: Outcome): Feedback {
+export function feedbackFor(course: CourseDef, q: Question, a: Answer, o: Outcome, opts?: { guess?: boolean }): Feedback {
   const raw = 'raw' in a ? a.raw : null;
+
+  if (q.kind === 'choix' || q.kind === 'reecrire') {
+    if (o.correct) return { tone: 'juste', title: 'Juste !', note: o.message || null };
+    const message = o.message ?? '';
+    if (opts?.guess) return { tone: 'pas-fini', title: 'Pas tout à fait, et c\'est normal.', message };
+    const right = wrongParts(q, a, o);
+    return {
+      tone: 'faux',
+      title: right.title,
+      message,
+      rightLatex: right.rightLatex,
+      explanation: q.kind === 'reecrire' ? { rule: message, steps: q.steps.map((t) => ({ t: 'text' as const, text: t })) } : null,
+      steps: [],
+    };
+  }
 
   if (o.correct) {
     const read = raw ? readRaw(raw, course.expectInteger) : null;

@@ -17,7 +17,17 @@ export type Question =
       solution: string[];
       trapTile?: { latex: string; errorType: string };
     }
-  | { kind: 'erreur'; ex: Exercise; lines: string[]; wrongLine: number | null /* null = « Tout est juste » */; errorType: string | null }
+  | {
+      kind: 'erreur';
+      ex: Exercise;
+      lines: string[];
+      wrongLine: number | null /* null = « Tout est juste » */;
+      errorType: string | null;
+      /** « Toucher la faute » : si présent, `line` est juste ⇔ `line ∈ accept` ; vide ⇔ « Tout est bien écrit » juste. */
+      accept?: number[];
+      /** Le calcul affiché en haut. */
+      shownLatex?: string;
+    }
   | { kind: 'paires'; exs: Exercise[]; left: string[]; right: { latex: string; value: Rational }[] }
   | { kind: 'classer'; exs: Exercise[]; classes: { id: string; label: string }[]; expected: string[] }
   | {
@@ -27,7 +37,25 @@ export type Question =
       correctIndex: number;
       formula: 'debut' | 'paires-signes' | 'melangee';
     }
-  | { kind: 'vraifaux'; ex: Exercise; shown: Rational; isTrue: boolean; errorType: string | null };
+  | { kind: 'vraifaux'; ex: Exercise; shown: Rational; isTrue: boolean; errorType: string | null }
+  | {
+      kind: 'choix';
+      ex: Exercise;
+      calcLatex: string | null;
+      prompt: string;
+      options: { label: string; why: string }[];
+      correctIndex: number;
+    }
+  | {
+      kind: 'reecrire';
+      ex: Exercise;
+      givenLatex: string;
+      /** Normalisés (voir `normalizeCalc`). */
+      expected: string;
+      specific: { answer: string; message: string; errorType: string | null; correct: boolean }[];
+      fallback: string;
+      steps: string[];
+    };
 
 export interface BuildCtx {
   rng: Rng;
@@ -48,7 +76,8 @@ export type Answer =
   | { line: number | null }
   | { pairs: [number, number][] }
   | { classes: string[] }
-  | { bool: boolean };
+  | { bool: boolean }
+  | { text: string };
 
 export interface Outcome {
   correct: boolean;
@@ -57,4 +86,6 @@ export interface Outcome {
   errorFamily: ErrorFamily | null;
   given: string;
   expected: string;
+  /** Texte propre à la réponse (« choix », « Réécris »). */
+  message?: string;
 }

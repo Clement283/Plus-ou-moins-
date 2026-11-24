@@ -5,6 +5,7 @@ import { type Rational, eqRat, neg, ratToString } from '../math/rational';
 import { diagnose } from '../courses';
 import type { CourseDef } from '../courses/types';
 import type { Answer, Outcome, Question } from './types';
+import { normalizeCalc } from './rewrite';
 import { familyOf, signError } from '../courses/errors-util';
 
 const ALL_RIGHT = 'Tout est juste';
@@ -122,6 +123,13 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
 
     case 'erreur': {
       if (!('line' in a)) return mismatch(q);
+      if (q.accept) {
+        // « Toucher la faute » : plusieurs cases acceptées (nombre = une case)
+        const shown = (line: number | null): string => (line === null ? 'Tout est bien écrit' : (q.lines[line] ?? ''));
+        const ok = a.line === null ? q.accept.length === 0 : q.accept.includes(a.line);
+        const errorType = q.accept.length === 0 || a.line === null ? 'relecture' : (q.errorType ?? 'autre');
+        return judge(course, ok, errorType, shown(a.line), shown(q.accept[0] ?? null));
+      }
       const show = (line: number | null): string => (line === null ? ALL_RIGHT : (q.lines[line] ?? ''));
       // the error not spotted; « Tout est juste » on an error, or a line on a right resolution: relecture
       const errorType = q.wrongLine === null || a.line === null ? 'relecture' : (q.errorType ?? 'autre');
@@ -157,6 +165,32 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const answer = q.choices[q.correctIndex];
       if (!chosen || !answer) throw new Error('Choix inconnu');
       return judge(course, a.choice === q.correctIndex, chosen.errorType ?? 'autre', chosen.latex, answer.latex);
+    }
+
+    case 'choix': {
+      if (!('choice' in a)) return mismatch(q);
+      const chosen = q.options[a.choice];
+      const answer = q.options[q.correctIndex];
+      if (!chosen || !answer) throw new Error('Choix inconnu');
+      return { ...(a.choice === q.correctIndex ? right(chosen.label, answer.label) : wrong('autre', 'autre', chosen.label, answer.label)), errorType: null, errorFamily: null, message: chosen.why };
+    }
+
+    case 'reecrire': {
+      if (!('text' in a)) return mismatch(q);
+      const given = normalizeCalc(a.text);
+      if (given === q.expected) return { ...right(given, q.expected), message: '' };
+      const hit = q.specific.find((s) => s.answer === given);
+      if (hit?.correct) return { ...right(given, q.expected), message: hit.message };
+      const errorType = hit ? hit.errorType : null;
+      return {
+        correct: false,
+        unfinished: false,
+        errorType,
+        errorFamily: errorType ? familyOf(course, errorType) : null,
+        given,
+        expected: q.expected,
+        message: hit ? hit.message : q.fallback,
+      };
     }
 
     case 'vraifaux': {
