@@ -41,12 +41,18 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c02-additionner-signes-contraires': [
-    ['Une dette, puis un gain', 'Tu dois 3 € et tu gagnes 5 €. Il te reste 2 €.'],
-    ['Signes contraires : je soustrais', 'Je garde le signe du plus grand.'],
-    ordreOf('4 + (−9)'),
-    CALC,
-    [null],
-    EX, EX, EX, EX,
+    ['Additionner deux nombres de signes contraires'],
+    ['Un bond qui en défait un autre'],
+    ['Comparer deux cas'],
+    ['Je soustrais les longueurs des bonds'],
+    [null], [null],
+    ['Le plus grand décide du signe'],
+    [null], [null],
+    ['Autres façons de faire'],
+    ['Cours 2 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c03-additionner-plusieurs': [
     ['Je range les positifs et les négatifs', 'Les positifs d\'un côté, les négatifs de l\'autre.'],
@@ -138,7 +144,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   });
 
   const KO: Record<string, [string, string]> = {
-    'c02-additionner-signes-contraires': ['3 + (−8) = 5', 'Le signe du résultat, c\'est celui du nombre le plus grand (sans son signe).'],
     'c03-additionner-plusieurs': ['−2 + 5 + (−4) = 1', 'Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe.'],
     'c05-multiplier-deux': ['−3 × (−4) = −12', '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.'],
     'c06-diviser-deux': ['−12 ÷ 4 = 3', 'Même règle que pour × : signes pareils → + ; différents → −.'],
@@ -153,11 +158,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   }
 
   const OK: Record<string, string[]> = {
-    'c02-additionner-signes-contraires': [
-      '−3 + 5 = 5 − 3 = **2** (5 est le plus grand, il est positif)',
-      '4 + (−9) = 9 − 4 = **−5** (9 est le plus grand, il est négatif)',
-      '−6 + 6 = **0** (deux opposés s\'annulent)',
-    ],
     'c03-additionner-plusieurs': ['positifs : 3 + 3 = 6', 'négatifs : −3', '6 + (−3) = **3**'],
     'c05-multiplier-deux': ['−3 × (−4) = +(3 × 4) = **12**', '6 × (−7) = −(6 × 7) = **−42**'],
     'c06-diviser-deux': ['−12 ÷ 4 = −(12 ÷ 4) = **−3**', '−35 ÷ (−7) = +(35 ÷ 7) = **5**'],

@@ -176,9 +176,41 @@ export interface EtapeStep {
   after?: Scene;
 }
 
+/** L'essai libre d'une technique de l'écran « Autres façons de faire » : ne compte pas dans la note, seul le résultat est corrigé. */
+export type AutresEssai =
+  /** Taper un résultat : `errors` = des réponses (entières) et leur message ; `fallback` pour toute autre. */
+  | { kind: 'saisie'; consigne: string; calc: string; answer: number; yes: string; errors: { values: number[]; message: string }[]; fallback: string }
+  /** Toucher un choix en bas de l'écran. */
+  | { kind: 'choix'; consigne: string; calc: string; options: string[]; correct: number; yes: string; no: string };
+
+/** Une carte de l'écran « Autres façons de faire » : le nom, quand l'utiliser, un exemple chiffré, l'explication, l'essai libre. */
+export interface AutresTechnique {
+  name: string;
+  quand: string;
+  example: string;
+  how: string;
+  essai: AutresEssai;
+}
+
+/**
+ * « Autres façons de faire » (doc 06, Cours 2) : en haut le rappel des règles (`recap`, comme à la fin d'une leçon),
+ * puis 2 ou 3 techniques en cartes ; le choix se fait avec les boutons du bas, l'essai est libre et on peut continuer sans essayer.
+ */
+export interface Autres {
+  title: string;
+  /** Rappel des règles : titre, une ligne par règle (exemple juste et faux), et « En une phrase ». */
+  recap?: { title: string; rules: { title: string; ok: string; ko: string }[]; sentence: string };
+  /** Phrase d'introduction des cartes (**gras** autorisé). */
+  intro: string;
+  techniques: AutresTechnique[];
+  /** Phrase de fin d'écran (transition vers la série de pratique). */
+  outro?: string;
+}
+
 export type LessonPart =
   | ({ type: 'explication'; blocks: LessonBlock[] } & Pick<PartTexts, 'title' | 'subtitle'>)
   | { type: 'etapes'; title: string; steps: EtapeStep[] }
+  | ({ type: 'autres' } & Autres)
   | ({ type: 'question'; activity: 'lecon' | 'exemple' | 'decouverte'; question: Question } & PartTexts)
   | { type: 'pratique'; title: string; questions: { question: Question; texts?: PartTexts }[]; /** Phrase de transition après la série. */ outro?: string };
 

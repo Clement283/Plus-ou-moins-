@@ -269,22 +269,39 @@ h2.t{font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
 .tcard p{margin:0}
 .opt{min-height:48px}
 .etq{min-width:48px;min-height:48px}
+
+/* ——— Repères de relecture (hors design, jamais codés) ——— */
+.chg{outline:2px dashed var(--chg);outline-offset:3px;border-radius:10px;position:relative}
+.chg::after{content:'modifié';position:absolute;top:-11px;right:8px;background:var(--chg-bg);color:var(--chg);border:1px solid var(--chg);border-radius:999px;font-size:.65rem;font-weight:700;line-height:1;padding:3px 7px;pointer-events:none;z-index:2}
+.stage.chg{outline-offset:-3px}
+.nav button.cs{background:var(--chg-bg);border-color:var(--chg);color:var(--ink)}
+.nav button.cs b{color:var(--chg)}
+.nav button.cs.on{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.nav button.cs.on b{color:var(--on-primary)}
+.chgbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--chg-bg);border:1px solid var(--chg);border-radius:14px;padding:10px 14px;font-size:.88rem}
+.chgbar p{margin:0;max-width:78ch}
+.chgbar button{font:inherit;font-size:.85rem;font-weight:600;border:1px solid var(--chg);background:var(--surface);color:var(--ink);border-radius:10px;padding:5px 12px;cursor:pointer}
+body.nochg .chg{outline:none}
+body.nochg .chg::after,body.nochg .chgbar .liste,body.nochg .nav button.cs b{display:none}
+body.nochg .nav button.cs{background:var(--surface);border-color:var(--line);color:var(--muted)}
+body.nochg .nav button.cs.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
 </style>
 
 <div class="wrap">
   <header class="intro">
     <h1>Nouveau Cours 2 : « Additionner deux nombres de signes contraires » (version 2)</h1>
-    <p>Maquette du déroulé du Cours 2 réécrit avec le skill « écrire un cours » : idée de départ sur la droite graduée, deux règles, comparer deux cas, série de pratique, aide qui s'efface, bouton Écouter, écran « Autres façons de faire », fiche mémo. C'est une première version de ce cours : pas de repères « modifié », mais l'encadré ci-dessous dit ce qui change par rapport au Cours 2 actuel. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
+    <p>Maquette du déroulé du Cours 2 réécrit avec le skill « écrire un cours » : idée de départ sur la droite graduée, deux règles, comparer deux cas, série de pratique, aide qui s'efface, bouton Écouter, écran « Autres façons de faire », fiche mémo. Version 2 de la maquette, après la relecture du porteur du projet : deux écrans en moins (voir « Modifié dans cette version »). L'encadré ci-dessous dit ce qui change par rapport au Cours 2 actuel. Tout est cliquable. À droite, ce que fait chaque écran, pourquoi, et ce qui reste à décider.</p>
   </header>
   <section class="diff" aria-label="Ce qui change"><h2>Ce qui change par rapport au Cours 2 actuel</h2><ul>
 <li><b>Elle agit plus qu'elle ne lit.</b> L'ancienne leçon était 2 écrans de lecture, puis étiquettes à ordonner et « relier les paires ». Maintenant chaque explication a des étapes interactives (toucher l'arrivée d'un bond, phrase à trous) : jamais plus de 2 étapes de lecture d'affilée, et seules les 2 dernières phrases restent affichées.</li>
 <li><b>Une idée de départ sur la droite graduée</b> (orange pour les négatifs, bleu pour les positifs) : un bond de −7, puis un bond de +2 en sens contraire. Le plus long bond décide. L'ancien cours partait de −3 + 5 sans l'expliquer.</li>
 <li><b>La règle est coupée en deux</b> : « je soustrais » et « le plus grand sans le signe décide du signe », chacune avec sa petite question et son erreur reconnue (<code>addition-au-lieu-soustraction</code>, <code>signe-du-mauvais-nombre</code>).</li>
 <li><b>Nouveau : comparer deux cas</b>, −7 + 2 et −7 + (−2) (ce dernier vient du Cours 1), « Qu'est-ce qui change ? ».</li>
-<li><b>Nouveau : les techniques du plan du module.</b> « Décomposer jusqu'à 0 » est une étape de la leçon (avec le cas des deux opposés) ; un écran « Autres façons de faire » propose deux cartes, avec un exemple chiffré chacune, et elle choisit celle qu'elle essaie ; la technique principale va sur la fiche mémo.</li>
+<li><b>Nouveau : les techniques du plan du module.</b> Le cas des deux opposés (−6 + 6 = 0) est une étape de la règle 2 ; un écran « Autres façons de faire » rappelle d'abord les règles, puis propose deux cartes, avec un exemple chiffré chacune, et elle choisit celle qu'elle essaie ; la technique principale va sur la fiche mémo.</li>
 <li><b>Nouveau : une série de pratique de 4 questions</b> à aide décroissante, dont une du Cours 1 (−4 + (−3)). Elle remplace « Étiquettes à ordonner » et « Relier les paires ».</li>
 <li><b>L'aide s'efface</b> dans les exemples guidés : le 1er (−8 + 3) est presque résolu, le 2e à moitié. Le 2e passe de 9 + (−4) à 3 + (−7), pour y mettre le piège du signe du plus grand.</li>
-<li><b>Nouveau : bouton « Écouter »</b> (haut-parleur, en haut à droite) et <b>fiche mémo</b> plein écran, relisible depuis Mes cours. <b>Plus long :</b> 13 écrans pour apprendre (9 parties avant), parce qu'on ajoute l'idée de départ, la comparaison, les questions de chaque règle et la série ; la note passe à 15 questions.</li></ul></section>
+<li><b>Nouveau : bouton « Écouter »</b> (haut-parleur, en haut à droite) et <b>fiche mémo</b> plein écran, relisible depuis Mes cours. <b>Plus long :</b> 11 écrans pour apprendre (8 écrans de leçon, la série de pratique et les 2 exemples guidés), parce qu'on ajoute l'idée de départ, la comparaison, les questions de chaque règle et la série ; la note passe à 15 questions.</li></ul></section>
+  <div class="chgbar"><p><b class="liste">Modifié dans cette version : </b><span class="liste" id="chglist"></span> <span class="liste"><b>Écran « Revenir à 0 » supprimé</b> : son contenu (−6 + 6 = 0, deux opposés) est maintenant une étape de l'écran « Règle 2 ». <b>Écran « Les 2 règles » fusionné</b> dans « Autres façons de faire » : les règles en haut, puis les techniques. Le cours passe de 13 à 11 écrans pour apprendre.</span> <i>Ces repères (astérisques, contours « modifié ») servent seulement à la relecture : ils ne font pas partie du design et ne seront jamais codés dans l'appli.</i></p><button type="button" id="chgtoggle">Masquer les repères</button></div>
   <nav class="nav" id="nav" aria-label="Écrans du cours"></nav>
   <div class="layout">
     <div>
@@ -331,20 +348,21 @@ function reveal(title, steps) {
       let scene = '', sceneAt = -1;
       steps.slice(0, st.k).forEach((s, i) => { if (s.s) { scene = typeof s.s === 'function' ? s.s(getA(st, i)) : s.s; sceneAt = i; } });
       const tapping = sceneAt >= 0 && steps[sceneAt].act && steps[sceneAt].act.type === 'tap' && !getA(st, sceneAt).done;
+      const sceneChg = sceneAt >= 0 && steps[sceneAt].chg;
       const sceneNew = (st.fresh && (sceneAt === st.k - 1 || st.rp)) || st.sa;
-      const sceneHtml = scene ? `<div class="stage ${sceneNew ? 'new' : ''} ${tapping ? 'tapst' : ''}">${scene}</div>` : '';
+      const sceneHtml = scene ? `<div class="stage ${sceneNew ? 'new' : ''} ${tapping ? 'tapst' : ''} ${sceneChg ? 'chg' : ''}">${scene}</div>` : '';
       /* Une « phrase » = un morceau de texte (explication, phrase à trous, conclusion). Seules les 2 dernières restent affichées ; le début se replie. */
       const frags = [];
       steps.slice(0, st.k).forEach((s, i) => {
         const a = getA(st, i);
-        if (s.t) frags.push({ h: s.t, last: false, c: !!s.c });
-        if (s.act && s.act.type === 'fill') frags.push({ h: `<p class="lead sent">${sentence(s.act, a)}</p>`, last: false, c: true });
-        if (s.act && a.done && s.act.after) frags.push({ h: s.act.after, last: false });
+        if (s.t) frags.push({ h: s.t, last: false, c: !!s.c, g: !!s.chg });
+        if (s.act && s.act.type === 'fill') frags.push({ h: `<p class="lead sent">${sentence(s.act, a)}</p>`, last: false, c: true, g: !!s.chg });
+        if (s.act && a.done && s.act.after) frags.push({ h: s.act.after, last: false, g: !!s.chg });
         if (i === st.k - 1 && frags.length) frags[frags.length - 1].last = true;
       });
       const hidden = st.open ? 0 : Math.max(0, frags.length - 2);
       const texts = (hidden ? `<button class="relire" data-a="relire">Relire le début</button>` : '') + (st.open && frags.length > 2 ? `<button class="relire" data-a="relire">Replier le début</button>` : '')
-        + frags.slice(hidden).map((f) => `<div class="step ${st.fresh && f.last ? 'new' : ''}">${f.h}</div>`).join('');
+        + frags.slice(hidden).map((f) => `<div class="step ${st.fresh && f.last ? 'new' : ''} ${f.g ? 'chg' : ''}">${f.h}</div>`).join('');
       const dots = `<div class="dots" aria-label="Étape ${st.k} sur ${steps.length}">${steps.map((_, i) => `<i class="${i < st.k ? 'on' : ''}"></i>`).join('')}</div>`;
       const cur = steps[st.k - 1], ca = getA(st, st.k - 1);
       const act = cur.act && !ca.done ? actZone(cur.act, ca) : '';
@@ -653,7 +671,7 @@ add({ id: 'accroche', sec: 'Leçon', name: 'Accroche',
 add({ id: 'idee', sec: 'Leçon', name: 'Un bond qui en défait un autre',
   what: "Trois étapes. Étape 1 (lecture) : la dette de 7 € est un bond de 7 graduations vers la gauche, on est à −7. Étape 2 (action) : « Tu rends 2 € », elle touche l'arrivée du bond vers la droite (droite grise, pastilles qui respirent, consigne en gras au-dessus, main animée la première fois seulement). Étape 3 (action) : phrase à trous, un seul trou : « Le bond de +2 est plus [court | long] que le bond de −7. » Ensuite : il ne défait qu'une partie de la dette, le bond le plus long décide.",
   why: "C'est le « pourquoi » du cours, avant toute règle : deux bonds de sens contraires, le deuxième défait une partie du premier, et c'est le plus long qui décide du côté où l'on arrive. Cette idée donne les deux règles (soustraire, puis prendre le signe du plus grand). Elle est reprise du Cours 1 (dette + droite), avec le sens contraire en plus.",
-  ask: ["Idée de départ proposée : « le plus long bond décide ». Elle commence par une dette plus grande que le gain (−7 + 2) ; le cas du gain le plus grand vient à l'écran 8. Tu valides ce choix ?",
+  ask: ["Idée de départ proposée : « le plus long bond décide ». Elle commence par une dette plus grande que le gain (−7 + 2) ; le cas du gain le plus grand (−2 + 6) vient à l'écran 6. Tu valides ce choix ?",
         "La droite graduée dessine ici de −7 à 0 (8 graduations : la limite pour que la droite reste touchable à 390 px). Le départ du 2e bond est donc au bord gauche de l'écran. Ça te gêne ?"] },
   reveal('Un bond qui en défait un autre', [
     { s: sc(line({ from: -7, to: 0, jumps: [{ a: 0, b: -7 }], anim: 0, start: 0, caps: true }), neg(7), "Une dette, c'est un nombre négatif"),
@@ -727,9 +745,9 @@ add({ id: 'questions-1', sec: 'Leçon', name: 'Petites questions : règle 1',
 
 /* ——— 6. Règle 2 ——— */
 const R2 = `<b style="all:unset;font-weight:700">Le nombre sans signe le plus grand décide : le résultat a son signe.</b>`;
-add({ id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : le plus grand décide du signe',
-  what: "Cinq étapes. (1) lecture : il reste 5 graduations, du côté négatif ou positif ? (2) phrase à trous : « Le grand bond est celui de −7 : on reste du côté [positif | négatif]. » (3) calcul à compléter : −7 + 2 = [−5 | 5 | −9]. (4) lecture : cas où le bond positif est le plus long, −2 + 6 = 4. (5) l'encadré de la règle 2. Jamais plus de 2 lectures de suite.",
-  why: "Elle lit le signe sur la droite (le grand bond va à gauche : côté négatif), puis l'écrit. 5 est `signe-du-mauvais-nombre` (le signe du plus grand oublié), −9 est l'addition. Le cas −2 + 6 évite qu'elle croie que « le résultat est négatif quand le premier l'est ». Cette règle est la technique principale du plan (« le plus grand sans le signe gagne ») : c'est celle de la fiche mémo.",
+add({ chg: true, id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : le plus grand décide du signe',
+  what: "Six étapes. (1) lecture : il reste 5 graduations, du côté négatif ou positif ? (2) phrase à trous : « Le grand bond est celui de −7 : on reste du côté [positif | négatif]. » (3) calcul à compléter : −7 + 2 = [−5 | 5 | −9]. (4) lecture : cas où le bond positif est le plus long, −2 + 6 = 4. (5) action (nouvelle, venue de l'ancien écran « Revenir à 0 ») : cas des deux opposés, −6 + 6, elle touche l'arrivée sur la droite : on revient au départ, le résultat est 0. (6) l'encadré de la règle 2. Jamais plus de 2 lectures de suite.",
+  why: "Elle lit le signe sur la droite (le grand bond va à gauche : côté négatif), puis l'écrit. 5 est `signe-du-mauvais-nombre` (le signe du plus grand oublié), −9 est l'addition. Le cas −2 + 6 évite qu'elle croie que « le résultat est négatif quand le premier l'est ». Le cas −6 + 6 ne rentre pas dans « le plus grand décide » (les deux bonds sont égaux) : on le traite ici, par une action, avant l'encadré. Cette règle est la technique principale du plan (« le plus grand sans le signe gagne ») : c'est celle de la fiche mémo.",
   ask: ["Les écrans 4 à 7 enchaînent règle 1, questions, règle 2, questions. Faut-il plutôt faire les deux règles à la suite, puis les questions ?"] },
   reveal('Le plus grand décide du signe', [
     { s: sc(line({ from: -10, to: 1, jumps: [{ a: 0, b: -7 }, { a: -7, b: -5 }], start: 0, labels: 'abs', mark: [-5] }), `${neg(7)} + ${pos(2)} = ?`),
@@ -746,6 +764,9 @@ add({ id: 'regle-2', sec: 'Leçon', name: 'Règle 2 : le plus grand décide du s
         after: `<p class="lead">Il reste 5 graduations, côté négatif : <b>${neg(5)}</b>.</p>` } },
     { s: sc(line({ from: -3, to: 5, jumps: [{ a: 0, b: -2 }, { a: -2, b: 4 }], anim: 1, start: 0, end: 4 }), `${neg(2)} + ${pos(6)} = ${pos(4)}`),
       t: `<p class="lead">Et si le bond <b>positif</b> est le plus long ? Avec ${M}2 + 6, il dépasse 0 : on arrive du côté <b>positif</b>, en 4.</p>` },
+    { chg: true, s: hopScene2({ from: -6, to: 1, start: -6, pre: [{ a: 0, b: -6 }], jump: { a: -6, b: 0 }, calcHtml: `${neg(6)} + ${pos(6)} = 0` }),
+      t: `<p class="lead">Cas particulier : ${M}6 + 6. On recule de 6, puis on <b>avance de 6</b>.</p>`,
+      act: { type: 'tap', ok: 0, no: hopNo2(-6, 0, 6), after: `<p class="lead">On revient au départ : deux nombres <b>opposés</b> s'annulent. ${M}6 + 6 = <b>0</b>.</p>` } },
     { t: rule(2, R2) },
   ]));
 
@@ -759,25 +780,6 @@ add({ id: 'questions-2', sec: 'Leçon', name: 'Petites questions : règle 2',
     { calc: `${M}5 + 8`, q: 'Quel est le résultat ?', o: ['3', `${M}3`, `${M}13`], ok: 0,
       yes: 'Signes contraires : 8 − 5 = 3. Le plus grand, 8, est positif : le résultat est 3.', why: { 1: SIGNE_MSG + " Ici, c'est 8, et il est positif.", 2: SOUS_MSG(8, 5) } },
   ], { counted: true }));
-
-/* ——— 8. Technique 2 : revenir à 0 ——— */
-add({ id: 'zero', sec: 'Leçon', name: "Revenir à 0 d'abord",
-  what: "Trois étapes. (1) lecture : −7 + 9, on coupe le bond de +9 en deux : +7 pour revenir à 0, puis le reste. (2) phrase à trous : « Après être revenu à 0, il reste 9 − 7 = [2 | 16 | 7] graduations à avancer. » (3) action sur la droite : « −6 + 6 », elle touche l'arrivée ; deux nombres opposés s'annulent, le résultat est 0.",
-  why: "Technique 2 du plan (« Décomposer jusqu'à 0 », étape de la leçon). Elle donne un deuxième chemin vers la règle 2 pour −7 + 9 (le gain le plus grand) et traite le cas des deux opposés (−6 + 6 = 0), prévu dans le doc 06, qui ne rentre pas dans « le plus grand décide ».",
-  ask: ["Cette technique est une étape de la leçon, pas une fiche. Elle est placée après la règle 2. Faut-il la mettre avant les questions de la règle 2 ?",
-        "Le cas des deux opposés est traité ici (une action, pas de règle numérotée). Il apparaît aussi dans le récapitulatif et dans le générateur. Une règle à part ?"] },
-  reveal("Revenir à 0 d'abord", [
-    { s: sc(line({ from: -8, to: 3, jumps: [{ a: 0, b: -7 }, { a: -7, b: 0, h: 24 }, { a: 0, b: 2 }], anim: 2, start: 0 }), `${neg(7)} + ${pos(9)} = ${neg(7)} + ${pos(7)} + ${pos(2)}`),
-      t: `<p class="lead">Quand le deuxième nombre est <b>un peu plus grand</b>, on coupe son bond en deux : <b>7</b> pour revenir à 0, puis ce qui reste.</p>` },
-    { s: (a) => sc(line({ from: -8, to: 3, jumps: [{ a: 0, b: -7 }, { a: -7, b: 0, h: 24 }, { a: 0, b: 2 }], start: 0, neutral: !a.done, end: a.done ? 2 : null }), a.done ? `${neg(7)} + ${pos(9)} = ${pos(2)}` : `${M}7 + 9 = ?`),
-      t: '',
-      act: { type: 'fill', parts: ['Après être revenu à 0, il reste 9 − 7 = ', 0, ' graduations à avancer.'], blanks: [
-        { o: ['2', '16', '7'], ok: 0, no: { 1: 'On cherche ce qui reste du bond de 9 après les 7 graduations déjà faites : on soustrait, 9 − 7.', 2: "Le bond de 7 est déjà fait pour revenir à 0. Il reste ce qu'il y a en plus : 9 − 7." } }],
-        after: `<p class="lead">${M}7 + 7 = 0, puis 2 de plus : on arrive à <b>${pos(2)}</b>.</p>` } },
-    { s: hopScene2({ from: -6, to: 1, start: -6, pre: [{ a: 0, b: -6 }], jump: { a: -6, b: 0 }, calcHtml: `${neg(6)} + ${pos(6)} = 0` }),
-      t: `<p class="lead">Cas particulier : ${M}6 + 6. On recule de 6, puis on <b>avance de 6</b>.</p>`,
-      act: { type: 'tap', ok: 0, no: hopNo2(-6, 0, 6), after: `<p class="lead">On revient au départ : deux nombres <b>opposés</b> s'annulent. ${M}6 + 6 = <b>0</b>.</p>` } },
-  ]));
 
 /* ——— 9. Autres façons de faire ——— */
 const TECH = [
@@ -794,9 +796,14 @@ const autres = {
   init: () => ({ sel: null, v: '', res: null }),
   render: (st) => {
     const cards = TECH.map((c, i) => `<div class="tcard ${st.sel === i ? 'sel' : ''}"><b>${i + 1}. ${c.t}</b><span class="small">${c.quand}</span><div class="ex">${c.ex}</div><p>${c.how}</p></div>`).join('');
-    let h = `<h2 class="t">Autres façons de faire</h2><p class="lead">La règle marche toujours. Voici deux autres façons de faire : <b>choisis celle que tu veux essayer</b>.</p><div class="tcards">${cards}</div>`;
+    const regles = `<div class="chg"><p class="q">Les 2 règles à retenir</p><ul class="recap">
+      <li><b>1. Je soustrais les nombres sans leur signe.</b><em>${M}7 + 2 : 7 − 2 = 5 ✓ &nbsp; 7 + 2 = 9 ✗</em></li>
+      <li><b>2. Le plus grand (sans signe) décide du signe.</b><em>3 + (${M}8) = ${M}5 ✓ &nbsp; 3 + (${M}8) = 5 ✗</em></li>
+      <li><b>Deux nombres opposés donnent 0.</b><em>${M}6 + 6 = 0 ✓ &nbsp; ${M}6 + 6 = ${M}12 ✗</em></li></ul>
+      <div class="rule"><b>En une phrase</b>Signes contraires : je soustrais le plus petit du plus grand (sans signe), et je prends le signe du plus grand.</div></div>`;
+    let h = `<h2 class="t">Autres façons de faire</h2>${regles}<p class="lead">La règle marche toujours. Voici deux autres façons de faire : <b>choisis celle que tu veux essayer</b>.</p><div class="tcards">${cards}</div>`;
     if (st.sel === null) {
-      h += `<p class="small">Tu peux aussi continuer sans essayer : aucune n'est obligatoire.</p><div class="zone"><div class="opts">${TECH.map((c, i) => `<button class="opt" data-a="tech" data-t="${i}">Essayer : ${c.t.toLowerCase()}</button>`).join('')}</div></div>`;
+      h += `<p class="small">Tu peux aussi continuer sans essayer : aucune n'est obligatoire.</p><p class="lead chg">Maintenant, tu t'entraînes avec quatre questions.</p><div class="zone"><div class="opts">${TECH.map((c, i) => `<button class="opt" data-a="tech" data-t="${i}">Essayer : ${c.t.toLowerCase()}</button>`).join('')}</div></div>`;
       return h;
     }
     const e = TECH[st.sel].essai, r = st.res;
@@ -804,6 +811,7 @@ const autres = {
     if (e.kind === 'type') h += `<div class="field ${r ? (r.ok ? 'ok' : 'ko') : ''}" aria-live="polite">${pretty(st.v) || ''}${r ? '' : '<span class="caret"></span>'}</div>`;
     if (r) h += `<div class="step new">${fb(r.ok ? 'ok' : 'ko', r.ok ? 'Juste !' : 'Pas tout à fait.', r.msg)}</div>`;
     h += `<p class="free">Essai libre : il ne compte pas dans la note.</p>`;
+    h += `<p class="lead chg">Maintenant, tu t'entraînes avec quatre questions.</p>`;
     if (!r) {
       if (e.kind === 'type') h += `<p class="small">Tape le résultat avec les touches du clavier.</p>${kbd()}`;
       else h += `<div class="zone"><div class="opts row">${e.o.map((o, oi) => `<button class="opt big" data-a="tpick" data-o="${oi}">${o}</button>`).join('')}</div></div>`;
@@ -822,26 +830,14 @@ const autres = {
     if (a === 'tpick' && e.kind === 'pick') { const o = +d.o; st.res = { ok: o === e.ok, msg: o === e.ok ? e.yes : e.no }; }
   },
 };
-add({ id: 'autres', sec: 'Leçon', name: 'Autres façons de faire',
-  what: "Deux cartes, chacune avec son exemple chiffré : 1. Commencer par le positif (−7 + 2 = 2 + (−7) = 2 − 7 = −5) ; 2. Deviner le signe (−7 + 2 : 7 est plus loin de 0 et négatif, donc négatif). En bas, deux boutons : elle choisit celle qu'elle essaie. Un essai libre suit (taper −8 + 5 réécrit 5 + (−8), ou toucher le signe de −3 + 9) avec un retour par erreur, puis « Essayer l'autre façon » ou Continuer. On peut continuer sans rien essayer.",
-  why: "Techniques 3 et 4 du plan (« écran Autres façons de faire », juste avant le récapitulatif). Elle choisit sa méthode : aucun exercice ne l'impose, seul le résultat est corrigé. L'essai ne compte pas dans la note. Ces techniques ne vont pas dans la fiche mémo.",
-  ask: ["Les cartes se lisent dans l'écran, mais le choix se fait avec les deux boutons du bas (règle « réponses en bas »). Ça te va, ou on rend les cartes elles-mêmes touchables ?",
+add({ chg: true, id: 'autres', sec: 'Leçon', name: 'Autres façons de faire',
+  what: "En haut, le rappel des deux règles (chacune avec un exemple juste et un faux, et le cas des deux opposés), avec la règle complète en une phrase ; il vient de l'ancien écran « Les 2 règles » (supprimé). Dessous, deux cartes, chacune avec son exemple chiffré : 1. Commencer par le positif (−7 + 2 = 2 + (−7) = 2 − 7 = −5) ; 2. Deviner le signe (−7 + 2 : 7 est plus loin de 0 et négatif, donc négatif). En bas, deux boutons : elle choisit celle qu'elle essaie. Un essai libre suit (taper −8 + 5 réécrit 5 + (−8), ou toucher le signe de −3 + 9) avec un retour par erreur, puis « Essayer l'autre façon » ou Continuer. On peut continuer sans rien essayer. En bas : « Maintenant, tu t'entraînes avec quatre questions. »",
+  why: "Techniques 3 et 4 du plan (« écran Autres façons de faire »). Le rappel des règles est en haut de cet écran : elle a tout sous les yeux (le faux de la règle 2 est le calcul-piège du doc 06, 3 + (−8) = 5) avant de s'entraîner, et on le retrouve avec « Relire la leçon ». Elle choisit sa méthode : aucun exercice ne l'impose, seul le résultat est corrigé. L'essai ne compte pas dans la note. Ces techniques ne vont pas dans la fiche mémo.",
+  ask: ["Le récapitulatif n'est plus un écran à part : ses règles sont en haut de « Autres façons de faire », puis viennent les techniques. Ce mélange te va ? (Alternative : garder 2 écrans.)",
+        "Les cartes se lisent dans l'écran, mais le choix se fait avec les deux boutons du bas (règle « réponses en bas »). Ça te va, ou on rend les cartes elles-mêmes touchables ?",
         "La technique 1 écrit « 2 − 7 » avant que le Cours 4 n'enseigne la soustraction (elle la connaît du collège : on lit « 2 moins 7 »). On garde l'exemple tel que dans le plan ?",
         "L'essai libre ne compte pas : seul le résultat est corrigé, jamais la méthode. D'accord ?"] },
   autres);
-
-/* ——— 10. Récapitulatif ——— */
-add({ id: 'recap', sec: 'Leçon', name: 'Les 2 règles',
-  what: "Récapitulatif des deux règles, chacune avec un exemple juste et un exemple faux, le cas des deux opposés, et la règle complète en une phrase.",
-  why: "Elle a tout sous les yeux avant de s'entraîner. Le faux de la règle 2 est le calcul-piège du doc 06 (3 + (−8) = 5). On retrouve le même écran avec « Relire la leçon ».",
-  ask: [] },
-  { init: () => ({}), foot: () => ({ label: 'Suivant', a: 'next' }), on() {},
-    render: () => `<h2 class="t">Les 2 règles à retenir</h2><ul class="recap">
-      <li><b>1. Je soustrais les nombres sans leur signe.</b><em>${M}7 + 2 : 7 − 2 = 5 ✓ &nbsp; 7 + 2 = 9 ✗</em></li>
-      <li><b>2. Le plus grand (sans signe) décide du signe.</b><em>3 + (${M}8) = ${M}5 ✓ &nbsp; 3 + (${M}8) = 5 ✗</em></li>
-      <li><b>Deux nombres opposés donnent 0.</b><em>${M}6 + 6 = 0 ✓ &nbsp; ${M}6 + 6 = ${M}12 ✗</em></li></ul>
-      <div class="rule"><b>En une phrase</b>Signes contraires : je soustrais le plus petit du plus grand (sans signe), et je prends le signe du plus grand.</div>
-      <p class="lead">Maintenant, tu t'entraînes avec quatre questions.</p>` });
 
 /* ——— 11. Série de pratique ——— */
 add({ id: 'pratique', sec: 'Pratique', name: 'Série de 4 questions',
@@ -986,9 +982,9 @@ const GLOBAL = `
 </ul></section>
 <section><h3>Astuces et techniques du plan : où elles vont</h3><ul>
 <li><b>1. Le plus grand sans le signe gagne</b> : fiche mémo, et règle 2 (écran 6).</li>
-<li><b>2. Décomposer jusqu'à 0</b> : étape de la leçon (écran 8, « Revenir à 0 d'abord »).</li>
-<li><b>3. Commencer par le positif</b> : écran « Autres façons de faire » (écran 9), carte 1.</li>
-<li><b>4. Le signe du résultat se devine</b> : écran « Autres façons de faire » (écran 9), carte 2.</li>
+<li><b>2. Décomposer jusqu'à 0</b> : le cas des deux opposés (−6 + 6 = 0) est une étape de la règle 2 (écran 6). La décomposition de −7 + 9 n'est plus dans la maquette.</li>
+<li><b>3. Commencer par le positif</b> : écran « Autres façons de faire » (écran 8), carte 1.</li>
+<li><b>4. Le signe du résultat se devine</b> : écran « Autres façons de faire » (écran 8), carte 2.</li>
 </ul></section>
 <section><h3>Règle des couleurs</h3><div class="legend">
 <div><span class="sw" style="background:var(--hl)"></span><span><b>Surligneur jaune</b> = « regarde ici ». Uniquement dans les explications.</span></div>
@@ -1039,8 +1035,11 @@ const EAR = `<button class="ear" type="button" data-a="listen" aria-label="Écou
 let idx = 0;
 const states = S.map((s) => s.init());
 
+$('#chglist').textContent = S.map((s, i) => (s.chg ? `${i + 1}. ${s.name}` : '')).filter(Boolean).join(' · ');
+$('#chgtoggle').addEventListener('click', () => { const h = document.body.classList.toggle('nochg'); $('#chgtoggle').textContent = h ? 'Afficher les repères' : 'Masquer les repères'; });
+
 function renderNav() {
-  $('#nav').innerHTML = S.map((s, i) => `<button class="${i === idx ? 'on' : ''}" data-go="${i}">${i + 1}. ${s.name}</button>`).join('');
+  $('#nav').innerHTML = S.map((s, i) => `<button class="${i === idx ? 'on' : ''} ${s.chg ? 'cs' : ''}" data-go="${i}">${i + 1}. ${s.name}${s.chg ? ' <b>*</b>' : ''}</button>`).join('');
 }
 function chipText(s) {
   if (s.sec === 'Leçon') {

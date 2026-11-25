@@ -36,7 +36,7 @@
  *   from a generator seeded by (seed, itemId), so `answer` gives the same result for the same state.
  */
 import type { Activity, AppEvent, QuestionKind } from './events';
-import { getCourse, type CourseDef, type EtapeStep, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
+import { getCourse, type Autres, type CourseDef, type EtapeStep, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
 import type { Outcome, Question } from './exercises/types';
 import { buildQuestion, buildSlot, type Slot } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
@@ -72,6 +72,8 @@ export interface ExplanationItem {
   blocks: LessonBlock[];
   /** Une partie `etapes` : l'explication pas à pas (`blocks` est alors vide). */
   steps?: EtapeStep[];
+  /** Une partie `autres` : l'écran « Autres façons de faire » (`blocks` est alors vide). */
+  autres?: Autres;
   /** Titre et sous-titre de l'écran (doc 09). */
   texts?: PartTexts;
 }
@@ -411,7 +413,9 @@ function partItem(course: CourseDef, p: Exclude<LessonPart, { type: 'pratique' }
       ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: p.blocks, ...withTexts(p) }
       : p.type === 'etapes'
         ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: [], steps: p.steps, ...withTexts(p) }
-        : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) }
+        : p.type === 'autres'
+          ? { type: 'explication', itemId: `partie-${i}`, courseId: course.id, partIndex: i, blocks: [], autres: p, ...withTexts(p) }
+          : { type: 'question', itemId: `partie-${i}`, courseId: course.id, activity: p.activity, question: p.question, ...withTexts(p) }
   );
 }
 

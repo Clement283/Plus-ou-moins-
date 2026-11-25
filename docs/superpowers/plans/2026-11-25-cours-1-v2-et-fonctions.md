@@ -50,6 +50,10 @@ Dépendances : T2→(T8, T9) ; T7→T10 ; T5→T11 ; (T3, T7, T8, T9)→T15 ; T1
 
 ---
 
+## Suite : Cours 2 v2 (2026-11-25)
+
+Le Cours 2 réutilise les briques de ce plan (étapes interactives, comparer deux cas, série de pratique, exemples guidés, fiche mémo, Écouter) et ajoute une brique : la partie `autres` (« Autres façons de faire », moteur `Autres` + composant `AutresFacons`). Voir le doc 06, « Cours 2 » version 2.
+
 ## Décisions du porteur du projet (2026-11-25, doc 08 n° 43 à 50) et ce qui reste ouvert
 
 Décidées (le plan les applique ; elles remplacent les points ouverts de la version précédente) :

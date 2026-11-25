@@ -3,7 +3,7 @@ import { type Expr, evaluate, num, op, toLatex } from '../../math/expr';
 import { type Rational, eqRat, rat } from '../../math/rational';
 import { type Rng, pick, randInt } from '../../rng';
 import type { ErrorFamily } from '../../events';
-import type { CourseDef, ErrorDef, EtapeStep, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, WrongResolution } from '../types';
+import type { Autres, CourseDef, ErrorDef, EtapeStep, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, WrongResolution } from '../types';
 import type { Question } from '../../exercises/types';
 
 /** Number sizes of courses 1, 2 and 4: 1–9, tens, hundreds. */
@@ -266,3 +266,6 @@ export const step = (text: string | undefined, extra: Omit<EtapeStep, 'text'> = 
   ...(text === undefined ? {} : { text }),
   ...extra,
 });
+
+/** L'écran « Autres façons de faire » : le rappel des règles, puis des techniques à essayer librement (doc 06, Cours 2). */
+export const autres = (screen: Autres): LessonPart => ({ type: 'autres', ...screen });

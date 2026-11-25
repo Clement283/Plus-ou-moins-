@@ -1,0 +1,9 @@
+/* « Autres façons de faire » (Cours 2) : le rappel des règles, les techniques en cartes, l'essai libre. */
+.autres-recap{display:grid;gap:var(--sp-8)}
+.autres-cards{display:grid;gap:var(--sp-12)}
+.autres-card{display:grid;gap:var(--sp-4);padding:var(--sp-12) var(--sp-16);border-radius:var(--r-lg);box-shadow:inset 0 0 0 2px var(--border)}
+.autres-card.is-sel{box-shadow:inset 0 0 0 2px var(--primary)}
+.autres-card__quand{color:var(--muted)}
+.autres-card__ex{margin:0;padding:var(--sp-8) var(--sp-12);border-radius:var(--r-md);background:var(--surface-sunken);font:500 19px var(--font-math);overflow-wrap:anywhere}
+.autres-essai{display:grid;gap:var(--sp-8)}
+.autres-actions{display:grid;gap:var(--sp-8)}

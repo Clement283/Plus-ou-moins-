@@ -276,6 +276,17 @@ describe('ActivityScreen : Cours 0 v3 (leçon pas à pas, petites questions)', (
     expect(t.container.textContent).toContain('Ce calcul est-il bien écrit ?');
   });
 
+  it('Cours 2 : « Autres façons de faire » s’affiche dans l’activité ; « Continuer » passe à la suite et note la partie', () => {
+    const C02 = getCourse('c02-additionner-signes-contraires');
+    const items = courseRunItems(C02, seededRng(1));
+    const t = setup(items.filter((i) => i.itemId === 'partie-9' || i.itemId === 'partie-10-0'), {}, 'cours');
+    expect(t.$('h1')!.textContent).toBe('Autres façons de faire');
+    expect(t.$$('.autres-card')).toHaveLength(2);
+    fireEvent.click(t.btn('Continuer')!);
+    expect(recorded[0]).toMatchObject({ kind: 'lesson_part_done', partIndex: 9 });
+    expect(t.container.textContent).toContain("Touche la droite à l'endroit où l'on arrive.");
+  });
+
   it('2 questions par écran : la 2e garde la 1re en résumé, « Ta réponse : −7 ✓ »', () => {
     const t = setup00(at(7, 8));
     expect(t.$('.q-summary')).toBeNull();

@@ -1,5 +1,6 @@
 import { QuestionView } from '../components/questions/QuestionView';
 import { Etapes } from '../components/Etapes';
+import { AutresFacons } from '../components/Autres';
 import { LessonPartScreen } from '../components/LessonPart';
 import { AppBar } from '../ui/AppBar';
 import type { StepResult } from '../ui/Stepper';
@@ -28,6 +29,8 @@ export default function EssaiLecon() {
         <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} title={course.title} />
       ) : part.type === 'etapes' ? (
         <Etapes key={`${course.id}-${index}`} title={part.title} steps={part.steps} onDone={() => undefined} header={header} />
+      ) : part.type === 'autres' ? (
+        <AutresFacons key={`${course.id}-${index}`} screen={part} onDone={() => undefined} header={header} />
       ) : part.type === 'pratique' ? (
         <p className="t-body1">Série de pratique : {part.questions.length} questions (écran ajouté par la tâche 9).</p>
       ) : (
