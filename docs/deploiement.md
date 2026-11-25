@@ -55,3 +55,6 @@ Fichier : `.github/workflows/deploy.yml`.
 - Sur chaque push sur `main` : les tests, puis, **seulement s'ils passent**, les migrations D1 en attente (`wrangler d1 migrations apply`) et `npm run deploy`. Tests rouges = rien n'est mis en ligne.
 - À faire une fois sur GitHub : *Settings → Secrets and variables → Actions → New repository secret* : `CLOUDFLARE_API_TOKEN` (mêmes droits que ci-dessus). L'identifiant de compte est dans le fichier.
 - Les tests e2e (Playwright) ne sont pas lancés par cette automatisation.
+
+## Module « Essais » (2026-11-25)
+Cours à l'essai, **visibles seulement des comptes « aperçu »** (carte « Essais » en bas de Mes cours). Hors de `MODULES` : l'élève ne le voit jamais, il ne compte ni dans sa progression ni dans le suivi. Tous les cours y sont ouverts. Déclaré dans `packages/engine/src/courses/essais/index.ts` (y ajouter les cours à essayer). Contient pour l'instant le Cours 7 (version 2), `c07b-multiplier-plusieurs`.

@@ -1,6 +1,7 @@
 import type { ErrorFamily } from '../events';
 import { type Rational, eqRat } from '../math/rational';
 import { CALCULS, CALCULS_COURSES } from './calculs';
+import { ESSAIS, ESSAIS_COURSES } from './essais';
 import type { CourseDef, Exercise, ModuleDef } from './types';
 
 export * from './types';
@@ -9,8 +10,10 @@ export { MEMO_BEFORE_VALIDATION, canOpenMemo } from './memo';
 export { joinPieces } from './calculs/c00-bien-ecrire';
 
 export const MODULES: ModuleDef[] = [CALCULS];
+/** Module d'essais : hors de MODULES, réservé aux comptes « aperçu ». */
+export { ESSAIS };
 
-const COURSES = new Map<string, CourseDef>(CALCULS_COURSES.map((c) => [c.id, c]));
+const COURSES = new Map<string, CourseDef>([...CALCULS_COURSES, ...ESSAIS_COURSES].map((c) => [c.id, c]));
 
 export function getCourse(id: string): CourseDef {
   const c = COURSES.get(id);
