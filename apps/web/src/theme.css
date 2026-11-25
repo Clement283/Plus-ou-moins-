@@ -923,7 +923,7 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 .class-note{display:grid;gap:var(--sp-2)}
 /* Le pied d'une leçon pas à pas reste visible quand le texte dépasse l'écran ; la dernière phrase s'arrête au-dessus */
 .lesson-screen--etapes .c-foot{position:sticky;bottom:0;background:var(--bg);z-index:2}
-.lesson-screen--etapes .etape{scroll-margin-bottom:150px}
+.lesson-screen--etapes .etape{scroll-margin-bottom:220px}
 .recap__item{display:inline-flex;align-items:center;gap:var(--sp-8)}
 .recap__item .ico{color:var(--muted)}
 .resolution--text{font:400 17px/1.5 var(--font-body)}
