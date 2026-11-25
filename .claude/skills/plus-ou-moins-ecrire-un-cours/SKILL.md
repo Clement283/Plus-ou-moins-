@@ -77,6 +77,24 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 
 ## Méthode de travail (dans cet ordre)
 
+### Choisir le mode (décidé le 2026-11-25, pour économiser les ressources)
+
+**Mode autonome, par défaut** : un cours d'un module dont la méthode est déjà fixée (module Relatifs à partir du Cours 5, et tout cours dont les écrans existent déjà dans l'appli).
+- **Pas de maquette, pas de spec longue, pas de capture d'écran.**
+- **Un seul assistant par cours**, qui écrit le code directement. Il lit seulement :
+  - ce skill ;
+  - l'entrée du cours dans le plan du module (règle, astuces, reprises, erreurs) ;
+  - le code du cours précédent du module comme modèle (par exemple `c03-*.ts`, `c04-*.ts`) et ses tests.
+  - Il n'ouvre les docs 06, 08 et 10 en entier, ainsi que les maquettes, qu'en cas de doute précis.
+- Il écrit dans le doc 06 une **fiche courte d'environ 15 lignes** : la règle, les écrans en une ligne chacun, la note du cours, les niveaux et les choix faits. Le porteur du projet la lit s'il le souhaite ; elle ne bloque pas.
+- **Vérification sans images** : les tests (textes, messages d'erreur, générateur sur 500 tirages), plus un test qui vérifie qu'aucun calcul du cours ne dépasse la largeur du téléphone.
+- **Mise en ligne par lot de cours.** Le porteur du projet teste sur son téléphone et fait ses retours ; on corrige ensuite.
+- Enchaîner les cours **l'un après l'autre**. Un assistant en parallèle ne fait pas consommer moins, il fait atteindre la limite plus vite.
+
+**Mode maquette** : seulement pour le **1er cours d'un nouveau module**, pour un **nouveau type d'écran**, ou quand le porteur du projet le demande. On suit alors les étapes 1 à 5 ci-dessous. Une maquette déjà validée sert directement de référence pour le code ; elle n'a pas besoin d'une spec longue en plus, une fiche courte suffit.
+
+### Étapes du mode maquette
+
 1. **Lire** les sources ci-dessus, la version actuelle du cours, le **plan du module** s'il existe (`docs/validation/NN-module-*.md` : reprises, astuces, sources) et **les documents fournis** par le porteur du projet (cours du prof, cahier de l'élève). **Chercher aussi sur Internet** : programme officiel, astuces et méthodes que les profs ne donnent pas toujours, erreurs classiques. Noter les sources dans la spec.
 2. **Proposer le déroulé au porteur du projet sous forme de maquette cliquable** : copier `docs/design/ecrans/cours-1-v2.html` (la plus récente) dans `docs/design/ecrans/cours-N-v2.html`, remplacer les écrans (même moteur `reveal` avec étapes interactives / `quiz` / `typed` / `trous`, droite graduée `line()`), et la publier en artefact. Noter à droite de chaque écran ce qu'il fait, pourquoi, et les questions à décider. **À chaque nouvelle version de la maquette, signaler ce qui a changé** : astérisque et couleur sur les écrans modifiés dans la liste, contour pointillé « modifié » sur les éléments changés, ligne « Modifié dans cette version : … » en haut, bouton pour masquer ces repères. Ils servent à la relecture et ne sont jamais codés dans l'appli. **Ne rien coder dans l'appli avant sa validation.**
 3. **Écrire la spec** : remplacer la partie du cours dans le doc 06 par une « version 2 » au format de celles des Cours 0 et 1 (règles, déroulé écran par écran avec les textes exacts et les étapes interactives, série de pratique, note du cours, tableau des retours d'erreur, fiche mémo, révisions, générateur, erreurs reconnues avec leur règle). Faire valider.

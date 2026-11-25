@@ -102,3 +102,4 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Reste : maquette Cours 4 (`docs/design/ecrans/cours-4-v2.html`) à valider ; puis Cours 5 à 7 ; modules B, C, D.
 - Non fait : le driver e2e ne parcourt pas encore les Cours 2 et 3 (partie `autres`).
 - Maquette Cours 4 validée telle quelle (2026-11-25), avec les 5 recommandations.
+- **Nouvelle méthode (2026-11-25, pour consommer moins)** : skill `plus-ou-moins-ecrire-un-cours`, section « Choisir le mode ». Prochaine étape, dans une **nouvelle conversation** : coder le Cours 4 d'après sa maquette validée, puis les Cours 5, 6, 7 en mode autonome, un assistant par cours, l'un après l'autre, puis une seule mise en ligne.

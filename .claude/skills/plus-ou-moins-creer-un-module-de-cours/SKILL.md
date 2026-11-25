@@ -51,7 +51,7 @@ Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `doc
 
 1. **Lire** les documents fournis, puis faire la recherche Internet.
 2. **Écrire le plan du module** et le publier ; **le faire valider avant tout cours**.
-3. **Pour chaque cours, dans l'ordre**, appliquer `plus-ou-moins-ecrire-un-cours` (maquette → spec → code), en lui passant les reprises, erreurs, astuces et sources du plan. Rythme de validation : la maquette du **1er cours seule**, puis les suivantes **par 2 ou 3**.
+3. **Pour chaque cours, dans l'ordre**, appliquer `plus-ou-moins-ecrire-un-cours`, en lui passant les reprises, erreurs, astuces et sources du plan. Le **1er cours du module** passe par une maquette validée ; les suivants sont écrits en **mode autonome** (code direct, fiche courte, pas de maquette ni de capture), sauf nouveau type d'écran ou demande du porteur du projet.
 4. **Coder par lots**, puis **une relecture et une mise en ligne par module**.
 
 ## Idées pour plus tard (ne pas développer sans demande)
