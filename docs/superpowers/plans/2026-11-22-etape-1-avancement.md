@@ -101,3 +101,4 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - e2e : 14/14 (T13). Relecture finale (T14) : pas de bloquant ; 3 petits correctifs faits (IndexedDB `blocking`, fiche inconnue, nom du suiveur).
 - Reste : maquette Cours 4 (`docs/design/ecrans/cours-4-v2.html`) à valider ; puis Cours 5 à 7 ; modules B, C, D.
 - Non fait : le driver e2e ne parcourt pas encore les Cours 2 et 3 (partie `autres`).
+- Maquette Cours 4 validée telle quelle (2026-11-25), avec les 5 recommandations.
