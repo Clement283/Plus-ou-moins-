@@ -66,6 +66,11 @@ export function getDb(): Promise<IDBPDatabase<PomDB>> {
           db.createObjectStore('questions');
         }
       },
+      // Une version plus récente de l'appli est ouverte ailleurs : on libère la base et on recharge.
+      blocking() {
+        void p.then((db) => db.close());
+        location.reload();
+      },
     });
     // Une ouverture refusée ne doit pas rester en cache : le prochain appel réessaie.
     p.catch(() => {

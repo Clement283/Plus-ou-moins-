@@ -60,7 +60,7 @@ export default function SuiviQuestion({ eleve, id }: { eleve: string; id: string
     try {
       await answerQuestion(session.token, eleve, q.id, answer);
       const next = (data ?? []).map((x) =>
-        x.id === q.id ? { ...x, answer, answeredAt: Date.now(), answeredBy: session.user.id } : x,
+        x.id === q.id ? { ...x, answer, answeredAt: Date.now(), answeredBy: session.user.name } : x,
       );
       void saveQuestionsCache(session.user.id, eleve, next);
       window.location.hash = back;

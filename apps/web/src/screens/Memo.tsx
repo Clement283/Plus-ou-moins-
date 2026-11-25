@@ -11,14 +11,19 @@ import { AppBar } from '../ui/AppBar';
  */
 export default function Memo({ courseId }: { courseId: string }) {
   const bodyRef = useRef<HTMLElement>(null);
-  const course = getCourse(courseId);
-  const memo = course.memo;
+  let course: ReturnType<typeof getCourse> | null = null;
+  try {
+    course = getCourse(courseId);
+  } catch {
+    course = null; // fiche inconnue (adresse modifiée à la main) : on affiche « pas de fiche »
+  }
+  const memo = course?.memo;
   const back = () => go('#/cours');
   return (
     <>
       <AppBar onClose={back} closeLabel="Fermer" trailing={<ListenButton rootRef={bodyRef} />} />
       <main className="app-body" data-screen="fiche" ref={bodyRef}>
-        {memo ? (
+        {memo && course ? (
           <>
             <h1 className="t-h3">{`Fiche mémo · Cours ${course.order}`}</h1>
             <div className="fiche">
