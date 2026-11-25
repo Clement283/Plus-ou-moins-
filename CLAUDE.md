@@ -13,6 +13,6 @@
 - Les tests e2e (`npm run e2e`) ne sont pas lancés par l'automatisation.
 
 ## Économiser le contexte
-- Plan des modules de calcul : un fichier par module dans `docs/validation/10-calculs/` (index : `docs/validation/10-module-calculs.md`). Ne lire que le fichier du module concerné, et dans `docs/validation/06-cours-relatifs.md` que la fiche du cours voulu (`grep -n "^#"` puis lecture ciblée).
+- Plan des modules de calcul : un fichier par module dans `docs/validation/10-calculs/` (index : `docs/validation/10-module-calculs.md`). Ne lire que le fichier du module concerné, et les fiches courtes des cours dans `docs/fiches/` (une par cours).
 - Avancement : `docs/superpowers/plans/2026-11-22-etape-1-avancement.md` (lire la fin). Écrire un cours : skills `plus-ou-moins-ecrire-un-cours`, `plus-ou-moins-creer-un-module-de-cours`.
 - Sorties de commandes : `| tail`, `grep`, pas de journaux complets.

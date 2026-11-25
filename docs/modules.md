@@ -6,7 +6,7 @@ Fichier **lu par les skills** `plus-ou-moins-creer-un-module-de-cours` et `plus-
 
 | # | Module | Cours | État | Plan |
 |---|---|---|---|---|
-| 1 | Relatifs (identifiant `calculs`) | 0 à 7 | écrits | `docs/validation/10-calculs/A-relatifs.md` et `docs/validation/06-cours-relatifs.md` |
+| 1 | Relatifs (identifiant `calculs`) | 0 à 7 | écrits | `docs/validation/10-calculs/A-relatifs.md` et les fiches `docs/fiches/c04…c07` |
 | 2 | Équations et inéquations | — | à planifier | — |
 | 3 | Priorités | 8 à 11 (provisoires) | plan validé | `docs/validation/10-calculs/B-priorites.md` |
 | 4 | Suites numériques | — | à planifier | — |

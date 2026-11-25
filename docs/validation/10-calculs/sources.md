@@ -42,7 +42,7 @@
 
 *Documents du dépôt*
 - D1 — `docs/superpowers/specs/2026-11-22-plus-ou-moins-v1-design.md` (§1, §5).
-- D2 — `docs/validation/06-cours-relatifs.md` (cours 0 à 7).
+- D2 — ancien `docs/validation/06-cours-relatifs.md` (cours 0 à 7), supprimé le 2026-11-25 : les textes sont dans le code (`packages/engine/src/courses/calculs/`) et leurs tests ; l'historique git le garde.
 - D3 — `docs/validation/08-decisions-ecrans.md` (n° 20 à 42), `docs/validation/03-clavier-et-reponses.md`.
 - D4 — Skills `plus-ou-moins-creer-un-module-de-cours` et `plus-ou-moins-ecrire-un-cours`.
 
