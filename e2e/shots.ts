@@ -16,6 +16,7 @@ import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getCourse, type EtapeStep, type Question, type StepAction } from '@pom/engine';
 import { DB_NAME, DB_SCHEMA, DB_VERSION, SESSION_KEY, SESSION_STORE, type Session } from '../apps/web/src/store/db';
 import { CLAIRE, LEA, NOW, scenario, type Fixture, type ScenarioName } from './fixtures';
 
@@ -24,7 +25,8 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WIDTH = 390;
-const HEIGHT = 844;
+const HEIGHT = Number(process.env.SHOTS_HEIGHT ?? 844);
+const ONLY = process.env.SHOTS_ONLY; // sous-chaîne du nom d'une situation : ne prendre que celles-là
 
 type Page = any; // types de playwright non installés dans le dépôt
 
@@ -103,38 +105,77 @@ const pick = (page: Page, label: string) => page.click(`.answer-zone .choice:tex
 /** Touche les touches du clavier du calcul (« Réécris »), dans l'ordre. */
 const typeExpr = async (page: Page, ...keys: string[]) => { for (const k of keys) await page.click(`.keypad--expr button:text-is("${k}")`); await freezeCaret(page); };
 
-/** Les 19 parties du Cours 0 v2 (#/cours/c00-bien-ecrire), jouées en répondant juste ; `c00To(page, n)` s'arrête sur la partie n. */
-const C00_PARTS: ((page: Page) => Promise<void>)[] = [
-  async (p) => { await pick(p, 'Non'); await press(p, 'Continuer'); }, // 0 accroche (pour découvrir)
-  async (p) => { await more(p, 3); await press(p, 'Suivant'); }, // 1 le − a deux rôles
-  async (p) => { await pick(p, 'À soustraire'); await press(p, 'Continuer'); }, // 2 quel rôle ? (1/2)
-  async (p) => { await pick(p, 'À dire que 6 est négatif'); await press(p, 'Continuer'); }, // 3 quel rôle ? (2/2)
-  async (p) => { await more(p, 4); await press(p, 'Suivant'); }, // 4 règle 1
-  async (p) => { await more(p, 3); await press(p, 'Suivant'); }, // 5 règle 1, exemples
-  async (p) => { await pick(p, '5 + (−2)'); await press(p, 'Continuer'); }, // 6 règle 1, à toi
-  async (p) => { await pick(p, 'Non'); await press(p, 'Continuer'); }, // 7 règle 2 (pour découvrir)
-  async (p) => { await more(p, 4); await press(p, 'Suivant'); }, // 8 règle 3
-  async (p) => { await pick(p, 'avant le nombre'); await press(p, 'Continuer'); }, // 9
-  async (p) => { await pick(p, '−7'); await press(p, 'Continuer'); }, // 10
-  async (p) => { await more(p, 4); await press(p, 'Suivant'); }, // 11 règle 4
-  async (p) => { await pick(p, ')'); await press(p, 'Continuer'); }, // 12
-  async (p) => { await press(p, 'Suivant'); }, // 13 récapitulatif
-  async (p) => { // 14 classer : bien, mal, bien, mal
-    for (const bin of [1, 2, 1, 2]) {
-      await p.click('.answer-zone .tags .tag:nth-child(1)');
-      await p.click(`.bin:nth-child(${bin}) .t-h6`);
-    }
-    await press(p, 'Valider');
-    await press(p, 'Continuer');
-  },
-  async (p) => { await pick(p, 'Deux signes se touchent'); await press(p, 'Continuer'); }, // 15 quelle règle ?
-  async (p) => { await typeExpr(p, '6', '×', '(', '−', '2', ')'); await press(p, 'Valider'); await press(p, 'Continuer'); }, // 16 réécris 6 × −2
-  async (p) => { await typeExpr(p, '−', '3', '+', '4'); await press(p, 'Valider'); await press(p, 'Continuer'); }, // 17 réécris 3− + 4
-  async (p) => { await more(p, 2); await press(p, 'Suivant'); }, // 18 annonce
-];
-async function c00To(page: Page, n: number): Promise<void> {
-  for (let i = 0; i < n; i++) { await C00_PARTS[i]!(page); await page.waitForTimeout(100); }
+/** Le « − » des graduations est le vrai signe moins (U+2212). */
+const gradLabel = (v: number) => `Graduation ${v < 0 ? `−${-v}` : v}`;
+
+/** Fait le geste d'une étape interactive de la leçon (juste). */
+async function doAction(page: Page, a: StepAction): Promise<void> {
+  switch (a.type) {
+    case 'trou': await page.click(`.etape-action .choice:nth-child(${a.correct + 1})`); break;
+    case 'graduation': await page.click(`[aria-label="${gradLabel(a.target)}"]`, { force: true }); break;
+    case 'morceau': await page.click(`.touch-token >> nth=${a.target[0]}`, { force: true }); break;
+    case 'endroit': await page.click(`.touch-gap[aria-label="Endroit ${a.target[0]! + 1}"]`, { force: true }); break;
+    case 'comprends': await page.click(`button:text-is("${a.label ?? 'Je comprends'}")`); break;
+  }
 }
+
+/**
+ * Joue une explication pas à pas jusqu'à l'étape `stop` (0 = la 1re), sans toucher à son action ; `acted` fait aussi son geste.
+ * Sans `stop`, joue tout et touche « Suivant ».
+ */
+async function playSteps(page: Page, steps: EtapeStep[], stop?: number, acted = false): Promise<void> {
+  const end = stop ?? steps.length;
+  for (let i = 0; i < end; i++) {
+    const s = steps[i]!;
+    if (s.action) await doAction(page, s.action);
+    if (s.action?.type !== 'comprends') await page.click(`button:text-is("${i === steps.length - 1 ? 'Suivant' : 'Suite'}")`);
+    await page.waitForTimeout(80);
+  }
+  if (stop === undefined) return;
+  if (acted && steps[stop]?.action) await doAction(page, steps[stop]!.action!);
+}
+
+/** Répond juste à une question de la définition d'un cours. */
+async function answerRight(page: Page, q: Question): Promise<void> {
+  const keys = async (n: number) => { if (n < 0) await page.click('.keypad button[aria-label="moins"]'); for (const d of String(Math.abs(n))) await page.click(`.keypad button[aria-label="${d}"], .keypad button:text-is("${d}")`); await page.click('.keypad button:text-is("Valider")'); };
+  switch (q.kind) {
+    case 'choix': await page.click(`.choice >> nth=${q.correctIndex}`); break;
+    case 'qcm': await page.click(`.choice >> nth=${q.correctIndex}`); break;
+    case 'vraifaux': await page.click(`.toggle-group button:text-is("${q.isTrue ? 'Vrai' : 'Faux'}")`); break;
+    case 'droite': await page.click(`.droite [aria-label="${gradLabel(q.answer)}"]`, { force: true }); break;
+    case 'saisie': await keys(q.ex.answer.n); break;
+    case 'trou': await keys(q.hidden.n); break;
+    case 'erreur': {
+      const at = q.accept ? (q.accept[0] ?? null) : q.wrongLine;
+      if (at === null) await page.click('button:text-is("Tout est bien écrit")');
+      else await page.click(`.tag--piece >> nth=${at}`);
+      break;
+    }
+    case 'reecrire': for (const k of q.expected) await page.click(`.keypad--expr button:text-is("${k}")`); await page.click('.keypad--expr button:text-is("Valider")'); break;
+    default: throw new Error(`question ${q.kind} non prévue`);
+  }
+}
+
+/** Joue les `n` premières parties d'un cours (juste) ; une question répondue, on touche « Continuer ». Le cours démarre sur la route du cours. */
+async function playParts(page: Page, courseId: string, n: number): Promise<void> {
+  const course = getCourse(courseId);
+  for (let i = 0; i < n; i++) {
+    const p = course.parts[i]!;
+    if (p.type === 'etapes') await playSteps(page, p.steps);
+    else if (p.type === 'explication') await press(page, 'Suivant');
+    else if (p.type === 'pratique') for (const x of p.questions) { await answerRight(page, x.question); await press(page, 'Continuer'); }
+    else if (p.type === 'question') { await answerRight(page, p.question); await press(page, 'Continuer'); }
+    else throw new Error(`partie ${i} de ${courseId} : type ${p.type} non prévu (« Autres façons de faire » : Cours 2)`);
+    await page.waitForTimeout(100);
+  }
+}
+const c00To = (page: Page, n: number) => playParts(page, 'c00-bien-ecrire', n);
+const c01To = (page: Page, n: number) => playParts(page, 'c01-additionner-meme-signe', n);
+const stepsOf = (courseId: string, part: number): EtapeStep[] => {
+  const p = getCourse(courseId).parts[part];
+  if (p?.type !== 'etapes') throw new Error(`partie ${part} de ${courseId} : pas une explication pas à pas`);
+  return p.steps;
+};
 /** Les animations d'une étape durent jusqu'à ~1,2 s : la capture attend leur état final. */
 const settled = (page: Page) => page.waitForTimeout(1300);
 
@@ -250,31 +291,80 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'rattrapage-3-sur-5', fixture: 'debut-de-journee', route: '#/essai/cours?cas=rattrapage-ko' },
     ],
   },
+  // Cours 0 v3 : 17 parties (0 accroche, 1 le − a deux rôles, 2 règle 1, 3 à toi, 4 règle 2, 5 règle 3, 6 règle 4, 7-8 à toi, 9 comparer, 10 récap, 11 série, 12-15 exemples, 16 annonce)
   cours0: {
     route: '#/cours/c00-bien-ecrire',
     scenarios: [
       { name: 'accroche', fixture: 'debut-de-journee', before: (p) => settled(p) },
-      { name: 'accroche-ratee', fixture: 'debut-de-journee', before: async (p) => { await pick(p, 'Oui'); await settled(p); } },
       { name: 'etapes-debut', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 1); await settled(p); } },
-      { name: 'etapes-fin', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 4); await more(p, 4); await settled(p); } },
-      { name: 'etapes-paires', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 5); await more(p, 2); await settled(p); } },
-      { name: 'etapes-regle-3', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 8); await more(p, 2); await settled(p); } },
-      { name: 'recap', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 13); await settled(p); } },
-      { name: 'choix-1', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await settled(p); } },
-      { name: 'choix-2-joint', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await pick(p, 'À soustraire'); await press(p, 'Continuer'); await settled(p); } },
-      { name: 'choix-2-repondu', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await pick(p, 'À soustraire'); await press(p, 'Continuer'); await pick(p, 'À soustraire'); await settled(p); } },
-      { name: 'choix-trois', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 6); await settled(p); } },
-      { name: 'regle-2-repondu', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 7); await pick(p, 'Non'); await settled(p); } },
-      { name: 'classer', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); await settled(p); } },
-      { name: 'classer-en-cours', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); for (const bin of [1, 2]) { await p.click('.answer-zone .tags .tag:nth-child(1)'); await p.click(`.bin:nth-child(${bin}) .t-h6`); } await p.click('.answer-zone .tags .tag:nth-child(1)'); await settled(p); } },
-      { name: 'classer-corrige', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); for (const bin of [1, 1, 1, 2]) { await p.click('.answer-zone .tags .tag:nth-child(1)'); await p.click(`.bin:nth-child(${bin}) .t-h6`); } await press(p, 'Valider'); await settled(p); } },
-      { name: 'quelle-regle', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 15); await pick(p, 'Deux signes se touchent'); await settled(p); } },
-      { name: 'reecrire', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 16); await typeExpr(p, '6', '×', '('); await settled(p); } },
-      { name: 'reecrire-rate', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 16); await typeExpr(p, '6', '×', '−', '2'); await press(p, 'Valider'); await settled(p); } },
-      { name: 'reecrire-3-moins', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 17); await settled(p); } },
-      { name: 'annonce', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 18); await more(p, 2); await settled(p); } },
-      { name: 'fin-toucher', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 19); await settled(p); } },
-      { name: 'fin-corrige', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 19); await p.click('.pieces .tag--piece:nth-child(1)'); await settled(p); } },
+      // « toucher le morceau » (règle 1, étape 2) puis « toucher l'endroit » (étape 3), avant et après le toucher
+      { name: 'morceau-avant', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await playSteps(p, stepsOf('c00-bien-ecrire', 2), 1); await settled(p); } },
+      { name: 'morceau-apres', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await playSteps(p, stepsOf('c00-bien-ecrire', 2), 1, true); await settled(p); } },
+      { name: 'endroit-avant', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await playSteps(p, stepsOf('c00-bien-ecrire', 2), 2); await settled(p); } },
+      { name: 'endroit-apres', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await playSteps(p, stepsOf('c00-bien-ecrire', 2), 2, true); await settled(p); } },
+      { name: 'endroit-erreur', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 2); await playSteps(p, stepsOf('c00-bien-ecrire', 2), 2); await p.click('.touch-gap[aria-label="Endroit 2"]', { force: true }); await settled(p); } },
+      { name: 'regle-3-endroit-apres', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 5); await playSteps(p, stepsOf('c00-bien-ecrire', 5), 2, true); await settled(p); } },
+      { name: 'regle-1-a-toi', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 3); await settled(p); } },
+      { name: 'regle-2-devine-oui', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 4); await pick(p, 'Oui'); await settled(p); } },
+      { name: 'comparer', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 9); await settled(p); } },
+      { name: 'comparer-repondu', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 9); await pick(p, "La façon de l'écrire"); await settled(p); } },
+      { name: 'recap', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 10); await settled(p); } },
+      { name: 'serie-1', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 11); await settled(p); } },
+      { name: 'serie-4-bilan', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 11); for (const q of (getCourse('c00-bien-ecrire').parts[11] as { questions: { question: Question }[] }).questions) { await answerRight(p, q.question); if (q !== (getCourse('c00-bien-ecrire').parts[11] as { questions: { question: Question }[] }).questions.at(-1)) await press(p, 'Continuer'); } await settled(p); } },
+      { name: 'serie-4-saisie', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 11); const qs = (getCourse('c00-bien-ecrire').parts[11] as { questions: { question: Question }[] }).questions; for (const q of qs.slice(0, 3)) { await answerRight(p, q.question); await press(p, 'Continuer'); } const q4 = qs[3]!.question; if (q4.kind === 'reecrire') for (const k of q4.expected) await p.click(`.keypad--expr button:text-is("${k}")`); await freezeCaret(p); await settled(p); } },
+      { name: 'exemple-1-repondu', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 13); await answerRight(p, (getCourse('c00-bien-ecrire').parts[13] as { question: Question }).question); await settled(p); } },
+      { name: 'exemple-1', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 12); await settled(p); } },
+      { name: 'exemple-2-case-1', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 14); await settled(p); } },
+      { name: 'annonce', fixture: 'debut-de-journee', before: async (p) => { await c00To(p, 16); await settled(p); } },
+    ],
+  },
+  // Cours 1 v2 : 13 parties (0 deviner, 1 droite et bonds, 2 deux dettes, 3 comparer, 4-5 règles, 6 récap, 7 série, 8-11 exemples, 12 annonce)
+  cours1: {
+    route: '#/cours/c01-additionner-meme-signe',
+    scenarios: [
+      { name: 'accroche', fixture: 'debut-de-journee', before: (p) => settled(p) },
+      { name: 'droite-avant', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 1); await playSteps(p, stepsOf('c01-additionner-meme-signe', 1), 2); await settled(p); } },
+      { name: 'droite-apres', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 1); await playSteps(p, stepsOf('c01-additionner-meme-signe', 1), 2, true); await settled(p); } },
+      { name: 'droite-erreur', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 1); await playSteps(p, stepsOf('c01-additionner-meme-signe', 1), 2); await p.click(`[aria-label="${gradLabel(0)}"]`, { force: true }); await settled(p); } },
+      { name: 'trou', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 2); await playSteps(p, stepsOf('c01-additionner-meme-signe', 2), 2); await settled(p); } },
+      { name: 'comparer-repondu', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 3); await answerRight(p, (getCourse('c01-additionner-meme-signe').parts[3] as { question: Question }).question); await settled(p); } },
+      { name: 'recap', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 6); await settled(p); } },
+      { name: 'serie-1-droite', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 7); await settled(p); } },
+      { name: 'serie-1-corrige', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 7); await answerRight(p, (getCourse('c01-additionner-meme-signe').parts[7] as { questions: { question: Question }[] }).questions[0]!.question); await settled(p); } },
+      { name: 'serie-4-bilan', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 7); const qs = (getCourse('c01-additionner-meme-signe').parts[7] as { questions: { question: Question }[] }).questions; for (const [i, q] of qs.entries()) { await answerRight(p, q.question); if (i < qs.length - 1) await press(p, 'Continuer'); } await settled(p); } },
+      { name: 'exemple-2-case-2', fixture: 'debut-de-journee', before: async (p) => { await c01To(p, 11); await freezeCaret(p); await settled(p); } },
+    ],
+  },
+  fiche: {
+    route: '#/cours/c00-bien-ecrire/fiche',
+    scenarios: [
+      { name: 'cours-0', fixture: 'debut-de-journee', fullPage: true, before: (p) => p.waitForTimeout(300) },
+      { name: 'cours-1', fixture: 'debut-de-journee', route: '#/cours/c01-additionner-meme-signe/fiche', fullPage: true, before: (p) => p.waitForTimeout(300) },
+    ],
+  },
+  echauffement: {
+    route: '#/echauffement',
+    scenarios: [
+      { name: 'question', fixture: 'debut-de-journee', before: (p) => p.waitForTimeout(500) },
+      { name: 'repondu', fixture: 'debut-de-journee', before: async (p) => { await p.waitForTimeout(300); await p.click('.choice-grid .choice >> nth=0'); await p.waitForTimeout(400); } },
+    ],
+  },
+  'accueil-clement': {
+    route: '#/',
+    scenarios: [{ name: 'a-repondu', fixture: 'clement-a-repondu', before: (p) => p.waitForTimeout(600) }],
+  },
+  'mes-questions': {
+    route: '#/questions',
+    scenarios: [
+      { name: 'liste', fixture: 'clement-a-repondu', fullPage: true, before: (p) => p.waitForTimeout(600) },
+      { name: 'detail', fixture: 'clement-a-repondu', route: '#/questions/q-2', fullPage: true, before: (p) => p.waitForTimeout(600) },
+    ],
+  },
+  'suivi-clement': {
+    route: '#/suivi',
+    scenarios: [
+      { name: 'une-question', fixture: 'question-a-clement', fullPage: true, before: (p) => p.waitForTimeout(600) },
+      { name: 'demande', fixture: 'question-a-clement', route: '#/suivi/u-lea/question/q-2', fullPage: true, before: (p) => p.waitForTimeout(600) },
     ],
   },
   accueil: {
@@ -424,6 +514,10 @@ async function mockApi(page: Page, data: Fixture | null): Promise<void> {
       const body = JSON.parse(req.postData() ?? '{}') as { events?: { id: string }[] };
       return route.fulfill(json({ accepted: (body.events ?? []).map((e) => e.id) }));
     }
+    if (path === '/api/questions' && method === 'GET') return route.fulfill(json({ questions: data.questions ?? [] }));
+    if (/^\/api\/questions\/[^/]+\/read$/.test(path) && method === 'POST') return route.fulfill(json({ ok: true }));
+    const mq = /^\/api\/students\/([^/]+)\/questions$/.exec(path);
+    if (mq && method === 'GET') return route.fulfill(json({ questions: data.studentQuestions?.[decodeURIComponent(mq[1]!)] ?? [] }));
     if (path === '/api/students' && method === 'GET') return route.fulfill(json({ students: data.students ?? [] }));
     const m = /^\/api\/students\/([^/]+)\/events$/.exec(path);
     if (m && method === 'GET') return route.fulfill(json({ events: data.studentEvents?.[decodeURIComponent(m[1]!)] ?? [] }));
@@ -472,6 +566,7 @@ async function main(): Promise<number> {
     for (const screen of names) {
       const def = SCREENS[screen]!;
       for (const shot of def.scenarios) {
+        if (ONLY && !`${screen}-${shot.name}`.includes(ONLY)) continue;
         const data = shot.fixture ? scenario(shot.fixture) : null;
         for (const colorScheme of ['light', 'dark'] as const) {
           const label = `${screen}-${shot.name}-${colorScheme === 'light' ? 'clair' : 'sombre'}`;

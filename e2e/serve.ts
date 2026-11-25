@@ -41,7 +41,20 @@ run('npx', ['wrangler', 'd1', 'migrations', 'apply', 'plus-ou-moins', '--local']
 const lea = createUser('Léa', 'eleve');
 const hugo = createUser('Hugo', 'eleve');
 const claire = createUser('Claire', 'suiveur', lea.id);
-const accounts: Accounts = { lea, hugo, claire };
+const lou = createUser('Lou', 'eleve');
+const accounts: Accounts = {
+  lea,
+  hugo,
+  claire,
+  noe: createUser('Noé', 'eleve'),
+  maya: createUser('Maya', 'eleve'),
+  ines: createUser('Inès', 'eleve'),
+  jade: createUser('Jade', 'eleve'),
+  lou,
+  paul: createUser('Paul', 'suiveur', lou.id),
+  sam: createUser('Sam', 'eleve'),
+  tess: createUser('Tess', 'eleve'),
+};
 writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts));
 
 const dev = spawn('npx', ['wrangler', 'dev', '--local', '--ip', '127.0.0.1', '--port', PORT], { cwd: API, stdio: 'inherit' });

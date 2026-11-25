@@ -6,7 +6,9 @@
 .series-dots i{width:8px;height:8px;border-radius:50%;background:var(--tick)}
 .series-dots i.on{background:var(--primary)}
 .resolution{display:grid;gap:var(--sp-4);padding:var(--sp-8) var(--sp-12);border-radius:var(--r-lg);background:var(--surface-sunken)}
-.resolution__line{margin:0}
+.resolution__line{margin:0;max-width:100%}
+.resolution__line .katex-html{white-space:normal}
+.resolution__line .base{white-space:normal;display:inline}
 .help-box{padding:var(--sp-12);border-radius:var(--r-lg);background:var(--surface-sunken);border-left:4px solid var(--highlight)}
 .compare__pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-8)}
 .compare__case{display:grid;justify-items:center;gap:var(--sp-4);padding:var(--sp-12) var(--sp-8);border-radius:var(--r-lg);background:var(--surface-sunken)}

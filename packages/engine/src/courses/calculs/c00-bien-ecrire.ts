@@ -1001,7 +1001,8 @@ const parts: LessonPart[] = [
     consigne: REWRITE_CONSIGNE,
     above: [
       '\\text{Signes collés : } \\times \\text{ et } -',
-      '\\text{On met } -2 \\text{ entre parenthèses : } 6 \\times (-2)',
+      '\\text{On met } -2 \\text{ entre parenthèses :}',
+      '6 \\times (-2)',
       '\\text{Le calcul bien écrit : } \\square',
     ],
     help: "**Dernière ligne** Écris le calcul en entier, bien écrit. Tu peux t'aider de la ligne du dessus.",

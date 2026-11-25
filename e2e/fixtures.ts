@@ -4,7 +4,7 @@
  * Les événements sont de vrais `AppEvent` (mêmes champs que ceux que l'appli enregistre) ;
  * le « jour » vient de `parisDay`. Aujourd'hui = dimanche 22 novembre 2026, comme dans les maquettes.
  */
-import { MODULES, parisDay, addDays, type AppEvent } from '@pom/engine';
+import { MODULES, parisDay, addDays, type AppEvent, type ClementQuestion } from '@pom/engine';
 
 export const TODAY = '2026-11-22';
 /** 12 h à Paris (UTC+1 en novembre). */
@@ -17,6 +17,10 @@ export type Fixture = {
   /** Suiveur : élèves suivies et leurs événements. */
   students?: { id: string; name: string }[];
   studentEvents?: Record<string, AppEvent[]>;
+  /** Élève : ses questions à Clément. */
+  questions?: ClementQuestion[];
+  /** Suiveur : les questions de chaque élève suivie. */
+  studentQuestions?: Record<string, ClementQuestion[]>;
 };
 
 export const SCENARIO_NAMES = [
@@ -29,8 +33,45 @@ export const SCENARIO_NAMES = [
   'elle-bloque',
   'tout-va-bien',
   'deux-eleves',
+  'clement-a-repondu',
+  'question-a-clement',
 ] as const;
 export type ScenarioName = (typeof SCENARIO_NAMES)[number];
+
+/** Deux questions à Clément : une répondue (pas encore lue), une sans réponse. Le jour d'aujourd'hui, à 9 h. */
+function leaQuestions(): ClementQuestion[] {
+  const at = Date.UTC(2026, 10, 22, 8, 0, 0);
+  return [
+    {
+      id: 'q-2',
+      courseId: COURSES[0]!,
+      calc: '4 × −3',
+      given: '4 × (−3',
+      expected: '4 × (−3)',
+      correction: 'Une parenthèse ouverte doit toujours être fermée.',
+      note: 'Je ne vois pas où mettre la deuxième parenthèse.',
+      askedAt: at - 60 * MIN,
+      answer: 'Regarde où finit le nombre : la parenthèse se ferme juste après le 3. Elles vont toujours par deux.',
+      answeredAt: at,
+      answeredBy: 'Clément',
+      readAt: null,
+    },
+    {
+      id: 'q-1',
+      courseId: COURSES[1]!,
+      calc: '−4 + (−9)',
+      given: '13',
+      expected: '−13',
+      correction: 'Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − !',
+      note: null,
+      askedAt: at - 26 * 60 * MIN,
+      answer: null,
+      answeredAt: null,
+      answeredBy: null,
+      readAt: null,
+    },
+  ];
+}
 
 export const LEA: User = { id: 'u-lea', name: 'Léa', role: 'eleve' };
 export const CLAIRE: User = { id: 'u-claire', name: 'Claire', role: 'suiveur' };
@@ -145,6 +186,11 @@ export function scenario(name: ScenarioName): Fixture {
     case 'debut-de-journee':
       base(log);
       break;
+    case 'clement-a-repondu':
+      // 3 révisions faites ce matin (pas d'échauffement à proposer) ; une réponse de Clément attend d'être lue.
+      base(log);
+      for (const i of [0, 1, 2]) log.review(TODAY, c(i), 3, 54_000);
+      return { user: LEA, events: log.events, questions: leaQuestions() };
     case 'apres-une-seance':
       // 3 des 5 révisions faites ce matin (8 minutes) : il en reste 2.
       base(log);
@@ -171,8 +217,10 @@ export function scenario(name: ScenarioName): Fixture {
       break;
     case 'elle-bloque':
     case 'tout-va-bien':
+    case 'question-a-clement':
     case 'deux-eleves': {
       const stuck = name !== 'tout-va-bien';
+      const questions = name === 'question-a-clement' ? { [LEA.id]: leaQuestions().map((q) => (q.id === 'q-2' ? { ...q, answer: null, answeredAt: null, answeredBy: null } : q)) } : undefined;
       // Cours 0 à 3 validés ; le cours 4 est à valider (elle bloque) ou à peine commencé (tout va bien).
       for (const [i, back] of [[0, 17], [1, 16], [2, 14], [3, 12]] as [number, number][]) log.courseRun(day(back), c(i));
       if (stuck) {
@@ -201,7 +249,7 @@ export function scenario(name: ScenarioName): Fixture {
         students.push({ id: HUGO.id, name: HUGO.name });
         studentEvents[HUGO.id] = hugo.events;
       }
-      return { user: CLAIRE, events: [], students, studentEvents };
+      return { user: CLAIRE, events: [], students, studentEvents, ...(questions ? { studentQuestions: questions } : {}) };
     }
   }
   return { user: LEA, events: log.events };
