@@ -1,7 +1,8 @@
 import type { AppEvent, ClementQuestion, NewClementQuestion } from '@pom/engine';
 
 export type Role = 'eleve' | 'suiveur';
-export type User = { id: string; name: string; role: Role };
+/** `apercu` : compte de relecture, tous les cours sont ouverts (users.apercu). */
+export type User = { id: string; name: string; role: Role; apercu?: boolean };
 export type LoginResult = { token: string; user: User };
 
 /** Erreur HTTP de l'API (status 0 = réseau injoignable). */

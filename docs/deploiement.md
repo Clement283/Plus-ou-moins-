@@ -43,3 +43,7 @@ npx tsx scripts/create-user.ts --name Prénom --role suiveur --follows <idDeLele
 ```
 
 Le code s'affiche une seule fois. Les majuscules et les espaces du code n'ont pas d'importance à la connexion.
+
+## Compte « aperçu » (2026-11-25)
+Un compte élève « Aperçu » (id `d3bc24f0-…`, colonne `users.apercu = 1`, migration `0003_apercu.sql`) a tous les cours ouverts : l'appli remplace « verrouillé » par « disponible » pour ce compte (`unlockAll` dans `apps/web/src/store/sync.ts`). Il sert au porteur du projet à relire les cours sans les faire dans l'ordre. Personne ne le suit. Code remis au porteur du projet dans le chat.
+Rendre un autre compte « aperçu » : `UPDATE users SET apercu=1 WHERE id='…';` (il faut se reconnecter : l'information arrive à la connexion).

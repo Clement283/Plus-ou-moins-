@@ -119,3 +119,8 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Tests : moteur 949, api 35, web 432, scripts 7.
 - Ensuite : Cours 7 en mode autonome, puis modules B, C, D. Toujours à reprendre : `e2e/shots.ts`, `store.test.tsx` instable sous charge.
 - Mise en ligne bloquée : le réseau de la session refuse api.cloudflare.com (aucun jeton enregistré, demande refusée). À refaire : `npm run deploy` puis `cd apps/api && CLOUDFLARE_API_TOKEN=x CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npx wrangler deploy`, une fois le domaine autorisé.
+
+## Mise en ligne du Cours 6 et compte « aperçu » (2026-11-25)
+- Cours 6 en ligne (le domaine Cloudflare est joignable depuis cette session-ci).
+- Cours 6 : 214 000 jetons et 37 actions sur Sonnet (Cours 5 : 260 000 et 54 sur Opus).
+- Compte « Aperçu » : tous les cours ouverts, voir `docs/deploiement.md`.

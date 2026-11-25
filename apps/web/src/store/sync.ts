@@ -114,9 +114,21 @@ export function useEvents(): AppEvent[] {
   return useSyncExternalStore(subscribe, () => snap.events);
 }
 
-/** Progression repliée de l'élève connecté. */
+const unlocked = new WeakMap<ProgressState, ProgressState>();
+/** Compte « aperçu » : les cours verrouillés deviennent disponibles (même objet tant que la progression ne change pas). */
+export function unlockAll(p: ProgressState): ProgressState {
+  let u = unlocked.get(p);
+  if (!u) {
+    const courses = Object.fromEntries(Object.entries(p.courses).map(([id, c]) => [id, c.status === 'verrouille' ? { ...c, status: 'disponible' as const } : c]));
+    u = { ...p, courses };
+    unlocked.set(p, u);
+  }
+  return u;
+}
+
+/** Progression repliée de l'élève connecté (tous les cours ouverts pour un compte « aperçu »). */
 export function useStoredProgress(): ProgressState {
-  return useSyncExternalStore(subscribe, () => snap.progress);
+  return useSyncExternalStore(subscribe, () => (snap.session?.user.apercu ? unlockAll(snap.progress) : snap.progress));
 }
 
 /** Session et premiers événements locaux chargés. */
