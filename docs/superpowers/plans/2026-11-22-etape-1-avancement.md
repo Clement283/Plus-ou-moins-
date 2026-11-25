@@ -95,3 +95,9 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Code (plan `docs/superpowers/plans/2026-11-25-cours-1-v2-et-fonctions.md`) : vagues 1 à 3 + T15 (Cours 0 v3) fusionnées ; finitions UI faites ; **reste** : T13 (e2e, en cours), T14 (relecture finale, migration D1 `0002_questions.sql` à appliquer en ligne, mise en ligne).
 - Cours 2 : **maquette validée le 2026-11-25 avec 2 fusions** (écran « Revenir à 0 » → étape de « Règle 2 » ; récapitulatif → « Autres façons de faire »), spec v2 dans le doc 06 et **code livré** (`c02-additionner-signes-contraires.ts`, 16 parties, note de 15 questions). **Nouvelle brique réutilisable : la partie `autres`** (écran « Autres façons de faire », composant web `Autres.tsx`) ; la droite graduée donne des hauteurs d'arc différentes aux bonds qui se superposent. Reste : formats de révision propres au Cours 2, e2e du Cours 2, captures téléphone.
 - Ensuite : cours 3 à 7 avec le skill, puis modules B, C, D (documents de classe attendus).
+
+## Mise en ligne (2026-11-25)
+- En ligne : Cours 0 v3, 1 v2, 2 v2, 3 v2 ; fiche mémo, échauffement, Demander à Clément, Écouter, sons. Migration D1 `0002_questions.sql` appliquée en ligne.
+- e2e : 14/14 (T13). Relecture finale (T14) : pas de bloquant ; 3 petits correctifs faits (IndexedDB `blocking`, fiche inconnue, nom du suiveur).
+- Reste : maquette Cours 4 (`docs/design/ecrans/cours-4-v2.html`) à valider ; puis Cours 5 à 7 ; modules B, C, D.
+- Non fait : le driver e2e ne parcourt pas encore les Cours 2 et 3 (partie `autres`).
