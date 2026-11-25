@@ -10,6 +10,9 @@ import { REVIEW_SESSION_COURSES, nextReviewSession, pendingReviews } from '../sr
 const IDS = getModule('calculs').courseIds; // 8 courses, Cours 0 first
 const C0 = IDS[0]!;
 const C1 = IDS[1]!;
+const C4 = IDS[4]!;
+/** Les cours qui ont leurs propres formats de révision (Cours 1 v2, Cours 4 v2). */
+const WITH_FORMATS = [C1, C4];
 const C5 = 'c05-multiplier-deux';
 
 let seq = 0;
@@ -334,22 +337,22 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
           // Cours 0: 3 different formats among QCM, Classer, « Quelle règle ? », « Réécris », « Toucher la faute »
           expect(new Set(kinds).size).toBe(3);
           expect(kinds.every((k) => ['qcm', 'classer', 'choix', 'reecrire', 'erreur'].includes(k))).toBe(true);
-        } else if (id === C1) {
-          // Cours 1 : 3 formats différents parmi ses `formats` (saisie, droite, signe = qcm, vrai ou faux, erreur)
+        } else if (WITH_FORMATS.includes(id)) {
+          // Cours 1 et 4 : 3 formats différents parmi leurs `formats` (saisie, droite, signe = qcm, vrai ou faux, erreur)
           expect(new Set(kinds).size).toBe(3);
           expect(kinds.every((k) => ['saisie', 'droite', 'qcm', 'vraifaux', 'erreur'].includes(k))).toBe(true);
         } else {
           expect(kinds.every((k) => k === 'qcm' || k === 'vraifaux' || k === 'classer')).toBe(true);
           expect(kinds.filter((k) => k === 'qcm').length).toBeGreaterThanOrEqual(1);
         }
-        if (id !== C1) for (const k of kinds) seenKinds.add(`${id === C0 ? 'c0' : 'other'}:${k}`);
+        if (!WITH_FORMATS.includes(id)) for (const k of kinds) seenKinds.add(`${id === C0 ? 'c0' : 'other'}:${k}`);
       }
     }
     expect([...seenKinds].sort()).toEqual(['c0:choix', 'c0:classer', 'c0:erreur', 'c0:qcm', 'c0:reecrire', 'other:classer', 'other:qcm', 'other:vraifaux']);
   });
 
   it('fréquence des formats (doc 07 #10A) : 1 chance sur 4 de « vrai ou faux », 1 sur 4 de « classer » par cours', () => {
-    const state = onlyDue(all, IDS.slice(3, 8), D); // 5 cours, aucun n'est le Cours 0
+    const state = onlyDue(all, [2, 3, 5, 6, 7].map((i) => IDS[i]!), D); // 5 cours sans formats propres, aucun n'est le Cours 0
     let vf = 0;
     let cl = 0;
     let courses = 0;

@@ -1,4 +1,5 @@
 // « Toucher la droite » : un calcul à deux termes, les bonds sont dessinés, l'élève touche l'arrivée.
+// a + b : bonds a puis b ; a − b (Cours 4) : bonds a puis −b (soustraire, c'est ajouter l'opposé).
 import { type Expr, toLatex } from '../../math/expr';
 import type { CourseDef, Exercise } from '../../courses/types';
 import type { Rng } from '../../rng';
@@ -12,10 +13,11 @@ const operands = (e: Expr): number[] =>
   e.k === 'num' ? [e.v.n] : e.k === 'op' ? [...operands(e.a), ...operands(e.b)] : operands(e.a);
 
 const geometry = (ex: Exercise): { terms: [number, number]; min: number; max: number } | null => {
-  if (ex.expr.k !== 'op' || ex.expr.op !== '+') return null;
+  if (ex.expr.k !== 'op' || (ex.expr.op !== '+' && ex.expr.op !== '-')) return null;
   const terms = operands(ex.expr);
   if (terms.length !== 2) return null;
-  const [a, b] = terms as [number, number];
+  const [a, second] = terms as [number, number];
+  const b = ex.expr.op === '-' ? -second : second;
   const points = [0, a, a + b];
   return { terms: [a, b], min: Math.min(...points), max: Math.max(...points) };
 };

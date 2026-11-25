@@ -69,12 +69,17 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c04-soustraire': [
-    ['Enlever une dette, c\'est gagner de l\'argent'],
-    ['Soustraire, c\'est ajouter l\'opposé', 'Je transforme en addition, puis j\'applique les cours 1 et 2.'],
-    ['Réécris 5 − (−3) comme une addition', 'Touche les étiquettes dans l\'ordre. Attention, il y en a une en trop.'],
-    CALC,
-    ['Trouve la ligne fausse', 'Touche la ligne où le calcul se trompe.'],
-    EX, EX, EX, EX,
+    ['Soustraire un nombre relatif'],
+    ['Retrancher une dette'],
+    ['Comparer deux cas'],
+    ["J'ajoute l'opposé"],
+    ["Puis j'additionne"],
+    [null], [null],
+    ['Autres façons de faire'],
+    ['Cours 4 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c05-multiplier-deux': [
     ['Deux signes pareils donnent +', 'Deux signes différents donnent −.'],
@@ -142,14 +147,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   const neutral = (id: string) => lines(rule(id)).filter((b) => b.tone === 'neutre');
   const attention = (id: string) => rule(id).type === 'explication' && (rule(id) as { blocks: LessonBlock[] }).blocks.some((b) => b.t === 'heading' && b.text === 'Fais attention');
 
-  it('Cours 4 : 3 lignes ✓, ✗ et ~ avec leurs explications', () => {
-    const id = 'c04-soustraire';
-    expect(ok(id)).toEqual(['5 − (−3) = 5 + 3 = **8**', '3 − 7 = 3 + (−7) = **−4**', '−4 − 6 = −4 + (−6) = **−10**']);
-    expect(attention(id)).toBe(true);
-    expect(ko(id)).toEqual([{ t: 'text', text: '6 − (−2) = 6 − 2 = 4', tone: 'ko', note: 'Le signe de −2 n\'a pas changé : 6 − (−2) = 6 + 2.' }]);
-    expect(neutral(id)).toEqual([{ t: 'text', text: '(−4) − 6', tone: 'neutre', note: 'Pas faux, mais inutile : en tête, pas de parenthèses.' }]);
-  });
-
   const KO: Record<string, [string, string]> = {
     'c05-multiplier-deux': ['−3 × (−4) = −12', '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.'],
     'c06-diviser-deux': ['−12 ÷ 4 = 3', 'Même règle que pour × : signes pareils → + ; différents → −.'],
@@ -190,10 +187,10 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
 
 describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité', () => {
   it('courseRunItems porte titre, sous-titre et consigne', () => {
-    const items = courseRunItems(getCourse('c04-soustraire'), seededRng(1));
-    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: "Soustraire, c'est ajouter l'opposé" } });
-    expect(items[2]).toMatchObject({ type: 'question', texts: { title: 'Réécris 5 − (−3) comme une addition' } });
-    expect(items[5]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
+    const items = courseRunItems(getCourse('c05-multiplier-deux'), seededRng(1));
+    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: 'Je trouve le signe, puis je multiplie' } });
+    expect(items[2]).toMatchObject({ type: 'question', texts: { title: "Remets les étapes de −4 × (−3) dans l'ordre" } });
+    expect(items[6]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
     expect(items[3]).not.toHaveProperty('texts');
   });
 

@@ -305,10 +305,11 @@ describe('relire', () => {
   });
 
   it('rejoue les parties de leçon sans exercice de fin et sans aucun événement', async () => {
-    const t = mount(<RelireScreen courseId={C04.id} rng={seededRng(1)} />);
+    // le Cours 5 commence par un écran d'explication (le Cours 4 v2 commence par une question pour deviner)
+    const t = mount(<RelireScreen courseId="c05-multiplier-deux" rng={seededRng(1)} />);
     const { courseRunItems } = await import('@pom/engine');
     vi.mocked(courseRunItems).mockClear();
-    expect(t.text()).toContain('Cours 4, leçon');
+    expect(t.text()).toContain('Cours 5, leçon');
     expect(t.btn('Suivant')).toBeTruthy();
     fireEvent.click(t.btn('Suivant')!);
     await settle();

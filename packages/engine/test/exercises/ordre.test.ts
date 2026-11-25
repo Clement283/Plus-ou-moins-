@@ -42,14 +42,6 @@ describe('Étiquettes à ordonner (doc 04 §3)', () => {
     expect(o.expected).toBe(C(n).resolution(exOf(C(n), display)).join(' · '));
   });
 
-  it('the Cours 4 lesson tiles: the trap tile « − » records oppose-oublie', () => {
-    const lesson = C(4).parts.find((p) => p.type === 'question' && p.question.kind === 'ordre');
-    if (lesson?.type !== 'question') throw new Error('no lesson tiles');
-    const q = lesson.question;
-    expect(checkAnswer(C(4), q, place(q, ['5', '+', '3'])).correct).toBe(true);
-    expect(checkAnswer(C(4), q, place(q, ['5', '−', '3'])).errorType).toBe('oppose-oublie');
-  });
-
   it('builds the shuffled model resolution; a trap tile from the 3rd time on this course', () => {
     for (const n of RELATIFS) {
       const course = C(n);

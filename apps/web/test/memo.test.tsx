@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import { foldProgress, resultOfTally, type AppEvent } from '@pom/engine';
+import { MODULES, foldProgress, getCourse, resultOfTally, type AppEvent } from '@pom/engine';
 import { scenario, type ScenarioName } from '../../../e2e/fixtures';
 
 const h = vi.hoisted(() => ({ events: [] as AppEvent[] }));
@@ -78,11 +78,17 @@ describe('accès depuis Mes cours', () => {
     load(null);
     expect(mount(<Courses />).btn('Fiche')).toBeTruthy();
   });
-  it('un cours sans fiche n\'a pas de bouton', () => {
+  it('un cours à valider avec fiche (Cours 4 v2) la propose ; un cours sans fiche n\'a pas de bouton', () => {
     load('cours-a-rattraper');
     const v = mount(<Courses />);
     const row = v.$$('details.crow').find((d) => d.textContent?.includes('À valider'))!;
-    expect(row.textContent).not.toContain('Fiche');
+    expect(row.textContent).toContain('Cours 4');
+    expect(row.textContent).toContain('Fiche');
+    for (const r of v.$$('details.crow')) {
+      const order = Number(/Cours (\d+)/.exec(r.textContent ?? '')?.[1]);
+      const course = MODULES[0]!.courseIds.map((id) => getCourse(id)).find((c) => c.order === order);
+      if (course && !course.memo) expect(r.textContent, `Cours ${order}`).not.toContain('Fiche');
+    }
   });
 });
 
@@ -97,7 +103,7 @@ describe('cours validé', () => {
   });
   it('sans fiche : rien', () => {
     const v = mount(
-      <RunResultView variant="cours" courseId="c04-soustraire" results={['ok']} result={resultOfTally({ first: 12, ok: 12, fin: 5, finOk: 5 }, 'c04-soustraire')} />,
+      <RunResultView variant="cours" courseId="c05-multiplier-deux" results={['ok']} result={resultOfTally({ first: 12, ok: 12, fin: 5, finOk: 5 }, 'c05-multiplier-deux')} />,
     );
     expect(v.btn('Voir la fiche mémo')).toBeNull();
   });

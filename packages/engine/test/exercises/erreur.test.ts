@@ -27,7 +27,7 @@ describe("Trouver l'erreur (doc 04 §4)", () => {
     // Résolution affichée | Bonne réponse | Elle touche | Erreur enregistrée (lines numbered from 0)
     [5, '−3 × (−4)', 'regle-signes', '−3 × (−4) / = −(3 × 4) / = −12', 1, 1, null],
     [5, '−3 × (−4)', 'regle-signes', '−3 × (−4) / = −(3 × 4) / = −12', 1, 2, 'regle-signes'],
-    [4, '5 − (−3)', 'oppose-oublie', '5 − (−3) / = 5 − 3 / = 2', 1, 1, null],
+    [4, '5 − (−3)', 'oppose-oublie', '5 − (−3) / = 5 + (−3) / = 2', 1, 1, null],
     [4, '5 − (−3)', null, '5 − (−3) / = 5 + 3 / = 8', null, 2, 'relecture'],
     [3, '−2 + 5 + (−4)', 'signe-inverse', '−2 + 5 + (−4) / = 5 + (−2) + (−4) / = 5 + (−6) / = 1', 3, null, 'relecture'],
   ] as [number, string, string | null, string, number | null, number | null, string | null][])(
@@ -45,12 +45,11 @@ describe("Trouver l'erreur (doc 04 §4)", () => {
     },
   );
 
-  it('the Cours 4 lesson pattern (doc 06): 6 − (−2) = 6 − 2 = 4, wrong at the 2nd step', () => {
-    const lesson = C(4).parts.find((p) => p.type === 'question' && p.question.kind === 'erreur');
-    if (lesson?.type !== 'question' || lesson.question.kind !== 'erreur') throw new Error('no lesson question');
-    const q = built(4, '6 − (−2)', 'oppose-oublie');
-    expect(q).toMatchObject({ lines: lesson.question.lines, wrongLine: lesson.question.wrongLine, errorType: 'oppose-oublie' });
-    expect(q).toMatchObject({ lines: linesOf('6 − (−2) / = 6 − 2 / = 4'), wrongLine: 1 });
+  it('Cours 4 v2: the opposite forgotten is written the way the fiche mémo shows it, 5 − (−3) = 5 + (−3)', () => {
+    expect(C(4).memo?.mistake.wrong).toBe('5 − (−3) = 5 + (−3)');
+    expect(built(4, '6 − (−2)', 'oppose-oublie')).toMatchObject({ lines: linesOf('6 − (−2) / = 6 + (−2) / = 4'), wrongLine: 1 });
+    // two subtractions in a row (level 3): only the second number kept its sign
+    expect(built(4, '248 − (−175) − 90', 'oppose-oublie')).toMatchObject({ wrongLine: 1 });
   });
 
   // How each error of courses 1–7 shows, the way a student writes it; null = not that error alone.
