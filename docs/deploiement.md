@@ -48,3 +48,10 @@ Le code s'affiche une seule fois. Les majuscules et les espaces du code n'ont pa
 Un compte élève « Aperçu » (id `d3bc24f0-…`, colonne `users.apercu = 1`, migration `0003_apercu.sql`) a tous les cours ouverts : l'appli remplace « verrouillé » par « disponible » pour ce compte (`unlockAll` dans `apps/web/src/store/sync.ts`). Il sert au porteur du projet à relire les cours sans les faire dans l'ordre. Personne ne le suit. Code remis au porteur du projet dans le chat.
 Rendre un autre compte « aperçu » : `UPDATE users SET apercu=1 WHERE id='…';` (il faut se reconnecter : l'information arrive à la connexion).
 - 2026-11-25 : le compte suiveur « Clément » est aussi « aperçu » : un bouton **« Tester les cours »** sur sa page de suivi ouvre l'appli de l'élève, tous les cours ouverts, avec un bandeau « Mode test · Retour au suivi ». **Rien n'est enregistré** : les réponses restent en mémoire le temps du cours (`volatile` dans `apps/web/src/store/sync.ts`) et sont effacées au retour à l'accueil ou à « Mes cours » ; « Demander à Clément » ne fait rien dans ce mode. Le serveur refuse toujours les réponses d'un suiveur.
+
+## Mise en ligne automatique (GitHub Actions)
+Fichier : `.github/workflows/deploy.yml`.
+- Sur chaque pull request : les tests seulement (`npm test`).
+- Sur chaque push sur `main` : les tests, puis, **seulement s'ils passent**, les migrations D1 en attente (`wrangler d1 migrations apply`) et `npm run deploy`. Tests rouges = rien n'est mis en ligne.
+- À faire une fois sur GitHub : *Settings → Secrets and variables → Actions → New repository secret* : `CLOUDFLARE_API_TOKEN` (mêmes droits que ci-dessus). L'identifiant de compte est dans le fichier.
+- Les tests e2e (Playwright) ne sont pas lancés par cette automatisation.
