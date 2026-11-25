@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { dailyTime, foldProgress, parisDay, type AppEvent, type ProgressState } from '@pom/engine';
 import { announceGoal } from '../sound';
-import { ApiError, getEvents, postEvents } from '../api';
+import { ApiError, getEvents, getMe, postEvents } from '../api';
 import { getDb, SESSION_KEY, type Session } from './db';
 import { flushAsks, refreshQuestions, resetQuestions } from './questions';
 import { advanceProgress, loadProgressCache, saveProgressCache } from './foldcache';
@@ -59,8 +59,25 @@ function init(): Promise<void> {
     }
     set({ session, ready: session === null });
     await loadLocal();
+    if (session) void refreshMe(session);
   })();
   return started;
+}
+
+/** Relit le compte sur le serveur (réglage « aperçu » changé après la connexion) ; hors ligne, on garde la session. */
+async function refreshMe(session: Session): Promise<void> {
+  try {
+    const user = await getMe(session.token);
+    if (user.id !== session.user.id || !!user.apercu === !!session.user.apercu) return;
+    const next = { ...session, user: { ...session.user, apercu: user.apercu } };
+    await (await getDb()).put('session', next, SESSION_KEY);
+    if (snap.session?.user.id === user.id) {
+      set({ session: next });
+      await loadLocal();
+    }
+  } catch {
+    // hors ligne ou jeton refusé : rien à changer ici
+  }
 }
 
 /** Événements du compte connecté, hors React (tests). */

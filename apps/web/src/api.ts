@@ -47,6 +47,10 @@ export async function postEvents(token: string, events: AppEvent[]): Promise<str
   return (await request<{ accepted: string[] }>('/api/events', { method: 'POST', token, body: JSON.stringify({ events }) })).accepted;
 }
 
+export async function getMe(token: string): Promise<User> {
+  return (await request<{ user: User }>('/api/me', { token })).user;
+}
+
 export async function getEvents(token: string): Promise<AppEvent[]> {
   return (await request<{ events: AppEvent[] }>('/api/events', { token })).events;
 }

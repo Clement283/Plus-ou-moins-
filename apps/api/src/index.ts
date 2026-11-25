@@ -25,6 +25,13 @@ app.post('/api/login', async (c) => {
   return c.json({ token, user: apercu ? { ...user, apercu: true } : user });
 });
 
+// Le compte connecté, relu à chaque ouverture : un réglage changé après la connexion (users.apercu) arrive sans se reconnecter.
+app.get('/api/me', requireAuth, async (c) => {
+  const user = c.get('user');
+  const row = await c.env.DB.prepare('SELECT apercu FROM users WHERE id = ?').bind(user.id).first<{ apercu: number | null }>();
+  return c.json({ user: row?.apercu ? { ...user, apercu: true } : user });
+});
+
 app.use('/api/events/*', requireAuth);
 app.use('/api/events', requireAuth);
 app.use('/api/students/*', requireAuth);
