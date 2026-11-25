@@ -56,7 +56,17 @@ Le programme de cycle 4 (5e, 4e, 3e) est enregistré dans `docs/sources/maths_cy
 | **C. Fractions** | 12 à 18 | 7 | Un thème clair, avec sa propre progression (simplifier, signe, additionner, multiplier, diviser). |
 | **D. Carrés et identités remarquables** | 19 à 24 | 6 | La partie la plus proche du second degré ; demande A et B (et C pour les niveaux 3). |
 
-**Ordre :** A, puis B, puis C, puis D. B avant C parce que les niveaux 3 des fractions mélangent des priorités (1/2 + 1/3 × 3/4) ; D à la fin parce que le dernier cours (Δ) reprend tous les autres.
+**Ordre (décidé le 2026-11-25, remplace « A, B, C, D d'un bloc ») :** les modules A à D sont des **révisions** (programmes de collège et de seconde) ; ils sont **intercalés** avec les chapitres de l'année :
+
+1. **A. Relatifs** (cours 0 à 7 ; il reste le cours 7)
+2. **Équations et inéquations** (chapitre de l'année, plan à faire)
+3. **B. Priorités** (cours 8 à 11)
+4. **Suites numériques** (chapitre de l'année, plan à faire)
+5. **C. Fractions** (cours 12 à 18)
+6. **Discriminant et second degré** (chapitre de l'année, plan à faire)
+7. **D. Carrés et identités remarquables** (cours 19 à 24)
+
+Raison : elle s'entraîne sur les bases de calcul tout en avançant sur les chapitres de la classe (contrôles à venir). Les raisons d'origine de l'ordre A, B, C, D restent à vérifier avec ce nouvel ordre : B avant C (les niveaux 3 des fractions mélangent des priorités, 1/2 + 1/3 × 3/4) reste vrai ; D passe **après** le module discriminant, alors que le cours 24 (calcul de Δ) y était le dernier cours : le calcul de Δ et le carré d'un négatif devront être couverts par le module discriminant lui-même (ou le cours 24 déplacé). Les suites avec raison fractionnaire arrivent avant C : rester sur des raisons entières, ou les fractions simples. Équations et inéquations utilisent des lettres : brique « lettres » à prévoir (§5).
 
 **Alternative 1 : 3 modules** (A. Relatifs ; B. Priorités et fractions, cours 8 à 18, 11 cours ; C. Carrés et identités, cours 19 à 24). Un peu moins de modules, mais un module de 11 cours.
 
@@ -602,3 +612,4 @@ Décisions du porteur du projet, validées le **2026-11-25** :
 6. **Premier cours d'un module (8, 12, 19)** : la question intercalée de la série de pratique et un cas de « Comparer deux cas » viennent du **module précédent** (tableau du §4 mis à jour).
 7. **Astuces : il en faut beaucoup plus** (critique du porteur du projet). Chaque cours, de 0 à 24, a une rubrique « Astuces et techniques » de 3 ou 4 entrées ; la technique principale va dans la fiche mémo, les autres deviennent des étapes de la leçon ou un écran « Autres façons de faire » ; l'élève choisit sa technique.
 8. **Notions du programme absentes** (2026-11-25) : **comparer deux fractions** = une étape du cours 15 (pas de cours en plus) ; **double distributivité** = rappelée dans l'idée de départ du cours 22, traitée dans le futur module « Calcul littéral » ; **entier + fraction** = non ajouté (l'entier écrit en fraction est vu au cours 16).
+9. **Ordre des modules et révisions** (2026-11-25) : A à D sont des **révisions** ; ils sont intercalés avec les chapitres de l'année : A, **Équations et inéquations**, B, **Suites numériques**, C, **Discriminant et second degré**, D (voir §2). Le point 1 (« les modules s'enchaînent dans l'ordre A, B, C, D ») est remplacé par cet ordre. Cours 7 pas encore lancé.
