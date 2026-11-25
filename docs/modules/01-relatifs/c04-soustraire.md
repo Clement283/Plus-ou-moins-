@@ -1,5 +1,14 @@
-# Cours 4 — Soustraire, c'est ajouter l'opposé (version 2, fiche courte)
+# Cours 4 — Soustraire, c'est ajouter l'opposé
+Module : Relatifs (`docs/modules/01-relatifs/module.md`)
 
+## Points importants
+- À retenir : (1) soustraire, c'est ajouter l'opposé : je remplace le − par un + et je change le signe du nombre qui suit ; (2) puis j'additionne : même signe, j'additionne ; signes contraires, je soustrais et je prends le signe du plus grand.
+- Pièges : opposé oublié (5 − (−3) = 2), `oppose-oublie` ; signe inversé en additionnant, `signe-inverse`.
+- Vu dans ce cours : soustraire un relatif, « retrancher une dette » sur la droite, petit moins grand on retourne, vérifier par l'opération inverse ; au niveau 3, deux soustractions à la suite.
+- Écarts et choix : l'opposé oublié est reconnu même si un seul des deux nombres a gardé son signe (niveau 3) ; le message `signe-inverse` renvoie au Cours 3 pour les calculs à deux soustractions.
+- Dans l'appli : 10 écrans pour apprendre, 13 questions notées ; `c04-soustraire.ts` ; maquette `docs/design/ecrans/cours-4-v2.html`.
+
+## Fiche
 *Mode autonome (2026-11-25). Référence des textes, des écrans et des messages : la maquette validée `docs/design/ecrans/cours-4-v2.html` (avec les 5 recommandations de son panneau « À décider »). Code : `packages/engine/src/courses/calculs/c04-soustraire.ts` ; textes vérifiés mot pour mot par `test/courses/c04-texts.test.ts`.*
 
 **La règle** (coupée en deux, chacune avec son erreur reconnue) : 1. *Soustraire un nombre, c'est ajouter son opposé : je remplace le − par un +, et je change le signe du nombre qui suit* (`oppose-oublie`) ; 2. *Puis j'additionne : même signe, j'additionne ; signes contraires, je soustrais et je prends le signe du plus grand* (`signe-inverse`).

@@ -12,7 +12,11 @@
 - Pas de déploiement à la main depuis une session (réseau Cloudflare bloqué). Échec : lire l'étape rouge dans l'onglet *Actions* ; test instable : *Re-run failed jobs*. Détails : `docs/deploiement.md`.
 - Les tests e2e (`npm run e2e`) ne sont pas lancés par l'automatisation.
 
+## Modules et cours (organisation des documents)
+- Registre : `docs/modules.md` (ordre des modules). Un module = `docs/modules/NN-nom/` avec `module.md` (descriptif global, points importants, liste des cours) et un fichier par cours `cNN-nom.md` (points importants en haut, fiche dessous).
+- Écrire un cours : lire `docs/modules.md`, le `module.md` de chaque module précédent et du module courant, `head -n 12` de chaque cours précédent du module, puis la fiche du cours. Skills : `plus-ou-moins-creer-un-module-de-cours`, `plus-ou-moins-ecrire-un-cours`.
+- `docs/validation/` = archives (plans d'origine des modules 3, 5, 7, décisions d'écrans) : ne pas les lire en entier.
+- Avancement : `docs/superpowers/plans/2026-11-22-etape-1-avancement.md` (lire la fin).
+
 ## Économiser le contexte
-- Plan des modules de calcul : un fichier par module dans `docs/validation/10-calculs/` (index : `docs/validation/10-module-calculs.md`). Ne lire que le fichier du module concerné, et les fiches courtes des cours dans `docs/fiches/` (une par cours).
-- Avancement : `docs/superpowers/plans/2026-11-22-etape-1-avancement.md` (lire la fin). Écrire un cours : skills `plus-ou-moins-ecrire-un-cours`, `plus-ou-moins-creer-un-module-de-cours`.
-- Sorties de commandes : `| tail`, `grep`, pas de journaux complets.
+- Gros fichiers : lecture ciblée (`grep -n`, `sed -n`), jamais en entier. Sorties de commandes : `| tail`, `grep`, pas de journaux complets.

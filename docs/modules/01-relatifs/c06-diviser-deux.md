@@ -1,5 +1,14 @@
-# Cours 6 — Diviser deux relatifs (version 2, fiche courte)
+# Cours 6 — Diviser deux relatifs
+Module : Relatifs (`docs/modules/01-relatifs/module.md`)
 
+## Points importants
+- À retenir : (1) diviser, c'est chercher le nombre qui, multiplié par le diviseur, redonne le premier ; (2) même signe : positif, signes contraires : négatif ; (3) je vérifie en multipliant le résultat par le diviseur.
+- Pièges : `multiplication-au-lieu-division`, `regle-signes` (quatre messages : deux négatifs, deux positifs, signe du premier gardé, signe oublié).
+- Vu dans ce cours : la division comme réciproque de la multiplication, tableau des signes, vérification par la multiplication, barrer des zéros, diviser en deux fois. Seulement des divisions qui tombent juste.
+- Écarts et choix : quotient de niveau 1 de 2 à 9 ; jamais de 0 ÷ n ; pas de format de révision propre ; pas de droite graduée.
+- Dans l'appli : 12 écrans pour apprendre, 13 questions notées ; `c06-diviser-deux.ts`.
+
+## Fiche
 *Mode autonome (2026-11-25), sans maquette, une phrase à la fois (`unePhrase: true`). Code : `packages/engine/src/courses/calculs/c06-diviser-deux.ts` ; textes vérifiés par instantané Vitest (`test/courses/__snapshots__/c06.test.ts.snap`), largeur du téléphone par `apps/web/test/c04.test.tsx`.*
 
 **La règle** (trois règles, chacune avec ses erreurs reconnues) : 1. *Diviser, c'est chercher le nombre qui, multiplié par le diviseur, redonne le premier nombre* (`multiplication-au-lieu-division`) ; 2. *Même signe : positif. Signes contraires : négatif* (`regle-signes`, quatre messages : deux négatifs, deux positifs, signe du premier nombre gardé, signe oublié) ; 3. *Je vérifie en multipliant le résultat par le diviseur* (`erreur-table`, quotient décalé de 1).

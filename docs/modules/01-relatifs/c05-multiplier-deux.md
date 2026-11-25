@@ -1,5 +1,14 @@
-# Cours 5 — Multiplier deux nombres relatifs (version 2, fiche courte)
+# Cours 5 — Multiplier deux nombres relatifs
+Module : Relatifs (`docs/modules/01-relatifs/module.md`)
 
+## Points importants
+- À retenir : (1) même signe : le produit est positif, signes contraires : négatif ; (2) je multiplie les nombres sans leur signe, puis je mets le signe du produit.
+- Pièges : `regle-signes` (message selon le calcul), `addition-au-lieu-multiplication`, `erreur-table`.
+- Vu dans ce cours : multiplier = répéter, la suite 3 × (−2), 2 × (−2)… qui monte de 2, tableau des signes, calcul mental d'un produit, multiplier par −1 ; niveau 2 : tables de 11 et 12.
+- Écarts et choix : un seul identifiant `regle-signes` avec un message selon le calcul ; niveau 3 limité à 10–99 × 10–19 (largeur du téléphone) ; pas de droite graduée.
+- Dans l'appli : 12 écrans pour apprendre, 13 questions notées ; `c05-multiplier-deux.ts`.
+
+## Fiche
 *Mode autonome (2026-11-25), sans maquette. Code : `packages/engine/src/courses/calculs/c05-multiplier-deux.ts` ; textes vérifiés mot pour mot par `test/courses/c05-texts.test.ts`, largeur du téléphone par `apps/web/test/c04.test.tsx` et `c05.test.tsx`.*
 
 **La règle** (coupée en deux, chacune avec ses erreurs reconnues) : 1. *Même signe : le produit est positif. Signes contraires : le produit est négatif* (`regle-signes`) ; 2. *Je multiplie les nombres sans leur signe, puis je mets le signe du produit* (`addition-au-lieu-multiplication`, `erreur-table`).

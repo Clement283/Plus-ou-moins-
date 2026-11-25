@@ -1,4 +1,4 @@
-// Cours 7 (version b) — Multiplier plusieurs relatifs. Fiche : docs/fiches/c07-multiplier-plusieurs.md.
+// Cours 7 (version b) — Multiplier plusieurs relatifs. Fiche : docs/modules/01-relatifs/c07-multiplier-plusieurs.md.
 import { num, op, toLatex } from '../../math/expr';
 import type { Rng } from '../../rng';
 import type { Outcome, Question } from '../../exercises/types';

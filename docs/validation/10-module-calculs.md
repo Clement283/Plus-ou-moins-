@@ -1,4 +1,6 @@
-# 10 — Plan du module « Calculs » : index
+# 10 — Plan du module « Calculs » : index (ARCHIVE)
+
+*Archive depuis le 2026-11-25 : l'organisation vivante est dans `docs/modules.md` et `docs/modules/`. Ces plans servent de point de départ aux modules 3, 5 et 7.*
 
 Ce plan était un seul fichier de 600 lignes ; il est **découpé par module** (2026-11-25). Ne lire que la partie utile :
 
