@@ -7,10 +7,9 @@ import { c04 } from './c04-soustraire';
 import { c05 } from './c05-multiplier-deux';
 import { c06 } from './c06-diviser-deux';
 import { c07 } from './c07-multiplier-plusieurs';
-import { c07b } from './c07b-multiplier-plusieurs';
 import { MODULE_ID } from './shared';
 
-export const CALCULS_COURSES: CourseDef[] = [c00, c01, c02, c03, c04, c05, c06, c07, c07b];
+export const CALCULS_COURSES: CourseDef[] = [c00, c01, c02, c03, c04, c05, c06, c07];
 
 export const CALCULS: ModuleDef = {
   id: MODULE_ID,
