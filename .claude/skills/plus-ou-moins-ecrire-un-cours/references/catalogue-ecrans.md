@@ -34,13 +34,23 @@ Tous les helpers s'importent de `./shared`. Toujours `M` (−) dans les textes, 
 | Toucher un morceau d'un calcul | `{ type: 'morceau', consigne, calc: indiceDeLaLigne, target: [indices de tokens], errors, fallback }` |
 | Toucher l'endroit d'un symbole | `{ type: 'endroit', …même forme…, gaps?: [indices d'espaces proposés] }` |
 
+Une phrase à trous peut avoir **2 ou 3 choix** (un message par choix faux).
+
 ## Questions (comptées sauf `decouverte`)
 
 `saisie(ex)` : taper le résultat. `trou(ex, '= \\square', valeur)` : une case dans une résolution (`above` = lignes déjà posées). `signBox(ex, positif, idErreurSigne)` : boutons + / −. `choix` / `small` : choix en bas de l'écran. `droiteQ(ex, {from,to}, jumps)` : toucher l'arrivée sur la droite. `ordre(ex, étiquettes, ordreAffiché)` : remettre dans l'ordre. Formats de révision (`formats` du `CourseDef`) : `saisie`, `droite`, `signe`, `vraifaux`, `erreur` (exemple : `c04-soustraire.ts`).
 
+### Reprendre une question d'un cours précédent (seulement si un lien existe)
+
+Construire l'exercice avec **l'identifiant de ce cours** : `makeExercise('c06-diviser-deux', 1, op('/', num(-56), num(7)))`. L'identifiant exact est dans la fiche (« Cours liés ») ou dans la constante `ID` de ce cours ; le test de contrat vérifie qu'il existe. Les messages d'erreur de cette question s'écrivent dans la question elle-même (`choix`, `options3`).
+
 ## Erreurs reconnues
 
 `buildErrors([ErrorSpec…], resolution)` : par erreur, `id`, `family`, `detect(ex, réponseDonnée)`, `text(ex)` (message précis), `draw(level, rng)` (calcul-piège), `sample(ex)` (réponse fausse typique), `alsoWrong?`, `wrongLines?` (résolution fausse). Chaque erreur reçoit `rule: { n, label, partIndex }` : `partIndex` = indice de la partie `etapes` qui enseigne la règle, `label` = son titre exact. Outils : `isOpposite`, `absIs`, `is`, `intOf`, `redraw`, `stepped`, `resultLine`. `feedbackText(q, outcome)` : message par réponse prévisible aux questions qui comptent (`o.correct`, `o.given`, `o.errorFamily`).
+
+## Tester (dans `test/courses/cNN.test.ts`, 60 lignes au plus)
+
+`helpers.ts` fournit : `exOf(cours, '−12 ÷ 4')` (un exercice écrit comme dans le doc 06), `checkExample`, `checkDiagnosis(cours, '−12 ÷ 4', réponse, idErreur)`, `propertyChecks(cours, fits, pièges, graine)` (générateur et calculs-pièges sur 1 000 tirages par niveau). Pour **`feedbackText`**, un test par message : `say(cours, saisieOf(cours, '−12 ÷ 4'), typed(-4))` renvoie le message (ou `null`) ; attendre `toContain('début du message')`. Les questions `choix` portent leurs messages et n'ont pas besoin de ce test.
 
 ## Générateur
 

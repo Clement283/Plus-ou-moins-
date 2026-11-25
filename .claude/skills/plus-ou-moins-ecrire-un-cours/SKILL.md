@@ -16,7 +16,7 @@ Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, sc�
 1. **La fiche du cours** (`docs/fiches/cNN-nom.md`, chemin donné dans la demande). Elle contient règles, erreurs, techniques, reprises, niveaux.
 2. `references/catalogue-ecrans.md` : tous les écrans, scènes, actions, questions, signatures.
 3. `references/gabarit-cours.ts.txt` : le cours type, déjà à la bonne forme.
-4. **`docs/points-importants.md` en entier** (tous les cours déjà écrits), en se concentrant sur les cours du **même module** : ce qui est enseigné, les pièges, les choix pris. Les cours d'un module se complètent (un point faible du cours 1 peut être repris au cours 3) : lire l'ensemble, repérer ce qu'on peut reprendre, éviter les répétitions, et poser des questions sur l'ensemble si une fiche les contredit ou les ignore.
+4. **`docs/points-importants.md` en entier** (tous les cours déjà écrits ; s'il n'existe pas encore, passer), en se concentrant sur les cours du **même module** : ce qui est enseigné, les pièges, les choix pris. Les cours d'un module se complètent (un point faible du cours 1 peut être repris au cours 3) : lire l'ensemble, repérer ce qu'on peut reprendre, éviter les répétitions, et poser des questions sur l'ensemble si une fiche les contredit ou les ignore.
 
 **Ne pas ouvrir** : docs 06, 08, 10, maquettes, snapshots, `types.ts`, `shared.ts`, cours précédents, autres skills. Un doute précis se règle par un `grep` ciblé, jamais par une lecture entière. Si la fiche manque ou contredit le catalogue, le dire au lieu de deviner.
 

@@ -68,6 +68,13 @@ describe.each(COURSES.map((c) => [c.id, c] as [string, CourseDef]))('contrat de 
     expect(p?.type === 'pratique' && p.questions.length).toBe(4);
   });
 
+  it('une question reprise d’un cours précédent désigne un cours qui existe (identifiant exact)', () => {
+    const known = new Set(CALCULS_COURSES.map((x) => x.id));
+    const p = c.parts.find((x) => x.type === 'pratique');
+    if (p?.type !== 'pratique') throw new Error('pratique');
+    for (const q of p.questions) if ('ex' in q.question) expect(known.has(q.question.ex.courseId), q.question.ex.courseId).toBe(true);
+  });
+
   it('exercices de fin : 5, niveau 1, sur la méthode de ce cours seulement', () => {
     const fins = courseRunItems(c, seededRng(9)).filter((i) => i.type === 'question' && i.activity === 'fin');
     expect(fins).toHaveLength(5);

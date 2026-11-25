@@ -31,7 +31,8 @@ function resolution(ex: Exercise): string[] {
 
 // ——— Erreurs reconnues (ADAPTER) : une ErrorSpec par erreur de la fiche ; `text` = message précis (jamais la règle générale) ———
 const shown = (ex: Exercise): string => toText(ex.expr);
-const RULE_1 = { n: 1, label: 'À ÉCRIRE : titre de la règle 1', partIndex: 1 };
+// partIndex = indice dans `parts` de l'écran qui enseigne la règle (ici 2 : accroche 0, idée 1, règle 1 = 2) ; label = le titre exact de cet écran
+const RULE_1 = { n: 1, label: 'À ÉCRIRE : titre de la règle 1', partIndex: 2 };
 const RULES: Record<string, NonNullable<ErrorDef['rule']>> = { 'regle-signes': RULE_1 };
 const errors: ErrorDef[] = buildErrors(
   [
@@ -74,6 +75,17 @@ const idee: EtapeStep[] = [
     after: oneScene('3 × 4 = ', hl('12')), // ce dont parle la phrase est surligné
     action: trouOf('À ÉCRIRE : phrase avec un seul trou [ ? ].', ['bon choix', 'mauvais choix'], 0, { 1: 'À ÉCRIRE : message précis si mauvais choix.' }),
   }),
+  step('À ÉCRIRE : phrase de conclusion de l’idée (pas d’encadré ici : les encadrés sont dans les écrans de règles).', { scene: linesScene(['À ÉCRIRE : le calcul qui résume']) }),
+];
+
+// Une règle = un écran `etapes` dont la dernière étape pose l'encadré. Répéter ce bloc (regle2, regle3…) pour chaque règle de la fiche.
+const regle1: EtapeStep[] = [
+  step('À ÉCRIRE : phrase 1.', { scene: oneScene('3 × 4') }),
+  step('À ÉCRIRE : phrase 2.', {
+    scene: oneScene('3 × 4 = ?'),
+    after: oneScene('3 × 4 = ', hl('12')),
+    action: trouOf('À ÉCRIRE : phrase avec un seul trou [ ? ].', ['bon choix', 'mauvais choix 1', 'mauvais choix 2'], 0, { 1: 'À ÉCRIRE : message précis.', 2: 'À ÉCRIRE : message précis.' }), // 2 ou 3 choix
+  }),
   step(undefined, { scene: linesScene(['À ÉCRIRE : le calcul qui résume']), rule: { n: 1, text: REGLE1 } }),
 ];
 
@@ -92,7 +104,10 @@ const PRATIQUE = pratique('Cours N · Pratique', [
 
 const parts: LessonPart[] = [
   texted(decouverte(guess), { title: 'À ÉCRIRE : titre du cours', intro: ['À ÉCRIRE : à quoi sert ce cours.', 'À ÉCRIRE : ce qu’on va apprendre.'], mention: NOT_COUNTED_GUESS }),
-  etapes('À ÉCRIRE : L’idée de départ', idee), // ← partIndex 1 = règle 1 ; ajouter une `etapes` par règle suivante
+  etapes('À ÉCRIRE : L’idée de départ', idee),
+  etapes(RULE_1.label, regle1), // ← puis une petite question (`lecon(small(…))`) ; répéter règle + question pour chaque règle
+  // Compte des écrans pour apprendre (12 à 15) : accroche 1 + idée 1 + règles × (1 écran + ses questions) + comparer 1 + autres 1 + pratique 1 + exemples 4.
+  // Trois règles avec une question chacune = 15 (le plafond) : à partir de 3 règles, mettre deux questions sur un même écran (`joinPrevious`).
   lecon(small(ex1(-4, -5), '-4 \\times (-5)', 'À ÉCRIRE : question ?', [['À ÉCRIRE : bonne réponse', 'pourquoi'], ['piège 1', 'pourquoi'], ['piège 2', 'pourquoi']], 0)),
   texted(lecon(small(ex1(6, -3), '6 \\times (-3)', 'À ÉCRIRE : question ?', [['À ÉCRIRE : bonne réponse', 'pourquoi'], ['piège 1', 'pourquoi'], ['piège 2', 'pourquoi']], 0)), { joinPrevious: true }),
   // Comparer deux cas : A de ce cours, B d'un cours précédent qui se confond avec lui (sinon deux cas de ce cours ; adapter `note`)

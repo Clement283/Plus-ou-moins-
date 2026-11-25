@@ -5,6 +5,8 @@ import { rat } from '../../src/math/rational';
 import { seededRng } from '../../src/rng';
 import type { CourseDef, Exercise, Level } from '../../src/courses/types';
 import { diagnose } from '../../src/courses';
+import { checkAnswer } from '../../src';
+import type { Answer, Question } from '../../src/exercises/types';
 
 /** Doc 06 display (Unicode − × ÷) → our LaTeX. */
 export const tex = (s: string): string =>
@@ -146,3 +148,14 @@ export function share(course: CourseDef, level: Level, seed: number, pred: (ex: 
   for (let i = 0; i < DRAWS; i++) if (pred(course.generate(level, rng))) n++;
   return n / DRAWS;
 }
+
+// ——— Tester `feedbackText` : un message par réponse prévisible ———
+
+/** Une réponse tapée au clavier (−12 → touches « - », « 1 », « 2 »). */
+export const typed = (n: number): Answer => ({
+  raw: { tokens: [...(n < 0 ? `-${-n}` : String(n))].map((c) => ({ t: 'c' as const, c: c as '-' })), cursor: 'root' as const },
+});
+/** Une question « taper le résultat » sur un calcul écrit comme dans le doc 06 (« −12 ÷ 4 »). */
+export const saisieOf = (course: CourseDef, display: string): Question => ({ kind: 'saisie', ex: exOf(course, display), promptLatex: '' }) as Question;
+/** Le message que le cours affiche pour cette réponse (null = message du moteur). */
+export const say = (course: CourseDef, q: Question, a: Answer): string | null => course.feedbackText?.(q, checkAnswer(course, q, a)) ?? null;
