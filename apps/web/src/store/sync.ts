@@ -91,6 +91,7 @@ export function resetStore(): void {
   remoteRun = null;
   seed = null;
   volatile = [];
+  expired = false;
   snap = INITIAL;
   listeners.forEach((l) => l());
 }
@@ -182,6 +183,7 @@ export async function getSession(): Promise<Session | undefined> {
 }
 
 export async function setSession(s: Session): Promise<void> {
+  expired = false;
   await (await getDb()).put('session', s, SESSION_KEY);
   started ??= Promise.resolve();
   resetQuestions();
@@ -200,9 +202,16 @@ export async function clearSession(): Promise<void> {
   set({ session: null, events: [], progress: EMPTY_PROGRESS, ready: true });
 }
 
+let expired = false;
+/** La dernière session a été refusée par le serveur : l'écran de connexion le dit (et que le code reste le même). */
+export const sessionExpired = (): boolean => expired;
+
 /** Jeton refusé par le serveur (révoqué) : on efface la session, l'appli revient à la connexion. */
 export async function dropSessionIf401(e: unknown): Promise<void> {
-  if (e instanceof ApiError && e.status === 401) await clearSession();
+  if (e instanceof ApiError && e.status === 401 && snap.session) {
+    expired = true;
+    await clearSession();
+  }
 }
 
 // --- écriture --------------------------------------------------------------

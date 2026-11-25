@@ -124,3 +124,10 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Cours 6 en ligne (le domaine Cloudflare est joignable depuis cette session-ci).
 - Cours 6 : 214 000 jetons et 37 actions sur Sonnet (Cours 5 : 260 000 et 54 sur Opus).
 - Compte « Aperçu » : tous les cours ouverts, voir `docs/deploiement.md`.
+
+## Mode test et connexion expirée (2026-11-25)
+- Compte Clément : bouton « Tester les cours » (tous les cours ouverts, rien n'est enregistré, réponses effacées en fermant le cours). Voir `docs/deploiement.md`.
+- L'appli relit le compte à chaque ouverture (`/api/me`) : un réglage changé après la connexion arrive sans se reconnecter.
+- Jeton refusé (401) : l'appli revenait déjà à la connexion ; elle affiche maintenant « Ta connexion a expiré » et rappelle que le code reste le même (le point « pas de gestion d'un jeton expiré » plus haut est donc réglé).
+- Corrigé : `resetStore` remet aussi `seed` à zéro (cause du test `store.test.tsx` instable).
+- Leçon : ne jamais supprimer de jetons par tranche horaire (une vraie connexion du porteur du projet a été effacée) ; supprimer seulement le jeton de test identifié par son hachage.

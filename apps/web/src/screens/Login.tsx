@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent } from 'react';
 import { ApiError, login } from '../api';
-import { setSession } from '../store/sync';
+import { sessionExpired, setSession } from '../store/sync';
 import { go } from '../router';
 import { Icon } from '../ui/Icon';
 import { AppVersion } from '../ui/AppVersion';
@@ -75,6 +75,13 @@ export default function Login() {
         <h1 className="t-h2">Plus ou moins</h1>
         <p className="t-body1">Entre ton code pour retrouver tes cours.</p>
       </div>
+      {sessionExpired() && (
+        <div className="alert alert--neutral" role="status">
+          <Icon name="info" />
+          <div className="alert__title">Ta connexion a expiré</div>
+          <div>Entre ton code pour continuer. C'est le même code que d'habitude : il marche autant de fois que tu veux.</div>
+        </div>
+      )}
       {status === 'hors' && (
         <div className="alert alert--neutral" role="status">
           <Icon name="wifi-off" />
