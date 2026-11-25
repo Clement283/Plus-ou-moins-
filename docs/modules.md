@@ -1,26 +1,27 @@
-# Registre des modules et des cours
+# Registre des modules
 
-Fichier **lu par les skills** `plus-ou-moins-creer-un-module-de-cours` et `plus-ou-moins-ecrire-un-cours` (et mis à jour par le premier). Il est la seule source de l'ordre des modules, des numéros de cours et de l'état d'avancement : les skills ne contiennent aucun plan.
+Lu en premier par les skills `plus-ou-moins-creer-un-module-de-cours` et `plus-ou-moins-ecrire-un-cours`. **Seule source de l'ordre des modules.** Un module = un dossier `docs/modules/NN-nom/` avec un `module.md` (descriptif global et points importants du module) et un fichier par cours `cNN-nom.md` (points importants en haut, fiche en dessous).
 
-## Ordre voulu des modules (porteur du projet, 2026-11-25)
-
-| # | Module | Cours | État | Plan |
+| # | Module | Dossier | Cours | État |
 |---|---|---|---|---|
-| 1 | Relatifs (identifiant `calculs`) | 0 à 7 | écrits | `docs/validation/10-calculs/A-relatifs.md` et les fiches `docs/fiches/c04…c07` |
-| 2 | Équations et inéquations | — | à planifier | — |
-| 3 | Priorités | 8 à 11 (provisoires) | plan validé | `docs/validation/10-calculs/B-priorites.md` |
-| 4 | Suites numériques | — | à planifier | — |
-| 5 | Fractions | 12 à 18 (provisoires) | plan validé | `docs/validation/10-calculs/C-fractions.md` |
-| 6 | Discriminant et second degré | — | à planifier | — |
-| 7 | Carrés et identités remarquables | 19 à 24 (provisoires) | plan validé | `docs/validation/10-calculs/D-carres.md` |
+| 1 | Relatifs (identifiant `calculs`) | `docs/modules/01-relatifs/` | 0 à 7 | écrit, en ligne |
+| 2 | Équations et inéquations | — | — | à créer |
+| 3 | Priorités | — | — | plan archivé : `docs/validation/10-calculs/B-priorites.md` |
+| 4 | Suites numériques | — | — | à créer |
+| 5 | Fractions | — | — | plan archivé : `docs/validation/10-calculs/C-fractions.md` |
+| 6 | Discriminant et second degré | — | — | à créer |
+| 7 | Carrés et identités remarquables | — | — | plan archivé : `docs/validation/10-calculs/D-carres.md` |
 
-## À trancher (bloque la planification des modules 2, 4 et 6)
+Ordre voulu par le porteur du projet (2026-11-25) : les modules de révision (Relatifs, Priorités, Fractions, Carrés) sont intercalés avec les chapitres de l'année. Les plans archivés de 3, 5 et 7 servent de point de départ : on les réécrit en `module.md` plus court quand vient leur tour.
 
-Le doc 10 numérote les cours 8 à 24 dans l'ordre A, B, C, D. L'ordre ci-dessus intercale trois nouveaux modules : les numéros « provisoires » ne tiennent plus. Option recommandée : un **identifiant de cours stable** (`cNN`, jamais renuméroté) et un **ordre d'apprentissage** donné par cette table.
+## Numéros de cours
+Chaque cours a un **identifiant stable** (`cNN`, jamais renuméroté). L'ordre d'apprentissage est celui de ce tableau puis de la liste des cours du `module.md`. Les numéros 8 à 24 du plan archivé sont provisoires : le premier module à créer reprend à partir de `c08`.
+
+## Qui lit quoi
+- **Écrire le cours d'un module** : ce registre ; le `module.md` de **chaque module précédent** ; le `module.md` du module courant ; le **début (points importants, 12 premières lignes) de chaque cours précédent du module** ; la fiche du cours à écrire.
+- **Créer un module** : ce registre ; les `module.md` des modules précédents ; les documents de classe et la recherche ; écrit le `module.md` du nouveau module.
 
 ## Où est quoi
-
-- Fiches de cours (une par cours, lues par le skill cours) : `docs/fiches/cNN-nom.md`.
 - Programmes officiels (PDF + texte) : `docs/sources/`.
 - Code des cours : `packages/engine/src/courses/<module>/`, inscrits dans l'`index.ts` du dossier.
-- Décisions d'écrans validées : `docs/validation/08-decisions-ecrans.md`.
+- Décisions d'écrans validées : `docs/validation/08-decisions-ecrans.md`. Déploiement : `docs/deploiement.md`.
