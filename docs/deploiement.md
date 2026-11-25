@@ -7,6 +7,8 @@
 - Une base D1 `plus-ou-moins` (id `885a9237-8316-45eb-b27f-4383c4333b45`), migration `0001_init.sql` appliquée.
 - Deux comptes : l'élève « Myms » et le suiveur « Clément », qui la suit. Les codes ont été donnés une seule fois au porteur du projet ; seuls leurs hachages sont stockés.
 
+*2026-11-25 : compte « Myms » de nouveau supprimé et recréé (id `773bdee4-…`, nouveau code remis au porteur du projet), suivi par « Clément ».*
+
 *2026-11-24 : Cours 0 v2 mis en ligne. Le compte de test « Myms » a été supprimé et recréé (nouvel id `30355faa-…`, nouveau code remis au porteur du projet), suivi par « Clément ». Pour repartir de zéro, il faut recréer le compte : l'appli garde une copie locale des réponses et n'efface jamais son cache.*
 
 ## Remettre l'appli en ligne après une modification
