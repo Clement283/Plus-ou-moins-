@@ -1,133 +1,77 @@
 ---
 name: plus-ou-moins-ecrire-un-cours
-description: Use when writing, rewriting or reviewing a course (« cours ») of the Plus ou moins app — its lesson screens, small questions, guided examples, end exercises, error messages or feedback — for any module (relatifs, priorités, fractions, second degré…), or when a course feels empty, unclear, too fast, or "just shows examples without explaining".
+description: Use when writing, rewriting or reviewing a course (« cours ») of the Plus ou moins app — its lesson screens, small questions, guided examples, end exercises, error messages or feedback — for any module, or when a course feels empty, unclear, too fast, or "just shows examples without explaining". Reads one course sheet (fiche) and fills the app's existing screens; designs nothing visually.
 ---
 
-# Écrire un bon cours (Plus ou moins)
+# Écrire un cours (Plus ou moins)
 
 ## Principe
 
-Un cours **explique avant de montrer, et fait faire juste après avoir expliqué**. Une idée par écran, de vraies phrases, un rythme lent choisi par l'élève (« Suite »), et un retour précis sur chaque erreur. Le **Cours 1 v2** (maquette `docs/design/ecrans/cours-1-v2.html`) est la référence la plus à jour : quand un doute se pose, faire comme lui. Le Cours 0 v2 est le modèle de la spec et du code.
+Un cours **explique avant de montrer, et fait faire juste après avoir expliqué** : une idée par écran, de vraies phrases, un rythme lent choisi par l'élève (« Suite »), un retour précis sur chaque erreur. L'élève : première spécialité maths, **dyslexique**, connaît les méthodes mais se trompe en calcul ; elle a **besoin des phrases** et de visuel, sans ton enfantin.
 
-L'élève : première spécialité maths, **dyslexique**. Elle connaît les méthodes mais se trompe en calcul. Elle a **besoin des phrases** (comprendre une consigne fait partie de ce qu'elle travaille) et de visuel, sans ton enfantin.
+Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, scènes) est fixée par l'appli. On remplit les écrans existants du catalogue ; on ne touche pas à `apps/web`.
 
-## Sources à lire avant d'écrire
+## Ce que tu lis, et rien d'autre
 
-| Quoi | Où |
-|---|---|
-| Les modèles complets (textes, ordre, retours d'erreur) | `docs/validation/06-cours-relatifs.md`, parties « Cours 0 » et « Cours 1 » v2 |
-| Les règles transversales (couleurs, repassage, réponses en bas, note, fiche mémo, Écouter…) | `docs/validation/08-decisions-ecrans.md` à partir du n° 20 |
-| Le code du modèle (briques, scènes, messages, tests) | `packages/engine/src/courses/calculs/c00-bien-ecrire.ts`, `shared.ts`, `test/courses/c00.test.ts` |
-| Les maquettes cliquables (étapes interactives, série de pratique, moteur `reveal` / `quiz` / `typed` / `trous`, bouton « Revoir », droite graduée SVG `line()`) | `docs/design/ecrans/cours-0-v2.html`, `docs/design/ecrans/cours-1-v2.html` (partir de la plus récente : `cours-0-v3.html` pour le moteur le plus complet, `cours-1-v2.html` pour la droite graduée) |
-| La version actuelle du cours à réécrire | sa partie dans le doc 06 + son fichier `cXX-*.ts` |
+1. **La fiche du cours** (`docs/fiches/cNN-nom.md`, chemin donné dans la demande). Elle contient règles, erreurs, techniques, reprises, niveaux.
+2. `references/catalogue-ecrans.md` : tous les écrans, scènes, actions, questions, signatures.
+3. `references/gabarit-cours.ts.txt` : le cours type, déjà à la bonne forme.
+4. Si elle existe, la section « Points importants » de la **fiche du cours précédent** (ce qui a déjà été enseigné, pour les reprises).
 
-## Déroulé d'un cours (recette)
+**Ne pas ouvrir** : docs 06, 08, 10, maquettes, snapshots, `types.ts`, `shared.ts`, cours précédents, autres skills. Un doute précis se règle par un `grep` ciblé, jamais par une lecture entière. Si la fiche manque ou contredit le catalogue, le dire au lieu de deviner.
 
-Environ **12 à 15 écrans pour apprendre** (tout ce qui précède l'annonce de la fin ; les exercices de fin, le résultat, Mes cours et la fiche ne comptent pas). Elle apprend en faisant : **jamais plus de 2 étapes de lecture d'affilée sans une action**, y compris à l'intérieur d'une explication. Le nombre de règles change d'un cours à l'autre, la forme reste la même.
+## Déroulé fixe (le gabarit le respecte)
 
-1. **Accroche** : 2 ou 3 phrases (à quoi sert ce cours, ce qu'on va apprendre) + **une question pour deviner** (`decouverte`, ne compte pas) sur un cas typique.
-2. **L'idée de départ** : le *pourquoi* de la méthode, avant toute règle (Cours 0 : « le − a deux rôles » ; Cours 1 : deux dettes, deux bonds sur la droite graduée). Explication pas à pas **avec au moins une action**.
-3. **Pour chaque règle** :
-   - une **explication pas à pas** (3 à 5 étapes) : la scène montre le calcul qui se transforme, les phrases expliquent chaque transformation, **une étape interactive au milieu** (voir « Étapes interactives »), la dernière étape pose l'**encadré de la règle** (`rule`) ;
-   - une « règle » du doc 06 qui contient deux gestes (ex. « j'additionne… et je garde le signe ») peut être coupée en deux règles **si chacune correspond à une erreur reconnue** ; sinon, une seule règle. Le dire dans les questions « À décider » ;
-   - **une ou deux petites questions** (`choix` avec `small`), qui comptent. Varier : parfois deux questions sur le même écran (`joinPrevious`), parfois une question à deviner *avant* l'explication quand l'élève peut trouver seule.
-4. **Comparer deux cas** : deux calculs presque identiques côte à côte (−3 + (−5) et −3 + 5), « Qu'est-ce qui change ? », puis la scène montre les deux. L'un des deux vient d'un cours précédent : du cours précédent du module, et pour le 1er cours d'un module, du **module précédent** (idem pour la série de pratique) ; seul le tout premier cours de l'appli n'en a pas.
-5. **Récapitulatif** de toutes les règles, chacune avec un exemple juste et un faux (`recap`).
-6. **Série de pratique** (un écran, 4 questions à la suite, compteur « 2 sur 4 », retour immédiat, notée comme les petites questions) : **l'aide diminue et les formats changent**. Ex. Cours 1 : toucher l'arrivée sur la droite avec les bonds dessinés → « Quel est le signe du résultat ? » (+ / −) → vrai ou faux → taper le résultat sans aide. **Une des 4 questions vient d'un cours précédent** (du module précédent pour le 1er cours d'un module) (entraînement intercalé : elle doit d'abord reconnaître quelle règle s'applique).
-7. **Exemples guidés** (2), **l'aide qui s'efface** : le 1er presque entièrement résolu (elle valide chaque ligne ou complète une case), le 2e à moitié (2 cases), le calcul de départ **toujours affiché**. Les exercices de fin se font ensuite seule.
-8. **Annonce de la fin** : ce qu'il faut réussir (4 exercices de fin sur 5 **et** 80 % sur tout le cours) et ce qui se passe sinon (série de validation, sans refaire la leçon).
-9. **5 exercices de fin**, générés, sans aide, comme en contrôle, **uniquement sur la méthode du cours** (pas de calculs d'anciens cours : ils valident ce cours-ci).
-   **Le niveau du générateur allonge le calcul autant qu'il agrandit les nombres** quand le cours s'y prête (Cours 3 : 3 à 4 termes de 1 à 9, puis 4 à 5 termes jusqu'à 20, puis 5 à 6 termes de 10 à 99 ; doc 08 n° 51). Les signes restent mélangés. Les exercices de fin et les questions de la leçon restent au **niveau 1**, avec les valeurs exactes de la maquette ; les niveaux 2 et 3 servent aux révisions, à l'entraînement et à la série de validation. Le **Cours 7** (multiplier plusieurs nombres) doit faire de même. Vérifier qu'un calcul de 5 à 6 termes tient dans la largeur du téléphone (les longs calculs réduisent leur police).
-10. **Fiche mémo** (affichée après validation, relisible depuis Mes cours) : la règle, 1 ou 2 exemples, l'erreur à éviter, et **la technique principale** du plan (rubrique « Astuces et techniques »). Les autres techniques du plan ne vont pas dans la fiche : elles deviennent des **étapes de la leçon** (quand elles aident à comprendre ou à choisir, avec une action) ou un écran **« Autres façons de faire »** (2 ou 3 techniques, un exemple chiffré chacune, juste avant le récapitulatif). L'élève peut choisir sa technique : aucun exercice ne l'impose, seul le résultat est corrigé.
+12 à 15 **écrans pour apprendre** (tout ce qui précède l'annonce de la fin). **Jamais plus de 2 étapes de lecture d'affilée sans action.** Le nombre de règles (1 à 3) change, la forme non.
 
-## Étapes interactives (dans les explications)
+1. **Accroche** (2 ou 3 phrases) + question pour deviner (`decouverte`, ne compte pas).
+2. **Idée de départ** : le *pourquoi* avant toute règle, avec au moins une action.
+3. **Par règle** : explication pas à pas (3 étapes de préférence, 5 au plus ; une action ; la dernière pose l'encadré) + 1 ou 2 petites questions comptées (`small`, `joinPrevious`). Une règle à deux gestes ne se coupe que si chacun correspond à une erreur reconnue.
+4. **Comparer deux cas** : A de ce cours, B du cours précédent (du module précédent pour le 1er cours d'un module ; rien pour le tout premier cours).
+5. **Autres façons de faire** : 2 ou 3 techniques de la fiche, un exemple chiffré chacune, essai libre non noté. La technique principale va dans la fiche mémo ; l'élève choisit sa technique, seul le résultat est corrigé.
+6. **Série de pratique** : 4 questions, l'aide diminue et les formats changent ; **une** vient du cours précédent (entraînement intercalé).
+7. **Deux exemples guidés** : l'aide s'efface (1er presque résolu, 2e : 2 cases), calcul de départ toujours affiché.
+8. **Annonce de la fin** (`annonceFin()`, texte fixe) puis **5 exercices de fin**, générés, sans aide, niveau 1, **uniquement la méthode de ce cours** (jamais de calculs d'anciens cours).
+9. **Fiche mémo** : règle, 1 ou 2 exemples, l'erreur à éviter, technique principale.
 
-Une étape interactive remplace « Suite » par une action en bas de l'écran. Une erreur donne un message court et elle réessaie ; rien n'est noté.
+Le niveau du générateur agrandit les nombres **et** allonge le calcul quand le cours s'y prête, sans dépasser la largeur d'un téléphone (en cas de conflit, la largeur gagne : le dire dans « Choix faits »).
 
-- **La phrase à trous remplace une phrase de l'explication, elle ne s'ajoute pas.** Un seul trou à la fois ; les choix se lisent dans la phrase (« Un bond de −3 va vers la [gauche | droite]. »), jamais des valeurs sans contexte.
-- **Ce qui se touche doit se voir** : sur une scène touchable (droite graduée…), pastilles rondes visibles qui « respirent », consigne écrite juste au-dessus (« Touche la droite à l'endroit où l'on arrive. »), petite main animée la première fois, cibles d'au moins 44 px, rien de coupé.
-- **Une phrase à la fois** (décidé le 2026-11-25, pour les cours écrits à partir de cette date ; les Cours 0 à 5 gardent 2 phrases) : mettre `unePhrase: true` dans le `CourseDef`. « Suite » **remplace** la phrase au lieu d'en ajouter une ; les précédentes sont derrière « Relire le début ». Conséquences pour l'écriture :
-  - **la scène porte la continuité** : c'est elle qui change à chaque étape, pas le texte ; chaque phrase doit se comprendre seule, sans « comme on l'a vu juste au-dessus » ;
-  - **ce dont la phrase parle est surligné dans la scène** (`hl`) à cette étape-là, pour que l'œil sache où regarder ;
-  - **3 étapes par explication** de préférence (5 au plus), phrases courtes, une action dès que possible plutôt qu'une lecture de plus.
+## Étapes interactives
 
-| Action | Exemple |
-|---|---|
-| Phrase à trous (toucher le bon mot) | « Les deux bonds vont vers la [gauche \| droite], donc le résultat est [négatif \| positif]. » |
-| Toucher sur la scène | « Où arrive le bond ? » → toucher la graduation |
-| Faire le geste | toucher l'arrivée, le bond se dessine |
-| Compléter le calcul au fil des étapes | −3 + (−5) = −(3 + ▢) = ▢ |
-| Toucher un morceau d'un calcul (scène de calcul touchable) | « Touche le signe qui se colle au × » : chaque morceau (nombre, signe, parenthèse) est un bouton à cadre pointillé qui respire |
-| Toucher l'endroit où placer un symbole | « Touche l'endroit où la parenthèse doit aller » : des emplacements de 44 px entre les morceaux, y compris de faux emplacements pour ne pas souffler la réponse |
+Une action remplace « Suite » : erreur → message court, elle réessaie, rien n'est noté.
+- **Phrase à trous** : remplace une phrase de l'explication, **un seul trou**, des choix qui se lisent dans la phrase (« Un bond de −3 va vers la [gauche | droite]. »), jamais des valeurs nues.
+- **Ce qui se touche se voit** : pastilles visibles, consigne écrite au-dessus, cibles de 44 px au moins.
+- **Une phrase à la fois** (`unePhrase: true`, toujours) : « Suite » remplace la phrase ; **la scène porte la continuité**, chaque phrase se comprend seule ; ce dont la phrase parle est surligné (`hl`) dans la scène.
 
 ## Règles de forme (toutes obligatoires)
 
 | Sujet | Règle |
 |---|---|
-| Écran vide | Jamais. Une **scène** (grand calcul ou image) occupe le haut dès la 1re étape et se transforme ; les phrases s'empilent dessous. |
-| Texte | Phrases courtes et complètes, **gras** sur l'idée clé, une idée par écran. Dire *pourquoi*, pas seulement *quoi*. Pas de répétition titre / phrase / encadré mot pour mot. |
-| Rythme | L'élève avance avec « Suite » ; « Revoir » rejoue l'animation. Rien ne défile seul. |
-| Écouter | Un bouton haut-parleur **dans un coin en haut** de chaque écran de leçon lit à voix haute le titre, la phrase affichée et la consigne (synthèse vocale du téléphone). Écrire les textes pour qu'ils se lisent bien à l'oral : pas d'abréviation, calculs écrits en clair dans le texte lu (« moins trois plus moins cinq »). |
-| Couleurs | Surligneur jaune = « regarde ici » (leçon seulement). Vert / rouge **seulement après une réponse**. **Aucune couleur qui donne un indice** pendant une question. Si les signes doivent être distingués (droite graduée) : négatifs **orange**, positifs **bleu**, jamais rouge. Les mêmes dans tous les cours. |
-| Scènes pendant une question | Une scène (droite graduée, image) affichée pendant une question est **neutre** : grise, sans couleur de signe ni surlignage. Les couleurs reviennent après la réponse. |
-| Réponses | Tout ce qu'on touche est **en bas de l'écran** ; la manière de répondre (toucher, glisser, taper) est **écrite dans la consigne**. Étiquettes à ordonner : on les **touche dans l'ordre** (toucher une étiquette placée la retire) ; Classer : glisser-déposer + toucher. |
-| Clavier | Toujours complet (chiffres, + − × ÷, parenthèses) : il ne dicte jamais la réponse. |
-| Retours d'erreur | **Chaque mauvaise réponse prévisible a son message** (tableau « Retours d'erreur précis » dans le doc 06). Jamais la règle générale du cours comme seule explication. « Étape par étape » montre de vraies étapes ; après une erreur à un exercice de fin, on montre aussi la résolution type. Question pour deviner ratée : titre « Pas tout à fait, et c'est normal. », puis un message qui ne répète pas ce titre. |
-| Tolérance | Dans le cours qui enseigne une règle, **aucune erreur sur cette règle n'est tolérée**. Une erreur sur une règle d'un cours précédent peut être traitée comme une erreur d'attention. |
-| Repassage | Petite question ratée : revient 2 écrans plus loin, choix remélangés. Autres questions de leçon : avant les exercices de fin. Question pour deviner : ne revient pas. (Déjà codé ; ne rien réinventer.) |
-| Sons | Juste, faux, cours validé, objectif atteint : déjà branchés dans l'appli. Le cours n'ajoute pas de son à lui. |
-| Messages de fin | Un échec dit **quoi** a manqué (chiffres, erreurs par règle) et **quoi relire** (`ErrorDef.rule` rempli pour chaque erreur reconnue). |
+| Écran | Jamais vide : une **scène** occupe le haut dès la 1re étape et se transforme. |
+| Texte | Phrases courtes et complètes, **gras** sur l'idée clé, dire *pourquoi*. Titre, phrase et encadré ne se répètent pas. Écrit pour être lu à voix haute (pas d'abréviation, calculs lisibles en clair) : le bouton Écouter lit titre, phrase et consigne. |
+| Rythme | L'élève avance avec « Suite » ; rien ne défile seul. |
+| Couleurs | Jaune = « regarde ici » (leçon seulement). Vert / rouge **seulement après une réponse**, **jamais d'indice par la couleur pendant une question**. Négatifs orange, positifs bleu, jamais rouge. Une scène affichée pendant une question est neutre (grise). |
+| Réponses | Tout ce qu'on touche est **en bas de l'écran** ; la manière de répondre est **écrite dans la consigne**. Clavier toujours complet. |
+| Retours d'erreur | **Chaque mauvaise réponse prévisible a son message**, précis (jamais la règle générale seule). Question pour deviner ratée : titre « Pas tout à fait, et c'est normal. », puis un message qui ne le répète pas. |
+| Tolérance | Dans le cours qui enseigne une règle, aucune erreur sur cette règle n'est tolérée. |
+| Fin ratée | Dit **quoi** a manqué et **quoi relire** : `ErrorDef.rule` rempli pour chaque erreur reconnue. |
+| Déjà codé | Repassage des questions ratées, sons, notation : ne rien réinventer. |
 
-## Méthode de travail (dans cet ordre)
+À ne pas faire : un écran sans phrase ; un exemple guidé sans le calcul de départ ; un calcul découpé en boutons ; un cours de 21 écrans où elle lit plus qu'elle ne fait ; une phrase à deux trous.
 
-### Choisir le mode (décidé le 2026-11-25, pour économiser les ressources)
+## Méthode
 
-**Mode autonome, par défaut** : un cours d'un module dont la méthode est déjà fixée (module Relatifs à partir du Cours 5, et tout cours dont les écrans existent déjà dans l'appli).
-- **Pas de maquette, pas de spec longue, pas de capture d'écran.**
-- **Un seul assistant par cours, lancé avec le modèle Sonnet** (`model: "sonnet"`, décidé le 2026-11-25 : environ deux fois moins coûteux ; Haiku écarté, trop peu fiable pour écrire un cours). Il écrit le code directement. Il lit seulement :
-  - ce skill ;
-  - l'entrée du cours dans le plan du module (règle, astuces, reprises, erreurs) ;
-  - le code du cours précédent du module comme modèle (par exemple `c03-*.ts`, `c04-*.ts`) et ses tests.
-  - Il n'ouvre les docs 06, 08 et 10 en entier, ainsi que les maquettes, qu'en cas de doute précis.
-- Il écrit dans le doc 06 une **fiche courte d'environ 15 lignes** : la règle, les écrans en une ligne chacun, la note du cours, les niveaux et les choix faits. Le porteur du projet la lit s'il le souhaite ; elle ne bloque pas.
-- **Vérification sans images** : messages d'erreur (un test par message), indices des parties, `lessonStep`, générateur sur 500 tirages, et la largeur du téléphone (aide `apps/web/test/phoneWidth.ts`).
-  - **Les textes sont vérifiés par un instantané** (`toMatchSnapshot` / `toMatchInlineSnapshot` de Vitest), **pas recopiés à la main** dans un fichier `cXX-texts.test.ts` : le cours n'est écrit qu'une fois.
-  - **Pendant le travail, lancer seulement les tests du cours** (`npx vitest run <fichiers du cours>`), avec une sortie courte (`| tail -5`) ; **la suite complète (`npm test`) une seule fois à la fin**, en ne lisant que le résumé.
-- **Mise en ligne par lot de cours.** Le porteur du projet teste sur son téléphone et fait ses retours ; on corrige ensuite.
-- Enchaîner les cours **l'un après l'autre**. Un assistant en parallèle ne fait pas consommer moins, il fait atteindre la limite plus vite.
+Un seul assistant par cours, un cours à la fois. La qualité d'abord : prendre le temps qu'il faut.
 
-**Mode maquette** : seulement pour le **1er cours d'un nouveau module**, pour un **nouveau type d'écran**, ou quand le porteur du projet le demande. On suit alors les étapes 1 à 5 ci-dessous. Une maquette déjà validée sert directement de référence pour le code ; elle n'a pas besoin d'une spec longue en plus, une fiche courte suffit.
+1. Lire la fiche, le catalogue, le gabarit.
+2. Écrire `packages/engine/src/courses/<module>/cNN-nom.ts` en **un seul `Write`**, copié du gabarit.
+3. L'inscrire dans l'`index.ts` du dossier (import + liste).
+4. Écrire `packages/engine/test/courses/cNN.test.ts`, court : seulement ce qui dépend des maths du cours (`propertyChecks` pour le générateur et les calculs-pièges ; un test par message de `feedbackText`). La **forme** (nombre d'écrans, lectures d'affilée, règles des erreurs, pastille, exercices de fin) est vérifiée **automatiquement** par `test/courses/contract.test.ts` pour tout cours `unePhrase`. **Aucun test de texte, aucun instantané** : le porteur du projet relit chaque cours.
+5. `cd packages/engine && npx vitest run test/courses/cNN.test.ts test/courses/contract.test.ts 2>&1 | tail -15` ; corriger ; recommencer.
+6. **Points importants** : remplir la section « Points importants » de la fiche (format dans `modele-fiche.md`) pour qu'on puisse relire le cours sans le relire en entier : règles, pièges, écarts avec le cours du prof et choix à valider, état dans l'appli. Puis `npx tsx scripts/points-importants.ts` (met à jour `docs/points-importants.md`, tous les cours à la suite).
+7. À la fin, la suite complète une fois : `npm test 2>&1 | tail -8`. Si le cours allonge le calcul, vérifier la largeur du téléphone comme `apps/web/test/c05.test.tsx`.
+8. Rendre compte en quelques lignes : écrans, note du cours, choix, reste à faire. Mise en ligne **par lot** de cours. Même échec 3 fois de suite : s'arrêter et le dire.
 
-### Étapes du mode maquette
+## Mode maquette (rare)
 
-1. **Lire** les sources ci-dessus, la version actuelle du cours, le **plan du module** s'il existe (`docs/validation/NN-module-*.md` : reprises, astuces, sources) et **les documents fournis** par le porteur du projet (cours du prof, cahier de l'élève). **Chercher aussi sur Internet** : programme officiel, astuces et méthodes que les profs ne donnent pas toujours, erreurs classiques. Noter les sources dans la spec.
-2. **Proposer le déroulé au porteur du projet sous forme de maquette cliquable** : copier `docs/design/ecrans/cours-1-v2.html` (la plus récente) dans `docs/design/ecrans/cours-N-v2.html`, remplacer les écrans (même moteur `reveal` avec étapes interactives / `quiz` / `typed` / `trous`, droite graduée `line()`), et la publier en artefact. Noter à droite de chaque écran ce qu'il fait, pourquoi, et les questions à décider. **À chaque nouvelle version de la maquette, signaler ce qui a changé** : astérisque et couleur sur les écrans modifiés dans la liste, contour pointillé « modifié » sur les éléments changés, ligne « Modifié dans cette version : … » en haut, bouton pour masquer ces repères. Ils servent à la relecture et ne sont jamais codés dans l'appli. **Ne rien coder dans l'appli avant sa validation.**
-3. **Écrire la spec** : remplacer la partie du cours dans le doc 06 par une « version 2 » au format de celles des Cours 0 et 1 (règles, déroulé écran par écran avec les textes exacts et les étapes interactives, série de pratique, note du cours, tableau des retours d'erreur, fiche mémo, révisions, générateur, erreurs reconnues avec leur règle). Faire valider.
-4. **Coder** dans `packages/engine/src/courses/calculs/cXX-*.ts` avec les briques existantes (`etapes` et ses étapes interactives, scène droite graduée, série de pratique, `choix` + `small`, `decouverte`, `texted`, `joinPrevious`, `reecrire`, `lessonLength`, `ErrorDef.rule`, fiche mémo). Une nouvelle brique d'écran n'est ajoutée que si aucune existante ne convient ; elle doit être réutilisable. Les anciens écrans « Classer » et « Quelle règle ? » d'une leçon sont remplacés par la série de pratique ; ces formats restent disponibles en révision et en entraînement. La maquette `cours-0-v3.html` contient le moteur le plus complet (scène de calcul touchable, Écouter, fiche mémo).
-5. **Tester** : textes mot pour mot, indices des parties, `lessonStep`, chaque message d'erreur du tableau, propriété sur 500 tirages pour tout générateur. Captures téléphone (`npm run shots`) des écrans nouveaux, à regarder une fois.
-
-## Erreurs fréquentes (vues sur le Cours 0 v1 et les premières maquettes du Cours 1)
-
-| Ce qui a été fait | Ce qu'il faut faire |
-|---|---|
-| Un écran = un calcul faux, une animation, un calcul juste, sans phrase | Scène + phrases pas à pas qui expliquent chaque changement |
-| Le même rouge pour « nombre négatif » et pour « faux » | Code couleur ci-dessus |
-| Titre, sous-titre et paragraphe qui répètent la même phrase | Le titre nomme l'idée, les phrases l'expliquent, l'encadré la résume |
-| Exemple guidé « 6 × ( ▢ ) » sans le calcul de départ : n'importe quelle réponse semblait juste | Toujours montrer le calcul de départ ; la bonne réponse doit être la seule logique |
-| Calcul découpé en boutons, lu et répondu au même endroit | Calcul en haut écrit normalement, cases ou choix en bas |
-| Classer par toucher-toucher sans explication | Glisser-déposer + consigne qui dit comment faire |
-| Retour d'erreur = la règle générale du cours | Un message par erreur prévisible |
-| Clavier réduit aux touches de la réponse | Clavier complet |
-| Fin ratée sans dire pourquoi | Chiffres + erreurs par règle + « Relire la règle N » |
-| Un cours de 21 écrans où elle lit plus qu'elle ne fait | 12 à 15 écrans, une action au plus toutes les 2 étapes de lecture |
-| Une phrase à deux trous avec des choix sans contexte (« 3 / −3 ») | Un seul trou, des choix qui se lisent dans la phrase, qui remplace une phrase existante |
-| Une droite graduée touchable qui ne se voit pas comme touchable | Pastilles visibles, consigne au-dessus, main animée la première fois |
-| Tout le texte de l'explication empilé à l'écran | Les 2 dernières phrases, le reste derrière « Relire le début » |
-
-## Précisions (tirées des Cours 0 à 2)
-
-- **Compter les écrans** : les 12 à 15 écrans « pour apprendre » comptent tout ce qui précède l'annonce de la fin, écrans de petites questions compris.
-- **Plusieurs petites questions sur un écran** : chacune garde son retour visible ; « Question suivante » fait passer à la suivante, la précédente remonte en résumé (« Ta réponse : … ✓ »).
-- **« Autres façons de faire »** : les techniques en cartes (nom, quand, exemple chiffré, explication) ; le choix se fait avec les boutons en bas de l'écran (pas en touchant les cartes) ; un essai libre non noté suit ; on peut continuer sans essayer.
-- **Droite graduée** : deux bonds qui se superposent prennent des hauteurs d'arc différentes (champ `h`) pour rester lisibles ; 8 graduations au plus quand elle est touchable.
-- **Fiche mémo et Écouter** : présents dans chaque cours (moteur de référence `cours-0-v3.html` et `cours-2-v2.html`).
+Seulement si la fiche signale un **nouveau type d'écran** (« Hors catalogue ») ou si le porteur du projet le demande. Copier la plus récente `docs/design/ecrans/cours-N-v2.html`, ne rien coder avant validation, puis ajouter la brique (`apps/web/src/components`, design system `docs/design/design-system/README.md`) **et** une ligne au catalogue, pour que les cours suivants la réutilisent.
