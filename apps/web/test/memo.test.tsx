@@ -101,10 +101,11 @@ describe('cours validé', () => {
     fireEvent.click(v.btn('Voir la fiche mémo')!);
     expect(window.location.hash).toBe(`#/cours/${C00}/fiche`);
   });
-  it('sans fiche : rien', () => {
+  it('le dernier cours a sa fiche (tous les cours en ont une depuis le Cours 7 v2)', () => {
     const v = mount(
       <RunResultView variant="cours" courseId="c07-multiplier-plusieurs" results={['ok']} result={resultOfTally({ first: 12, ok: 12, fin: 5, finOk: 5 }, 'c07-multiplier-plusieurs')} />,
     );
-    expect(v.btn('Voir la fiche mémo')).toBeNull();
+    expect(getCourse('c07-multiplier-plusieurs').memo).toBeDefined();
+    expect(v.btn('Voir la fiche mémo')).toBeTruthy();
   });
 });

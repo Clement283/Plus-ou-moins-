@@ -131,3 +131,13 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Jeton refusé (401) : l'appli revenait déjà à la connexion ; elle affiche maintenant « Ta connexion a expiré » et rappelle que le code reste le même (le point « pas de gestion d'un jeton expiré » plus haut est donc réglé).
 - Corrigé : `resetStore` remet aussi `seed` à zéro (cause du test `store.test.tsx` instable).
 - Leçon : ne jamais supprimer de jetons par tranche horaire (une vraie connexion du porteur du projet a été effacée) ; supprimer seulement le jeton de test identifié par son hachage.
+
+## Cours 7 v2 (2026-11-25) — poussé sur main, PAS encore en ligne
+- Cours 7 « Multiplier plusieurs relatifs » codé en mode autonome (un assistant Sonnet, `unePhrase: true`), fiche courte dans le doc 06. 14 parties, 12 écrans pour apprendre, note de 13 questions ; série de pratique avec une division du Cours 6 (−56 ÷ 7). Textes vérifiés par instantané (`test/courses/__snapshots__/c07.test.ts.snap`).
+- Générateur : niveau 1 = 3 facteurs de 1 à 9 ; niveau 2 = 4 facteurs de 1 à 6 ; niveau 3 = 5 à 6 facteurs de 1 à 5 (le calcul s'allonge, les nombres rapetissent pour tenir dans la largeur du téléphone). Pas de 0 généré.
+- Choix sans document : voir la fiche (3 règles : « deux par deux », « je compte les − », « le signe d'abord » ; erreur ajoutée `facteur-oublie`).
+- Reste : l'animation `CompterLesMoins` (`anims/index.tsx`) n'est plus utilisée par le Cours 7 mais gardée (référencée par `feedback.test.tsx`). `e2e/shots.ts` : capture du Cours 7 retirée.
+- Consommation de l'assistant : 231 000 jetons, 44 actions, sur Sonnet (Cours 6 : 214 000 et 37).
+- Tests : moteur 986, api 35, web 439, scripts 7 (tous verts).
+- Mise en ligne bloquée : le proxy de la session refuse api.cloudflare.com (403) ; l'autorisation de l'hôte a été refusée. À refaire une fois le domaine autorisé : `npm run deploy` (construit), puis `cd apps/api && CLOUDFLARE_API_TOKEN=x CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npx wrangler deploy`.
+- Ensuite : modules B, C, D (documents de classe attendus).
