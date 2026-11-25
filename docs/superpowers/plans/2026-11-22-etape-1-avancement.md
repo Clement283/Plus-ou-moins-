@@ -103,3 +103,11 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Non fait : le driver e2e ne parcourt pas encore les Cours 2 et 3 (partie `autres`).
 - Maquette Cours 4 validée telle quelle (2026-11-25), avec les 5 recommandations.
 - **Nouvelle méthode (2026-11-25, pour consommer moins)** : skill `plus-ou-moins-ecrire-un-cours`, section « Choisir le mode ». Prochaine étape, dans une **nouvelle conversation** : coder le Cours 4 d'après sa maquette validée, puis les Cours 5, 6, 7 en mode autonome, un assistant par cours, l'un après l'autre, puis une seule mise en ligne.
+
+## Cours 4 et 5 v2 (2026-11-25) — en ligne
+- Cours 4 v2 (d'après la maquette validée) et Cours 5 v2 (mode autonome) codés, fiches courtes « version 2 » dans le doc 06, mis en ligne.
+- Tests : moteur 911, api 35, web 428, scripts 7. Nouvelle aide de test `apps/web/test/phoneWidth.ts` (largeur téléphone, Cours 1 à 5).
+- Choix sans document : voir les fiches du doc 06 (Cours 4 : formats de révision du Cours 1 ajoutés, niveau 3 à deux soustractions ; Cours 5 : un seul identifiant `regle-signes` avec message selon le calcul, niveau 3 limité à 10–99 × 10–19, pas de droite graduée).
+- Déploiement depuis le cloud : `npm run deploy` construit, puis wrangler a besoin de `CLOUDFLARE_API_TOKEN` factice (le proxy injecte le vrai) : `cd apps/api && CLOUDFLARE_API_TOKEN=x CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npx wrangler deploy`.
+- À reprendre : `e2e/shots.ts` (parcours `courseTo`) suit encore l'ancien Cours 4 ; test `store.test.tsx` parfois instable sous charge.
+- Ensuite : Cours 6 et 7 en mode autonome, puis modules B, C, D.
