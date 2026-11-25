@@ -252,7 +252,6 @@ export const SCREENS: Record<string, ScreenDef> = {
       { name: 'c00-regle-1-attention', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=1', before: (page) => page.waitForTimeout(500) },
       { name: 'c00-regle-neutre', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=2', before: (page) => page.waitForTimeout(500) },
       { name: 'c00-signes-qui-se-cognent', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c00&part=0', before: (page) => page.waitForTimeout(3000) },
-      { name: 'c07-compter-les-moins', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c07&part=0', before: (page) => page.waitForTimeout(4000) },
       { name: 'c01-droite-graduee-finale', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c01&part=0', before: async (page) => { await page.waitForSelector('.number-line[data-state="final"]', { timeout: 6000 }); await page.waitForTimeout(1200); } },
       { name: 'c02-droite-graduee-finale', fixture: 'debut-de-journee', route: '#/essai/lecon?course=c02&part=0', before: async (page) => { await page.waitForSelector('.number-line[data-state="final"]', { timeout: 6000 }); await page.waitForTimeout(1200); } },
     ],

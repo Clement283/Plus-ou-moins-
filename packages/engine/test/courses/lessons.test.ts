@@ -108,11 +108,17 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c07-multiplier-plusieurs': [
-    ['Je compte les signes moins', 'Deux signes −, c\'est pair : le résultat est positif.'],
-    ['Pair donne +, impair donne −', 'Je compte les −, puis je multiplie.'],
-    ordreOf('−2 × (−3) × (−1) × 4'),
-    CALC,
-    EX, [null], EX, EX, EX, [null], EX, EX,
+    ['Multiplier plusieurs nombres relatifs'],
+    ['Multiplier deux par deux'],
+    ['Je compte les signes −'],
+    ["Le signe d'abord, puis les nombres"],
+    [null], [null],
+    ['Comparer deux cas'],
+    ['Autres façons de faire'],
+    ['Cours 7 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
 };
 
@@ -153,9 +159,7 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   const neutral = (id: string) => lines(rule(id)).filter((b) => b.tone === 'neutre');
   const attention = (id: string) => rule(id).type === 'explication' && (rule(id) as { blocks: LessonBlock[] }).blocks.some((b) => b.t === 'heading' && b.text === 'Fais attention');
 
-  const KO: Record<string, [string, string]> = {
-    'c07-multiplier-plusieurs': ['−2 × 3 × (−4) = −24', 'Compte les signes − : pair → + ; impair → −.'],
-  };
+  const KO: Record<string, [string, string]> = {};
   for (const [id, [line, note]] of Object.entries(KO)) {
     it(`${id} : « Fais attention » avec son ✗`, () => {
       expect(attention(id)).toBe(true);
@@ -164,9 +168,7 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
     });
   }
 
-  const OK: Record<string, string[]> = {
-    'c07-multiplier-plusieurs': ['−1 × (−5) × (−2) : 3 signes − → impair → **−10**', '4 × (−3) × 2 : 1 signe − → impair → **−24**'],
-  };
+  const OK: Record<string, string[]> = {};
   for (const [id, expected] of Object.entries(OK)) {
     it(`${id} : lignes ✓ de la règle`, () => {
       expect(ok(id)).toEqual(expected);
@@ -190,10 +192,10 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
 describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité', () => {
   it('courseRunItems porte titre, sous-titre et consigne', () => {
     const items = courseRunItems(getCourse('c07-multiplier-plusieurs'), seededRng(1));
-    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: 'Pair donne +, impair donne −' } });
-    expect(items[2]).toMatchObject({ type: 'question', texts: { title: "Remets les étapes de −2 × (−3) × (−1) × 4 dans l'ordre" } });
-    expect(items[6]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
-    expect(items[3]).not.toHaveProperty('texts');
+    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: 'Multiplier deux par deux' } });
+    expect(items[0]).toMatchObject({ type: 'question', activity: 'decouverte', texts: { title: 'Multiplier plusieurs nombres relatifs' } });
+    expect(items[5]).toMatchObject({ type: 'question', texts: { joinPrevious: true } });
+    expect(items.find((i) => i.itemId === 'partie-10')).toMatchObject({ type: 'question', texts: { consigne: 'Tape ce qui manque dans la case, avec les touches du clavier.' } });
   });
 
   it('courseRunItems : une partie etapes devient une explication avec steps, les textes de question suivent', () => {

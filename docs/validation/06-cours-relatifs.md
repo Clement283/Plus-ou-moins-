@@ -882,48 +882,25 @@ Les signes sont toujours mélangés (au moins un terme positif et un négatif). 
 
 ---
 
-## Cours 7 — Multiplier plusieurs relatifs
+## Cours 7 — Multiplier plusieurs relatifs (version 2, fiche courte)
 
-**La règle :** *Je compte les signes − : nombre pair → résultat positif ; nombre impair → résultat négatif.* Puis je multiplie les nombres sans leur signe.
+*Mode autonome (2026-11-25), sans maquette, une phrase à la fois (`unePhrase: true`). Code : `packages/engine/src/courses/calculs/c07-multiplier-plusieurs.ts` ; textes vérifiés par instantané Vitest (`test/courses/__snapshots__/c07.test.ts.snap`), largeur du téléphone par `apps/web/test/c04.test.tsx`.*
 
-**Mini-leçon**
-1. **Explication, avec une image.** −2 × 3 × (−4) : les « − » sont entourés en rouge et comptés : 2 signes −, c'est pair, donc le résultat est positif. Puis 2 × 3 × 4 = 24 → **24**.
-2. **Explication de la règle.**
-   - −1 × (−5) × (−2) → 3 signes − → impair → − → 1 × 5 × 2 = 10 → **−10**
-   - 4 × (−3) × 2 → 1 signe − → impair → − → **−24**
-3. **Étiquettes à ordonner** pour −2 × (−3) × (−1) × 4 : `Je compte les − : 3` · `3 est impair → −` · `2 × 3 × 1 × 4 = 24` · `Résultat : −24`
-4. **Réponse à écrire :** −2 × 3 × (−4) = ? (réponse : 24)
+**La règle** (trois règles, chacune avec ses erreurs reconnues) : 1. *Je multiplie les nombres deux par deux, de gauche à droite* (`addition-au-lieu-multiplication`) ; 2. *Je compte les signes − : pair, positif ; impair, négatif* (`parite-signes`, deux messages : nombre pair ou impair de −) ; 3. *J'écris le signe d'abord, puis je multiplie tous les nombres sans leur signe* (`facteur-oublie`, un facteur oublié).
 
-**Exemples guidés**
-- −3 × (−2) × (−2) : nombre de signes − = ▢ → 3 ; signe du résultat ▢ (−) ; 3 × 2 × 2 = ▢ → 12 ; résultat ▢ → −12
-- 5 × (−1) × (−2) : nombre de signes − = ▢ → 2 ; signe du résultat ▢ (+) ; 5 × 1 × 2 = ▢ → 10 ; résultat ▢ → 10
+**Écrans** (7 écrans de leçon, 12 pour apprendre avant l'annonce de la fin) :
+1. Accroche « Multiplier plusieurs nombres relatifs » + deviner −2 × 3 × (−4) (24 / −24 / −3 ; ne compte pas).
+2. Multiplier deux par deux (technique 2) : −2 × 3 = −6 [négatif | positif], −6 × (−4) [positif | négatif] ; encadré.
+3. Je compte les signes − (technique 1, la principale) : chaque − change le signe ; −2 × 3 × (−4), j'en trouve [deux | un | trois], pair [positif | négatif] ; −1 × (−5) × (−2), impair [négatif | positif] ; encadré.
+4. Le signe d'abord, puis les nombres : = +(2 × 3 × 4), 2 × 3 × 4 = [24 | 9 | 12] ; encadré.
+5. Deux petites questions sur un écran (comptées) : signe de −3 × 2 × (−5) ; résultat de 4 × (−3) × 2.
+6. Comparer −2 × 3 × (−4) (A) et −24 ÷ (−4) (B, Cours 6) : A 24, B 6 (ne compte pas).
+7. Autres façons de faire (rappel des 3 règles en tête) : réordonner les facteurs (essai −2 × 37 × 5) ; chercher le 0 (essai −4 × 7 × 0 × (−9)).
+8. Série de pratique : case de −3 × (−2) × (−2) au signe déjà écrit → signe de −2 × (−3) × (−1) → −56 ÷ 7 (Cours 6, division) → taper −3 × 4 × (−5).
+9. Exemple 1 : −2 × (−5) × (−3), ligne = −(2 × 5 × 3) (« Je comprends »), puis la case (comptée). Exemple 2 : 3 × (−4) × (−2), le signe (non noté) puis la case (comptée). Puis l'annonce des 5 exercices de fin.
 
-**Générateur**
-| Niveau | Forme | Nombres |
-|---|---|---|
-| 1 | 3 facteurs, au moins un négatif | de 1 à 5 |
-| 2 | 4 facteurs, au moins un négatif | de 1 à 5 |
-| 3 | 5 facteurs, au moins un négatif | de 1 à 6 |
+**Note du cours :** 13 questions (2 petites + 4 de la série + 2 cases d'exemples + 5 exercices de fin).
 
-**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −2 × 3 × (−4) · = +(2 × 3 × 4) · = 24 (2 signes −, pair)
+**Générateur** (le niveau allonge le calcul autant qu'il agrandit les nombres, comme le Cours 3 ; signes mélangés, au moins un négatif ; jamais de 0 ; produit entier de 15 625 au plus) : niveau 1, 3 facteurs de 1 à 9 ; niveau 2, 4 facteurs de 1 à 6 ; niveau 3, 5 ou 6 facteurs de 1 à 5. Exercices de fin et questions de la leçon au niveau 1. Résolution type : −2 × 3 × (−4) · = +(2 × 3 × 4) · = 24.
 
-**Erreurs reconnues**
-| Identifiant | Détection | Explication affichée | Calcul-piège |
-|---|---|---|---|
-| `parite-signes` 🔴 | la réponse est l'opposé de la bonne réponse | « Compte les signes − : pair → + ; impair → −. » | nombre pair de négatifs (2 ou 4) |
-| `addition-au-lieu-multiplication` | la réponse vaut la somme des facteurs, ou ±(leur somme sans les signes) | « Ici, on **multiplie** tous les nombres. » | facteurs petits (1 à 3) |
-
-**Exemples de calculs**
-| Niveau | Calcul | Réponse |
-|---|---|---|
-| 1 | −2 × 3 × (−4) | 24 |
-| 1 | −1 × (−5) × (−2) | −10 |
-| 1 | 4 × (−3) × 2 | −24 |
-| 2 | −2 × (−3) × (−1) × 4 | −24 |
-| 2 | 3 × (−2) × (−5) × (−2) | −60 |
-| 2 | −4 × (−1) × (−3) × (−2) | 24 |
-| 3 | −2 × 3 × (−5) × (−1) × 6 | −180 |
-| 3 | −3 × (−2) × (−4) × (−1) × (−5) | −120 |
-| 3 | 2 × (−6) × (−3) × (−1) × (−4) | 144 |
-
-**Réponse donnée → erreur reconnue** (calcul −2 × 3 × (−4) = 24) : −24 → `parite-signes` · −3 → `addition-au-lieu-multiplication` · 9 → `addition-au-lieu-multiplication` · 20 → autre
+**Choix faits sans document :** le 0 n'apparaît dans aucun exercice (seulement dans l'écran « Chercher le 0 » ; ni 0 × n ni message pour lui) ; les nombres rapetissent aux niveaux 2 et 3 (1 à 6, puis 1 à 5) pour que 4 à 6 facteurs restent calculables de tête et tiennent dans la largeur du téléphone ; l'ancienne animation « compter les moins » n'est plus utilisée (la scène surligne les − à la place) ; « Deux par deux » est une règle à part entière (étape de la leçon, deux actions) et non une simple astuce ; troisième erreur reconnue `facteur-oublie` (produit des autres facteurs, avec l'un ou l'autre signe) plutôt qu'une erreur de calcul deux par deux, trop floue à détecter (une erreur de calcul isolée reçoit la méthode pas à pas) ; la question du Cours 6 de la série est −56 ÷ 7, avec le piège « −392 » (tu as multiplié) ; fiche mémo = la règle « Je compte les − » avec 2 exemples et l'erreur « −2 × 3 × (−4) = −24 ».

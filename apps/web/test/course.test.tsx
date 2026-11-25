@@ -305,11 +305,12 @@ describe('relire', () => {
   });
 
   it('rejoue les parties de leçon sans exercice de fin et sans aucun événement', async () => {
-    // le Cours 7 commence par un écran d'explication (les Cours 4 à 6 v2 commencent par une question pour deviner)
+    // aucun cours v2 ne commence par un écran « Suivant » (ils commencent par une question pour deviner) : on fournit une explication
+    h.items = [{ type: 'explication', itemId: 'partie-0', courseId: 'c07-multiplier-plusieurs', partIndex: 0, blocks: [{ t: 'text', text: 'Une explication.' }] } as unknown as ActivityItem];
     const t = mount(<RelireScreen courseId="c07-multiplier-plusieurs" rng={seededRng(1)} />);
     const { courseRunItems } = await import('@pom/engine');
     vi.mocked(courseRunItems).mockClear();
-    expect(t.text()).toContain('Cours 7, leçon');
+    expect(t.text()).toContain('Cours 7 · Leçon');
     expect(t.btn('Suivant')).toBeTruthy();
     fireEvent.click(t.btn('Suivant')!);
     await settle();
