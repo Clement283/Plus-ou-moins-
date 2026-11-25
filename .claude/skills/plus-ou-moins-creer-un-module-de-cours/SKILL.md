@@ -1,73 +1,64 @@
 ---
 name: plus-ou-moins-creer-un-module-de-cours
-description: Use when turning a math chapter (« chapitre » of the French lycée programme, e.g. second degré, fractions, dérivation) into one or more modules of the Plus ou moins app, when the user sends class documents (cours du prof, cahier de l'élève, exercices, contrôles) to build courses from, or when planning the order, prerequisites and cross-course reuse of a module's courses.
+description: Use when turning a math chapter of the French lycée programme (e.g. second degré, fractions, équations, suites) into one or more modules of the Plus ou moins app, when the user sends class documents (cours du prof, cahier, exercices, contrôles) to build courses from, or when planning the order, prerequisites and reuse between courses. Produces the module plan and one short sheet (fiche) per course; knows no module by heart.
 ---
 
 # Créer un module de cours (Plus ou moins)
 
 ## Principe
 
-Un **chapitre** du programme devient **un module** de l'appli (plusieurs seulement si c'est justifié), et un module est une **suite ordonnée de cours**, une méthode par cours. Ce skill fait le **plan du module** ; chaque cours est ensuite **obligatoirement** écrit avec le skill `plus-ou-moins-ecrire-un-cours`. Les cours sont écrits un par un, mais c'est le module qui décide de ce qu'ils reprennent les uns des autres.
+Entrée : **un chapitre du programme** (intitulé, classe) et les documents de classe. Sortie : **le chapitre découpé en un module ou plusieurs**, chacun une **suite ordonnée de cours** (une méthode par cours), et pour chaque cours une **fiche** (`references/modele-fiche.md`). Ce skill ne contient **aucun plan de module** : la liste des modules, leur ordre, leurs numéros et leur état sont dans **`docs/modules.md`**, qu'il lit en premier et met à jour en dernier.
 
-Vocabulaire : dans l'appli, un *module* (ex. « Calculs ») regroupe des *cours* (ex. Cours 0 à 7). Ce que le porteur du projet appelle parfois « un cours » (le chapitre du prof) est ici un **chapitre**.
+Le skill décide de **ce qui est important dans chaque cours** ; il ne rédige aucun texte d'écran. Chaque cours est ensuite écrit avec `plus-ou-moins-ecrire-un-cours`, qui lit uniquement la fiche : **une fiche claire et courte fait économiser le plus de jetons en aval**.
+
+Vocabulaire : un *module* de l'appli regroupe des *cours* ; ce que le porteur du projet appelle parfois « un cours » (le chapitre du prof) est ici un **chapitre**.
 
 ## Sources (toujours les deux)
 
-1. **Les documents fournis** : cours du prof, cahier de l'élève, fiches d'exercices, contrôles. Ils donnent l'ordre, le vocabulaire et les notations de la classe : les garder.
-2. **Une recherche Internet systématique** :
-   - le programme officiel de la classe (Éduscol, Bulletin officiel) : ne rien oublier ;
-   - les méthodes et astuces que les profs ne donnent pas toujours (sites de profs, manuels, vidéos de méthode) ;
-   - les erreurs classiques des élèves sur ce chapitre ;
-   - ce qui servira l'année suivante (prérequis de la terminale ou du chapitre suivant).
-   - **Les programmes officiels sont téléchargés et enregistrés dans `docs/sources/`** (PDF + texte extrait avec `pdftotext -layout`), puis lus : les points du plan citent le texte exact et la page ; ne jamais s'appuyer sur un simple extrait de recherche. Selon les besoins : programme de la classe, de la classe précédente et du cycle 4. Signaler tout écart entre le plan et le programme.
+1. **Les documents fournis** : ordre, vocabulaire et notations de la classe, à garder.
+2. **Une recherche Internet** : programme officiel de la classe (Éduscol, Bulletin officiel), méthodes et astuces que les profs ne donnent pas toujours, erreurs classiques, ce qui servira l'année suivante.
+   - Les programmes sont **téléchargés dans `docs/sources/`** (PDF + `pdftotext -layout`) et lus ; les points du plan citent le texte et la page. Ne jamais citer un extrait de recherche. Signaler tout écart entre le plan et le programme.
 
-Chaque élément du plan dit d'où il vient (document ou lien).
+Chaque élément du plan dit d'où il vient.
 
-## Le plan du module (ce que le skill produit)
+## Le plan du module : `docs/validation/NN-module-<nom>.md`
 
-Un document `docs/validation/NN-module-<nom>.md` (NN = numéro suivant dans `docs/validation/`), publié aussi en page lisible (artefact HTML : convertir le Markdown en une page à une colonne, tableaux défilants, clair et sombre) pour validation. Les cours gardent une **numérotation continue dans toute l'appli**, d'un module à l'autre. En tête : un résumé simple d'une dizaine de lignes ; à la fin : « Questions pour toi » (5 au plus, chacune avec une recommandation). Il contient, dans cet ordre :
+NN = numéro suivant dans `docs/validation/`. Résumé d'une dizaine de lignes en tête, « Questions pour toi » (5 au plus, chacune avec une recommandation) à la fin. À valider **avant tout cours**. Pas de page HTML sauf si le porteur du projet la demande. Contenu :
 
 1. **Le chapitre** : intitulé, classe, documents reçus, objectifs (ce que l'élève saura faire en contrôle).
-2. **Le découpage en modules** : **un seul module par défaut**. Proposer d'en faire plusieurs seulement si le module devient trop long ou si le chapitre a deux parties qu'on peut apprendre indépendamment ; donner les raisons. Le porteur du projet décide.
-3. **Pour chaque module, la liste ordonnée des cours** (une nouvelle méthode = un nouveau cours) ; pour chaque cours :
-   - la règle (en une phrase) et l'idée de départ (le *pourquoi*) envisagée ;
-   - les erreurs classiques attendues (deviendront les erreurs reconnues) ;
-   - une rubrique **« Astuces et techniques »** de **2 à 4 entrées** (pas une seule astuce) : pour chaque entrée, le nom court de la technique, quand l'utiliser, un exemple chiffré et, si utile, le piège qu'elle évite. Varier les types : réordonner ou regrouper (commutativité, associativité), compter les signes, passer par l'opposé, ordre de grandeur, calcul mental, vérification par l'opération inverse, schéma, méthode des blocs, etc. Indiquer laquelle va dans la fiche mémo (la principale) et lesquelles deviennent des étapes de la leçon ou un écran « Autres façons de faire ». L'élève choisit sa technique. Chercher activement les techniques que les profs ne donnent pas toujours : le porteur du projet en veut beaucoup ;
-   - les **reprises** : ce qu'il reprend des cours précédents (voir ci-dessous) ;
-   - ce qui rend ses niveaux 2 et 3 plus difficiles ;
-   - les sources.
-4. **Les reprises entre cours** (tableau cours × cours précédents).
-5. **Ce qui manque dans l'appli** pour ce module (vérifié en lisant le code du moteur et de l'appli, sans le modifier) (nouvelle brique d'écran, nouveau type de calcul, reprise de calculs d'un autre cours dans le moteur…) : à développer au moment de coder le premier cours qui en a besoin.
-6. **Les sources** (liste des liens et documents).
+2. **Le découpage** : **un seul module par défaut** ; plusieurs seulement si le module devient trop long ou si deux parties s'apprennent indépendamment (raisons données). Il décide.
+3. **Pour chaque module, les cours dans l'ordre** (nouvelle méthode = nouveau cours, jamais deux méthodes dans un cours) : règle en une phrase, idée de départ (*pourquoi*), erreurs classiques attendues, **2 à 4 techniques** (nom, quand, exemple chiffré, piège évité ; laquelle va dans la fiche mémo, lesquelles deviennent des étapes ou « Autres façons de faire »), reprises, ce qui rend les niveaux 2 et 3 plus durs, sources.
+4. **Les reprises entre cours** (tableau).
+5. **Ce qui manque dans l'appli** : types d'écran absents de `.claude/skills/plus-ou-moins-ecrire-un-cours/references/catalogue-ecrans.md` (graphes, tableaux, schémas, problèmes en mots…). Les chapitres qui ne sont pas du calcul en ont presque toujours besoin : les décider **ici**, avant les fiches, car un nouveau type d'écran passe par une maquette.
+6. **Les sources.**
 
-## Reprises entre cours (règles)
+## Les fiches : `docs/fiches/cNN-nom.md`
 
-- **Reprise naturelle** : un cours contient souvent les méthodes d'avant (le cours « additionner plusieurs nombres » contient les additions des cours précédents). Le noter.
-- **Comparer deux cas** et **série de pratique** : un des deux cas comparés et **une des 4 questions de la série de pratique viennent d'un cours précédent** (entraînement intercalé : elle apprend à reconnaître quelle règle s'applique). **Le 1er cours d'un module les tire du module précédent** (s'il existe) ; les autres cours, du cours précédent du module.
-- **Pas d'écran de rappel** des cours précédents : les cours se suivent, elle s'en souvient.
-- **Jamais de calculs d'anciens cours dans les 5 exercices de fin** : ils valident ce cours-ci. Le mélange va dans la série de pratique, les révisions et l'entraînement.
+Une par cours, au format de `references/modele-fiche.md`, écrites **après validation du plan**. Elles reprennent du plan ce qui sert à écrire le cours, rien de plus (40 lignes au plus).
 
-## Méthode de travail (dans cet ordre)
+## Numéros, ordre, registre
 
-1. **Lire** les documents fournis, puis faire la recherche Internet.
-2. **Écrire le plan du module** et le publier ; **le faire valider avant tout cours**.
-3. **Pour chaque cours, dans l'ordre**, appliquer `plus-ou-moins-ecrire-un-cours`, en lui passant les reprises, erreurs, astuces et sources du plan. Le **1er cours du module** passe par une maquette validée ; les suivants sont écrits en **mode autonome** (code direct, fiche courte, pas de maquette ni de capture), sauf nouveau type d'écran ou demande du porteur du projet.
-4. **Coder par lots**, puis **une relecture et une mise en ligne par module**.
+- L'ordre des modules et les numéros de cours viennent de `docs/modules.md`. Si le plan change des numéros déjà donnés, ou si l'ordre voulu les rend incohérents, **le dire avant d'écrire**.
+- À la fin : mettre à jour `docs/modules.md` (module ajouté, cours, état, chemin du plan).
+
+## Reprises entre cours
+
+- **Reprise naturelle** : un cours contient souvent les méthodes d'avant ; le noter.
+- **Comparer deux cas** et **série de pratique** : un cas et **une des 4 questions** viennent d'un cours précédent. Le 1er cours d'un module les prend dans le **module précédent** selon `docs/modules.md` ; les autres, dans le cours précédent du module.
+- Pas d'écran de rappel des cours précédents.
+- **Jamais de calculs d'anciens cours dans les 5 exercices de fin** : le mélange va dans la série de pratique, les révisions et l'entraînement.
+
+## Méthode
+
+1. Lire `docs/modules.md`, les documents fournis, puis faire la recherche.
+2. Écrire le plan, le faire valider.
+3. Écrire les fiches ; mettre à jour le registre.
+4. Les cours s'écrivent ensuite **un par un** avec `plus-ou-moins-ecrire-un-cours`, en mode économe (un assistant Sonnet, aucune maquette sauf nouveau type d'écran), puis une relecture et une mise en ligne **par lot**.
 
 ## Idées pour plus tard (ne pas développer sans demande)
 
-- **Bilan de module / contrôle blanc** : une série qui mélange tous les cours du module, dans les conditions d'un contrôle.
-- **Carnet d'erreurs** (version suivante de l'appli) : les erreurs fréquentes de l'élève, avec règle et exemple corrigé, rejouables.
+Bilan de module / contrôle blanc ; carnet d'erreurs.
 
-## Erreurs fréquentes
+## Ne pas faire
 
-| Ce qu'on serait tenté de faire | Ce qu'il faut faire |
-|---|---|
-| Suivre seulement le cours du prof | Garder son ordre et son vocabulaire, et compléter avec la recherche (astuces, erreurs classiques, année suivante) |
-| Écrire les cours avant que le plan soit validé | Plan validé d'abord |
-| Écrire un cours sans le skill cours | Toujours `plus-ou-moins-ecrire-un-cours` |
-| Fixer un nombre de cours par module | Un module par défaut, coupe proposée et justifiée si besoin |
-| Une seule astuce par cours | 2 à 4 techniques par cours, l'élève choisit |
-| Citer le programme d'après un extrait de recherche | Télécharger le PDF dans `docs/sources/`, citer texte et page |
-| Mettre des calculs d'anciens cours dans les exercices de fin | Seulement dans la série de pratique, les révisions et l'entraînement |
-| Mettre deux méthodes dans un même cours | Une nouvelle méthode = un nouveau cours |
+Suivre seulement le cours du prof (garder son ordre, compléter avec la recherche) ; écrire un cours avant la validation du plan ; une seule astuce par cours ; citer le programme sans le PDF ; mettre des calculs d'anciens cours dans les exercices de fin ; copier ici un plan, un ordre ou des numéros de modules (ils vivent dans `docs/modules.md`).

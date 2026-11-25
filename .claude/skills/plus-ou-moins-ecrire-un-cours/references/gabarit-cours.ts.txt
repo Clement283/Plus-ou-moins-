@@ -1,0 +1,157 @@
+// Cours N — TITRE. Fiche : docs/fiches/cNN-nom.md. Copier ce fichier en cNN-nom.ts, remplacer chaque « À ÉCRIRE »,
+// adapter les blocs marqués « ADAPTER », puis supprimer ces commentaires-guides. Tout le reste est fixe.
+import { num, op, toLatex } from '../../math/expr';
+import type { Rng } from '../../rng';
+import type { Outcome, Question } from '../../exercises/types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
+import {
+  M, MODULE_ID, NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, autres, buildErrors, choix, decouverte,
+  draw, etapes, exemple, explanation, hl, isOpposite, lecon, linesScene, makeExercise, oneScene, operands, options3, pratique,
+  redraw, resultLine, saisie, sg, signBox, signs, small, step, stepped, texted, toks, toText, trou, trouOf, txt,
+} from './shared';
+
+const ID = 'cNN-nom';
+const RULE = 'À ÉCRIRE : la règle du cours en une phrase.';
+
+// ——— Générateur (ADAPTER) : la réponse doit toujours être un entier juste ; niveau = taille des nombres ET longueur du calcul si le cours s'y prête ———
+type Range = [number, number];
+const RANGE: Record<Level, Range> = { 1: [2, 9], 2: [10, 30], 3: [10, 99] };
+const ex1 = (a: number, b: number): Exercise => makeExercise(ID, 1, op('*', num(a), num(b)));
+function generate(level: Level, rng: Rng): Exercise {
+  const [na, nb] = signs(rng);
+  const a = draw(rng, RANGE[level]);
+  const b = draw(rng, RANGE[level]);
+  return makeExercise(ID, level, op('*', num(na ? -a : a), num(nb ? -b : b)));
+}
+const parts2 = (ex: Exercise): [number, number] => operands(ex.expr) as [number, number];
+function resolution(ex: Exercise): string[] {
+  const [a, b] = parts2(ex).map(Math.abs) as [number, number];
+  return [toLatex(ex.expr), `= ${sg(ex.answer.n)}(${a} \\times ${b})`, resultLine(ex)];
+}
+
+// ——— Erreurs reconnues (ADAPTER) : une ErrorSpec par erreur de la fiche ; `text` = message précis (jamais la règle générale) ———
+const shown = (ex: Exercise): string => toText(ex.expr);
+const RULE_1 = { n: 1, label: 'À ÉCRIRE : titre de la règle 1', partIndex: 1 };
+const RULES: Record<string, NonNullable<ErrorDef['rule']>> = { 'regle-signes': RULE_1 };
+const errors: ErrorDef[] = buildErrors(
+  [
+    {
+      id: 'regle-signes',
+      family: 'signe',
+      detect: (ex, given) => ex.answer.n !== 0 && isOpposite(ex, given), // la réponse donnée est l'opposée de la bonne
+      text: (ex) => `À ÉCRIRE : message précis pour ${shown(ex)} = ${txt(ex.answer.n)}.`,
+      draw: (level, rng) => redraw(() => generate(level, rng), (ex) => ex.answer.n !== 0), // calcul-piège de cette erreur
+      sample: (ex) => -ex.answer.n, // la réponse fausse typique
+      wrongLines: (ex, w) => (w === -ex.answer.n ? stepped(ex, `${sg(w)}(…)`, w) : null), // résolution fausse affichée (ADAPTER)
+    },
+  ],
+  resolution,
+).map((e): ErrorDef => ({ ...e, rule: RULES[e.id] as NonNullable<ErrorDef['rule']> }));
+
+// ——— Retours d'erreur des questions qui comptent : un message par erreur prévisible (voir catalogue : feedbackText) ———
+function feedbackText(q: Question, o: Outcome): string | null {
+  if (o.unfinished || o.errorFamily === 'ecriture') return null;
+  return q.kind === 'saisie' && !o.correct ? `À ÉCRIRE : méthode pas à pas pour ${toText(q.ex.expr)}.` : null;
+}
+
+// ——— Leçon : ordre fixe, 12 à 15 écrans pour apprendre ———
+const REGLE1 = '**À ÉCRIRE : règle 1 en gras.**';
+
+// 0 — Accroche : une question pour deviner (ne compte pas)
+const guess = choix(
+  ex1(-3, 4),
+  'Pour commencer, à ton avis : combien vaut ce calcul ?',
+  options3(['À ÉCRIRE : bonne réponse', 'À ÉCRIRE : pourquoi'], ['À ÉCRIRE : piège 1', 'À ÉCRIRE : pourquoi'], ['À ÉCRIRE : piège 2', 'À ÉCRIRE : pourquoi']),
+  0,
+  '-3 \\times 4',
+);
+
+// 1 — L'idée de départ (le pourquoi), puis une étape par règle : 3 étapes de préférence, une action dès que possible, la dernière pose la règle
+const idee: EtapeStep[] = [
+  step('À ÉCRIRE : phrase 1, courte et complète.', { scene: linesScene(['À ÉCRIRE : calcul']) }),
+  step('À ÉCRIRE : phrase 2 avec **gras** sur l’idée clé.', {
+    scene: oneScene('3 × 4 = ?'),
+    after: oneScene('3 × 4 = ', hl('12')), // ce dont parle la phrase est surligné
+    action: trouOf('À ÉCRIRE : phrase avec un seul trou [ ? ].', ['bon choix', 'mauvais choix'], 0, { 1: 'À ÉCRIRE : message précis si mauvais choix.' }),
+  }),
+  step(undefined, { scene: linesScene(['À ÉCRIRE : le calcul qui résume']), rule: { n: 1, text: REGLE1 } }),
+];
+
+const exemple1: EtapeStep[] = [
+  step('Voici la résolution. Lis la première ligne, puis touche « Je comprends ».', { scene: linesScene(['À ÉCRIRE : calcul de départ']) }),
+  step('À ÉCRIRE : on écrit d’abord …', { scene: linesScene(['À ÉCRIRE : calcul de départ'], [hl('= À ÉCRIRE')]), action: { type: 'comprends' } }),
+];
+
+// Pratique : 4 questions, l'aide diminue et les formats changent ; UNE vient du cours précédent (ou du module précédent pour le 1er cours d'un module)
+const PRATIQUE = pratique('Cours N · Pratique', [
+  { question: trou(ex1(-6, -7), '= \\square', 42), texts: { consigne: 'Le signe est déjà trouvé. **Tape le résultat dans la case.**', above: ['= +(6 \\times 7)'] } },
+  { question: signBox(ex1(-6, 7), false, 'regle-signes'), texts: { consigne: "Touche le signe du résultat. Tu n'as pas besoin de calculer.", intro: ['Quel est le signe du résultat ?'] } },
+  { question: choix(ex1(-9, 3), 'Quel est le résultat ?', options3(['−27', 'À ÉCRIRE : pourquoi'], ['−6', 'À ÉCRIRE : pourquoi'], ['27', 'À ÉCRIRE : pourquoi']), 0, '-9 \\times 3'), texts: { consigne: "Regarde bien l'opération, puis touche le résultat." } },
+  { question: saisie(ex1(-8, -5)), texts: { consigne: 'Calcule. **Tape le résultat.**' } },
+], "Maintenant, deux exemples pour t'aider à les résoudre en entier.");
+
+const parts: LessonPart[] = [
+  texted(decouverte(guess), { title: 'À ÉCRIRE : titre du cours', intro: ['À ÉCRIRE : à quoi sert ce cours.', 'À ÉCRIRE : ce qu’on va apprendre.'], mention: NOT_COUNTED_GUESS }),
+  etapes('À ÉCRIRE : L’idée de départ', idee), // ← partIndex 1 = règle 1 ; ajouter une `etapes` par règle suivante
+  lecon(small(ex1(-4, -5), '-4 \\times (-5)', 'À ÉCRIRE : question ?', [['À ÉCRIRE : bonne réponse', 'pourquoi'], ['piège 1', 'pourquoi'], ['piège 2', 'pourquoi']], 0)),
+  texted(lecon(small(ex1(6, -3), '6 \\times (-3)', 'À ÉCRIRE : question ?', [['À ÉCRIRE : bonne réponse', 'pourquoi'], ['piège 1', 'pourquoi'], ['piège 2', 'pourquoi']], 0)), { joinPrevious: true }),
+  // Comparer deux cas : A de ce cours, B du cours précédent
+  texted(decouverte(choix(ex1(-12, 4), 'Quel est le résultat de chaque calcul ?', options3(['A …, B …', 'pourquoi'], ['A …, B …', 'pourquoi'], ['Les deux …', 'pourquoi']), 0)), {
+    title: 'Comparer deux cas',
+    intro: ["Voici deux calculs qui se ressemblent. Regarde bien l'opération."],
+    mention: NOT_COUNTED_UNDERSTAND,
+    compare: {
+      a: { label: 'Calcul A', latex: '-12 \\div 4' },
+      b: { label: 'Calcul B', latex: '-3 \\times 4' },
+      note: 'Le calcul B vient du cours précédent : tu sais déjà le faire. Ici, tu observes seulement ce qui change.',
+      highlight: { a: toks(`${M}12 `, hl('÷'), ' 4'), b: toks(`${M}3 `, hl('×'), ' 4') },
+      after: ['À ÉCRIRE : A …', 'À ÉCRIRE : B …', 'À ÉCRIRE : ce qui change.'],
+    },
+  }),
+  // Autres façons de faire : 2 ou 3 techniques de la fiche (recap = les règles ; essai : 'saisie' ou 'choix')
+  autres({
+    title: 'Autres façons de faire',
+    recap: { title: 'Les règles à retenir', rules: [{ title: '1. À ÉCRIRE', ok: 'exemple juste', ko: 'exemple faux' }], sentence: 'À ÉCRIRE : la règle en une phrase.' },
+    intro: 'La méthode marche toujours. Voici d’autres façons de faire : **choisis celle que tu veux essayer**.',
+    techniques: [
+      {
+        name: 'À ÉCRIRE', quand: 'À ÉCRIRE', example: 'À ÉCRIRE', how: 'À ÉCRIRE',
+        essai: { kind: 'saisie', consigne: 'À ÉCRIRE **Tape le résultat.**', calc: '12 × 5', answer: 60, yes: 'À ÉCRIRE', errors: [{ values: [-60], message: 'À ÉCRIRE : message précis.' }], fallback: 'À ÉCRIRE' },
+      },
+    ],
+    outro: "Ensuite, tu t'entraînes avec quatre questions.",
+  }),
+  PRATIQUE,
+  etapes('Exemple 1 sur 2', exemple1),
+  texted(exemple(trou(ex1(-5, -9), '= \\square', 45)), { consigne: 'Tape ce qui manque dans la case, avec les touches du clavier.', above: ['= +(5 \\times 9)'], help: 'À ÉCRIRE : aide de la dernière ligne.' }),
+  texted(decouverte(signBox(ex1(5, -9), false, 'regle-signes')), { consigne: 'Touche le signe du résultat.', intro: ["Cette fois, deux cases sont à toi. Trouve d'abord le signe du résultat, puis calcule."], mention: '' }),
+  texted(exemple(trou(ex1(5, -9), '= \\square', -45)), { above: ['= -(5 \\times 9)'], mention: '' }),
+  annonceFin(), // fixe : ne pas réécrire
+];
+
+export const cNN: CourseDef = {
+  id: ID,
+  moduleId: MODULE_ID,
+  order: 99, // numéro du cours (fiche)
+  title: 'À ÉCRIRE : titre',
+  shortTitle: 'À ÉCRIRE',
+  rule: RULE,
+  parts,
+  lessonLength: parts.findIndex((p) => p.type === 'pratique'),
+  unePhrase: true,
+  endExercises: { count: 5, kind: 'saisie' },
+  generate,
+  errors,
+  generalExplanation: (ex) => explanation(RULE, resolution(ex)),
+  resolution,
+  classes: SIGN_CLASSES,
+  expectInteger: true,
+  feedbackText,
+  memo: {
+    rule: RULE,
+    ruleBullets: ['À ÉCRIRE'],
+    examples: ['À ÉCRIRE : exemple 1', 'À ÉCRIRE : exemple 2'],
+    mistake: { wrong: 'À ÉCRIRE : calcul faux', why: 'À ÉCRIRE : pourquoi, avec **gras**.' },
+    tip: 'À ÉCRIRE : la technique principale de la fiche.',
+  },
+};

@@ -3,7 +3,7 @@ import { type Expr, evaluate, num, op, toLatex } from '../../math/expr';
 import { type Rational, eqRat, rat } from '../../math/rational';
 import { type Rng, pick, randInt } from '../../rng';
 import type { ErrorFamily } from '../../events';
-import type { Autres, CourseDef, ErrorDef, EtapeStep, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, WrongResolution } from '../types';
+import type { Autres, CourseDef, ErrorDef, EtapeStep, Exercise, Explanation, LessonBlock, Level, LessonPart, PartTexts, Scene, SceneToken, WrongResolution } from '../types';
 import type { Question } from '../../exercises/types';
 
 /** Number sizes of courses 1, 2 and 4: 1–9, tens, hundreds. */
@@ -269,3 +269,38 @@ export const step = (text: string | undefined, extra: Omit<EtapeStep, 'text'> = 
 
 /** L'écran « Autres façons de faire » : le rappel des règles, puis des techniques à essayer librement (doc 06, Cours 2). */
 export const autres = (screen: Autres): LessonPart => ({ type: 'autres', ...screen });
+
+// ——— Écrans et mentions identiques dans tous les cours (ne pas les réécrire) ———
+
+export const NOT_COUNTED_GUESS = 'Question pour découvrir : elle ne compte pas dans la note.';
+export const NOT_COUNTED_UNDERSTAND = 'Question pour comprendre : elle ne compte pas dans la note.';
+
+/** Dernier écran de la leçon : ce qu'il faut réussir (4 sur 5 et 80 %) et ce qui se passe sinon. Texte fixe. */
+export const annonceFin = (): LessonPart =>
+  etapes('Place aux 5 exercices de fin', [
+    step("Cette fois, **pas d'aide**. Ils ressemblent à ce que tu verras en contrôle."),
+    step('Pour valider le cours, il faut : au moins **4 exercices de fin justes sur 5** ; et **80 % de bonnes réponses** sur tout le cours.'),
+    step("Si tu n'y arrives pas, ce n'est pas grave : tu feras une **série de validation**. Ce sont 5 exercices, sans refaire la leçon."),
+  ]);
+
+// ——— Scènes et petites questions : les mêmes briques dans tous les cours ———
+
+/** Le signe moins typographique (U+2212), à employer dans tous les textes. */
+export const M = '−';
+/** Un morceau de calcul surligné (« regarde ici »). */
+export const hl = (t: string): SceneToken => ({ t, hl: true });
+const tokensOf = (parts: (string | SceneToken)[]): SceneToken[] => parts.map((t) => (typeof t === 'string' ? { t } : t));
+/** Les morceaux d'un calcul (pour `compare.highlight`). */
+export const toks = (...parts: (string | SceneToken)[]): SceneToken[] => tokensOf(parts);
+/** Scène : un seul calcul. */
+export const oneScene = (...calc: (string | SceneToken)[]): Scene => ({ layout: 'one', calcs: [{ tokens: tokensOf(calc) }] });
+/** Scène : une résolution ligne à ligne (la dernière ligne est surlignée). */
+export const linesScene = (...calcs: (string | SceneToken)[][]): Scene => ({ layout: 'lines', calcs: calcs.map((c) => ({ tokens: tokensOf(c) })) });
+/** Action « phrase à trous » : `open` contient « [ ? ] », `errors` = message par choix faux (indice → message). */
+export const trouOf = (open: string, choices: string[], correct: number, errs: Record<number, string>) =>
+  ({ type: 'trou' as const, open, choices, correct, errors: errs });
+/** Les options d'un `choix` : [libellé, message affiché après la réponse]. */
+export const options3 = (...o: [string, string][]) => o.map(([label, why]) => ({ label, why }));
+/** Petite question de leçon (comptée) : `calc` en LaTeX au-dessus de la consigne. */
+export const small = (ex: Exercise, calc: string, prompt: string, options: [string, string][], correctIndex: number): Question =>
+  smallChoix(ex, prompt, options3(...options), correctIndex, calc);
