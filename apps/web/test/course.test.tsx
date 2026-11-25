@@ -95,7 +95,7 @@ describe('cours : résultat', () => {
     await settle();
     expect(t.text()).toContain('Cours 4 validé');
     expect(t.text()).toContain('5 bonnes réponses sur 5, dont 5 exercices de fin justes sur 5.');
-    expect(t.text()).toContain('Le cours 5, « Multiplier deux relatifs », est débloqué.');
+    expect(t.text()).toContain('Le cours 5, « Multiplier deux nombres relatifs », est débloqué.');
     expect(t.text()).toContain('Tu gagnes la 1re étoile du cours 4.');
     expect(t.text()).toContain('Première révision dans 48 heures.');
     expect(t.btn('Commencer le cours 5')).toBeTruthy();
@@ -305,11 +305,11 @@ describe('relire', () => {
   });
 
   it('rejoue les parties de leçon sans exercice de fin et sans aucun événement', async () => {
-    // le Cours 5 commence par un écran d'explication (le Cours 4 v2 commence par une question pour deviner)
-    const t = mount(<RelireScreen courseId="c05-multiplier-deux" rng={seededRng(1)} />);
+    // le Cours 6 commence par un écran d'explication (les Cours 4 et 5 v2 commencent par une question pour deviner)
+    const t = mount(<RelireScreen courseId="c06-diviser-deux" rng={seededRng(1)} />);
     const { courseRunItems } = await import('@pom/engine');
     vi.mocked(courseRunItems).mockClear();
-    expect(t.text()).toContain('Cours 5, leçon');
+    expect(t.text()).toContain('Cours 6, leçon');
     expect(t.btn('Suivant')).toBeTruthy();
     fireEvent.click(t.btn('Suivant')!);
     await settle();

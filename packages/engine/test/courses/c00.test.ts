@@ -377,7 +377,7 @@ describe('Cours 0 — Bien écrire un calcul', () => {
       expect(steps).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10]);
       expect(lessonStep(c00, 0)?.total).toBe(10);
       expect(lessonStep(c00, 11)).toBeNull();
-      expect(lessonStep(getCourse('c05-multiplier-deux'), 0)).toBeNull();
+      expect(lessonStep(getCourse('c06-diviser-deux'), 0)).toBeNull();
     });
 
     it('la série de pratique : 4 questions, formats variés, aucune petite question', () => {

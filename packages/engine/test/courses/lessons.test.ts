@@ -82,12 +82,17 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c05-multiplier-deux': [
-    ['Deux signes pareils donnent +', 'Deux signes différents donnent −.'],
-    ['Je trouve le signe, puis je multiplie', 'Même signe : +. Signes contraires : −.'],
-    ordreOf('−4 × (−3)'),
-    CALC,
-    [null],
-    [null], EX, EX, [null], EX, EX,
+    ['Multiplier deux nombres relatifs'],
+    ["Multiplier, c'est répéter"],
+    ['Le signe du produit'],
+    ["Les nombres d'abord, le signe ensuite"],
+    [null], [null],
+    ['Comparer deux cas'],
+    ['Autres façons de faire'],
+    ['Cours 5 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c06-diviser-deux': [
     ['Diviser, c\'est la même règle', 'Bonne nouvelle : rien de nouveau à retenir.'],
@@ -133,11 +138,6 @@ describe('doc 09 : titres des écrans de leçon', () => {
       }
     }
   });
-
-  it('consigne propre à doc 09 : Cours 5 « Classer »', () => {
-    const c5 = getCourse('c05-multiplier-deux').parts[4];
-    expect(c5?.type === 'question' && c5.consigne).toBe('Sans calculer, le résultat est-il + ou − ?');
-  });
 });
 
 describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => {
@@ -148,7 +148,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   const attention = (id: string) => rule(id).type === 'explication' && (rule(id) as { blocks: LessonBlock[] }).blocks.some((b) => b.t === 'heading' && b.text === 'Fais attention');
 
   const KO: Record<string, [string, string]> = {
-    'c05-multiplier-deux': ['−3 × (−4) = −12', '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.'],
     'c06-diviser-deux': ['−12 ÷ 4 = 3', 'Même règle que pour × : signes pareils → + ; différents → −.'],
     'c07-multiplier-plusieurs': ['−2 × 3 × (−4) = −24', 'Compte les signes − : pair → + ; impair → −.'],
   };
@@ -161,7 +160,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   }
 
   const OK: Record<string, string[]> = {
-    'c05-multiplier-deux': ['−3 × (−4) = +(3 × 4) = **12**', '6 × (−7) = −(6 × 7) = **−42**'],
     'c06-diviser-deux': ['−12 ÷ 4 = −(12 ÷ 4) = **−3**', '−35 ÷ (−7) = +(35 ÷ 7) = **5**'],
     'c07-multiplier-plusieurs': ['−1 × (−5) × (−2) : 3 signes − → impair → **−10**', '4 × (−3) × 2 : 1 signe − → impair → **−24**'],
   };
@@ -187,9 +185,9 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
 
 describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité', () => {
   it('courseRunItems porte titre, sous-titre et consigne', () => {
-    const items = courseRunItems(getCourse('c05-multiplier-deux'), seededRng(1));
-    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: 'Je trouve le signe, puis je multiplie' } });
-    expect(items[2]).toMatchObject({ type: 'question', texts: { title: "Remets les étapes de −4 × (−3) dans l'ordre" } });
+    const items = courseRunItems(getCourse('c06-diviser-deux'), seededRng(1));
+    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: "Même règle qu'en multiplication" } });
+    expect(items[2]).toMatchObject({ type: 'question', texts: { title: "Remets les étapes de 24 ÷ (−6) dans l'ordre" } });
     expect(items[6]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
     expect(items[3]).not.toHaveProperty('texts');
   });

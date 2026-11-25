@@ -12,7 +12,8 @@ const C0 = IDS[0]!;
 const C1 = IDS[1]!;
 const C4 = IDS[4]!;
 /** Les cours qui ont leurs propres formats de révision (Cours 1 v2, Cours 4 v2). */
-const WITH_FORMATS = [C1, C4];
+const C5F = IDS[5]!;
+const WITH_FORMATS = [C1, C4, C5F];
 const C5 = 'c05-multiplier-deux';
 
 let seq = 0;
@@ -338,7 +339,7 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
           expect(new Set(kinds).size).toBe(3);
           expect(kinds.every((k) => ['qcm', 'classer', 'choix', 'reecrire', 'erreur'].includes(k))).toBe(true);
         } else if (WITH_FORMATS.includes(id)) {
-          // Cours 1 et 4 : 3 formats différents parmi leurs `formats` (saisie, droite, signe = qcm, vrai ou faux, erreur)
+          // Cours 1, 4 et 5 : 3 formats différents parmi leurs `formats` (saisie, droite, signe = qcm, vrai ou faux, erreur)
           expect(new Set(kinds).size).toBe(3);
           expect(kinds.every((k) => ['saisie', 'droite', 'qcm', 'vraifaux', 'erreur'].includes(k))).toBe(true);
         } else {
@@ -352,7 +353,7 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
   });
 
   it('fréquence des formats (doc 07 #10A) : 1 chance sur 4 de « vrai ou faux », 1 sur 4 de « classer » par cours', () => {
-    const state = onlyDue(all, [2, 3, 5, 6, 7].map((i) => IDS[i]!), D); // 5 cours sans formats propres, aucun n'est le Cours 0
+    const state = onlyDue(all, [2, 3, 6, 7].map((i) => IDS[i]!), D); // 4 cours sans formats propres, aucun n'est le Cours 0
     let vf = 0;
     let cl = 0;
     let courses = 0;
@@ -436,19 +437,20 @@ describe('nextReviewSession — composition des 3 calculs de chaque cours', () =
           if (it.question.kind === 'qcm') f.add(it.question.formula);
       return f;
     };
-    const fresh = onlyDue(all, [C5], D);
+    const C6 = IDS[6]!; // un cours sans formats propres : ses révisions sont des QCM
+    const fresh = onlyDue(all, [C6], D);
     expect([...qcmFormulas(fresh)]).toEqual(['debut']);
 
     const act = nextId();
-    const seenQcm = Array.from({ length: 5 }, () => answer(V, act, 'entrainement', C5, true, 'qcm'));
+    const seenQcm = Array.from({ length: 5 }, () => answer(V, act, 'entrainement', C6, true, 'qcm'));
     const { events } = allValidated(V);
-    const seasoned = onlyDue(foldProgress([...events, ...seenQcm]), [C5], D);
+    const seasoned = onlyDue(foldProgress([...events, ...seenQcm]), [C6], D);
     expect(qcmFormulas(seasoned).size).toBeGreaterThan(1);
 
     // repeated tries (attempt > 1) and other courses' QCM do not count
-    const notFirst = Array.from({ length: 5 }, () => ({ ...answer(V, act, 'entrainement', C5, true, 'qcm'), attempt: 2 }) as AppEvent);
+    const notFirst = Array.from({ length: 5 }, () => ({ ...answer(V, act, 'entrainement', C6, true, 'qcm'), attempt: 2 }) as AppEvent);
     const other = Array.from({ length: 5 }, () => answer(V, act, 'entrainement', IDS[1]!, true, 'qcm'));
-    expect([...qcmFormulas(onlyDue(foldProgress([...events, ...notFirst, ...other]), [C5], D))]).toEqual(['debut']);
+    expect([...qcmFormulas(onlyDue(foldProgress([...events, ...notFirst, ...other]), [C6], D))]).toEqual(['debut']);
   });
 
   it('activityId : un nouvel identifiant (UUID) à chaque séance, injectable pour les tests', () => {

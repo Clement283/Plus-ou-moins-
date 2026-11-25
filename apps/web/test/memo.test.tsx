@@ -103,7 +103,7 @@ describe('cours validé', () => {
   });
   it('sans fiche : rien', () => {
     const v = mount(
-      <RunResultView variant="cours" courseId="c05-multiplier-deux" results={['ok']} result={resultOfTally({ first: 12, ok: 12, fin: 5, finOk: 5 }, 'c05-multiplier-deux')} />,
+      <RunResultView variant="cours" courseId="c06-diviser-deux" results={['ok']} result={resultOfTally({ first: 12, ok: 12, fin: 5, finOk: 5 }, 'c06-diviser-deux')} />,
     );
     expect(v.btn('Voir la fiche mémo')).toBeNull();
   });

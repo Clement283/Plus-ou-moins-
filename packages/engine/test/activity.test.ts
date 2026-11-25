@@ -36,6 +36,7 @@ const IDS = getModule('calculs').courseIds;
 const C0 = IDS[0]!;
 const C1 = IDS[1]!;
 const C5 = 'c05-multiplier-deux';
+const C6 = 'c06-diviser-deux';
 const DAY = '2026-03-02';
 
 const ok: Outcome = { correct: true, unfinished: false, errorType: null, errorFamily: null, given: 'g', expected: 'e' };
@@ -552,7 +553,8 @@ describe('révision', () => {
 
 describe('entraînement : séries de 10 (doc 03 §5)', () => {
   it('« tout mélangé » : 10 questions sur les cours validés, tous types possibles, niveaux 1 à 3', () => {
-    const { state } = validatedState([C0, C1, C5]);
+    // le Cours 6 (sans formats propres) : tous les types communs ; le Cours 5 v2 n'entraîne que sur ses formats
+    const { state } = validatedState([C0, C1, C6]);
     const seenKinds = new Set<QuestionKind>();
     const seenCourses = new Set<string>();
     for (let seed = 0; seed < 30; seed++) {
@@ -562,7 +564,7 @@ describe('entraînement : séries de 10 (doc 03 §5)', () => {
       expect(new Set(items.map((x) => x.itemId)).size).toBe(10);
       for (const x of items) {
         expect(x.activity).toBe('entrainement');
-        expect([C0, C1, C5]).toContain(x.courseId);
+        expect([C0, C1, C6]).toContain(x.courseId);
         expect(availableKinds(getCourse(x.courseId))).toContain(x.question.kind);
         const level = 'ex' in x.question ? x.question.ex.level : x.question.exs[0]!.level;
         expect([1, 2, 3]).toContain(level);

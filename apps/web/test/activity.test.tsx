@@ -237,7 +237,7 @@ describe('ActivityScreen', () => {
   });
 
   it('une partie de leçon avec titre et sous-titre (doc 09) : le titre de l\'écran remplace celui du cours', () => {
-    const part = C05.parts.find((p) => p.type === 'explication')!;
+    const part = getCourse('c06-diviser-deux').parts.find((p) => p.type === 'explication')!; // le Cours 5 v2 n'a plus d'écran « explication »
     const item: ActivityItem = { type: 'explication', itemId: 'partie-0', courseId: C05.id, partIndex: 0, blocks: (part as any).blocks, texts: { title: 'Deux signes pareils donnent +', subtitle: 'Deux signes différents donnent −.' } };
     const t = setup([item, qItem(0, 3, 4)], {}, 'cours');
     expect(t.$('h1')!.textContent).toBe('Deux signes pareils donnent +');
@@ -246,7 +246,7 @@ describe('ActivityScreen', () => {
 
   it('une partie de leçon : titre du cours, « Suivant », lesson_part_done avec la durée', () => {
     vi.useFakeTimers();
-    const part = C05.parts.find((p) => p.type === 'explication')!;
+    const part = getCourse('c06-diviser-deux').parts.find((p) => p.type === 'explication')!; // le Cours 5 v2 n'a plus d'écran « explication »
     const item: ActivityItem = { type: 'explication', itemId: 'partie-0', courseId: C05.id, partIndex: 0, blocks: (part as any).blocks };
     const t = setup([item, qItem(0, 3, 4)], {}, 'cours');
     expect(t.$('h1')!.textContent).toBe(C05.title);
