@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { DAILY_GOAL_MS, getCourse, type Dashboard as Dash, type DayPoint } from '@pom/engine';
 import { Acc, ErrItem, OfflineAlert, errorLabel, listOrders, lowerFirst, plural, upperFirst, longDate, weekdayLetter, when } from '../components/FollowBits';
-import { toHash } from '../router';
+import { go, toHash } from '../router';
+import { useSession } from '../store/progress';
+import { setTestMode } from '../store/testMode';
 import { useCurrentStudent, useStudentDashboard, useStudentQuestions, useStudents, type Student } from '../store/follow';
 import { Icon } from '../ui/Icon';
 import { Sheet } from '../ui/Sheet';
@@ -320,6 +322,7 @@ export default function Dashboard() {
   const students = useStudents();
   const { student, choose } = useCurrentStudent(students.data);
   const { dash, today } = useStudentDashboard(student?.id);
+  const apercu = !!useSession()?.user.apercu;
   useEffect(() => {
     document.title = 'Suivi';
   }, []);
@@ -349,6 +352,19 @@ export default function Dashboard() {
           Lecture seule
         </span>
       </header>
+
+      {apercu && (
+        <button
+          className="btn btn--outlined btn--block"
+          type="button"
+          onClick={() => {
+            setTestMode(true);
+            go({ name: 'accueil' });
+          }}
+        >
+          Tester les cours
+        </button>
+      )}
 
       <Calendar days={dash.home.last28.days} goalDays={dash.home.last28.goalDays} today={today} />
 

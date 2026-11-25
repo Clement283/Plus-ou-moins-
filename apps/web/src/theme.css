@@ -940,3 +940,7 @@ body{font-family:var(--font-body);-webkit-font-smoothing:antialiased}
 /* Numéro de version (accueil, connexion) */
 .app-version{color:var(--subtle);margin:calc(-1 * var(--sp-8)) 0 0}
 .app-body > .app-version:last-child{text-align:center;margin:var(--sp-8) 0 0}
+
+/* Mode « Tester les cours » d'un suiveur aperçu */
+.test-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8);padding:var(--sp-4) var(--layout-gutter);background:var(--surface-sunken);font:500 15px/1.4 var(--font-body);color:var(--on-surface)}
+.test-bar .btn{white-space:nowrap}

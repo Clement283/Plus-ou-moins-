@@ -63,22 +63,44 @@ function init(): Promise<void> {
   return started;
 }
 
+/** Événements du compte connecté, hors React (tests). */
+export const currentEvents = (): AppEvent[] => snap.events;
+
 /** Remet le magasin à zéro (tests). */
 export function resetStore(): void {
   seq++;
   resetQuestions();
   started = null;
   remoteRun = null;
+  seed = null;
+  volatile = [];
   snap = INITIAL;
   listeners.forEach((l) => l());
 }
 
 /** Relit les événements du compte connecté dans IndexedDB et recalcule la progression. Le dernier appel démarré gagne. */
+// --- mode « Tester les cours » ---------------------------------------------
+// Un suiveur qui teste les cours : ses réponses restent en mémoire le temps du cours, jamais écrites sur le téléphone
+// ni envoyées au serveur, et sont effacées quand il ferme le cours (clearTestEvents).
+let volatile: AppEvent[] = [];
+const isTester = (s: Session | null | undefined): boolean => s?.user.role === 'suiveur';
+
+/** Efface les réponses du mode test (retour à l'accueil ou à « Mes cours »). */
+export function clearTestEvents(): void {
+  if (volatile.length === 0) return;
+  volatile = [];
+  if (isTester(snap.session)) set({ events: [], progress: EMPTY_PROGRESS });
+}
+
 async function loadLocal(): Promise<void> {
   const my = ++seq;
   const session = snap.session;
   if (!session) {
     set({ events: [], progress: EMPTY_PROGRESS, ready: true });
+    return;
+  }
+  if (isTester(session)) {
+    set({ events: volatile, progress: volatile.length ? foldProgress(volatile) : EMPTY_PROGRESS, ready: true });
     return;
   }
   const uid = session.user.id;
@@ -174,6 +196,11 @@ export async function recordEvent(e: NewEvent): Promise<AppEvent> {
   if (!session) throw new Error('recordEvent: pas de session');
   const at = Date.now();
   const event = { ...e, id: crypto.randomUUID(), userId: session.user.id, at, day: parisDay(at) } as AppEvent;
+  if (isTester(session)) {
+    volatile = [...volatile, event];
+    await loadLocal();
+    return event;
+  }
   const db = await getDb();
   const tx = db.transaction(['events', 'outbox'], 'readwrite');
   await Promise.all([tx.objectStore('events').put(event), tx.objectStore('outbox').put(event), tx.done]);

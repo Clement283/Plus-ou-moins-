@@ -71,6 +71,8 @@ function ensureLoaded(): void {
 export async function askClement(input: Omit<NewClementQuestion, 'id' | 'askedAt'>): Promise<string> {
   const session = await currentSession();
   if (!session) throw new Error('askClement: pas de session');
+  // Mode « Tester les cours » (compte suiveur) : rien n'est enregistré ni envoyé.
+  if (session.user.role === 'suiveur') return crypto.randomUUID();
   const ask: PendingAsk = { ...input, id: crypto.randomUUID(), askedAt: Date.now(), userId: session.user.id };
   await (await getDb()).put('asks', ask);
   if (snap.uid === ask.userId) set({ ...snap, pending: [...snap.pending, ask] });

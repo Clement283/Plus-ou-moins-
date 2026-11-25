@@ -3,7 +3,8 @@ import { warmupDue } from '@pom/engine';
 import { IconSprite } from './ui/icons';
 import { go, useRoute } from './router';
 import { useProgress, useReady, useSession, useToday } from './store/progress';
-import { useEvents } from './store/sync';
+import { clearTestEvents, useEvents } from './store/sync';
+import { setTestMode, useTestMode } from './store/testMode';
 import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
 import DashModule from './screens/DashModule';
@@ -96,12 +97,41 @@ function FollowerRoutes() {
   return <Dashboard />;
 }
 
+/** Un suiveur « aperçu » en mode test : l'appli de l'élève, avec un bandeau pour revenir au suivi. */
+function TestRoutes() {
+  const route = useRoute();
+  // Fermer le cours ramène à l'accueil ou à « Mes cours » : les réponses du test sont effacées.
+  useEffect(() => {
+    if (route.name === 'accueil' || route.name === 'cours') clearTestEvents();
+  }, [route.name]);
+  return (
+    <>
+      <div className="test-bar" role="status">
+        <span>Mode test</span>
+        <button
+          className="btn btn--text"
+          type="button"
+          onClick={() => {
+            setTestMode(false);
+            clearTestEvents();
+            go({ name: 'suivi' });
+          }}
+        >
+          Retour au suivi
+        </button>
+      </div>
+      <StudentRoutes />
+    </>
+  );
+}
+
 export default function App() {
   const session = useSession();
+  const testing = useTestMode();
   return (
     <>
       <IconSprite />
-      {session === undefined ? null : session === null ? <Login /> : session.user.role === 'suiveur' ? <FollowerRoutes /> : <StudentRoutes />}
+      {session === undefined ? null : session === null ? <Login /> : session.user.role === 'suiveur' ? session.user.apercu && testing ? <TestRoutes /> : <FollowerRoutes /> : <StudentRoutes />}
     </>
   );
 }
