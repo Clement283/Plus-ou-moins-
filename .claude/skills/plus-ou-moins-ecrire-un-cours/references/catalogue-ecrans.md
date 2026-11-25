@@ -11,9 +11,9 @@ Tous les helpers s'importent de `./shared`. Toujours `M` (−) dans les textes, 
 | Accroche + question pour deviner | `texted(decouverte(choix(ex, consigne, options3([libellé, message]…), indiceJuste, calcLatex)), { title, intro: [phrases], mention: NOT_COUNTED_GUESS })` | ne compte pas, ne repasse pas |
 | Explication pas à pas | `etapes(titre, [step(phrase, { scene, after, action, rule })…])` | 3 étapes (5 au plus) ; la dernière : `step(undefined, { scene, rule: { n, text } })` |
 | Petite question (comptée) | `lecon(small(ex, calcLatex, consigne, [[libellé, message]…], indiceJuste))` | 2 sur un écran : `texted(lecon(…), { joinPrevious: true })` |
-| Comparer deux cas | `texted(decouverte(choix(…)), { title, intro, mention: NOT_COUNTED_UNDERSTAND, compare: { a, b, note, highlight, after } })` | B vient du cours précédent |
+| Comparer deux cas | `texted(decouverte(choix(…)), { title, intro, mention: NOT_COUNTED_UNDERSTAND, compare: { a, b, note, highlight, after } })` | B d'un cours précédent si utile, sinon un 2e cas de ce cours |
 | Autres façons de faire | `autres({ title, recap, intro, techniques: [{ name, quand, example, how, essai }], outro })` | `essai.kind` : `'saisie'` (valeurs → message) ou `'choix'` |
-| Série de pratique | `pratique(titre, [{ question, texts: { consigne, intro, above } } ×4], phraseDeTransition)` | notée ; une question du cours précédent |
+| Série de pratique | `pratique(titre, [{ question, texts: { consigne, intro, above } } ×4], phraseDeTransition)` | notée ; une question d'un cours précédent si utile |
 | Exemple guidé | `etapes('Exemple 1 sur 2', …)` puis `texted(exemple(trou(ex, '= \\square', valeurCachée)), { consigne, above: [lignes LaTeX], help })` | aide qui s'efface : exemple 1 presque résolu, exemple 2 : 2 cases |
 | Annonce de la fin | `annonceFin()` | texte fixe, jamais réécrit |
 

@@ -82,7 +82,7 @@ const exemple1: EtapeStep[] = [
   step('À ÉCRIRE : on écrit d’abord …', { scene: linesScene(['À ÉCRIRE : calcul de départ'], [hl('= À ÉCRIRE')]), action: { type: 'comprends' } }),
 ];
 
-// Pratique : 4 questions, l'aide diminue et les formats changent ; UNE vient du cours précédent (ou du module précédent pour le 1er cours d'un module)
+// Pratique : 4 questions, l'aide diminue et les formats changent ; UNE peut venir d'un cours précédent, seulement si un lien existe (sinon la remplacer par une question de ce cours)
 const PRATIQUE = pratique('Cours N · Pratique', [
   { question: trou(ex1(-6, -7), '= \\square', 42), texts: { consigne: 'Le signe est déjà trouvé. **Tape le résultat dans la case.**', above: ['= +(6 \\times 7)'] } },
   { question: signBox(ex1(-6, 7), false, 'regle-signes'), texts: { consigne: "Touche le signe du résultat. Tu n'as pas besoin de calculer.", intro: ['Quel est le signe du résultat ?'] } },
@@ -95,7 +95,7 @@ const parts: LessonPart[] = [
   etapes('À ÉCRIRE : L’idée de départ', idee), // ← partIndex 1 = règle 1 ; ajouter une `etapes` par règle suivante
   lecon(small(ex1(-4, -5), '-4 \\times (-5)', 'À ÉCRIRE : question ?', [['À ÉCRIRE : bonne réponse', 'pourquoi'], ['piège 1', 'pourquoi'], ['piège 2', 'pourquoi']], 0)),
   texted(lecon(small(ex1(6, -3), '6 \\times (-3)', 'À ÉCRIRE : question ?', [['À ÉCRIRE : bonne réponse', 'pourquoi'], ['piège 1', 'pourquoi'], ['piège 2', 'pourquoi']], 0)), { joinPrevious: true }),
-  // Comparer deux cas : A de ce cours, B du cours précédent
+  // Comparer deux cas : A de ce cours, B d'un cours précédent qui se confond avec lui (sinon deux cas de ce cours ; adapter `note`)
   texted(decouverte(choix(ex1(-12, 4), 'Quel est le résultat de chaque calcul ?', options3(['A …, B …', 'pourquoi'], ['A …, B …', 'pourquoi'], ['Les deux …', 'pourquoi']), 0)), {
     title: 'Comparer deux cas',
     intro: ["Voici deux calculs qui se ressemblent. Regarde bien l'opération."],

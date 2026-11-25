@@ -44,7 +44,7 @@ Une par cours, au format de `references/modele-fiche.md`, écrites **après vali
 ## Reprises entre cours
 
 - **Reprise naturelle** : un cours contient souvent les méthodes d'avant ; le noter.
-- **Comparer deux cas** et **série de pratique** : un cas et **une des 4 questions** viennent d'un cours précédent. Le 1er cours d'un module les prend dans le **module précédent** selon `docs/modules.md` ; les autres, dans le cours précédent du module.
+- **Comparer deux cas** et **série de pratique** : **quand c'est utile**, un cas et une des 4 questions viennent d'un cours précédent (deux méthodes qui se confondent, une règle à reconnaître). Si deux cours n'ont aucun lien, on n'en force pas : le dire dans la fiche. Le 1er cours d'un module peut chercher son lien dans le module précédent (`docs/modules.md`).
 - Pas d'écran de rappel des cours précédents.
 - **Jamais de calculs d'anciens cours dans les 5 exercices de fin** : le mélange va dans la série de pratique, les révisions et l'entraînement.
 

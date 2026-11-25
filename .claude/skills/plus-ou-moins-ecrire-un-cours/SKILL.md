@@ -16,7 +16,7 @@ Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, sc�
 1. **La fiche du cours** (`docs/fiches/cNN-nom.md`, chemin donné dans la demande). Elle contient règles, erreurs, techniques, reprises, niveaux.
 2. `references/catalogue-ecrans.md` : tous les écrans, scènes, actions, questions, signatures.
 3. `references/gabarit-cours.ts.txt` : le cours type, déjà à la bonne forme.
-4. Si elle existe, la section « Points importants » de la **fiche du cours précédent** (ce qui a déjà été enseigné, pour les reprises).
+4. **`docs/points-importants.md` en entier** (tous les cours déjà écrits), en se concentrant sur les cours du **même module** : ce qui est enseigné, les pièges, les choix pris. Les cours d'un module se complètent (un point faible du cours 1 peut être repris au cours 3) : lire l'ensemble, repérer ce qu'on peut reprendre, éviter les répétitions, et poser des questions sur l'ensemble si une fiche les contredit ou les ignore.
 
 **Ne pas ouvrir** : docs 06, 08, 10, maquettes, snapshots, `types.ts`, `shared.ts`, cours précédents, autres skills. Un doute précis se règle par un `grep` ciblé, jamais par une lecture entière. Si la fiche manque ou contredit le catalogue, le dire au lieu de deviner.
 
@@ -27,9 +27,9 @@ Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, sc�
 1. **Accroche** (2 ou 3 phrases) + question pour deviner (`decouverte`, ne compte pas).
 2. **Idée de départ** : le *pourquoi* avant toute règle, avec au moins une action.
 3. **Par règle** : explication pas à pas (3 étapes de préférence, 5 au plus ; une action ; la dernière pose l'encadré) + 1 ou 2 petites questions comptées (`small`, `joinPrevious`). Une règle à deux gestes ne se coupe que si chacun correspond à une erreur reconnue.
-4. **Comparer deux cas** : A de ce cours, B du cours précédent (du module précédent pour le 1er cours d'un module ; rien pour le tout premier cours).
+4. **Comparer deux cas** : A de ce cours, B d'un cours précédent **quand un cours d'avant se confond facilement avec celui-ci** ; sinon deux cas de ce cours. On ne force jamais un lien qui n'existe pas.
 5. **Autres façons de faire** : 2 ou 3 techniques de la fiche, un exemple chiffré chacune, essai libre non noté. La technique principale va dans la fiche mémo ; l'élève choisit sa technique, seul le résultat est corrigé.
-6. **Série de pratique** : 4 questions, l'aide diminue et les formats changent ; **une** vient du cours précédent (entraînement intercalé).
+6. **Série de pratique** : 4 questions, l'aide diminue et les formats changent. **Quand c'est utile**, une question vient d'un cours précédent (entraînement intercalé : l'élève apprend à reconnaître quelle règle s'applique) ; si les cours n'ont aucun lien, ne pas en mettre.
 7. **Deux exemples guidés** : l'aide s'efface (1er presque résolu, 2e : 2 cases), calcul de départ toujours affiché.
 8. **Annonce de la fin** (`annonceFin()`, texte fixe) puis **5 exercices de fin**, générés, sans aide, niveau 1, **uniquement la méthode de ce cours** (jamais de calculs d'anciens cours).
 9. **Fiche mémo** : règle, 1 ou 2 exemples, l'erreur à éviter, technique principale.
