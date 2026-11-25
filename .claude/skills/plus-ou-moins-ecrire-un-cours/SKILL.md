@@ -56,6 +56,10 @@ Une action remplace « Suite » : erreur → message court, elle réessaie, rien
 | Tolérance | Dans le cours qui enseigne une règle, aucune erreur sur cette règle n'est tolérée. |
 | Fin ratée | Dit **quoi** a manqué et **quoi relire** : `ErrorDef.rule` rempli pour chaque erreur reconnue. |
 | Déjà codé | Repassage des questions ratées, sons, notation : ne rien réinventer. |
+| Écriture des calculs | Un nombre négatif est entre parenthèses, sauf s'il est le premier terme : −3 + (−5), 4 × (−7). |
+| Niveaux | Propres à chaque cours : même méthode, plus difficile (nombres plus grands, plus de termes…). Le cours dit ce qui change. |
+| Calcul-piège | Un par erreur reconnue, **sans sortir des nombres du niveau**. |
+| Réponse hors liste | Classée « autre », avec l'explication générale du cours. Deux erreurs possibles : la première de la liste gagne. Les erreurs d'écriture (moins après le nombre, double signe…) sont vérifiées avant. |
 
 À ne pas faire : un écran sans phrase ; un exemple guidé sans le calcul de départ ; un calcul découpé en boutons ; un cours de 21 écrans où elle lit plus qu'elle ne fait ; une phrase à deux trous.
 
