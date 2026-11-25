@@ -112,9 +112,10 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - À reprendre : `e2e/shots.ts` (parcours `courseTo`) suit encore l'ancien Cours 4 ; test `store.test.tsx` parfois instable sous charge.
 - Ensuite : Cours 6 et 7 en mode autonome, puis modules B, C, D.
 
-## Cours 6 v2 (2026-11-25) — en ligne
+## Cours 6 v2 (2026-11-25) — poussé sur main, PAS encore en ligne
 - Cours 6 « Diviser deux relatifs » codé en mode autonome (un assistant Sonnet, `unePhrase: true`), fiche courte dans le doc 06. 14 parties, 12 écrans pour apprendre, note de 13 questions ; série de pratique avec une question du Cours 5 (−9 × 3).
 - Textes vérifiés par instantané (`test/courses/__snapshots__/c06.test.ts.snap`), pas de fichier c06-texts.
 - Choix sans document : voir la fiche (3 règles dont `regle-signes` à 4 messages, quotient du niveau 1 de 2 à 9, pas de 0 ÷ n, pas de formats de révision propres).
 - Tests : moteur 949, api 35, web 432, scripts 7.
 - Ensuite : Cours 7 en mode autonome, puis modules B, C, D. Toujours à reprendre : `e2e/shots.ts`, `store.test.tsx` instable sous charge.
+- Mise en ligne bloquée : le réseau de la session refuse api.cloudflare.com (aucun jeton enregistré, demande refusée). À refaire : `npm run deploy` puis `cd apps/api && CLOUDFLARE_API_TOKEN=x CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npx wrangler deploy`, une fois le domaine autorisé.
