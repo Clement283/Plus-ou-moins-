@@ -28,7 +28,7 @@ export default function EssaiLecon() {
       {part.type === 'explication' ? (
         <LessonPartScreen key={`${course.id}-${index}`} part={part} onNext={() => undefined} header={header} title={course.title} />
       ) : part.type === 'etapes' ? (
-        <Etapes key={`${course.id}-${index}`} title={part.title} steps={part.steps} onDone={() => undefined} header={header} />
+        <Etapes key={`${course.id}-${index}`} title={part.title} steps={part.steps} keep={course.unePhrase ? 1 : 2} onDone={() => undefined} header={header} />
       ) : part.type === 'autres' ? (
         <AutresFacons key={`${course.id}-${index}`} screen={part} onDone={() => undefined} header={header} />
       ) : part.type === 'pratique' ? (

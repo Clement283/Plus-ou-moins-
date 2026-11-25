@@ -144,7 +144,7 @@ function StepBody({ step }: { step: EtapeStep }) {
  * s'empilent dessous (les anciennes en gris), « Suite » montre l'étape suivante puis devient « Suivant ». « Revoir »
  * rejoue l'animation de l'étape affichée (remontage par `key`).
  */
-export function Etapes({ title, steps, onDone, header }: { title: string; steps: EtapeStep[]; onDone: () => void; header?: ReactNode }) {
+export function Etapes({ title, steps, onDone, header, keep = 2 }: { title: string; steps: EtapeStep[]; onDone: () => void; header?: ReactNode; /** Phrases laissées visibles (1 : « une phrase à la fois », `CourseDef.unePhrase`). */ keep?: 1 | 2 }) {
   const [k, setK] = useState(1);
   const [replay, setReplay] = useState(0);
   const [solved, setSolved] = useState<number[]>([]);
@@ -168,8 +168,8 @@ export function Etapes({ title, steps, onDone, header }: { title: string; steps:
   // la phrase de l'étape : celle du trou ouvert, le texte rempli une fois résolu ; les actions de toucher cachent le texte jusqu'au bon geste
   const hasSentence = (s: EtapeStep, i: number) => (s.action?.type === 'trou' && !solved.includes(i) ? true : !!s.text && (!s.action || s.action.type === 'comprends' || s.action.type === 'trou' || solved.includes(i)));
   const sentenceIdx = shown.map((s, i) => (hasSentence(s, i) ? i : -1)).filter((i) => i >= 0);
-  const foldedIdx = new Set(expanded ? [] : sentenceIdx.slice(0, Math.max(0, sentenceIdx.length - 2)));
-  const canFold = sentenceIdx.length > 2;
+  const foldedIdx = new Set(expanded ? [] : sentenceIdx.slice(0, Math.max(0, sentenceIdx.length - keep)));
+  const canFold = sentenceIdx.length > keep;
   const newest = useRef<HTMLDivElement>(null);
   // la phrase qui vient d'apparaître reste visible, même quand les phrases empilées dépassent l'écran
   useEffect(() => {

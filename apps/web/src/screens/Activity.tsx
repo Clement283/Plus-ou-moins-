@@ -287,6 +287,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
           key={shown}
           title={step.item.texts?.title ?? course.title}
           steps={step.item.steps}
+          keep={course.unePhrase ? 1 : 2}
           header={<span className="chip chip--module">{chip(step, pos)}</span>}
           onDone={onLessonNext}
         />,

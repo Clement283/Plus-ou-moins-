@@ -255,6 +255,11 @@ export interface CourseDef {
   parts: LessonPart[];
   /** Nombre de parties « Leçon » au début de `parts` (le reste : à toi, exemples guidés, annonce). */
   lessonLength?: number;
+  /**
+   * Explications pas à pas : une seule phrase affichée à la fois (« Suite » la remplace, les précédentes sont derrière
+   * « Relire le début ») ; sinon les 2 dernières. Décision du 2026-11-25 : pour les cours écrits à partir de cette date.
+   */
+  unePhrase?: boolean;
   /** 'erreur' = the Cours 0 exception. */
   endExercises: { count: 5; kind: 'saisie' | 'trou' | 'erreur' };
   generate(level: Level, rng: Rng): Exercise;

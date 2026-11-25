@@ -46,7 +46,10 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 
 - **La phrase à trous remplace une phrase de l'explication, elle ne s'ajoute pas.** Un seul trou à la fois ; les choix se lisent dans la phrase (« Un bond de −3 va vers la [gauche | droite]. »), jamais des valeurs sans contexte.
 - **Ce qui se touche doit se voir** : sur une scène touchable (droite graduée…), pastilles rondes visibles qui « respirent », consigne écrite juste au-dessus (« Touche la droite à l'endroit où l'on arrive. »), petite main animée la première fois, cibles d'au moins 44 px, rien de coupé.
-- **Peu de texte à l'écran** : seules les 2 dernières phrases d'une explication restent affichées ; les précédentes se replient derrière « Relire le début ». Phrases courtes.
+- **Une phrase à la fois** (décidé le 2026-11-25, pour les cours écrits à partir de cette date ; les Cours 0 à 5 gardent 2 phrases) : mettre `unePhrase: true` dans le `CourseDef`. « Suite » **remplace** la phrase au lieu d'en ajouter une ; les précédentes sont derrière « Relire le début ». Conséquences pour l'écriture :
+  - **la scène porte la continuité** : c'est elle qui change à chaque étape, pas le texte ; chaque phrase doit se comprendre seule, sans « comme on l'a vu juste au-dessus » ;
+  - **ce dont la phrase parle est surligné dans la scène** (`hl`) à cette étape-là, pour que l'œil sache où regarder ;
+  - **3 étapes par explication** de préférence (5 au plus), phrases courtes, une action dès que possible plutôt qu'une lecture de plus.
 
 | Action | Exemple |
 |---|---|
@@ -81,13 +84,15 @@ Une étape interactive remplace « Suite » par une action en bas de l'écran. U
 
 **Mode autonome, par défaut** : un cours d'un module dont la méthode est déjà fixée (module Relatifs à partir du Cours 5, et tout cours dont les écrans existent déjà dans l'appli).
 - **Pas de maquette, pas de spec longue, pas de capture d'écran.**
-- **Un seul assistant par cours**, qui écrit le code directement. Il lit seulement :
+- **Un seul assistant par cours, lancé avec le modèle Sonnet** (`model: "sonnet"`, décidé le 2026-11-25 : environ deux fois moins coûteux ; Haiku écarté, trop peu fiable pour écrire un cours). Il écrit le code directement. Il lit seulement :
   - ce skill ;
   - l'entrée du cours dans le plan du module (règle, astuces, reprises, erreurs) ;
   - le code du cours précédent du module comme modèle (par exemple `c03-*.ts`, `c04-*.ts`) et ses tests.
   - Il n'ouvre les docs 06, 08 et 10 en entier, ainsi que les maquettes, qu'en cas de doute précis.
 - Il écrit dans le doc 06 une **fiche courte d'environ 15 lignes** : la règle, les écrans en une ligne chacun, la note du cours, les niveaux et les choix faits. Le porteur du projet la lit s'il le souhaite ; elle ne bloque pas.
-- **Vérification sans images** : les tests (textes, messages d'erreur, générateur sur 500 tirages), plus un test qui vérifie qu'aucun calcul du cours ne dépasse la largeur du téléphone.
+- **Vérification sans images** : messages d'erreur (un test par message), indices des parties, `lessonStep`, générateur sur 500 tirages, et la largeur du téléphone (aide `apps/web/test/phoneWidth.ts`).
+  - **Les textes sont vérifiés par un instantané** (`toMatchSnapshot` / `toMatchInlineSnapshot` de Vitest), **pas recopiés à la main** dans un fichier `cXX-texts.test.ts` : le cours n'est écrit qu'une fois.
+  - **Pendant le travail, lancer seulement les tests du cours** (`npx vitest run <fichiers du cours>`), avec une sortie courte (`| tail -5`) ; **la suite complète (`npm test`) une seule fois à la fin**, en ne lisant que le résumé.
 - **Mise en ligne par lot de cours.** Le porteur du projet teste sur son téléphone et fait ses retours ; on corrige ensuite.
 - Enchaîner les cours **l'un après l'autre**. Un assistant en parallèle ne fait pas consommer moins, il fait atteindre la limite plus vite.
 

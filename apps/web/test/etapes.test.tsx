@@ -12,9 +12,9 @@ const part = (i: number): Extract<(typeof C00.parts)[number], { type: 'etapes' }
   return p;
 };
 
-function setup(steps: EtapeStep[], title = 'Titre') {
+function setup(steps: EtapeStep[], title = 'Titre', keep: 1 | 2 = 2) {
   const onDone = vi.fn();
-  const view = render(<Etapes title={title} steps={steps} onDone={onDone} />);
+  const view = render(<Etapes title={title} steps={steps} onDone={onDone} keep={keep} />);
   const $ = (s: string) => view.container.querySelector<HTMLElement>(s);
   const $$ = (s: string) => [...view.container.querySelectorAll<HTMLElement>(s)];
   const btn = (label: string) => $$('button').find((b) => b.textContent === label) ?? null;
@@ -252,6 +252,20 @@ describe('Etapes : actions interactives', () => {
     expect(visible()).toEqual(['A.', 'B.', 'C.', 'D.']);
     fireEvent.click(t.btn('Replier le début')!);
     expect(visible()).toEqual(['C.', 'D.']);
+  });
+  it('une phrase à la fois (keep = 1) : « Suite » remplace la phrase, les autres sont derrière « Relire le début »', () => {
+    const steps: EtapeStep[] = ['A.', 'B.', 'C.'].map((text) => ({ text }));
+    steps[0]!.scene = { layout: 'one', calcs: [{ tokens: tk('1') }] };
+    const t = setup(steps, 'Titre', 1);
+    const visible = () => t.$$('.etape').filter((e) => !e.hidden).map((e) => e.textContent);
+    expect(visible()).toEqual(['A.']);
+    expect(t.btn('Relire le début')).toBeNull();
+    fireEvent.click(t.btn('Suite')!);
+    expect(visible()).toEqual(['B.']);
+    fireEvent.click(t.btn('Suite')!);
+    expect(visible()).toEqual(['C.']);
+    fireEvent.click(t.btn('Relire le début')!);
+    expect(visible()).toEqual(['A.', 'B.', 'C.']);
   });
 });
 
