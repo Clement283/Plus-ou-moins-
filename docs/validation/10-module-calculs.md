@@ -105,6 +105,7 @@ Légende de chaque fiche : **Règle** (une phrase) · **Idée de départ** (le p
     3. **Commencer par le positif** *(écran « Autres façons de faire »)* — *Quand :* quand le calcul commence par un négatif. *Exemple :* −7 + 2 = 2 + (−7) = 2 − 7 : on lit « 2 moins 7 » (commutativité). *Piège évité :* partir d'un négatif et se perdre sur la droite.
     4. **Le signe du résultat se devine** *(écran « Autres façons de faire »)* — *Quand :* pour vérifier. *Exemple :* le résultat a le signe du nombre le plus loin de 0 : −7 + 2 est négatif.
     *Placement :* fiche mémo = n°1 ; étape(s) de la leçon = n°2 ; écran « Autres façons de faire » = n°3, 4.
+    *Cours 2 v2 (2026-11-25, maquette validée) :* le n°2 se réduit au cas des deux opposés (−6 + 6 = 0), étape de la règle 2 ; la décomposition −7 + 9 = −7 + 7 + 2 n'est plus dans la leçon. Le rappel des règles est en haut de l'écran « Autres façons de faire ».
 - **Cours 3** :
   - **Astuces et techniques** (4 entrées ; l'élève choisit la sienne) :
     1. **Regrouper les positifs, puis les négatifs** *(fiche mémo : la principale)* — *Quand :* plus de deux nombres, signes mélangés. *Exemple :* 5 + (−8) + 3 + (−2) = (5 + 3) + (−8 − 2) = 8 + (−10) = −2 ; on peut réécrire l'addition dans l'ordre qu'on veut (ou d'abord les négatifs, puis les positifs), chaque nombre garde son signe. *Piège évité :* perdre un signe en déplaçant un nombre.

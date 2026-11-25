@@ -1,6 +1,6 @@
 # 06 — Module 1 « Calculs » : contenu des cours de l'étape 1
 
-*Statut : Validé (2026-11-22) — version 4 ; Cours 0 version 3 et mises à jour du Cours 1 v2 du 2026-11-25*
+*Statut : Validé (2026-11-22) — version 4 ; Cours 0 version 3 et mises à jour du Cours 1 v2 du 2026-11-25 ; Cours 2 version 2 du 2026-11-25*
 
 ## Les modules
 
@@ -426,36 +426,168 @@ Questions qui comptent :
 
 ## Cours 2 — Additionner deux nombres de signes contraires
 
+*Version 2 (2026-11-25), remplace la version 1. Maquette : `docs/design/ecrans/cours-2-v2.html`, **validée par le porteur du projet avec deux fusions** : l'écran « Revenir à 0 » est supprimé (son contenu, −6 + 6 = 0, devient une étape de l'écran « Règle 2 ») et l'écran récapitulatif « Les 2 règles » est fusionné dans « Autres façons de faire » (les règles en haut, puis les techniques). La maquette a donc 17 écrans (8 de leçon, 1 de pratique, 2 exemples guidés, l'annonce, 2 modèles d'exercice de fin, le résultat, « Mes cours » et la fiche ; elle en avait 19 avant les deux fusions). Pour chaque point « À décider » de la maquette, la proposition est retenue. Ce cours suit le Cours 0 v3, le Cours 1 v2 et les décisions du doc 08 n° 20 à 50 (n° 45, 48, 49 et 46 : série notée, case résultat seule à l'exemple 2, question ratée de la série qui repasse, fiche mémo avant validation).*
+
 **La règle :** *Signes contraires : je soustrais le plus petit (sans signe) du plus grand (sans signe), et je prends le signe du plus grand.*
 
-**Mini-leçon**
-1. **Explication, avec une image.** « Tu dois 3 € et tu gagnes 5 €. Il te reste 2 €. » Droite graduée : départ de −3, bond de +5, arrivée à 2. Le calcul s'écrit −3 + 5 = 2.
-2. **Explication de la règle.**
-   - −3 + 5 → signes contraires → 5 − 3 = 2 → 5 est le plus grand, il est positif → **2**
-   - 4 + (−9) → signes contraires → 9 − 4 = 5 → 9 est le plus grand, il est négatif → **−5**
-   - −6 + 6 → **0** (deux opposés s'annulent)
-3. **Étiquettes à ordonner** pour 4 + (−9) : `Signes contraires` · `9 − 4 = 5` · `9 est le plus grand : signe −` · `Résultat : −5`
-4. **Réponse à écrire :** −7 + 2 = ? (réponse : −5)
-5. **Relier les paires :** −3 + 5 ↔ 2 · 4 + (−9) ↔ −5 · −6 + 6 ↔ 0 · 7 + (−2) ↔ 5
+**L'idée de départ :** une dette de 7 € est un bond de 7 graduations vers la gauche ; rendre 2 € est un bond de 2 vers la droite, **dans le sens contraire**, qui n'en défait qu'une partie. Le **plus long bond décide** du côté où l'on arrive : on soustrait les longueurs, et on prend le signe du plus long.
 
-**Exemples guidés**
-- −8 + 3 : 8 − 3 = ▢, le plus grand est 8, donc le résultat est ▢ → 5, puis −5
-- 9 + (−4) : 9 − 4 = ▢, le plus grand est 9, donc le résultat est ▢ → 5, puis 5
+**Les règles enseignées** (la règle du doc 06 v1 est coupée en deux, chacune correspond à une erreur reconnue)
+1. **Je soustrais les nombres sans leur signe.** −7 + 2 : 7 − 2 = 5. *(erreur reconnue `addition-au-lieu-soustraction`)*
+2. **Le plus grand (sans signe) décide du signe.** −7 + 2 = −5 (7 est le plus grand, il est négatif) ; 3 + (−8) = −5. *(erreur reconnue `signe-du-mauvais-nombre`)* Le cas des deux opposés (−6 + 6 = 0) n'est pas une règle numérotée : c'est une étape de l'écran de la règle 2, et une ligne du rappel des règles.
 
-**Générateur**
+**Astuces et techniques du plan** (doc 10, « Cours 2 ») : n° 1 « Le plus grand sans le signe gagne » = règle 2 et fiche mémo (la principale) ; n° 2 « Décomposer jusqu'à 0 » = le cas des deux opposés, étape de la règle 2 (**la décomposition de −7 + 9 = −7 + 7 + 2 de la maquette précédente n'y est plus** : le porteur du projet a retenu seulement −6 + 6 = 0) ; n° 3 « Commencer par le positif » et n° 4 « Le signe du résultat se devine » = écran « Autres façons de faire », une carte chacune, essai libre non noté.
+
+**Déroulé (11 écrans pour apprendre : 8 de leçon, 1 de pratique, 2 exemples guidés — puis l'annonce, 2 modèles d'exercice de fin — les 5 exercices de fin sont générés —, le résultat, « Mes cours » et la fiche)**
+
+Types d'écrans : **explication pas à pas** (scène en haut, la droite graduée, qui se transforme à chaque « Suite » ; « Revoir cette étape » ; points « Étape N sur M » ; seules les **2 dernières phrases** restent affichées, les précédentes sont repliées derrière « Relire le début ») ; **étape interactive** (comme au Cours 1 : phrase à trous ou toucher la droite, message court puis « Essaie encore. », rien n'est noté) ; **question pour deviner / pour comprendre** (ne compte pas) ; **petites questions** (comptent, repassent) ; **« Autres façons de faire »** (nouvelle brique, voir plus bas) ; **série de pratique** ; **exemple guidé**. Jamais plus de 2 étapes de lecture d'affilée sans action. Couleurs (doc 08 n° 27) : négatifs **orange**, positifs **bleu**, surligneur jaune, **dans les explications seulement** ; droite **grise** pendant une question ; vert / rouge **après** la réponse. Deux bonds qui se superposent (le petit sous le grand, comme −7 puis +2) ont des **hauteurs d'arc différentes** : un arc qui en contient un autre est plus haut.
+
+*Leçon (8 écrans, pastille « Cours 2 · Leçon · étape N sur 8 »)*
+
+1. **Accroche + deviner.** Titre : « Additionner deux nombres de signes contraires ». « Quand tu additionnes un nombre **négatif** et un nombre **positif**, on dit qu'ils ont des **signes contraires**. » « Dans ce cours, tu vas apprendre à trouver le résultat, et surtout **son signe**, avec une image : **la droite graduée**. » Question pour deviner : « Pour commencer, à ton avis : tu dois 7 € à une amie, puis tu lui rends 2 €. Combien dois-tu encore ? » [5 €] [9 €] [2 €]. Attendu : 5 €. Mention : « Question pour découvrir : elle ne compte pas dans la note. » Retour si juste : « En rendant 2 €, ta dette diminue : il te reste 5 € à rendre. Le cours va t'expliquer comment l'écrire avec des nombres relatifs, et surtout comment trouver le signe. » Si faux : titre « Pas tout à fait, et c'est normal. » (voir tableau).
+2. **Un bond qui en défait un autre** (titre « Un bond qui en défait un autre », 3 étapes). Droite de −7 à 0 (8 graduations, la limite pour qu'elle reste touchable).
+   - Étape 1 : un bond de 7 graduations vers la gauche, légende « Une dette, c'est un nombre négatif », repères « départ » / « arrivée », calcul −7. « Tu dois **7 €** : un bond de 7 graduations vers la **gauche**. Tu es à −7. »
+   - Étape 2 (**interactive : toucher la droite**) : droite grise, calcul −7 + 2, consigne « Touche la droite à l'endroit où l'on arrive. » Attendu : −5. Au bon toucher, le bond de +2 se dessine : « Tu **rends 2 €** : c'est un bond de 2 graduations vers la **droite**, dans le sens **contraire** du premier. Tu arrives en −5 : tu dois encore **5 €**. »
+   - Étape 3 (**interactive : phrase à trous**) : « Le bond de +2 est plus [ ? ] que le bond de −7. » Choix : [court] [long]. Attendu : court. Phrase de suite : « Le bond de +2 est plus **court** que le bond de −7. Il ne défait qu'une partie de la dette : on reste du côté **négatif**. Le bond le **plus long décide**. »
+3. **Comparer deux cas.** Titre « Comparer deux cas ». « Voici deux calculs presque identiques. Regarde-les bien. » Côte à côte : « Calcul A » −7 + 2 · « Calcul B » −7 + (−2). Petit texte : « Le calcul B vient du cours précédent : tu sais déjà le faire. Ici, tu observes seulement ce qui change. » Question : « Qu'est-ce qui change entre A et B ? » [Le premier nombre] [La longueur du deuxième bond] [Le signe du deuxième nombre]. Attendu : le signe du deuxième nombre. Mention : « Question pour comprendre : elle ne compte pas dans la note. » Après la réponse, la droite (−10 à 1) montre les deux trajets (A arrive en −5 : −7 + 2 = −5 ; B arrive en −9 : −7 + (−2) = −9), le retour, puis : « Dans B, le deuxième bond continue vers la **gauche** : les bonds s'ajoutent (Cours 1). Dans A, il repart vers la **droite** : il **défait** une partie du premier. Ce cours traite le cas A. »
+4. **Règle 1 : je soustrais** (titre « Je soustrais les longueurs des bonds », 3 étapes). Droite de −10 à 1.
+   - Étape 1 : les bonds −7 puis +2, calcul −7 + 2. « Reprenons −7 + 2. Les signes sont contraires : les deux bonds vont en **sens contraires**. Le petit bond **défait** une partie du grand. »
+   - Étape 2 (**interactive : phrase à trous**) : bonds étiquetés 7 et 2, droite grise, calcul 7 − 2. « Les longueurs des bonds sont les nombres **sans leur signe** : 7 et 2. Le grand bond perd 2 graduations : il en reste 7 − 2 = [ ? ]. » Choix : [5] [9] [14]. Attendu : 5. Après la réussite : « … il en reste 7 − 2 = **5**. »
+   - Étape 3 : encadré **Règle 1 : Deux nombres de signes contraires : je soustrais les nombres sans leur signe.**
+5. **Petites questions de la règle 1** (2 questions sur le même écran, **comptent**, repassent 2 écrans plus loin ; calcul écrit sans couleur).
+   - Q1 : calcul −8 + 3 · « Les signes sont contraires. Que fait-on avec 8 et 3, sans leur signe ? » [Je les additionne] [Je les soustrais] [Je les multiplie]. Attendu : je les soustrais.
+   - Q2 : calcul 9 + (−4) · « Quel nombre obtient-on en soustrayant les nombres sans leur signe ? » [5] [13] [36]. Attendu : 5.
+6. **Règle 2 : le plus grand décide** (titre « Le plus grand décide du signe », **6 étapes**). Droite de −10 à 1.
+   - Étape 1 : bonds étiquetés 7 et 2, −5 surligné, calcul −7 + 2 = ?. « Il reste **5** graduations. Reste une question : on arrive du côté **négatif** ou du côté **positif** ? »
+   - Étape 2 (**interactive : phrase à trous**) : droite grise. « Le grand bond est celui de −7 : on reste du côté [ ? ]. » Choix : [positif] [négatif]. Attendu : négatif. Phrase de suite : « Le grand bond est celui de −7 : on reste du côté **négatif**. C'est le nombre sans signe **le plus grand** qui décide du signe. »
+   - Étape 3 (**interactive : phrase à trous**) : « Du côté négatif : −7 + 2 = [ ? ] » Choix : [−5] [5] [−9]. Attendu : −5. Phrase de suite : « Du côté négatif : −7 + 2 = **−5**. Il reste 5 graduations, du côté négatif. »
+   - Étape 4 : droite de −3 à 5, bonds −2 puis +6, calcul −2 + 6 = 4. « Et si le bond **positif** est le plus long ? Avec −2 + 6, il dépasse 0 : on arrive du côté **positif**, en 4. »
+   - Étape 5 (**interactive : toucher la droite**, *nouvelle : vient de l'ancien écran « Revenir à 0 »*) : droite de −6 à 1 (8 graduations), grise, calcul −6 + 6, consigne « Touche la droite à l'endroit où l'on arrive. » Attendu : 0. Au bon toucher, le bond de +6 se dessine : « Cas particulier : −6 + 6. On recule de 6, puis on **avance de 6** : on revient au départ. Deux nombres **opposés** s'annulent : −6 + 6 = **0**. »
+   - Étape 6 : encadré **Règle 2 : Le nombre sans signe le plus grand décide : le résultat a son signe.**
+7. **Petites questions de la règle 2** (2 questions sur le même écran, comptent, repassent).
+   - Q1 : calcul 3 + (−8) · « Quel est le signe du résultat ? Tu n'as pas besoin de calculer. » [positif] [négatif]. Attendu : négatif (le calcul-piège : le 1er nombre est positif, le plus grand est négatif).
+   - Q2 : calcul −5 + 8 · « Quel est le résultat ? » [3] [−3] [−13]. Attendu : 3.
+8. **Autres façons de faire** (nouvelle brique, titre « Autres façons de faire »). **En haut, le rappel des règles** (fusion de l'ancien récapitulatif) : « Les 2 règles à retenir », avec pour chaque règle un exemple juste ✓ et un faux ✗ : « 1. Je soustrais les nombres sans leur signe. » (−7 + 2 : 7 − 2 = 5 ✓ · 7 + 2 = 9 ✗) · « 2. Le plus grand (sans signe) décide du signe. » (3 + (−8) = −5 ✓ · 3 + (−8) = 5 ✗) · « Deux nombres opposés donnent 0. » (−6 + 6 = 0 ✓ · −6 + 6 = −12 ✗), puis l'encadré « En une phrase » : « Signes contraires : je soustrais le plus petit du plus grand (sans signe), et je prends le signe du plus grand. » **Dessous**, « La règle marche toujours. Voici deux autres façons de faire : **choisis celle que tu veux essayer**. » et deux cartes (nom, quand, exemple chiffré, explication) :
+   - **1. Commencer par le positif** — « Quand le calcul commence par un négatif. » −7 + 2 = 2 + (−7) = 2 − 7 = −5. « On change l'ordre des deux nombres : une addition se calcule dans n'importe quel ordre. Puis on lit « 2 moins 7 » : on part de 2 et on recule de 7. »
+   - **2. Deviner le signe** — « Pour vérifier un résultat, ou avant de calculer. » −7 + 2 : −7 est plus loin de 0 que 2. « Le résultat a le signe du nombre le plus loin de 0 : ici négatif, donc −5. Si ton résultat a un autre signe, tu t'es trompée quelque part. »
+   Le choix se fait avec **les boutons du bas** (« Essayer : commencer par le positif », « Essayer : deviner le signe »), pas en touchant les cartes ; « Tu peux aussi continuer sans essayer : aucune n'est obligatoire. » **Essai libre, non noté** (« Essai libre : il ne compte pas dans la note. ») : technique 1 : « Essaie avec −8 + 5 : écris 5 + (−8), puis calcule. **Tape le résultat.** » (−8 + 5 = 5 + (−8) = 5 − 8, clavier complet, attendu −3) ; technique 2 : « Essaie avec −3 + 9, sans calculer. **Touche le signe du résultat.** » ([positif] [négatif], attendu positif). Après l'essai : « Essayer l'autre façon » ou « Continuer ». Phrase de fin d'écran : « Maintenant, tu t'entraînes avec quatre questions. »
+
+*Pratique*
+
+9. **Série de 4 questions** (pastille « Cours 2 · Pratique », compteur « Question N sur 4 », retour immédiat, pas de nouvel essai ; **notée** ; une question ratée repasse avant les exercices de fin ; aide décroissante, formats variés ; aucune couleur de signe pendant la question). Après la 4e : encadré « N sur 4 » et « Maintenant, deux exemples pour t'aider à les résoudre en entier. »
+   - **Q1 (toucher l'arrivée, bonds dessinés).** Calcul −6 + 2. Droite de −7 à 0, grise, bonds 0 → −6 → −4, consigne « Touche la droite à l'endroit où l'on arrive. » Attendu : −4.
+   - **Q2 (le signe).** « Touche le signe du résultat. Tu n'as pas besoin de calculer. » Calcul 3 + (−8), « Quel est le signe du résultat ? » [+] [−]. Attendu : −.
+   - **Q3 (une question du Cours 1, choix de résultat).** « Regarde d'abord les signes des deux nombres, puis touche le résultat. » Calcul −4 + (−3) ; [−7] [−1] [7]. Attendu : −7. *(Entraînement intercalé : elle doit d'abord reconnaître quelle règle s'applique. La maquette remplace le « vrai ou faux » du Cours 1 par ce choix de résultat : les 4 formats restent différents.)*
+   - **Q4 (taper, sans aide).** « Calcule. **Tape le résultat.** » Calcul 4 + (−11). Attendu : −7.
+
+*Exemples guidés (l'aide s'efface ; le calcul de départ reste affiché)*
+
+10. **Exemple 1 sur 2 : tout est résolu à l'écran.** « Voici la résolution complète. Lis chaque ligne, puis touche « Je comprends ». » Calcul −8 + 3.
+    - Ligne 1 : = −(8 − 3). « Les signes sont contraires : je soustrais 8 − 3. Le plus grand nombre sans signe est 8, et il est négatif : je mets le signe − devant la parenthèse. » [Je comprends]
+    - Ligne 2 : = −(5). « 8 − 3 = 5. Le signe − est toujours devant : c'est le signe du plus grand nombre. » [Je comprends]
+    - Dernière ligne : = ▢ (une case à taper, **notée**). « Dernière ligne. Écris le résultat, avec son signe. Tu peux t'aider de la ligne du dessus. » « Tape ce qui manque dans la case, avec les touches du clavier. » Attendu : −5.
+11. **Exemple 2 sur 2 : à moitié, deux cases à taper.** « Cette fois, deux cases sont à toi. Signes contraires : je soustrais, et je prends le signe du plus grand. » Calcul 3 + (−7) *(remplace le 9 + (−4) du doc 06 v1 : il met le piège du signe du plus grand dans l'exemple ; 9 + (−4) reste un exemple de calcul)*. Case 1 : 3 + (−7) = −(▢ − 3). Attendu : 7. Case 2 : 3 + (−7) = −(7 − 3) = ▢. Attendu : −4. Les cases s'enchaînent dans l'ordre ; **seule la case 2 compte dans la note ; la case 1 est un entraînement non noté** (doc 08 n° 48).
+
+*Fin*
+
+12. **Annonce** (comme les Cours 0 et 1) : « Place aux 5 exercices de fin. Cette fois, **pas d'aide**. Ils ressemblent à ce que tu verras en contrôle. Pour valider le cours, il faut : au moins **4 exercices de fin justes sur 5** ; et **80 % de bonnes réponses** sur tout le cours. Si tu n'y arrives pas, ce n'est pas grave : tu feras une **série de validation**. Ce sont 5 exercices, sans refaire la leçon. » Bouton « Commencer les exercices ».
+13. **5 exercices de fin, négatif en premier.** « Calcule. **Tape le résultat.** » Le calcul est écrit en haut, clavier complet, aucune couleur avant la réponse, pas de droite. Ex. −47 + 29. Juste : « Signes contraires : 47 − 29 = 18. Le plus grand, 47, est négatif : −18. » Après une erreur : le message du tableau, puis la résolution type : −47 + 29 · = −(47 − 29) · = −18.
+14. **Positif en premier.** Ex. 63 + (−18). Juste : « Signes contraires : 63 − 18 = 45. Le plus grand, 63, est positif : 45. » Résolution type : 63 + (−18) · = +(63 − 18) · = 45. Un tirage sur dix est un calcul à deux opposés (−6 + 6) : juste : « Deux nombres opposés s'annulent : −6 + 6 = 0. »
+15. **Résultat** (validé ou non, doc 08 n° 29). Ex. cours raté : « Le cours 2 n'est pas encore validé », les deux conditions avec ✗ / ✓ (« N bonnes réponses sur 15, soit X %. Il en faut au moins 80 %. » et « N exercices de fin justes sur 5. Il en faut au moins 4. »), « Tes erreurs : » « Je prends le signe du mauvais nombre (règle 2), 3 fois » · « J'additionne au lieu de soustraire (règle 1), 1 fois », liens « Relire la règle 2 » · « Relire la règle 1 », « Prochaine étape : la série de validation. 5 exercices, 4 justes pour valider le cours. » Bouton « Faire la série de validation ». *(Les chiffres de la maquette sont inventés ; au codage ils suivent la note ci-dessous.)*
+16. **Mes cours** garde la raison de l'échec : « À valider », « Dernier essai : 3 exercices de fin justes sur 5. À revoir : le signe du plus grand nombre. », boutons « Faire la série de validation », « Voir la fiche mémo », « Relire la règle 2 », « Relire la leçon ».
+
+**Note du cours** (doc 08 n° 21 et 32 à 37) : comptent les **4 petites questions** (écrans 5 et 7), les **4 questions de la série de pratique** (écran 9), les **2 exemples guidés** (écrans 10 et 11 : une seule case chacun, la dernière) et les **5 exercices de fin**, soit **15 questions**. Ne comptent pas : la question pour deviner (écran 1), la question pour comprendre (écran 3), **toutes les étapes interactives des explications** (écrans 2, 4 et 6), **l'essai libre de « Autres façons de faire »** (écran 8) et la case 1 de l'exemple 2. Une petite question ratée repasse 2 écrans plus loin ; une question de la série ratée repasse avant les exercices de fin (doc 08 n° 49). Validation : **80 % sur les 15 et au moins 4 exercices de fin sur 5**. Une des 4 questions de la série (Q3) vient du Cours 1 (plan du module, tableau des reprises) ; aucun calcul du Cours 1 dans les exercices de fin.
+
+**Retours d'erreur précis**
+
+Étapes interactives (message court puis « Essaie encore. », rien n'est noté) :
+| Écran | Réponse | Message |
+|---|---|---|
+| 2, étape 2 | toucher −7 | « Tu es resté au départ du bond : il fait 2 graduations vers la droite. » |
+| 2, étape 2 | toucher −6 | « Il manque des graduations : le bond en fait 2. Compte-les une par une à partir de −7. » |
+| 2, étape 2 | toucher plus loin que −5 | « Une graduation de trop : le bond fait exactement 2 graduations. » |
+| 2, étape 3 | long | « Compare les deux arcs sur la droite : 2 graduations contre 7. » |
+| 4, étape 2 | 9 | « 9, c'est 7 + 2 : on additionnerait des bonds de même sens. Ici le petit bond défait une partie du grand : on soustrait. » |
+| 4, étape 2 | 14 | « On soustrait les longueurs, on ne les multiplie pas : 7 − 2. » |
+| 6, étape 2 | positif | « Le bond de −7 est plus long que celui de +2 : c'est lui qui décide du côté. −7 est négatif. » |
+| 6, étape 3 | 5 | « Il reste bien 5 graduations, mais on arrive à gauche de 0 : il faut garder le signe −, celui du plus grand nombre (7). » |
+| 6, étape 3 | −9 | « −9 viendrait de 7 + 2. Ici les bonds sont de sens contraires : 7 − 2 = 5, avec le signe −. » |
+| 6, étape 5 | toucher −6 | « Tu es resté au départ du bond : il fait 6 graduations vers la droite. » |
+| 6, étape 5 | toucher −5 à −1 | « Il manque des graduations : le bond en fait 6. Compte-les une par une à partir de −6. » |
+| 6, étape 5 | toucher 1 | « Une graduation de trop : le bond fait exactement 6 graduations. » |
+
+Questions pour deviner et pour comprendre (ne comptent pas ; titre « Pas tout à fait, et c'est normal. » puis un message qui ne répète pas le titre) :
+| Écran | Réponse | Message |
+|---|---|---|
+| 1 | 9 € | « Rendre de l'argent fait baisser ta dette, elle ne grandit pas. Tu dois 7 € moins les 2 € rendus : 5 €. » |
+| 1 | 2 € | « 2 €, c'est ce que tu as rendu. Il reste à rendre ce que tu dois moins ce que tu as déjà rendu : 7 − 2 = 5 €. » |
+| 3 | Le premier nombre | « Le premier nombre est −7 dans les deux calculs : il ne change pas. » |
+| 3 | La longueur du deuxième bond | « Le deuxième bond fait 2 graduations dans les deux calculs : ce n'est pas sa longueur qui change, c'est son sens. » |
+| 3 | Le signe du deuxième nombre (juste) | « Le deuxième nombre est positif dans le calcul A, négatif dans le calcul B : le signe change, donc le sens du bond change. » |
+
+Questions qui comptent (le signe du mauvais nombre : « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est N, et il est négatif / positif. » ; l'addition : « Signes contraires : on **soustrait**. G − P = D. ») :
+| Écran | Réponse | Message |
+|---|---|---|
+| 5, Q1 | Je les additionne | « Signes contraires : on **soustrait**. 8 − 3 = 5. » |
+| 5, Q1 | Je les multiplie | « On ne multiplie pas : pour deux signes contraires, on soustrait les nombres sans leur signe. 8 − 3 = 5. » |
+| 5, Q2 | 13 | « Signes contraires : on **soustrait**. 9 − 4 = 5. » |
+| 5, Q2 | 36 | « On ne multiplie pas : 9 − 4 = 5. » |
+| 7, Q1 | positif | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 8, et il est négatif. » |
+| 7, Q2 | −3 | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 8, et il est positif. » |
+| 7, Q2 | −13 | « Signes contraires : on **soustrait**. 8 − 5 = 3. » |
+| 9, Q1 | −6 | « Tu es resté au départ du deuxième bond : il fait 2 graduations vers la droite. » |
+| 9, Q1 | −5 | « Il manque une graduation : le deuxième bond en fait 2. » |
+| 9, Q1 | autre | « Le deuxième bond part de −6 et fait 2 graduations vers la droite : −5, −4. On arrive à −4. » |
+| 9, Q2 | + | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 8, et il est négatif. » |
+| 9, Q3 | −1 | « Les deux nombres sont négatifs : même signe. On additionne (4 + 3 = 7), on ne soustrait pas. Soustraire, c'est pour des signes contraires. » |
+| 9, Q3 | 7 | « Les deux nombres sont négatifs : le résultat est négatif aussi. On garde le signe − ! » |
+| 9, Q4 | 7 | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 11, et il est négatif. » |
+| 9, Q4 | 15 ou −15 | « Signes contraires : on **soustrait**. 11 − 4 = 7. » |
+| 9, Q4 | autre | « Soustrais 4 de 11 (sans les signes), puis prends le signe du plus grand, 11 : −7. » |
+| 10, dernière ligne | 5 | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). » |
+| 10, dernière ligne | autre | « Le résultat de la ligne du dessus est −(5), c'est-à-dire −5. » |
+| 11, case 1 (non notée) | 3 | « Dans −(▢ − 3), on écrit d'abord le plus grand des deux nombres sans signe : 7. On lui retire le plus petit, 3. » |
+| 11, case 1 | −7 | « On écrit le nombre sans son signe : 7. Le signe − est déjà devant la parenthèse. » |
+| 11, case 1 | autre | « Dans −(▢ − 3), on met le plus grand des deux nombres, sans son signe : 7. » |
+| 11, case 2 | 4 | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 7, et il est négatif. » |
+| 11, case 2 | 10 ou −10 | « Signes contraires : on **soustrait**. 7 − 3 = 4. » |
+| 11, case 2 | autre | « Soustrais 3 de 7, puis garde le signe − devant le résultat. » |
+| 13, −47 + 29 | 18 | « … Ici, c'est 47, et il est négatif. » |
+| 13, −47 + 29 | 76 ou −76 | « Signes contraires : on **soustrait**. 47 − 29 = 18. » |
+| 13, −47 + 29 | autre | « Soustrais 29 de 47 (sans les signes), puis prends le signe du plus grand, 47 : −18. » |
+| 14, 63 + (−18) | −45 | « … Ici, c'est 63, et il est positif. » |
+| 14, 63 + (−18) | 81 ou −81 | « Signes contraires : on **soustrait**. 63 − 18 = 45. » |
+| 14, −6 + 6 | 12 ou −12 | « Signes contraires : on **soustrait**. 6 − 6 = 0. » |
+| 14, −6 + 6 | autre | « Deux nombres opposés s'annulent : le résultat est 0. » |
+
+Essais libres de « Autres façons de faire » (écran 8, rien n'est noté) : technique 1, −8 + 5 : −3 juste (« On part de 5 et on recule de 8 : on dépasse 0 et on arrive à −3. ») ; 3 : « … Ici, c'est 8, et il est négatif. » ; 13 ou −13 : « Signes contraires : on **soustrait**. 8 − 5 = 3. » ; autre : « Depuis 5, on recule de 8 : 5 − 8 = −3. » Technique 2, −3 + 9 : positif juste (« 9 est plus loin de 0 que 3 et il est positif : le résultat est positif (−3 + 9 = 6). ») ; négatif : « Le nombre le plus loin de 0 est 9, et il est positif : le résultat est positif. −3 + 9 = 6. »
+
+*Notes :* la détection de `addition-au-lieu-soustraction` est celle de la v1 (la réponse vaut ±(a + b sans les signes)) ; `signe-du-mauvais-nombre` ne s'applique pas aux deux opposés (réponse 0). Les messages des exercices de fin générés suivent le même modèle avec les nombres tirés. Après une erreur à un exercice de fin, on montre aussi la résolution type.
+
+**Fiche mémo** (écran plein, doc 08 n° 38 ; consultable avant la validation, n° 46)
+- **La règle :** Signes contraires : je soustrais le plus petit (sans signe) du plus grand (sans signe), et je prends le signe du plus grand.
+- **Exemples :** −7 + 2 = **−5** · 3 + (−8) = **−5** ; −6 + 6 = **0**.
+- **Erreur à éviter :** 3 + (−8) = 5. Je ne prends pas le signe du premier nombre : je prends celui du **plus grand**. Ici 8 est négatif : −5.
+- **Astuce (technique n° 1 du plan) :** Le plus grand sans le signe gagne. −7 + 2 : 7 > 2, donc le résultat est négatif. 7 − 2 = 5. Résultat : −5.
+
+**Générateur** (inchangé depuis la v1)
 | Niveau | Forme | Nombres |
 |---|---|---|
 | 1 | a + b, de signes contraires, dans un ordre au hasard ; 1 fois sur 10, deux opposés | de 1 à 9 |
 | 2 | même chose | de 10 à 99 |
 | 3 | même chose | de 100 à 999 |
 
-**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 + 5 · = +(5 − 3) · = 2
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −3 + 5 · = +(5 − 3) · = 2. Pour deux opposés : −6 + 6 · = 0.
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée | Calcul-piège |
-|---|---|---|---|
-| `signe-du-mauvais-nombre` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). » | le plus grand (sans signe) est négatif, ex. 3 + (−8) |
-| `addition-au-lieu-soustraction` | la réponse vaut ±(a + b sans les signes) | « Signes contraires : on **soustrait**. 5 − 3 = 2. » | le négatif en premier, ex. −7 + 4 |
+| Identifiant | Détection | Explication affichée | Règle | partIndex | Calcul-piège |
+|---|---|---|---|---|---|
+| `signe-du-mauvais-nombre` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est N, et il est négatif / positif. » | 2 | 6 | le plus grand (sans signe) est négatif, ex. 3 + (−8) |
+| `addition-au-lieu-soustraction` | la réponse vaut ±(a + b sans les signes) | « Signes contraires : on **soustrait**. 5 − 3 = 2. » | 1 | 3 | le négatif en premier, ex. −7 + 4 |
+
+(Le `partIndex` est l'indice de la partie du cours à rouvrir par « Relire la règle N » : 3 = écran « Règle 1 », 6 = écran « Règle 2 ».)
+
+**Nouvelle brique : « Autres façons de faire »** (partie `autres`, réutilisable dans les Cours 3 à 7 et les modules suivants) : titre, rappel des règles facultatif (`recap` : une ligne par règle avec un exemple juste et un faux, puis « En une phrase »), phrase d'introduction, 2 ou 3 techniques (nom, quand, exemple chiffré, explication, essai libre : taper un résultat ou toucher un choix, avec un message par réponse prévue et un message général), phrase de fin facultative. L'écran compte comme un écran de leçon ; il n'est jamais noté.
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -471,6 +603,10 @@ Questions qui comptent :
 | 3 | −903 + 450 | −453 |
 
 **Réponse donnée → erreur reconnue** (calcul −3 + 5 = 2) : −2 → `signe-du-mauvais-nombre` · 8 → `addition-au-lieu-soustraction` · −8 → `addition-au-lieu-soustraction` · 3 → autre
+
+**Choix de la maquette retenus (« À décider » validés)** : dette comme accroche ; idée de départ « le plus long bond décide », en commençant par une dette plus grande que le gain ; droite de −7 à 0 pour rester touchable ; cas B de « Comparer » pris dans le Cours 1 (−7 + (−2)), montré sans le faire calculer ; règle coupée en deux ; deux petites questions par règle ; le cas des deux opposés comme étape de la règle 2 (fusion de l'écran « Revenir à 0 ») ; rappel des règles fusionné dans « Autres façons de faire » ; cartes lues à l'écran, choix par les boutons du bas, essai libre non noté ; série de 4 avec une question du Cours 1 en choix de résultat ; exemple 2 sur 3 + (−7) ; fiche consultable avant la validation.
+
+**Pas encore décidé (à voir avec le porteur du projet)** : formats de révision et d'entraînement propres au Cours 2 (le Cours 1 a « toucher l'arrivée », « le signe », « vrai ou faux », « trouver l'erreur ») ; la décomposition −7 + 9 = −7 + 7 + 2 (technique n° 2 du plan) n'est plus dans la leçon : à remettre dans « Autres façons de faire » (3e carte) si on veut la garder.
 
 ---
 
