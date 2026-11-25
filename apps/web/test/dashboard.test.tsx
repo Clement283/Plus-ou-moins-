@@ -83,7 +83,7 @@ describe('Suivi, accueil', () => {
     expect(v.text()).toContain('la plus ancienne : le 7 novembre');
     expect(v.$('#hrev')!.closest('section')!.querySelector('.acc__body')).toBeNull();
     fireEvent.click(v.$('#hrev')!.closest('section')!.querySelector('summary')!);
-    expect(v.$('#hrev')!.closest('section')!.textContent).toContain('Cours 3, additionner plusieurs relatifs');
+    expect(v.$('#hrev')!.closest('section')!.textContent).toContain('Cours 3, additionner plusieurs nombres relatifs');
     // erreurs
     const rows = v.$$('#herr ~ * summary, section[aria-labelledby=herr] summary');
     expect(rows[0]!.textContent).toContain('Signe inversé');
@@ -96,7 +96,7 @@ describe('Suivi, accueil', () => {
     expect(err.querySelector('.katex')).toBeTruthy();
     // à retravailler : cours validé qui coince
     const rework = v.$('section[aria-labelledby=hret]')!;
-    expect(rework.textContent).toContain('Cours 3, Additionner plusieurs relatifs');
+    expect(rework.textContent).toContain('Cours 3, Additionner plusieurs nombres relatifs');
     expect(rework.textContent).toContain("2 révisions ratées d'affilée");
     expect(rework.querySelector('a')!.getAttribute('href')).toBe(`#/suivi/u-lea/cours/${C(3)}`);
     expect(rework.querySelectorAll('.crow')).toHaveLength(1); // le cours 4, à valider, n'y est pas (doc 08 n° 14)
@@ -203,7 +203,7 @@ describe('Suivi, cours', () => {
   it('cours validé : état, révisions ✓ ✗, erreurs sur 28 jours, dernières erreurs, alerte', async () => {
     load('elle-bloque');
     const v = await mount(<DashCourse eleve={LEA.id} id={C(3)} />, '.chead');
-    expect(v.$('.appbar__title')?.textContent).toBe('Cours 3, Additionner plusieurs relatifs');
+    expect(v.$('.appbar__title')?.textContent).toBe('Cours 3, Additionner plusieurs nombres relatifs');
     expect(v.$('.appbar a')!.getAttribute('href')).toBe(`#/suivi/u-lea/module/${MOD.id}`);
     expect(v.$('.chead .state')?.textContent).toBe('validé');
     expect(v.text()).toMatch(/Validé le \d+ novembre/);

@@ -10,6 +10,16 @@ import { Icon } from '../ui/Icon';
 import { Bold } from './Bold';
 import { LessonHeading } from './questions/Frame';
 
+/**
+ * Taille d'un calcul de scène selon sa longueur (nombre de signes du plus long calcul) : plus la somme a de termes, plus la
+ * police rétrécit, pour que 5 ou 6 termes tiennent dans la largeur du téléphone sans être coupés.
+ */
+export function stageSize(scene: Scene): '' | ' stage--n1' | ' stage--n2' | ' stage--n3' {
+  if (scene.layout === 'row' || scene.layout === 'pairs') return '';
+  const n = Math.max(0, ...scene.calcs.map((c) => c.tokens.map((t) => t.t).join('').trim().length));
+  return n > 24 ? ' stage--n3' : n > 18 ? ' stage--n2' : n > 12 ? ' stage--n1' : '';
+}
+
 /** Un morceau de calcul de la scène : surligneur (`hl`, « regarde ici »), animation (`anim`), estompé (`dim`). */
 function Token({ t }: { t: SceneToken }) {
   const cls = [t.hl ? 'scene-hl' : '', t.anim ? `anim-${t.anim}` : '', t.dim ? 'scene-dim' : ''].filter(Boolean).join(' ');
@@ -49,7 +59,7 @@ function SceneView({
   // un seul signe (« − ») : on le montre en très grand
   const glyph = scene.layout === 'one' && scene.calcs.length === 1 && scene.calcs[0]!.tokens.map((t) => t.t).join('').trim().length <= 2;
   return (
-    <div className={`stage stage--${scene.layout}${glyph ? ' stage--glyph' : ''}${isNew ? ' is-new' : ''}`} data-scene>
+    <div className={`stage stage--${scene.layout}${glyph ? '' : stageSize(scene)}${glyph ? ' stage--glyph' : ''}${isNew ? ' is-new' : ''}`} data-scene>
       {scene.layout === 'pairs'
         ? pairs.map((pair, i) => (
             <div key={i} className="stage__pair">

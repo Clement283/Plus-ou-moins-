@@ -1,7 +1,9 @@
+import { toLatex } from '@pom/engine';
+import { Bold } from '../Bold';
 import { Keypad } from '../Keypad';
 import { RawInputContent } from '../RawInputView';
 import { Math } from '../../ui/Math';
-import { Prompt, QFrame, type QProps } from './Frame';
+import { Prompt, QFrame, Resolution, type QProps } from './Frame';
 import { useRawAnswer } from './useRawAnswer';
 
 const HOLE = '\\square';
@@ -17,6 +19,13 @@ export function Trou({ q, course, locked, onAnswer, header, footer, notice, text
     <QFrame header={header} footer={footer} notice={notice} locked={locked} foot={<Keypad onKey={r.press} onSubmit={r.submit} canSubmit={r.can} />}>
       <div className="q-expr" data-copie>
         <Prompt texts={texts} fallback="Complète." cls="t-body2" />
+        {texts?.intro?.map((t, i) => (
+          <p key={i} className="t-body1">
+            <Bold text={t} />
+          </p>
+        ))}
+        {/* exemple guidé : le calcul de départ reste affiché, puis les lignes déjà posées, avant la case */}
+        <Resolution texts={texts?.above?.length ? { ...texts, above: [toLatex(q.ex.expr), ...texts.above] } : undefined} part="above" />
         <p className="t-math-xl">
           {before && <Math latex={`${before}{}\\,`} />}
           <span className={cls} aria-label="Case à remplir">
@@ -27,6 +36,7 @@ export function Trou({ q, course, locked, onAnswer, header, footer, notice, text
           {after && <Math latex={`\\ ${after}`} />}
         </p>
       </div>
+      <Resolution texts={texts} part="help" />
     </QFrame>
   );
 }

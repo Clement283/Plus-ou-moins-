@@ -610,38 +610,177 @@ Essais libres de « Autres façons de faire » (écran 8, rien n'est noté) : te
 
 ---
 
-## Cours 3 — Additionner plusieurs relatifs
+## Cours 3 — Additionner plusieurs nombres relatifs
 
-**La règle :** *Je regroupe les positifs, puis les négatifs, puis je termine avec la règle des signes contraires.*
+*Version 2 (2026-11-25), remplace la version 1. Maquette : `docs/design/ecrans/cours-3-v2.html`, **validée par le porteur du projet telle quelle, avec les 5 recommandations de son panneau « À décider »** (notation de l'étape intermédiaire `(−8) + (−2)` et `5 + (−8) = −3` plutôt que `−8 − 2` et `5 − 8` : la soustraction d'un relatif est le Cours 4 ; règle du doc 06 coupée en deux ; deux petites questions seulement, une par règle ; récapitulatif fusionné en tête de « Autres façons de faire » ; message d'erreur `tout-additionne` reformulé sans le mot « retranchent »). La maquette a 17 écrans (8 de leçon, 1 de pratique, 2 exemples guidés, l'annonce, 2 modèles d'exercice de fin, le résultat, « Mes cours » et la fiche). Ce cours suit le Cours 0 v3, les Cours 1 et 2 v2 et les décisions du doc 08 n° 20 à 51 (n° 45, 48, 49 et 46 : série notée, case résultat seule à l'exemple 2, question ratée de la série qui repasse, fiche mémo avant validation ; **n° 51 : le niveau rallonge le calcul**).*
 
-**Mini-leçon**
-1. **Explication, avec une image.** −2 + 5 + (−4) : les positifs en bleu (5), les négatifs en rouge (−2 et −4). Positifs : 5. Négatifs : −2 + (−4) = −6. Puis 5 + (−6) = −1.
-2. **Explication de la règle,** sur 3 + (−3) + 3 :
-   - positifs : 3 + 3 = 6
-   - négatifs : −3
-   - 6 + (−3) = **3**
-3. **Étiquettes à ordonner** pour 7 + (−1) + (−8) : `Positifs : 7` · `Négatifs : −1 + (−8) = −9` · `7 + (−9)` · `Résultat : −2`
-4. **Réponse à écrire :** −2 + 5 + (−4) = ? (réponse : −1)
+**La règle :** *Je regroupe les positifs ensemble et les négatifs ensemble, je calcule chaque groupe, puis j'additionne les deux totaux.*
 
-**Exemples guidés**
-- 6 + (−2) + 4 : positifs 6 + 4 = ▢ ; négatifs −2 ; résultat ▢ → 10, puis 8
-- −5 + 3 + (−1) : positifs 3 ; négatifs −5 + (−1) = ▢ ; résultat ▢ → −6, puis −3
+**L'idée de départ :** une addition se fait dans n'importe quel ordre (commutativité et associativité), **à condition que chaque nombre garde son signe** en changeant de place. On peut donc ranger les bonds : tous les bonds vers la droite d'un côté, tous les bonds vers la gauche de l'autre. Le piège du cours : perdre un signe, ou un nombre, en route.
 
-**Générateur**
+**Les règles enseignées** (la règle du doc 06 v1 est coupée en deux, chacune correspond à des erreurs reconnues)
+1. **Je regroupe les positifs ensemble et les négatifs ensemble. Chaque nombre garde son signe, et je les utilise tous.** −2 + 5 + (−4) = 5 + (−2) + (−4). *(erreurs reconnues `terme-oublie` et `tout-additionne`)*
+2. **Je calcule chaque groupe, puis j'additionne les deux totaux.** Dans un groupe, tous les nombres ont le même signe (Cours 1) ; les deux totaux sont de signes contraires (Cours 2). *(erreur reconnue `signe-inverse`)* La règle 2 n'apprend aucun nouveau geste : elle réutilise les Cours 1 et 2.
+
+**Astuces et techniques du plan** (doc 10, « Cours 3 ») : n° 1 « Regrouper les positifs, puis les négatifs » = règle 1 et fiche mémo (la principale) ; n° 2 « De gauche à droite, pas à pas » = étape de la leçon (elle sert à comprendre et à choisir : même arrivée par une autre route) ; n° 3 « Chercher les opposés et les nombres ronds » et n° 4 « Cocher chaque nombre utilisé » = écran « Autres façons de faire », une carte chacune, essai libre non noté.
+
+**Notation de l'étape intermédiaire** (point 1 validé). Le groupe des négatifs s'écrit `(−8) + (−2)`, jamais `(−8 − 2)`, et le calcul pas à pas s'écrit `5 + (−8) = −3`, jamais `5 − 8` : « −8 − 2 » est une soustraction écrite sans parenthèses, c'est le Cours 4. Les négatifs qui ne sont pas en tête sont toujours entre parenthèses (règle 2 du Cours 0) ; un premier terme négatif s'écrit sans parenthèses.
+
+**Déroulé (11 écrans pour apprendre : 8 de leçon, 1 de pratique, 2 exemples guidés — puis l'annonce, 2 modèles d'exercice de fin — les 5 exercices de fin sont générés —, le résultat, « Mes cours » et la fiche)**
+
+Types d'écrans : ceux du Cours 2 (explication pas à pas avec scène, étapes interactives non notées, questions pour deviner et pour comprendre, petites questions, « Autres façons de faire », série de pratique, exemples guidés). Jamais plus de 2 étapes de lecture d'affilée sans action. Couleurs (doc 08 n° 27) : négatifs **orange**, positifs **bleu**, surligneur jaune, **dans les explications seulement** ; droite et calculs **gris** pendant une question ; vert / rouge **après** la réponse. **Longs calculs** : une somme de 5 ou 6 termes doit tenir dans la largeur du téléphone (voir « Affichage des longs calculs » plus bas).
+
+*Leçon (8 écrans, pastille « Cours 3 · Leçon · étape N sur 8 »)*
+
+1. **Accroche + deviner.** Titre : « Additionner plusieurs nombres relatifs ». « Jusqu'ici, tu as additionné **deux** nombres. Maintenant, la somme en a **plusieurs**, avec des signes mélangés. » « Le piège : en changeant un nombre de place, on peut **perdre son signe**. Tu vas apprendre une méthode pour n'en perdre aucun. » Question pour deviner : « Pour commencer, à ton avis : tu as 5 € et 3 € en poche. Tu dois 8 € à un ami et 2 € à un autre. Où en es-tu en tout ? » [Il me manque 2 €] [Il me reste 2 €] [Il me manque 18 €]. Attendu : il me manque 2 €. Mention : « Question pour découvrir : elle ne compte pas dans la note. » Retour si juste : « Tu as 5 + 3 = 8 € et tu dois 8 + 2 = 10 € : il te manque 2 €. Le cours va t'expliquer comment l'écrire avec des nombres relatifs, sans perdre un signe en route. » Si faux : titre « Pas tout à fait, et c'est normal. » (voir tableau).
+2. **L'ordre des bonds ne change rien** (titre « L'ordre des bonds ne change rien », 3 étapes). Droite de −4 à 9 (non touchable : plus de 8 graduations permis).
+   - Étape 1 : les quatre bonds de 5 + (−8) + 3 + (−2) dans l'ordre (+5, −8, +3, −2), arrivée −2. « Voici la somme en **quatre bonds** : +5, −8, +3, −2. On les fait l'un après l'autre, dans l'ordre. On arrive en −2. »
+   - Étape 2 : les mêmes bonds dans un autre ordre (+5, +3, −8, −2), calcul 5 + 3 + (−8) + (−2) = ?. « Refaisons les **mêmes** bonds dans un autre ordre : d'abord les deux bonds vers la droite, +5 et +3, puis les deux bonds vers la gauche, −8 et −2. »
+   - Étape 3 (**interactive : phrase à trous**, droite grise) : « En changeant l'ordre des bonds, on arrive [ ? ]. » Choix : [au même endroit] [à un autre endroit]. Attendu : au même endroit. Phrase de suite : « En changeant l'ordre des bonds, on arrive **au même endroit**. On arrive en −2, comme avant : **l'ordre ne change pas le résultat**, tant que chaque nombre **garde son signe** en changeant de place. »
+3. **Comparer deux cas.** Titre « Comparer deux cas ». « Voici deux calculs presque identiques. Regarde-les bien. » Côte à côte : « Calcul A » −2 + 5 + (−4) · « Calcul B » −2 + 5. Petit texte : « Le calcul B vient du cours précédent : tu sais déjà le faire. Ici, tu observes seulement ce qui change. » Question : « Qu'est-ce qui change entre A et B ? » [Le premier nombre] [Il y a un bond de plus] [Le signe du deuxième nombre]. Attendu : il y a un bond de plus. Mention : « Question pour comprendre : elle ne compte pas dans la note. » Après la réponse, la droite (−4 à 4) montre les deux trajets (A arrive en −1, B arrive en 3), puis : « A arrive en −1 : −2 + 5 + (−4) = −1. » « B arrive en 3 : −2 + 5 = 3. » « Dans B, deux nombres : tu sais faire (Cours 2). Dans A, un troisième bond arrive **après**. Avec plusieurs nombres, il faut une méthode pour ne perdre **aucun bond** et **aucun signe**. »
+4. **Règle 1 : je regroupe** (titre « Je regroupe les positifs et les négatifs », 4 étapes).
+   - Étape 1 : calcul 5 + (−8) + 3 + (−2). « Dans cette somme, les signes sont **mélangés**. Pour ne rien perdre, on **trie** : les positifs d'un côté, les négatifs de l'autre. »
+   - Étape 2 (**interactive : phrase à trous**, calcul gris pendant la question, négatifs surlignés après) : « Les nombres négatifs de cette somme sont [ ? ]. » Choix : [−8 et −2] [5 et 3] [−8 et 3]. Attendu : −8 et −2. Phrase de suite : « Les nombres négatifs de cette somme sont **−8 et −2**. Les **positifs** sont donc 5 et 3. »
+   - Étape 3 : le calcul, puis sa réécriture surlignée = 5 + 3 + (−8) + (−2). « On réécrit la somme : d'abord 5 et 3, puis (−8) et (−2). **Chaque nombre garde son signe**, et on les utilise **tous** : quatre nombres au départ, quatre à l'arrivée. »
+   - Étape 4 : encadré **Règle 1 : Je regroupe les positifs ensemble et les négatifs ensemble. Chaque nombre garde son signe, et je les utilise tous.**
+5. **Règle 2 : je calcule chaque groupe** (titre « Je calcule chaque groupe », 4 étapes).
+   - Étape 1 : « Dans chaque groupe, tous les nombres ont **le même signe** : tu sais déjà les additionner (Cours 1). Les positifs : 5 + 3 = **8**. »
+   - Étape 2 (**interactive : phrase à trous**) : « Les négatifs : (−8) + (−2) = [ ? ]. » Choix : [−10] [10] [−6]. Attendu : −10. Phrase de suite : « Les négatifs : (−8) + (−2) = **−10**. Il reste deux totaux : **8** d'un côté, **−10** de l'autre. »
+   - Étape 3 (**interactive : phrase à trous**, droite de −4 à 9, grise) : « 8 + (−10) : le plus grand des deux, sans signe, est 10, donc le résultat est [ ? ]. » Choix : [négatif] [positif]. Attendu : négatif. Phrase de suite : « … le résultat est **négatif**. 10 − 8 = 2, avec le signe − : on arrive à **−2**. »
+   - Étape 4 : encadré **Règle 2 : Je calcule chaque groupe, puis j'additionne les deux totaux.**
+6. **Petites questions des règles 1 et 2** (2 questions sur le même écran, **comptent**, repassent ; calcul écrit sans couleur).
+   - Q1 : calcul −2 + 5 + (−4) · « Quelle réécriture garde tous les nombres, chacun avec son signe ? » [5 + (−2) + (−4)] [5 + 2 + 4] [5 + (−4)]. Attendu : 5 + (−2) + (−4).
+   - Q2 : calcul 7 + (−1) + (−8) · « Quel est le résultat ? » [−2] [2] [−16]. Attendu : −2.
+7. **De gauche à droite, un calcul à la fois** (titre « De gauche à droite, un calcul à la fois », 4 étapes ; technique n° 2 du plan). Droite de −4 à 9.
+   - Étape 1 : « Il y a une autre route : faire **un seul calcul à la fois**, de gauche à droite. On commence par les deux premiers nombres : 5 + (−8). »
+   - Étape 2 (**interactive : phrase à trous**) : « 5 + (−8) = [ ? ]. » Choix : [−3] [3] [−13]. Attendu : −3. Phrase de suite : « 5 + (−8) = **−3**. On est en −3. Le calcul suivant : −3 + 3. »
+   - Étape 3 (**interactive : phrase à trous**) : « −3 + 3 = [ ? ]. » Choix : [0] [6] [−6]. Attendu : 0. Phrase de suite : « −3 + 3 = **0**. On revient en 0 : deux nombres **opposés** s'annulent. »
+   - Étape 4 : « Il reste 0 + (−2) = **−2**. C'est le même résultat qu'avec les groupes : **les deux routes arrivent au même endroit**. Regrouper est pratique quand il y a beaucoup de nombres. Avancer à gauche, c'est un seul calcul à la fois. **Choisis celle qui te rassure.** » (La maquette écrit 5 + (−8) = −3 et non « 5 − 8 = −3 » : voir « Notation ».)
+8. **Autres façons de faire** (brique `autres` du Cours 2, titre « Autres façons de faire »). **En haut, le rappel des règles** : « Les 2 règles à retenir », chacune avec un exemple juste ✓ et un faux ✗ : « 1. Je regroupe les positifs ensemble et les négatifs ensemble. » (−2 + 5 + (−4) = 5 + (−2) + (−4) ✓ · −2 + 5 + (−4) = 5 + 2 + 4 ✗) · « 2. Je calcule chaque groupe, puis j'additionne les deux totaux. » (5 + (−6) = −1 ✓ · 5 + (−6) = 1 ✗), puis l'encadré « En une phrase » : « Je regroupe les positifs et les négatifs, je calcule chaque groupe, puis j'additionne les deux totaux. » **Dessous**, « La méthode marche toujours. Voici deux autres façons de faire : **choisis celle que tu veux essayer**. » et deux cartes :
+   - **1. Chercher les opposés et les nombres ronds** — « Dès qu'un nombre et son opposé sont dans la somme. » 7 + (−4) + (−7) + 10 : 7 et (−7) s'annulent ; (−4) + 10 = 6. « Deux nombres opposés font 0 : on les barre. Il ne reste que (−4) + 10 = 6. On peut aussi chercher des nombres qui font un nombre rond ensemble (6 et 4, 15 et 5…) : une addition se fait dans n'importe quel ordre. »
+   - **2. Cocher chaque nombre utilisé** — « Dans les longues sommes. » 3 + (−5) + 8 + (−1) : 3 ✓ (−5) ✓ 8 ✓ (−1) ✓ : quatre nombres, quatre coches. « Chaque fois que tu places un nombre dans un groupe, tu le coches (sur ta feuille, tu peux le barrer). À la fin, tous les nombres sont cochés : tu n'en as oublié aucun. »
+   Le choix se fait avec **les boutons du bas** (« Essayer : chercher les opposés et les nombres ronds », « Essayer : cocher chaque nombre utilisé »), « Tu peux aussi continuer sans essayer : aucune n'est obligatoire. » **Essai libre, non noté** : technique 1 : « Essaie avec 9 + (−3) + (−9) + 4 : repère les deux opposés, puis calcule. **Tape le résultat.** » (attendu 1, clavier complet) ; technique 2 : « Essaie avec 8 + (−3) + 2 + (−6). Quelqu'un a regroupé : 8 + 2 + (−3). **Touche le nombre oublié.** » ([−3] [2] [−6], attendu −6). Après l'essai : « Essayer l'autre façon » ou « Continuer ». Phrase de fin d'écran : « Ensuite, tu t'entraînes avec quatre questions. »
+
+*Pratique*
+
+9. **Série de 4 questions** (pastille « Cours 3 · Pratique », compteur « Question N sur 4 », retour immédiat, pas de nouvel essai ; **notée** ; une question ratée repasse avant les exercices de fin ; aide décroissante, formats variés ; aucune couleur de signe pendant la question). Après la 4e : encadré « N sur 4 » et « Maintenant, deux exemples pour t'aider à les résoudre en entier. »
+   - **Q1 (toucher l'arrivée, bonds dessinés).** Calcul 4 + (−6) + 3. Droite de −2 à 4 (7 graduations d'écart), grise, bonds 0 → 4 → −2 → 1, consigne « Touche la droite à l'endroit où l'on arrive. » Attendu : 1.
+   - **Q2 (le signe).** « Touche le signe du résultat. Tu n'as pas besoin de calculer. » Calcul 3 + (−9) + 4, « Quel est le signe du résultat ? » [+] [−]. Attendu : −.
+   - **Q3 (une question du Cours 2, choix de résultat).** « Regarde d'abord les signes des deux nombres, puis touche le résultat. » Calcul −3 + 5 ; [2] [−2] [8]. Attendu : 2. *(Entraînement intercalé : elle doit d'abord reconnaître quelle règle s'applique.)*
+   - **Q4 (taper, sans aide).** « Calcule. **Tape le résultat.** » Calcul 5 + (−9) + 2 + (−4). Attendu : −6.
+
+*Exemples guidés (l'aide s'efface ; le calcul de départ reste affiché)*
+
+10. **Exemple 1 sur 2 : tout est résolu à l'écran.** « Voici la résolution complète. Lis chaque ligne, puis touche « Je comprends ». » Calcul 3 + (−7) + 6 + (−1).
+    - Ligne 1 : = 3 + 6 + (−7) + (−1). « Je regroupe : les positifs, 3 et 6, d'abord ; les négatifs, (−7) et (−1), ensuite. Chaque nombre garde son signe : il y en a toujours quatre. » [Je comprends]
+    - Ligne 2 : = 9 + (−8). « Positifs : 3 + 6 = 9. Négatifs : (−7) + (−1), même signe : 7 + 1 = 8, et je garde le signe − : −8. » [Je comprends]
+    - Dernière ligne : = ▢ (une case à taper, **notée**). « Dernière ligne. Écris le résultat, avec son signe. Tu peux t'aider de la ligne du dessus. » « Tape ce qui manque dans la case, avec les touches du clavier. » Attendu : 1. *(Le résultat est positif alors que la leçon finissait en négatif : c'est ici que le piège `signe-inverse` guette, car le plus grand total est celui des positifs.)*
+11. **Exemple 2 sur 2 : à moitié, deux cases à taper.** « Cette fois, deux cases sont à toi. Les nombres sont déjà regroupés : calcule chaque groupe, puis additionne les deux totaux. » Calcul −5 + 3 + (−4) + 2, regroupé : = 3 + 2 + (−5) + (−4). Case 1 : = ▢ + (−9). Attendu : 5. Case 2 : = 5 + (−9) = ▢. Attendu : −4. Les cases s'enchaînent dans l'ordre ; **seule la case 2 compte dans la note ; la case 1 est un entraînement non noté** (doc 08 n° 48).
+
+*Fin*
+
+12. **Annonce** (comme les Cours 0 à 2) : « Place aux 5 exercices de fin. Cette fois, **pas d'aide**. Ils ressemblent à ce que tu verras en contrôle. Pour valider le cours, il faut : au moins **4 exercices de fin justes sur 5** ; et **80 % de bonnes réponses** sur tout le cours. Si tu n'y arrives pas, ce n'est pas grave : tu feras une **série de validation**. Ce sont 5 exercices, sans refaire la leçon. » Bouton « Commencer les exercices ».
+13. **5 exercices de fin, générés au niveau 1** (3 ou 4 termes de 1 à 9, voir « Générateur »). « Calcule. **Tape le résultat.** » Le calcul est écrit en haut, clavier complet, aucune couleur avant la réponse, pas de droite. Ex. −15 + 8 + (−3) + 11. Juste : « Positifs : 8 + 11 = 19. Négatifs : (−15) + (−3) = −18. Puis 19 + (−18) : 19 − 18 = 1, le plus grand, 19, est positif : 1. » Après une erreur : le message du tableau, puis la résolution type : −15 + 8 + (−3) + 11 · = 8 + 11 + (−15) + (−3) · = 19 + (−18) · = 1.
+14. **Exercice à trois nombres.** Ex. 7 + (−1) + (−8) : les deux négatifs sont regroupés, puis le total, négatif, gagne. Un tirage sur dix peut donner deux totaux opposés (résultat 0). Juste : « Positif : 7. Négatifs : (−1) + (−8) = −9. Puis 7 + (−9) : 9 − 7 = 2, le plus grand, 9, est négatif : −2. »
+15. **Résultat** (validé ou non, doc 08 n° 29). Ex. cours raté : « Le cours 3 n'est pas encore validé », les deux conditions avec ✗ / ✓ (« N bonnes réponses sur 13, soit X %. Il en faut au moins 80 %. » et « N exercices de fin justes sur 5. Il en faut au moins 4. »), « Tes erreurs : » « Je me trompe de signe à la fin (règle 2), 2 fois » · « J'oublie un nombre en regroupant (règle 1), 1 fois », liens « Relire la règle 2 » · « Relire la règle 1 », « Prochaine étape : la série de validation. 5 exercices, 4 justes pour valider le cours. » Bouton « Faire la série de validation ». *(Les chiffres de la maquette sont inventés ; au codage ils suivent la note ci-dessous. Les trois erreurs reconnues se rangent sous les deux règles : le signe final inversé renvoie à la règle 2, « j'oublie un nombre » et « je mélange positifs et négatifs » à la règle 1.)*
+16. **Mes cours** garde la raison de l'échec : « À valider », « Dernier essai : 3 exercices de fin justes sur 5. À revoir : le signe du résultat à la fin. », boutons « Faire la série de validation », « Voir la fiche mémo », « Relire la règle 2 », « Relire la leçon ».
+
+**Note du cours** (doc 08 n° 21 et 32 à 37) : comptent les **2 petites questions** (écran 6), les **4 questions de la série de pratique** (écran 9), les **2 exemples guidés** (écrans 10 et 11 : une seule case chacun, la dernière) et les **5 exercices de fin**, soit **13 questions** (point 3 validé : deux petites questions seulement, la leçon est déjà de 8 écrans et la série et les exemples revoient chaque règle ensuite). Ne comptent pas : la question pour deviner (écran 1), la question pour comprendre (écran 3), **toutes les étapes interactives des explications** (écrans 2, 4, 5 et 7), **l'essai libre de « Autres façons de faire »** (écran 8) et la case 1 de l'exemple 2. Une petite question ratée repasse 2 écrans plus loin ; une question de la série ratée repasse avant les exercices de fin (doc 08 n° 49). Validation : **80 % sur les 13 et au moins 4 exercices de fin sur 5**. Une des 4 questions de la série (Q3) vient du Cours 2 (plan du module, tableau des reprises) ; aucun calcul du Cours 2 seul dans les exercices de fin.
+
+**Retours d'erreur précis**
+
+Étapes interactives (message court puis « Essaie encore. », rien n'est noté) :
+| Écran | Réponse | Message |
+|---|---|---|
+| 2, étape 3 | à un autre endroit | « Regarde où arrive le dernier bond : c'est le même point que sur le dessin d'avant, −2. Les bonds sont les mêmes, seul l'ordre change. » |
+| 4, étape 2 | 5 et 3 | « 5 et 3 sont positifs : ils n'ont pas de signe −. Cherche les nombres écrits avec un −. » |
+| 4, étape 2 | −8 et 3 | « 3 est positif : il n'a pas de signe −. Il y a deux nombres écrits avec un −. » |
+| 5, étape 2 | 10 | « Les deux nombres sont négatifs : le résultat est négatif aussi. Je garde le signe − ! » |
+| 5, étape 2 | −6 | « Même signe : on **additionne** les nombres, on ne les soustrait pas. 8 + 2 = 10, donc −10. » |
+| 5, étape 3 | positif | « Le plus grand des deux nombres sans signe est 10, et il est négatif : le résultat prend son signe. C'est la règle du Cours 2. » |
+| 7, étape 2 | 3 | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 8, et il est négatif. » |
+| 7, étape 2 | −13 | « Signes contraires : on **soustrait**. 8 − 5 = 3, avec le signe − : −3. » |
+| 7, étape 3 | 6 | « 6, c'est 3 + 3 sans le signe. Ici les signes sont contraires : on soustrait, 3 − 3 = 0. » |
+| 7, étape 3 | −6 | « Deux nombres **opposés** s'annulent : −3 et 3 se compensent. Le résultat est 0. » |
+
+Questions pour deviner et pour comprendre (ne comptent pas ; titre « Pas tout à fait, et c'est normal. » puis un message qui ne répète pas le titre) :
+| Écran | Réponse | Message |
+|---|---|---|
+| 1 | Il me reste 2 € | « En tout, tu as 8 € mais tu dois 10 € : tu dois plus que tu n'as. Il te manque donc 2 €. » |
+| 1 | Il me manque 18 € | « 18, c'est tout mélangé : ce que tu as et ce que tu dois ne s'additionnent pas ensemble. Compte d'abord ce que tu as (8 €), puis ce que tu dois (10 €), puis compare. » |
+| 3 | Le premier nombre | « Les deux calculs commencent par −2 : le premier nombre ne change pas. » |
+| 3 | Le signe du deuxième nombre | « Le deuxième nombre est 5 dans les deux calculs : son signe ne change pas. » |
+| 3 | Il y a un bond de plus (juste) | « Le calcul A a un troisième nombre, (−4) : il y a un bond de plus à faire après les deux premiers. » |
+
+Les trois messages des erreurs reconnues (point 5 validé pour `tout-additionne`). **P** = total des positifs, **N** = total des négatifs sans son signe :
+- `signe-inverse` : « Regarde qui gagne : le total des positifs (P) ou celui des négatifs (N) ? Le résultat prend le signe du plus grand. »
+- `tout-additionne` : « Un positif et un négatif ne s'ajoutent pas comme deux nombres de même signe. Regroupe d'abord les positifs et les négatifs, puis soustrais les deux totaux (sans leur signe). » *(v1 : « Les négatifs ne s'ajoutent pas aux positifs : ils se **retranchent**. » : « retranchent » est le vocabulaire du Cours 4.)*
+- `terme-oublie` : « Il manque un nombre : coche chaque nombre quand tu l'as utilisé. »
+
+Questions qui comptent :
+| Écran | Réponse | Message |
+|---|---|---|
+| 6, Q1 | 5 + 2 + 4 | « Ici les signes ont disparu : 2 et 4 sont devenus positifs. Chaque nombre garde son signe quand il change de place. » |
+| 6, Q1 | 5 + (−4) | « Il manque un nombre : −2 a disparu. Il y avait trois nombres au départ, il n'y en a plus que deux. Il manque un nombre : coche chaque nombre quand tu l'as utilisé. » |
+| 6, Q2 | 2 | `signe-inverse` avec P = 7 et N = 9 |
+| 6, Q2 | −16 | `tout-additionne` |
+| 9, Q1 | 0 | « Tu es resté au départ : il y a trois bonds à suivre, le premier fait 4 graduations vers la droite. » |
+| 9, Q1 | −2 | « Tu t'es arrêtée après deux bonds, en −2 : il reste le troisième bond, +3, vers la droite. » |
+| 9, Q1 | 4 | « 4, c'est l'arrivée du premier bond seulement. Il reste deux bonds à faire. » |
+| 9, Q1 | autre | « Le troisième bond part de −2 et fait 3 graduations vers la droite : −1, 0, 1. On arrive à 1. » |
+| 9, Q2 | + | `signe-inverse` avec P = 7 et N = 9 |
+| 9, Q3 | −2 | « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 5, et il est positif. » |
+| 9, Q3 | 8 | « Les signes sont contraires : on **soustrait** les nombres sans leur signe, on ne les additionne pas. 5 − 3 = 2. » |
+| 9, Q4 | 6 | `signe-inverse` avec P = 7 et N = 13 |
+| 9, Q4 | 20 ou −20 | `tout-additionne` |
+| 9, Q4 | −11, 3, −8 ou −2 | `terme-oublie` |
+| 9, Q4 | autre | « Regroupe les positifs (7) et les négatifs (−13), puis additionne les deux totaux : −6. » |
+| 10, dernière ligne | −1 | `signe-inverse` avec P = 9 et N = 8 |
+| 10, dernière ligne | 17 ou −17 | `tout-additionne` |
+| 10, dernière ligne | autre | « Le résultat de la ligne du dessus est 9 + (−8) : 9 − 8 = 1, avec le signe du plus grand, 9. » |
+| 11, case 1 (non notée) | −5 | « Le total des positifs est positif : on écrit 5, sans signe −. » |
+| 11, case 1 | autre | « Le groupe des positifs est 3 et 2 : on les additionne, 3 + 2 = 5. » |
+| 11, case 2 | 4 | `signe-inverse` avec P = 5 et N = 9 |
+| 11, case 2 | 14 ou −14 | `tout-additionne` |
+| 11, case 2 | autre | « Soustrais 5 de 9 (sans les signes), puis prends le signe du plus grand, 9 : −4. » |
+| 13, tout calcul | l'opposé du résultat | `signe-inverse` avec les totaux du calcul |
+| 13, tout calcul | ± la somme de tous les nombres sans signe | `tout-additionne` |
+| 13, tout calcul | le résultat sans un des nombres | `terme-oublie` |
+| 13, tout calcul | autre | « Regroupe les positifs (P) et les négatifs (−N), puis additionne les deux totaux : résultat. » |
+
+Réponses justes (même modèle à la série, aux exemples et aux exercices de fin) : « Positifs : 8 + 11 = 19. Négatifs : (−15) + (−3) = −18. Puis 19 + (−18) : 19 − 18 = 1, le plus grand, 19, est positif : 1. » Un groupe d'un seul nombre s'écrit au singulier sans signe « = » (« Positif : 7. », « Négatif : −9. ») ; les deux totaux opposés : « … Puis 5 + (−5) : deux nombres opposés s'annulent : 0. » *(Dans la maquette, la bonne réponse de la petite question 2 de l'écran 6 écrit « Positifs : 7. » avec un pluriel : le texte validé est gardé tel quel pour cette question de leçon.)*
+
+Essais libres de « Autres façons de faire » (écran 8, rien n'est noté) : technique 1, 9 + (−3) + (−9) + 4 : 1 juste (« 9 et (−9) s'annulent. Il reste (−3) + 4 : 4 − 3 = 1, le plus grand, 4, est positif : 1. ») ; −1 : « Le signe du résultat, c'est celui du nombre **le plus grand** (sans son signe). Ici, c'est 4, et il est positif. » ; autre : « 9 et (−9) s'annulent. Il reste (−3) + 4 : 4 − 3 = 1. » Technique 2, 8 + (−3) + 2 + (−6) : −6 juste (« Quatre nombres au départ, trois à l'arrivée : (−6) n'a pas été coché. ») ; autre : « Ce nombre est bien dans le regroupement. En cochant chaque nombre, on voit que c'est (−6) qui manque. »
+
+*Notes :* l'ordre de détection est `signe-inverse`, puis `tout-additionne`, puis `terme-oublie`. Les messages des exercices de fin générés suivent le même modèle avec les nombres tirés. Après une erreur à un exercice de fin, on montre aussi la résolution type.
+
+**Fiche mémo** (écran plein, doc 08 n° 38 ; consultable avant la validation, n° 46)
+- **La règle :** Je regroupe les positifs ensemble et les négatifs ensemble, je calcule chaque groupe, puis j'additionne les deux totaux.
+- **Exemple :** 5 + (−8) + 3 + (−2) = 5 + 3 + (−8) + (−2) = 8 + (−10) = **−2**.
+- **Erreur à éviter :** 5 + (−8) + 3 + (−2) = 5 + 3 + 8 + 2. Quand un nombre change de place, il **garde son signe**. Et je compte les nombres au départ et à l'arrivée : je n'en oublie aucun.
+- **Astuce (technique n° 1 du plan) :** Regrouper les positifs, puis les négatifs. On peut réécrire l'addition dans l'ordre qu'on veut (par exemple d'abord les négatifs, puis les positifs) : chaque nombre garde son signe.
+
+**Générateur** (**le niveau rallonge le calcul en plus d'agrandir les nombres**, doc 08 n° 51 ; remplace la v1, où seuls les nombres grandissaient)
 | Niveau | Forme | Nombres |
 |---|---|---|
-| 1 | 3 termes, au moins un positif et un négatif | de 1 à 9 |
+| 1 | 3 ou 4 termes, au moins un positif et un négatif | de 1 à 9 |
 | 2 | 4 ou 5 termes, au moins un positif et un négatif | de 1 à 20 |
-| 3 | 4 termes, au moins un positif et un négatif | de 10 à 999 |
+| 3 | 5 ou 6 termes, au moins un positif et un négatif | de 10 à 99 |
 
-**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −2 + 5 + (−4) · = 5 + (−2) + (−4) · = 5 + (−6) · = −1
+Les signes sont toujours mélangés (au moins un terme positif et un négatif). Le premier terme peut être négatif et s'écrit alors sans parenthèses (Cours 0, règle 2) ; les autres termes négatifs sont entre parenthèses. **Les questions de la leçon et les exercices de fin du cours restent au niveau 1, avec les valeurs exactes de la maquette quand elle en donne** ; les niveaux 2 et 3 servent aux révisions, à l'entraînement et à la série de validation. Le cours 7 (multiplier plusieurs nombres) suivra le même principe.
+
+**Affichage des longs calculs** (conséquence du niveau 3 : 6 termes de deux chiffres, jusqu'à 34 signes). Un calcul de question de plus de 22 signes est réduit à 85 % et de plus de 30 signes à 72 % ; il peut passer à la ligne après un signe plutôt que de déborder ; dans une scène de leçon, la police diminue par paliers (plus de 12, 18 et 24 signes). La lecture à voix haute lit la somme entière (« moins quarante-sept plus vingt-neuf plus… »).
+
+**Résolution type** (une ligne par étape, appliquée à chaque calcul tiré) : −2 + 5 + (−4) · = 5 + (−2) + (−4) · = 5 + (−6) · = −1. Une ligne qui répète la précédente est omise (calcul déjà regroupé). À 6 termes : −47 + 29 + (−83) + 15 + (−62) + 38 · = 29 + 15 + 38 + (−47) + (−83) + (−62) · = 82 + (−192) · = −110.
 
 **Erreurs reconnues**
-| Identifiant | Détection | Explication affichée | Calcul-piège |
-|---|---|---|---|
-| `signe-inverse` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe. » | totaux des positifs et des négatifs proches |
-| `tout-additionne` | la réponse vaut ±(la somme de tous les nombres sans leur signe) | « Les négatifs ne s'ajoutent pas aux positifs : ils se **retranchent**. Regroupe-les d'abord. » | au moins deux négatifs |
-| `terme-oublie` | la réponse est le résultat du calcul avec un terme en moins | « Il manque un nombre : coche chaque terme quand tu l'as utilisé. » | un terme 1 ou −1, facile à oublier |
+| Identifiant | Détection | Explication affichée | Règle | partIndex | Calcul-piège |
+|---|---|---|---|---|---|
+| `signe-inverse` 🔴 | la réponse est l'opposé de la bonne réponse (bonne réponse ≠ 0) | « Regarde qui gagne : le total des positifs (P) ou celui des négatifs (N) ? Le résultat prend le signe du plus grand. » | 2 | 4 | totaux des positifs et des négatifs proches |
+| `tout-additionne` | la réponse vaut ±(la somme de tous les nombres sans leur signe) | « Un positif et un négatif ne s'ajoutent pas comme deux nombres de même signe. Regroupe d'abord les positifs et les négatifs, puis soustrais les deux totaux (sans leur signe). » | 1 | 3 | au moins deux négatifs |
+| `terme-oublie` | la réponse est le résultat du calcul avec un nombre en moins | « Il manque un nombre : coche chaque nombre quand tu l'as utilisé. » | 1 | 3 | un terme de la plus petite taille du niveau (1 ou −1 aux niveaux 1 et 2, 10 ou −10 au niveau 3) |
+
+(Le `partIndex` est l'indice de la partie du cours à rouvrir par « Relire la règle N » : 3 = écran « Règle 1 », 4 = écran « Règle 2 ».)
 
 **Exemples de calculs**
 | Niveau | Calcul | Réponse |
@@ -649,14 +788,20 @@ Essais libres de « Autres façons de faire » (écran 8, rien n'est noté) : te
 | 1 | 3 + (−3) + 3 | 3 |
 | 1 | −2 + 5 + (−4) | −1 |
 | 1 | 7 + (−1) + (−8) | −2 |
+| 1 | 6 + (−2) + 4 + (−9) | −1 |
 | 2 | 12 + (−7) + 5 + (−9) + 4 | 5 |
 | 2 | −15 + 8 + (−3) + 11 | 1 |
 | 2 | 6 + (−20) + 9 + (−4) + (−2) | −11 |
-| 3 | 248 + (−27) + 15 + (−132) | 104 |
-| 3 | −512 + 340 + (−95) + 18 | −249 |
-| 3 | 130 + (−760) + 415 + (−99) | −314 |
+| 3 | 48 + (−27) + 15 + (−32) + 61 | 65 |
+| 3 | −52 + 34 + (−95) + 18 + 77 | −18 |
+| 3 | −47 + 29 + (−83) + 15 + (−62) + 38 | −110 |
+| 3 | 30 + (−76) + 41 + (−99) + 25 + 18 | −61 |
 
 **Réponse donnée → erreur reconnue** (calcul −2 + 5 + (−4) = −1) : 1 → `signe-inverse` · 11 → `tout-additionne` · −11 → `tout-additionne` · −6 → `terme-oublie` (le 5 oublié) · 3 → `terme-oublie` (le −4 oublié) · 4 → autre
+
+**Choix de la maquette retenus (« À décider » validés)** : (1) notation `(−8) + (−2)` et `5 + (−8) = −3`, sans soustraction d'un relatif ; (2) règle coupée en deux, « je regroupe » (erreurs `terme-oublie`, `tout-additionne`) et « je calcule chaque groupe, puis les deux totaux » (erreur `signe-inverse`) ; (3) deux petites questions, une par règle, note de 13 questions ; (4) récapitulatif fusionné en tête de « Autres façons de faire », écran long qui se fait défiler ; (5) message de `tout-additionne` reformulé sans « retranchent ». Aussi retenus : l'argent (ce que j'ai, ce que je dois) comme accroche ; « l'ordre des bonds ne change rien » comme idée de départ ; B du « Comparer » pris dans le Cours 2 (−2 + 5) ; l'essai libre non noté de chaque carte ; série de 4 avec une question du Cours 2 en choix de résultat ; exemple 2 sur −5 + 3 + (−4) + 2 ; fiche consultable avant la validation.
+
+**Pas encore décidé (à voir avec le porteur du projet)** : formats de révision et d'entraînement propres au Cours 3 (aujourd'hui les formats génériques : saisie, QCM, vrai ou faux, trou, étiquettes à ordonner, trouver l'erreur ; la droite à toucher n'existe que pour deux termes) ; qu'une réponse d'exercice de fin de plus de 4 termes puisse être corrigée ligne par ligne (« Trouver l'erreur » existe déjà, en révision).
 
 ---
 
