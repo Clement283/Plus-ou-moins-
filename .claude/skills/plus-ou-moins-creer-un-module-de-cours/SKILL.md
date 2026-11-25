@@ -9,7 +9,7 @@ description: Use when turning a math chapter of the French lycée programme (e.g
 
 Entrée : **un chapitre du programme** (intitulé, classe) et les documents de classe. Sortie : **le chapitre découpé en un module ou plusieurs**, chacun une **suite ordonnée de cours** (une méthode par cours), et pour chaque cours une **fiche** (`references/modele-fiche.md`). Ce skill ne contient **aucun plan de module** : la liste des modules, leur ordre, leurs numéros et leur état sont dans **`docs/modules.md`**, qu'il lit en premier et met à jour en dernier.
 
-Le skill décide de **ce qui est important dans chaque cours** ; il ne rédige aucun texte d'écran. Chaque cours est ensuite écrit avec `plus-ou-moins-ecrire-un-cours`, qui lit uniquement la fiche : **une fiche claire et courte fait économiser le plus de jetons en aval**.
+Le skill décide de **ce qui est important dans chaque cours** ; il ne rédige aucun texte d'écran. Chaque cours est ensuite écrit avec `plus-ou-moins-ecrire-un-cours`, qui lit uniquement la fiche : une fiche claire et courte est ce qui fait un bon cours.
 
 Vocabulaire : un *module* de l'appli regroupe des *cours* ; ce que le porteur du projet appelle parfois « un cours » (le chapitre du prof) est ici un **chapitre**.
 
@@ -23,7 +23,7 @@ Chaque élément du plan dit d'où il vient.
 
 ## Le plan du module : `docs/validation/NN-module-<nom>.md`
 
-NN = numéro suivant dans `docs/validation/`. Résumé d'une dizaine de lignes en tête, « Questions pour toi » (5 au plus, chacune avec une recommandation) à la fin. À valider **avant tout cours**. Pas de page HTML sauf si le porteur du projet la demande. Contenu :
+NN = numéro suivant dans `docs/validation/`. Résumé d'une dizaine de lignes en tête, puis **« Points importants du chapitre »** (ce qui est à relire et à valider : découpage, écarts avec le cours du prof, choix non évidents, risques), « Questions pour toi » (5 au plus, chacune avec une recommandation) à la fin. À valider **avant tout cours**. Pas de page HTML sauf si le porteur du projet la demande. Contenu :
 
 1. **Le chapitre** : intitulé, classe, documents reçus, objectifs (ce que l'élève saura faire en contrôle).
 2. **Le découpage** : **un seul module par défaut** ; plusieurs seulement si le module devient trop long ou si deux parties s'apprennent indépendamment (raisons données). Il décide.
@@ -34,12 +34,12 @@ NN = numéro suivant dans `docs/validation/`. Résumé d'une dizaine de lignes e
 
 ## Les fiches : `docs/fiches/cNN-nom.md`
 
-Une par cours, au format de `references/modele-fiche.md`, écrites **après validation du plan**. Elles reprennent du plan ce qui sert à écrire le cours, rien de plus (40 lignes au plus).
+Une par cours, au format de `references/modele-fiche.md`, écrites **après validation du plan**. Elles reprennent du plan ce qui sert à écrire le cours, rien de plus (40 lignes au plus). La section « Points importants » y est ébauchée ici (règles, pièges, écarts avec le cours du prof) et complétée par le skill cours à la fin.
 
 ## Numéros, ordre, registre
 
 - L'ordre des modules et les numéros de cours viennent de `docs/modules.md`. Si le plan change des numéros déjà donnés, ou si l'ordre voulu les rend incohérents, **le dire avant d'écrire**.
-- À la fin : mettre à jour `docs/modules.md` (module ajouté, cours, état, chemin du plan).
+- À la fin : mettre à jour `docs/modules.md` (module ajouté, cours, état, chemin du plan), puis `npx tsx scripts/points-importants.ts`.
 
 ## Reprises entre cours
 
@@ -53,7 +53,7 @@ Une par cours, au format de `references/modele-fiche.md`, écrites **après vali
 1. Lire `docs/modules.md`, les documents fournis, puis faire la recherche.
 2. Écrire le plan, le faire valider.
 3. Écrire les fiches ; mettre à jour le registre.
-4. Les cours s'écrivent ensuite **un par un** avec `plus-ou-moins-ecrire-un-cours`, en mode économe (un assistant Sonnet, aucune maquette sauf nouveau type d'écran), puis une relecture et une mise en ligne **par lot**.
+4. Les cours s'écrivent ensuite **un par un** avec `plus-ou-moins-ecrire-un-cours`, (aucune maquette sauf nouveau type d'écran), puis une relecture et une mise en ligne **par lot**.
 
 ## Idées pour plus tard (ne pas développer sans demande)
 

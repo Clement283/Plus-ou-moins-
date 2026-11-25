@@ -23,5 +23,12 @@ Module : … · Précédent : cours M « … » (ou : module précédent, cours 
 ## Hors catalogue
 Rien / nouvelle brique d'écran nécessaire : … (→ mode maquette)
 
-## Choix faits à l'écriture (ajouté par le cours, 5 lignes au plus)
+## Points importants
+(ébauchés par le plan, complétés à la fin de l'écriture ; 8 lignes au plus ; c'est ce qu'on relit à la place du cours)
+- À retenir : les règles, une ligne chacune.
+- Pièges : les erreurs reconnues, une ligne chacune.
+- Écarts et choix : ce qui diffère du cours du prof ou du programme, décisions prises sans document, à valider.
+- Dans l'appli : n écrans, note sur n questions, niveaux, fichier du cours.
 ```
+
+Le script `scripts/points-importants.ts` ne lit que le titre (`# Cours N — Titre`), la ligne « Module : … » et la section « Points importants » : respecter ces trois formes.
