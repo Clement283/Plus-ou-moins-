@@ -95,11 +95,17 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c06-diviser-deux': [
-    ['Diviser, c\'est la même règle', 'Bonne nouvelle : rien de nouveau à retenir.'],
-    ['Même règle qu\'en multiplication', 'Signes pareils : +. Différents : −.'],
-    ordreOf('24 ÷ (−6)'),
-    CALC,
-    [null], EX, EX, [null], EX, EX,
+    ['Diviser deux nombres relatifs'],
+    ["Diviser, c'est chercher un facteur"],
+    ['Le signe du quotient'],
+    ['Vérifier par la multiplication'],
+    [null], [null],
+    ['Comparer deux cas'],
+    ['Autres façons de faire'],
+    ['Cours 6 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c07-multiplier-plusieurs': [
     ['Je compte les signes moins', 'Deux signes −, c\'est pair : le résultat est positif.'],
@@ -148,7 +154,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   const attention = (id: string) => rule(id).type === 'explication' && (rule(id) as { blocks: LessonBlock[] }).blocks.some((b) => b.t === 'heading' && b.text === 'Fais attention');
 
   const KO: Record<string, [string, string]> = {
-    'c06-diviser-deux': ['−12 ÷ 4 = 3', 'Même règle que pour × : signes pareils → + ; différents → −.'],
     'c07-multiplier-plusieurs': ['−2 × 3 × (−4) = −24', 'Compte les signes − : pair → + ; impair → −.'],
   };
   for (const [id, [line, note]] of Object.entries(KO)) {
@@ -160,7 +165,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   }
 
   const OK: Record<string, string[]> = {
-    'c06-diviser-deux': ['−12 ÷ 4 = −(12 ÷ 4) = **−3**', '−35 ÷ (−7) = +(35 ÷ 7) = **5**'],
     'c07-multiplier-plusieurs': ['−1 × (−5) × (−2) : 3 signes − → impair → **−10**', '4 × (−3) × 2 : 1 signe − → impair → **−24**'],
   };
   for (const [id, expected] of Object.entries(OK)) {
@@ -185,9 +189,9 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
 
 describe('doc 09 : les textes d\'écran suivent la partie jusqu\'à l\'activité', () => {
   it('courseRunItems porte titre, sous-titre et consigne', () => {
-    const items = courseRunItems(getCourse('c06-diviser-deux'), seededRng(1));
-    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: "Même règle qu'en multiplication" } });
-    expect(items[2]).toMatchObject({ type: 'question', texts: { title: "Remets les étapes de 24 ÷ (−6) dans l'ordre" } });
+    const items = courseRunItems(getCourse('c07-multiplier-plusieurs'), seededRng(1));
+    expect(items[1]).toMatchObject({ type: 'explication', texts: { title: 'Pair donne +, impair donne −' } });
+    expect(items[2]).toMatchObject({ type: 'question', texts: { title: "Remets les étapes de −2 × (−3) × (−1) × 4 dans l'ordre" } });
     expect(items[6]).toMatchObject({ type: 'question', texts: { consigne: "Complète, une case après l'autre." } });
     expect(items[3]).not.toHaveProperty('texts');
   });

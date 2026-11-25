@@ -81,10 +81,11 @@ describe('feedbackFor : réponse tapée', () => {
     expect(raw(keys(d(3), 'minus'))).toMatchObject({ rightLatex: '12' });
   });
   it('−07 pour −7 : juste avec une note', () => {
-    // le Cours 6 n'a pas de texte propre : la note du moteur reste (le Cours 5 v2 donne son propre texte)
-    const q7 = saisie(C6, -7, 1);
-    expect(fb(C6, q7, { raw: keys('minus', d(0), d(7)) })).toMatchObject({ tone: 'juste', note: 'Juste ! On écrit simplement −7.' });
-    expect(fb(C6, q7, { raw: keys('minus', d(7)) })).toMatchObject({ tone: 'juste', note: null });
+    // le Cours 7 n'a pas de texte propre : la note du moteur reste (les Cours 5 et 6 v2 donnent leur propre texte)
+    const C7 = getCourse('c07-multiplier-plusieurs');
+    const q7 = saisie(C7, -7, 1);
+    expect(fb(C7, q7, { raw: keys('minus', d(0), d(7)) })).toMatchObject({ tone: 'juste', note: 'Juste ! On écrit simplement −7.' });
+    expect(fb(C7, q7, { raw: keys('minus', d(7)) })).toMatchObject({ tone: 'juste', note: null });
   });
   it('fraction −12 sur 4 : pas fini', () => {
     const q3 = saisie(C5, -3, 1);

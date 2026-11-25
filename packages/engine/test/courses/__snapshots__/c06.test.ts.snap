@@ -1,0 +1,347 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Cours 6 v2 — instantané des textes > fiche mémo et règle 1`] = `
+{
+  "memo": {
+    "examples": [
+      "−12 ÷ 4 = −(12 ÷ 4) = **−3**",
+      "−35 ÷ (−7) = +(35 ÷ 7) = **5**",
+    ],
+    "mistake": {
+      "why": "Deux nombres négatifs divisés donnent un **positif**, comme pour multiplier. On vérifie : 5 × (−4) = −20.",
+      "wrong": "−20 ÷ (−4) = −5",
+    },
+    "rule": "Pour diviser deux nombres relatifs, je divise les nombres sans leur signe, puis je mets le signe, comme pour multiplier : même signe, le résultat est positif ; signes contraires, il est négatif.",
+    "ruleBullets": [
+      "Même signe : le résultat est positif.",
+      "Signes contraires : le résultat est négatif.",
+    ],
+    "tip": "Même règle des signes que pour × : signes identiques, + ; signes contraires, −. Pour vérifier, je multiplie le résultat par le diviseur : −12 ÷ 4 = −3, car −3 × 4 = −12.",
+  },
+  "rule": "Pour diviser deux nombres relatifs, je divise les nombres sans leur signe, puis je mets le signe, comme pour multiplier : même signe, le résultat est positif ; signes contraires, il est négatif.",
+}
+`;
+
+exports[`Cours 6 v2 — instantané des textes > messages d’erreur (explications affichées) 1`] = `
+{
+  "erreur-table": [
+    "−12 ÷ (−4) : Le signe est bon ! Vérifie avec la multiplication : 3 × 4 = 12, donc 12 ÷ 4 = 3.",
+    "12 ÷ 4 : Le signe est bon ! Vérifie avec la multiplication : 3 × 4 = 12, donc 12 ÷ 4 = 3.",
+    "24 ÷ (−6) : Le signe est bon ! Vérifie avec la multiplication : 4 × 6 = 24, donc 24 ÷ 6 = 4.",
+    "−12 ÷ 4 : Le signe est bon ! Vérifie avec la multiplication : 3 × 4 = 12, donc 12 ÷ 4 = 3.",
+    "−35 ÷ (−7) : Le signe est bon ! Vérifie avec la multiplication : 5 × 7 = 35, donc 35 ÷ 7 = 5.",
+    "2208 ÷ (−24) : Le signe est bon ! Vérifie avec la multiplication : 92 × 24 = 2208, donc 2208 ÷ 24 = 92.",
+  ],
+  "multiplication-au-lieu-division": [
+    "−12 ÷ (−4) : Ici, c'est une **division** : ÷ et pas ×. 12 ÷ 4 = 3, et non 12 × 4 = 48.",
+    "12 ÷ 4 : Ici, c'est une **division** : ÷ et pas ×. 12 ÷ 4 = 3, et non 12 × 4 = 48.",
+    "24 ÷ (−6) : Ici, c'est une **division** : ÷ et pas ×. 24 ÷ 6 = 4, et non 24 × 6 = 144.",
+    "−12 ÷ 4 : Ici, c'est une **division** : ÷ et pas ×. 12 ÷ 4 = 3, et non 12 × 4 = 48.",
+    "−35 ÷ (−7) : Ici, c'est une **division** : ÷ et pas ×. 35 ÷ 7 = 5, et non 35 × 7 = 245.",
+    "2208 ÷ (−24) : Ici, c'est une **division** : ÷ et pas ×. 2208 ÷ 24 = 92, et non 2208 × 24 = 52992.",
+  ],
+  "regle-signes": [
+    "−12 ÷ (−4) : Deux nombres négatifs divisés donnent un **positif**, comme pour multiplier : −12 ÷ (−4) = 3. On vérifie : 3 × (−4) = −12.",
+    "12 ÷ 4 : Deux nombres positifs donnent un résultat **positif** : 12 ÷ 4 = 3.",
+    "24 ÷ (−6) : Tu as gardé le signe de 24. Mais le diviseur −6 compte aussi : les signes sont contraires, le résultat est **négatif** : 24 ÷ (−6) = −4.",
+    "−12 ÷ 4 : Il manque le signe : −12 et 4 ont des signes contraires, le résultat est **négatif** : −12 ÷ 4 = −3.",
+    "−35 ÷ (−7) : Deux nombres négatifs divisés donnent un **positif**, comme pour multiplier : −35 ÷ (−7) = 5. On vérifie : 5 × (−7) = −35.",
+    "2208 ÷ (−24) : Tu as gardé le signe de 2208. Mais le diviseur −24 compte aussi : les signes sont contraires, le résultat est **négatif** : 2208 ÷ (−24) = −92.",
+  ],
+}
+`;
+
+exports[`Cours 6 v2 — instantané des textes > écrans de la leçon, phrase par phrase 1`] = `
+[
+  {
+    "partie": 0,
+    "textes": [
+      "-24 \\div (-6)",
+      "Pour commencer, à ton avis : combien vaut ce quotient ?",
+      "4",
+      "Bonne intuition : deux nombres négatifs divisés donnent un positif, comme pour multiplier. Le cours va t'expliquer pourquoi.",
+      "−4",
+      "Beaucoup d'élèves le pensent, mais deux nombres négatifs divisés donnent un positif, comme pour multiplier. Le cours va t'expliquer pourquoi.",
+      "−30",
+      "−30, c'est −24 + (−6) : une addition. Ici, on divise : 24 ÷ 6 = 4, et le cours va t'expliquer quel signe mettre.",
+      "Diviser deux nombres relatifs",
+      "Tu sais **multiplier** des nombres relatifs. Maintenant, tu vas les **diviser**, par exemple −12 ÷ 4 ou −24 ÷ (−6).",
+      "Bonne nouvelle : la règle des signes est **la même** que pour multiplier. Et la division se **vérifie** avec une multiplication.",
+      "Question pour découvrir : elle ne compte pas dans la note.",
+    ],
+  },
+  {
+    "etapes": [
+      [
+        "Diviser, c'est le **contraire de multiplier** : 12 ÷ 4 = 3, car 3 × 4 = 12.",
+        "scène : 12 ÷ 4 = 3 | 3 × 4 = 12",
+      ],
+      [
+        "−12 ÷ 4, c'est le nombre qui, **multiplié par 4**, donne −12.",
+        "scène : −12 ÷ 4 = ? | ? × 4 = −12",
+      ],
+      [
+        "Pour obtenir −12 en multipliant par 4, il faut un nombre **négatif** : −12 ÷ 4 = −3, car −3 × 4 = −12.",
+        "Pour obtenir −12 en multipliant par 4, il faut un nombre [ ? ].",
+        "négatif",
+        "positif",
+        "3 × 4 = 12, et non −12. Pour obtenir −12 en multipliant par 4, le nombre cherché est négatif : −3.",
+        "scène : −12 ÷ 4 = ? | ? × 4 = −12",
+        "scène : −12 ÷ 4 = [−3] | [−3] × 4 = −12",
+      ],
+      [
+        "(encadré)",
+        "**Diviser, c'est chercher le nombre qui, multiplié par le diviseur, redonne le premier nombre.**",
+        "scène : 12 ÷ 4 = 3, car 3 × 4 = 12 | −12 ÷ 4 = −3, car −3 × 4 = −12",
+      ],
+    ],
+    "partie": 1,
+    "titre": "Diviser, c'est chercher un facteur",
+  },
+  {
+    "etapes": [
+      [
+        "Pour diviser, on regarde d'abord les **signes des deux nombres**, comme pour multiplier.",
+        "scène : [−18] ÷ [3]",
+      ],
+      [
+        "−18 ÷ 3 : les signes sont **contraires**, donc le résultat est **négatif** : −6.",
+        "−18 ÷ 3 : les signes sont contraires, donc le résultat est [ ? ].",
+        "négatif",
+        "positif",
+        "Des signes contraires donnent un négatif, comme pour multiplier : −18 ÷ 3 = −6, car −6 × 3 = −18.",
+        "scène : −18 ÷ 3 = ?",
+        "scène : −18 ÷ 3 = [−6]",
+      ],
+      [
+        "−20 ÷ (−4) : les deux nombres ont le **même signe**, donc le résultat est **positif** : 5.",
+        "−20 ÷ (−4) : les deux nombres ont le même signe, donc le résultat est [ ? ].",
+        "positif",
+        "négatif",
+        "Deux négatifs divisés donnent un positif, comme pour multiplier : −20 ÷ (−4) = 5, car 5 × (−4) = −20.",
+        "scène : −20 ÷ (−4) = ?",
+        "scène : −20 ÷ (−4) = [5]",
+      ],
+      [
+        "(encadré)",
+        "**Même signe : le résultat est positif. Signes contraires : le résultat est négatif.**",
+        "scène : + ÷ + = + | − ÷ − = + | + ÷ − = − | − ÷ + = −",
+      ],
+    ],
+    "partie": 2,
+    "titre": "Le signe du quotient",
+  },
+  {
+    "etapes": [
+      [
+        "Pour vérifier une division, on **multiplie le résultat par le diviseur**.",
+        "scène : −35 ÷ (−7) = 5",
+      ],
+      [
+        "Ici, le résultat est 5 et le diviseur est −7 : on calcule 5 × (−7).",
+        "5 × (−7) = [ ? ].",
+        "−35",
+        "35",
+        "−2",
+        "5 et −7 ont des signes contraires : le produit est négatif, −35.",
+        "−2, c'est 5 + (−7) : tu as additionné. Ici, on multiplie : 5 × 7 = 35, puis le signe −.",
+        "scène : −35 ÷ (−7) = 5 | [5] × (−7) = ?",
+        "scène : −35 ÷ (−7) = 5 | 5 × (−7) = [−35]",
+      ],
+      [
+        "Un élève a trouvé −12 ÷ 4 = 3. On vérifie : 3 × 4 = 12, et ce n'est pas −12.",
+        "3 × 4 = 12, mais on cherchait −12. Le résultat 3 est [ ? ].",
+        "faux",
+        "juste",
+        "Si 3 était juste, 3 × 4 donnerait −12. Or 3 × 4 = 12 : il manque le signe, le bon résultat est −3.",
+        "scène : −12 ÷ 4 = 3 | 3 × 4 = 12",
+        "scène : −12 ÷ 4 = 3 | [3 × 4 = 12], et non −12",
+      ],
+      [
+        "(encadré)",
+        "**Pour vérifier une division, je multiplie le résultat par le diviseur : je dois retrouver le premier nombre.**",
+        "scène : −12 ÷ 4 = −3 | −3 × 4 = −12",
+      ],
+    ],
+    "partie": 3,
+    "titre": "Vérifier par la multiplication",
+  },
+  {
+    "partie": 4,
+    "textes": [
+      "-42 \\div (-7)",
+      "Quel est le signe du résultat ?",
+      "Positif",
+      "Même signe : deux négatifs divisés donnent un positif. 42 ÷ 7 = 6, donc −42 ÷ (−7) = 6.",
+      "Négatif",
+      "Pour diviser, la règle est celle de la multiplication : le même signe donne un positif. −42 ÷ (−7) = 6.",
+      "On ne peut pas savoir",
+      "On peut savoir sans calculer : il suffit de regarder les deux signes. Ici, ils sont pareils : le résultat est positif.",
+    ],
+  },
+  {
+    "partie": 5,
+    "textes": [
+      "36 \\div (-4)",
+      "Quel est le résultat ?",
+      "−9",
+      "Les nombres d'abord : 36 ÷ 4 = 9. Puis le signe : signes contraires, le résultat est négatif : −9.",
+      "9",
+      "36 ÷ 4 = 9, c'est juste, mais il manque le signe : 36 et −4 ont des signes contraires, le résultat est négatif.",
+      "−32",
+      "−32, c'est 36 + (−4) : tu as additionné. Ici, on divise : 36 ÷ 4 = 9, puis le signe −.",
+    ],
+  },
+  {
+    "partie": 6,
+    "textes": [
+      "Quel est le résultat de chaque calcul ?",
+      "A −3, B −12",
+      "−12 ÷ 4 = −3 : on divise. −3 × 4 = −12 : on multiplie, et on retrouve le nombre de départ.",
+      "A −12, B −3",
+      "C'est l'inverse : A est la division, −12 ÷ 4 = −3. B est la multiplication, −3 × 4 = −12.",
+      "Les deux −3",
+      "Pour A, oui : −12 ÷ 4 = −3. Mais B est une multiplication : −3 × 4 = −12.",
+      "Comparer deux cas",
+      "Voici deux calculs qui se ressemblent. Regarde bien l'opération.",
+      "Question pour comprendre : elle ne compte pas dans la note.",
+      "Calcul A",
+      "-12 \\div 4",
+      "Calcul B",
+      "-3 \\times 4",
+      "Le calcul B vient du cours précédent : tu sais déjà le faire. Ici, tu observes seulement ce qui change.",
+      "−12 ",
+      "÷",
+      " 4",
+      "−3 ",
+      "×",
+      " 4",
+      "A : −12 ÷ 4 = −3. On **divise**.",
+      "B : −3 × 4 = −12. On **multiplie**, et on retrouve le nombre de départ (Cours 5).",
+      "La multiplication **défait** la division, et la division défait la multiplication. Avant de calculer, regarde bien l'opération.",
+    ],
+  },
+  {
+    "partie": 7,
+    "textes": [
+      "Autres façons de faire",
+      "Les 3 règles à retenir",
+      "1. Diviser, c'est chercher le nombre qui, multiplié par le diviseur, redonne le premier.",
+      "−12 ÷ 4 = −3, car −3 × 4 = −12",
+      "−12 ÷ 4 = −48",
+      "2. Même signe : positif. Signes contraires : négatif.",
+      "−20 ÷ (−4) = 5",
+      "−20 ÷ (−4) = −5",
+      "3. Je vérifie en multipliant le résultat par le diviseur.",
+      "5 × (−4) = −20",
+      "3 × 4 = 12, donc −12 ÷ 4 = 3",
+      "Je divise les nombres sans leur signe, puis je mets le signe : même signe, positif ; signes contraires, négatif. Je vérifie en multipliant.",
+      "La méthode marche toujours. Voici deux autres façons de faire : **choisis celle que tu veux essayer**.",
+      "Barrer des zéros",
+      "Quand les deux nombres se terminent par des zéros.",
+      "350 ÷ 50 : on barre un zéro en haut et en bas, 35 ÷ 5 = 7",
+      "On barre autant de zéros en haut qu'en bas : le résultat ne change pas. Le signe se met à la fin, comme d'habitude.",
+      "Essaie avec −4200 ÷ 600 : barre deux zéros en haut et en bas, puis divise. **Tape le résultat.**",
+      "−4200 ÷ 600",
+      "On barre deux zéros : 42 ÷ 6 = 7. Signes contraires : −7.",
+      "Le nombre est bon, mais pas le signe : −4200 et 600 ont des signes contraires, le résultat est négatif.",
+      "Il faut barrer le même nombre de zéros en haut et en bas : deux zéros en haut, deux zéros en bas. 42 ÷ 6 = 7.",
+      "On barre deux zéros : 42 ÷ 6 = 7, puis le signe − : −7.",
+      "Diviser en deux fois",
+      "Quand le diviseur est un produit de petits nombres.",
+      "36 ÷ 4 : 36 ÷ 2 = 18, puis 18 ÷ 2 = 9",
+      "Diviser par 4, c'est diviser par 2, puis encore par 2. On coupe le diviseur en deux petits nombres et on divise deux fois.",
+      "Calcule −48 ÷ 6 en divisant par 2, puis par 3. **Touche ce que tu trouves.**",
+      "−48 ÷ 6",
+      "−8",
+      "8",
+      "−24",
+      "−48 ÷ 2 = −24, puis −24 ÷ 3 = −8. Le signe ne change pas en route : signes contraires, négatif.",
+      "−48 ÷ 2 = −24, puis −24 ÷ 3 = −8. Il faut diviser deux fois, et garder le signe négatif.",
+      "Ensuite, tu t'entraînes avec quatre questions.",
+    ],
+  },
+  {
+    "partie": 8,
+    "textes": [
+      "Cours 6 · Pratique",
+      "= \\square",
+      "Le signe est déjà trouvé. **Tape le résultat dans la case.**",
+      "= +(63 \\div 9)",
+      "+",
+      "-",
+      "Touche le signe du résultat. Tu n'as pas besoin de calculer.",
+      "Quel est le signe du résultat ?",
+      "-9 \\times 3",
+      "Quel est le résultat ?",
+      "−27",
+      "Ce calcul est une multiplication (Cours 5) : 9 × 3 = 27. Signes contraires, le résultat est négatif : −27.",
+      "−3",
+      "−3, c'est −9 ÷ 3 : tu as divisé. Regarde bien l'opération : c'est une multiplication. −9 × 3 = −27.",
+      "27",
+      "27 est le bon nombre, mais il manque le signe : −9 et 3 ont des signes contraires, le résultat est négatif.",
+      "Regarde bien l'opération, puis touche le résultat.",
+      "-72 \\div (-8) = \\square",
+      "Calcule. **Tape le résultat.**",
+      "Maintenant, deux exemples pour t'aider à les résoudre en entier.",
+    ],
+  },
+  {
+    "etapes": [
+      [
+        "Voici la résolution. Lis la première ligne, puis touche « Je comprends ».",
+        "scène : −45 ÷ (−9)",
+      ],
+      [
+        "Même signe : le résultat est **positif**. On écrit d'abord ce signe, puis la division des nombres sans leur signe.",
+        "scène : −45 ÷ (−9) | [= +(45 ÷ 9)]",
+      ],
+    ],
+    "partie": 9,
+    "titre": "Exemple 1 sur 2",
+  },
+  {
+    "partie": 10,
+    "textes": [
+      "= \\square",
+      "Tape ce qui manque dans la case, avec les touches du clavier.",
+      "= +(45 \\div 9)",
+      "Dernière ligne. Calcule 45 ÷ 9, avec le signe trouvé. Tu peux t'aider de la ligne du dessus.",
+    ],
+  },
+  {
+    "partie": 11,
+    "textes": [
+      "+",
+      "-",
+      "Touche le signe du résultat.",
+      "Cette fois, deux cases sont à toi. Trouve d'abord le signe du résultat, puis calcule.",
+      "",
+    ],
+  },
+  {
+    "partie": 12,
+    "textes": [
+      "= \\square",
+      "Complète, une case après l'autre.",
+      "= -(54 \\div 6)",
+      "",
+    ],
+  },
+  {
+    "etapes": [
+      [
+        "Cette fois, **pas d'aide**. Ils ressemblent à ce que tu verras en contrôle.",
+      ],
+      [
+        "Pour valider le cours, il faut : au moins **4 exercices de fin justes sur 5** ; et **80 % de bonnes réponses** sur tout le cours.",
+      ],
+      [
+        "Si tu n'y arrives pas, ce n'est pas grave : tu feras une **série de validation**. Ce sont 5 exercices, sans refaire la leçon.",
+      ],
+    ],
+    "partie": 13,
+    "titre": "Place aux 5 exercices de fin",
+  },
+]
+`;

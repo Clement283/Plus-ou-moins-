@@ -17,7 +17,7 @@ describe('largeur du téléphone : aucun calcul ne dépasse (aide réutilisable 
     expect(mathLines('248 - (-175) - 90 = \\square', QUESTION_FONT)).toBeLessThanOrEqual(2);
   });
 
-  for (const id of ['c01-additionner-meme-signe', 'c02-additionner-signes-contraires', 'c03-additionner-plusieurs', 'c04-soustraire', 'c05-multiplier-deux']) {
+  for (const id of ['c01-additionner-meme-signe', 'c02-additionner-signes-contraires', 'c03-additionner-plusieurs', 'c04-soustraire', 'c05-multiplier-deux', 'c06-diviser-deux']) {
     const course = getCourse(id);
     it(`${id} : chaque scène de la leçon tient sur une ligne`, () => {
       const scenes = scenesOf(course.parts);
