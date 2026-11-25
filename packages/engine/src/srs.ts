@@ -11,7 +11,7 @@
  *   update incrementally, and refold from the journal when an event older than the last one arrives.
  */
 import type { AppEvent } from './events';
-import { MODULES, type Level } from './courses';
+import { ESSAIS, MODULES, type Level } from './courses';
 import { addDays } from './time';
 
 export const LADDER = [
@@ -112,7 +112,7 @@ function emptyCourse(courseId: string): CourseProgress {
 
 function initialState(): ProgressState {
   const courses: Record<string, CourseProgress> = {};
-  for (const m of MODULES) for (const id of m.courseIds) courses[id] = emptyCourse(id);
+  for (const m of [...MODULES, ESSAIS]) for (const id of m.courseIds) courses[id] = emptyCourse(id);
   return { courses, modules: {}, journal: { events: [], runs: {}, recent: {} } };
 }
 
@@ -272,6 +272,11 @@ function finalize(s: ProgressState): void {
     }
     const total = m.courseIds.length;
     s.modules[m.id] = { moduleId: m.id, validated, total, done: validated === total };
+  }
+  // Essais : tous les cours ouverts, sans progression de module.
+  for (const id of ESSAIS.courseIds) {
+    const c = s.courses[id]!;
+    if (c.status === 'verrouille') c.status = 'disponible';
   }
 }
 

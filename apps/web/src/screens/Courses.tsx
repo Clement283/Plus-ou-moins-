@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { MODULES, canOpenMemo, getCourse, lastAttempt, type CourseProgress, type LastAttempt } from '@pom/engine';
+import { ESSAIS, MODULES, canOpenMemo, getCourse, lastAttempt, type CourseProgress, type LastAttempt } from '@pom/engine';
 import { Stars, courseLabel, lastAttemptText, ruleLink } from '../components/CourseBits';
 import { go } from '../router';
-import { useProgress, useReady } from '../store/progress';
+import { useProgress, useReady, useSession } from '../store/progress';
 import { useEvents } from '../store/sync';
 import { BottomNav } from '../ui/BottomNav';
 import { Icon } from '../ui/Icon';
@@ -97,6 +97,7 @@ export default function Courses() {
 function CoursesList() {
   const progress = useProgress();
   const events = useEvents();
+  const apercu = !!useSession()?.user.apercu;
   const module = MODULES.find((m) => !progress.modules[m.id]?.done) ?? MODULES[0]!;
   const mp = progress.modules[module.id]!;
   // Ouvert au départ : le prochain cours à faire ou à rattraper.
@@ -111,6 +112,55 @@ function CoursesList() {
     if (scrolls && typeof defaultRow.current?.scrollIntoView === 'function') defaultRow.current.scrollIntoView({ block: 'center' });
   }, [scrolls, firstOpen]);
   const done = mp.done;
+
+  const renderRow = (id: string) => {
+    const c = progress.courses[id]!;
+    const order = getCourse(id).order;
+    const locked = c.status === 'verrouille';
+    const num = (
+      <span className={`course-num is-${locked ? 'locked' : c.status === 'valide' ? 'done' : c.status === 'a-rattraper' ? 'retry' : 'todo'}`} aria-hidden="true">
+        {order}
+      </span>
+    );
+    if (locked)
+      return (
+        <div key={id} className="crow is-locked">
+          <div className="crow__static">
+            {num}
+            <div className="list-item__text">
+              <span className="list-item__title">{courseLabel(id)}</span>
+              <span className="status">
+                <Icon name="lock" size="sm" />
+                Verrouillé
+              </span>
+              <span className="t-caption">Valide le cours {order - 1} pour l'ouvrir.</span>
+            </div>
+          </div>
+        </div>
+      );
+    return (
+      <details key={id} ref={id === firstOpen ? defaultRow : undefined} className="crow" open={open === id}>
+        <summary
+          onClick={(e) => {
+            e.preventDefault();
+            setOpen(open === id ? null : id);
+          }}
+        >
+          {num}
+          <div className="list-item__text">
+            <span className="list-item__title">{courseLabel(id)}</span>
+            <span className="row row--wrap">
+              <Status c={c} />
+            </span>
+          </div>
+          <Icon name="chevron-right" className="crow__chev" />
+        </summary>
+        <div className="crow__body">
+          <Actions c={c} last={lastAttempt(progress, events, id)} />
+        </div>
+      </details>
+    );
+  };
 
   return (
     <>
@@ -136,55 +186,19 @@ function CoursesList() {
           </p>
         </section>
         <section className="list" aria-label={`Cours du module ${module.title}`}>
-          {module.courseIds.map((id) => {
-            const c = progress.courses[id]!;
-            const order = getCourse(id).order;
-            const locked = c.status === 'verrouille';
-            const num = (
-              <span className={`course-num is-${locked ? 'locked' : c.status === 'valide' ? 'done' : c.status === 'a-rattraper' ? 'retry' : 'todo'}`} aria-hidden="true">
-                {order}
-              </span>
-            );
-            if (locked)
-              return (
-                <div key={id} className="crow is-locked">
-                  <div className="crow__static">
-                    {num}
-                    <div className="list-item__text">
-                      <span className="list-item__title">{courseLabel(id)}</span>
-                      <span className="status">
-                        <Icon name="lock" size="sm" />
-                        Verrouillé
-                      </span>
-                      <span className="t-caption">Valide le cours {order - 1} pour l'ouvrir.</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            return (
-              <details key={id} ref={id === firstOpen ? defaultRow : undefined} className="crow" open={open === id}>
-                <summary
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setOpen(open === id ? null : id);
-                  }}
-                >
-                  {num}
-                  <div className="list-item__text">
-                    <span className="list-item__title">{courseLabel(id)}</span>
-                    <span className="row row--wrap">
-                      <Status c={c} />
-                    </span>
-                  </div>
-                  <Icon name="chevron-right" className="crow__chev" />
-                </summary>
-                <div className="crow__body">
-                  <Actions c={c} last={lastAttempt(progress, events, id)} />
-                </div>
-              </details>
-            );
-          })}
+          {module.courseIds.map(renderRow)}
         </section>
+        {apercu && (
+          <>
+            <section className="module-head" aria-label="Module Essais">
+              <span className="t-h5">Essais</span>
+              <p className="t-body2">Cours à l'essai : tu es seul à les voir.</p>
+            </section>
+            <section className="list" aria-label="Cours à l'essai">
+              {ESSAIS.courseIds.map(renderRow)}
+            </section>
+          </>
+        )}
       </main>
       <div className="app-foot">
         <BottomNav active="cours" />
