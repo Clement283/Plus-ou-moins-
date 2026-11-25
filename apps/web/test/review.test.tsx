@@ -101,7 +101,7 @@ const noop = () => undefined;
 describe('Révisions : la séance', () => {
   it('pastille « Révisions, question 1 sur 15 », jamais le nom du cours, uniquement qcm, vraifaux ou classer', async () => {
     load('debut-de-journee');
-    const v = await mount(<ReviewScreen rng={seededRng(3)} />);
+    const v = await mount(<ReviewScreen rng={seededRng(4)} />);
     expect(v.$('.chip')?.textContent).toBe('Révisions, question 1 sur 15');
     for (const id of MODULES[0]!.courseIds) expect(v.text()).not.toContain(getCourse(id).title);
     expect(v.$('.keypad')).toBeNull(); // pas de saisie au clavier

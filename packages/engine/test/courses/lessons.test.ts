@@ -55,11 +55,18 @@ const DOC09: Record<string, T[]> = {
     ['Place aux 5 exercices de fin'],
   ],
   'c03-additionner-plusieurs': [
-    ['Je range les positifs et les négatifs', 'Les positifs d\'un côté, les négatifs de l\'autre.'],
-    ['Je regroupe, puis je termine', 'Positifs, puis négatifs, puis le cours 2.'],
-    ordreOf('7 + (−1) + (−8)'),
-    CALC,
-    EX, EX, EX, EX,
+    ['Additionner plusieurs nombres relatifs'],
+    ["L'ordre des bonds ne change rien"],
+    ['Comparer deux cas'],
+    ['Je regroupe les positifs et les négatifs'],
+    ['Je calcule chaque groupe'],
+    [null], [null],
+    ['De gauche à droite, un calcul à la fois'],
+    ['Autres façons de faire'],
+    ['Cours 3 · Pratique'],
+    ['Exemple 1 sur 2'],
+    EX, EX, EX,
+    ['Place aux 5 exercices de fin'],
   ],
   'c04-soustraire': [
     ['Enlever une dette, c\'est gagner de l\'argent'],
@@ -144,7 +151,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   });
 
   const KO: Record<string, [string, string]> = {
-    'c03-additionner-plusieurs': ['−2 + 5 + (−4) = 1', 'Regarde qui gagne : le total des positifs ou celui des négatifs ? Le résultat prend son signe.'],
     'c05-multiplier-deux': ['−3 × (−4) = −12', '− × − = + et + × − = −. Deux signes pareils → + ; différents → −.'],
     'c06-diviser-deux': ['−12 ÷ 4 = 3', 'Même règle que pour × : signes pareils → + ; différents → −.'],
     'c07-multiplier-plusieurs': ['−2 × 3 × (−4) = −24', 'Compte les signes − : pair → + ; impair → −.'],
@@ -158,7 +164,6 @@ describe('doc 09 : écran de règle, lignes ✓ et « Fais attention »', () => 
   }
 
   const OK: Record<string, string[]> = {
-    'c03-additionner-plusieurs': ['positifs : 3 + 3 = 6', 'négatifs : −3', '6 + (−3) = **3**'],
     'c05-multiplier-deux': ['−3 × (−4) = +(3 × 4) = **12**', '6 × (−7) = −(6 × 7) = **−42**'],
     'c06-diviser-deux': ['−12 ÷ 4 = −(12 ÷ 4) = **−3**', '−35 ÷ (−7) = +(35 ÷ 7) = **5**'],
     'c07-multiplier-plusieurs': ['−1 × (−5) × (−2) : 3 signes − → impair → **−10**', '4 × (−3) × 2 : 1 signe − → impair → **−24**'],

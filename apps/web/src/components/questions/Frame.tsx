@@ -100,23 +100,28 @@ export function SeriesCounter({ series, locked }: { series: { n: number; of: num
   );
 }
 
-/** Exemple guidé : lignes de résolution déjà posées (`above`) puis l'aide de la ligne en cours (`help`). Le calcul de départ reste au-dessus. */
-export function Resolution({ texts }: { texts?: PartTexts | undefined }) {
-  if (!texts?.above?.length && !texts?.help) return null;
+/**
+ * Exemple guidé : lignes de résolution déjà posées (`above`) puis l'aide de la ligne en cours (`help`). Le calcul de départ reste
+ * au-dessus. `part` ne montre que l'un des deux (la case d'un « Compléter » se glisse entre les lignes et l'aide).
+ */
+export function Resolution({ texts, part }: { texts?: PartTexts | undefined; part?: 'above' | 'help' }) {
+  const above = part !== 'help' && texts?.above && texts.above.length > 0 ? texts.above : null;
+  const help = part !== 'above' ? texts?.help : undefined;
+  if (!above && !help) return null;
   return (
     <>
-      {texts.above && texts.above.length > 0 && (
+      {above && (
         <div className="resolution" data-copie>
-          {texts.above.map((l, i) => (
+          {above.map((l, i) => (
             <p key={i} className="resolution__line t-math-md">
               <MathView latex={l} />
             </p>
           ))}
         </div>
       )}
-      {texts.help && (
+      {help && (
         <div className="help-box">
-          <Bold text={texts.help} />
+          <Bold text={help} />
         </div>
       )}
     </>

@@ -2,7 +2,7 @@
 
 *2026-11-23 : « rattrapage » s'appelle désormais « série de validation » dans l'interface (doc 08).*
 
-*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23 ; n° 20 à 31 puis n° 32 à 42 ajoutés le 2026-11-24 ; n° 43 à 50 ajoutés le 2026-11-25, après la maquette `cours-0-v3.html`). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
+*Statut : validé (2026-11-23 ; n° 16 à 19 ajoutés le 2026-11-23 ; n° 20 à 31 puis n° 32 à 42 ajoutés le 2026-11-24 ; n° 43 à 50 ajoutés le 2026-11-25, après la maquette `cours-0-v3.html` ; n° 51 ajouté le 2026-11-25, après la maquette `cours-3-v2.html`). Réponses du porteur du projet aux « Questions pour toi » des maquettes (`docs/design/ecrans/`). En cas de différence, ce document prime sur les documents 01 à 07.*
 
 | # | Question | Décision |
 |---|---|---|
@@ -56,6 +56,7 @@
 | 48 | Exemple guidé à deux cases (exemple 2) | **Seule la dernière case (le résultat) compte** dans la note ; la case 1 est un entraînement non noté. Cours 1 : 11 questions au total. Cours 0 : même principe (case 2 de l'exemple 2), 14 questions. |
 | 49 | Question ratée de la série de pratique | **Elle revient avant les exercices de fin**, comme les autres questions de leçon (n° 22) : correction, suite, puis « Tu retrouveras ce calcul à la fin de la leçon. » Seule la 1re réponse compte. |
 | 50 | Erreur à l'échauffement (n° 39) | **Elle apparaît dans « Erreurs les plus communes »** de la page de suivi, mais **ne compte pas dans la note** du cours. |
+| 51 | Le niveau rallonge-t-il aussi le calcul ? | **Oui : le niveau peut rallonger le calcul (plus de termes) quand le cours s'y prête, en plus d'agrandir les nombres ; décidé 2026-11-25.** Cours 3 : niveau 1 de 3 à 4 termes (1 à 9), niveau 2 de 4 à 5 termes (1 à 20), niveau 3 de 5 à 6 termes (10 à 99), signes toujours mélangés. Les questions de la leçon et les exercices de fin restent au niveau 1, avec les valeurs exactes de la maquette. Le Cours 7 (multiplier plusieurs nombres) suivra le même principe. |
 
 Autres décisions du 2026-11-23 :
 - Entraînement : la phrase sur les cours pas encore disponibles devient « Les cours 5 à 7 apparaîtront ici quand tu auras fini ces cours. ».
