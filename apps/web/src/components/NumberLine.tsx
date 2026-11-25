@@ -70,6 +70,29 @@ export function NumberLine({ from, to, jumps }: { from: number; to: number; jump
 
 const MAX_TOUCH_TICKS = 8;
 
+/** Hauteur d'un arc par défaut, et ce qu'on ajoute par arc plus court qui tient dedans. */
+const ARC_H = 28;
+const ARC_STEP = 16;
+
+/**
+ * Hauteur de chaque arc : deux bonds qui se superposent (un petit bond sous le grand, ex. −7 puis +2) ne se confondent pas.
+ * Un arc est d'autant plus haut qu'il en contient d'autres (même étendue : le plus ancien est le plus bas).
+ */
+export function arcHeights(jumps: { from: number; by: number }[]): number[] {
+  const span = (j: { from: number; by: number }) => [Math.min(j.from, j.from + j.by), Math.max(j.from, j.from + j.by)] as const;
+  return jumps.map((j, i) => {
+    const [lo, hi] = span(j);
+    const inside = jumps.filter((k, m) => {
+      if (m === i) return false;
+      const [klo, khi] = span(k);
+      const contained = lo <= klo && khi <= hi;
+      const smaller = khi - klo < hi - lo || (khi - klo === hi - lo && m < i);
+      return contained && smaller;
+    }).length;
+    return ARC_H + ARC_STEP * inside;
+  });
+}
+
 export interface LineTouch {
   onPick(point: number): void;
   picked?: number | null;
@@ -116,6 +139,8 @@ export function LineView({
   const hl = new Set(line.highlight ?? []);
   const hand = touch?.hand && !reduced ? handPoint(line) : null;
   const touchable = touch !== undefined && n <= MAX_TOUCH_TICKS;
+  const heights = arcHeights(line.jumps);
+  const arcSpace = Math.max(ARC_H, ...heights);
 
   return (
     <div className={`line-view${neutral ? ' is-neutral' : ' is-color'}${touchable ? ' is-touch' : ''}`} data-mode={mode}>
@@ -152,7 +177,7 @@ export function LineView({
           </span>
         ))}
       </div>
-      <div className="line-view__arcs" key={replay}>
+      <div className="line-view__arcs" key={replay} style={arcSpace > ARC_H ? { height: arcSpace + ARC_H } : undefined}>
         {line.jumps.map((j, i) => {
           const lo = Math.min(j.from, j.from + j.by);
           const sign = neutral ? '' : j.by < 0 ? ' is-neg' : ' is-pos';
@@ -161,7 +186,7 @@ export function LineView({
             <span
               key={i}
               className={`line-view__arc${sign}${visible ? ' is-shown' : ''}`}
-              style={{ left: center(lo), width: `${(Math.abs(j.by) / n) * 100}%` }}
+              style={{ left: center(lo), width: `${(Math.abs(j.by) / n) * 100}%`, ...(heights[i] !== ARC_H ? { height: heights[i] } : {}) }}
             >
               <span className="line-view__arcval">{j.label ?? fmt(j.by, true)}</span>
             </span>

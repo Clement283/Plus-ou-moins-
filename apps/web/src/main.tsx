@@ -8,6 +8,7 @@ import './theme.css';
 import './styles/line.css';
 import './styles/etapes.css';
 import './styles/series.css';
+import './styles/autres.css';
 import './styles/memo.css';
 import './styles/warmup.css';
 import './styles/questions.css';

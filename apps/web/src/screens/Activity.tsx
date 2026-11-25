@@ -6,6 +6,7 @@ import {
 import { AskClement } from '../components/AskClement';
 import { ListenButton } from '../components/ListenButton';
 import { Etapes } from '../components/Etapes';
+import { AutresFacons } from '../components/Autres';
 import { FeedbackPanel } from '../components/Feedback';
 import { LessonPartScreen } from '../components/LessonPart';
 import type { PreviousChoix } from '../components/questions/Frame';
@@ -289,6 +290,11 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
           header={<span className="chip chip--module">{chip(step, pos)}</span>}
           onDone={onLessonNext}
         />,
+      );
+    }
+    if (step.item.autres) {
+      return frame(
+        <AutresFacons key={shown} screen={step.item.autres} header={<span className="chip chip--module">{chip(step, pos)}</span>} onDone={onLessonNext} />,
       );
     }
     return frame(

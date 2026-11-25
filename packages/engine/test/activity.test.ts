@@ -380,8 +380,9 @@ describe('cours : leçon, exemples guidés et 5 exercices de fin (doc 01 §2, do
           return;
         }
         const it = items[at++]!;
-        expect(it.type).toBe(p.type === 'etapes' ? 'explication' : p.type);
+        expect(it.type).toBe(p.type === 'etapes' || p.type === 'autres' ? 'explication' : p.type);
         if (p.type === 'etapes' && it.type === 'explication') expect(it.steps).toBe(p.steps);
+        if (p.type === 'autres' && it.type === 'explication') expect(it.autres).toMatchObject({ title: p.title, techniques: p.techniques });
         if (p.type === 'question' && it.type === 'question') {
           expect(it.activity).toBe(p.activity);
           expect(it.question).toBe(p.question);
