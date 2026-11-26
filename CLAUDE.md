@@ -10,7 +10,7 @@
 - Pull request : tests (`npm ci`, `npm test`).
 - Fusion dans `main` : tests, puis si verts : migrations D1 + `npm run deploy` (Cloudflare). Secret GitHub : `CLOUDFLARE_API_TOKEN`.
 - Pas de déploiement à la main depuis une session (réseau Cloudflare bloqué). Échec : lire l'étape rouge dans l'onglet *Actions* ; test instable : *Re-run failed jobs*. Détails : `docs/deploiement.md`.
-- Pull request touchant l'appli ou les cours : tous les tests e2e (chaque cours joué en entier) + captures des cours modifiés (lien en commentaire de la PR). Après la mise en ligne : vérification que le site répond. Boutons *Run workflow* de l'onglet Actions : « Tests et mise en ligne » (remettre en ligne `main`) et « Captures d'un cours ».
+- Pull request touchant l'appli ou les cours : tous les tests e2e (chaque cours joué en entier) + captures des cours modifiés (lien en commentaire de la PR). Après la mise en ligne : vérification que le site répond. Bouton *Run workflow* de l'onglet Actions : « Captures d'un cours ».
 
 ## Modules et cours (organisation des documents)
 - Registre : `docs/modules.md` (ordre des modules). Un module = `docs/modules/NN-nom/` avec `module.md` (descriptif global, points importants, liste des cours) et un fichier par cours `nom-du-cours.md` (points importants en haut, fiche dessous).

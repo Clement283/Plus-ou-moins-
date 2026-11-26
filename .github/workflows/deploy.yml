@@ -4,8 +4,6 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Bouton « Run workflow » de l'onglet Actions : remettre en ligne la version de main, sans pull request.
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -102,9 +100,9 @@ jobs:
 
   deploy:
     name: Mise en ligne Cloudflare
-    # Seulement après un push sur main (ou le bouton « Run workflow » sur main) ET si les tests sont verts.
+    # Seulement après un push sur main ET si les tests sont verts.
     needs: test
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
