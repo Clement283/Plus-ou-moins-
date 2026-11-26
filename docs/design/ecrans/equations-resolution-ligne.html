@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Résolution ligne par ligne</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style>
+/* Mise en page : un téléphone qui montre le nouvel écran « résolution ligne par ligne », à côté les notes de conception de l'état affiché. Mêmes jetons que cours-4-v2.html. */
+:root{
+  --bg:#F2F3F8; --surface:#FFFFFF; --sunken:#E9EBF3; --line:#DDE0EA;
+  --ink:#1A1D2E; --muted:#565C73; --primary:#3B39D4; --on-primary:#FFFFFF;
+  --ok:#137F57; --ok-bg:#DDF3E9; --ko:#C42D47; --ko-bg:#FCE4E8;
+  --hl:#FFE27A; --hl-ink:#5C4100; --grey-bg:#ECEDF2;
+  --neg:#C25400; --pos:#1565C0; --chg:#D97A00; --chg-bg:#FFF0D2;
+  --op-bg:#E6E6FF; --op-ink:#2422A6;
+  --font:'Lexend','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px}
+.intro h1{font-size:1.6rem;margin:0 0 4px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:70ch}
+.layout{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.nav button.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.nav button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* Téléphone */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;min-height:720px;display:flex;flex-direction:column;overflow:hidden}
+.ph-top{display:flex;align-items:center;gap:12px;padding:16px 18px 6px}
+.ph-x{font-size:1.4rem;color:var(--muted);line-height:1}
+.bar{flex:1;display:flex;gap:3px}
+.bar i{flex:1;height:5px;border-radius:3px;background:var(--sunken)}
+.bar i.d{background:var(--primary)}
+.chip{margin:8px 18px 0;align-self:flex-start;font-size:.8rem;font-weight:600;color:var(--muted);background:var(--sunken);border-radius:999px;padding:5px 12px}
+.ph-body{flex:1;padding:14px 20px 20px;display:flex;flex-direction:column;gap:14px}
+h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:0}
+.q{font-weight:600;margin:0}
+.btn{font:inherit;font-weight:600;font-size:1.05rem;border-radius:16px;padding:15px;border:0;cursor:pointer;width:100%}
+.btn-main{background:var(--primary);color:var(--on-primary)}
+.btn-line{background:transparent;border:2px solid var(--line);color:var(--ink);font-size:.9rem;padding:9px}
+.btn:focus-visible,.opt:focus-visible,.key:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.zone{margin-top:auto;display:grid;gap:10px;padding-top:6px}
+.rule{border:2px solid var(--primary);border-radius:16px;padding:12px 14px}
+.rule b{display:block;color:var(--primary);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.opts{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.opt{font:inherit;font-size:1.3rem;font-weight:500;text-align:center;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.opt.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.opt:disabled{cursor:default}
+.fb{border-radius:14px;padding:12px 14px;display:grid;gap:4px}
+.fb.ok{background:var(--ok-bg)} .fb.ko{background:var(--ko-bg)}
+.fb strong{color:var(--ok)} .fb.ko strong{color:var(--ko)}
+.fb p{margin:0}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.key{font:inherit;font-size:1.3rem;font-weight:500;border:0;border-radius:12px;padding:11px 0;background:var(--sunken);color:var(--ink);cursor:pointer}
+.key.op{background:color-mix(in srgb,var(--primary) 16%,var(--sunken))}
+.new{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.new{animation:none}}
+
+/* ——— Nouveau : la résolution, ligne par ligne ——— */
+/* Le « = » reste dans une colonne fixe, comme dans un cahier ; sous chaque membre, l'opération faite. */
+.sheet{background:var(--sunken);border-radius:20px;padding:12px 8px;display:grid;gap:2px}
+.ln{display:grid;grid-template-columns:1fr 2.2em 1fr;align-items:center;font-size:1.55rem;font-weight:500;white-space:nowrap;border-radius:12px;padding:3px 4px}
+.ln .l{text-align:right} .ln .r{text-align:left} .ln .s{text-align:center}
+.ln.old{color:var(--muted);font-size:1.25rem}
+.ln.cur{background:var(--surface)}
+.ln.final{background:var(--ok-bg);color:var(--ok)}
+.ops{display:grid;grid-template-columns:1fr 2.2em 1fr;font-size:.9rem;font-weight:600;padding:0 4px 4px}
+.ops .l{text-align:right} .ops .r{text-align:left}
+.opb{display:inline-block;background:var(--op-bg);color:var(--op-ink);border-radius:8px;padding:1px 8px}
+.ops.new .opb{animation:drop .5s cubic-bezier(.34,1.4,.5,1) both}
+.ops.new .r .opb{animation-delay:.18s}
+@keyframes drop{from{opacity:0;transform:translateY(-10px) scale(1.3)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ops.new .opb{animation:none}}
+.x{font-style:italic}
+.box{display:inline-block;min-width:2.4em;text-align:center;border:2.5px dashed var(--primary);border-radius:10px;padding:0 6px;line-height:1.35;background:var(--surface)}
+.box.ok{border-style:solid;border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.box.ko{border-style:solid;border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.flip{display:inline-block;background:var(--chg-bg);color:var(--chg);border-radius:8px;padding:0 6px}
+.flip.new{animation:spin .7s .2s ease both}
+@keyframes spin{from{transform:rotateY(180deg)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.flip.new{animation:none}}
+.warn{display:flex;gap:8px;align-items:center;background:var(--chg-bg);color:var(--chg);font-weight:600;border-radius:12px;padding:8px 12px;font-size:.9rem}
+.strike{text-decoration:line-through;text-decoration-color:var(--ko);text-decoration-thickness:3px}
+.mark{color:var(--ko);font-size:.85rem;font-weight:600;text-align:center}
+/* La balance */
+.scale{width:100%;max-width:300px;height:auto;margin:0 auto;display:block;color:var(--ink)}
+.scale text{font-family:var(--font);font-size:15px;font-weight:600;fill:currentColor;text-anchor:middle}
+.scale .beam{stroke:currentColor;stroke-width:3;stroke-linecap:round}
+.scale .pan{fill:var(--surface);stroke:currentColor;stroke-width:2}
+.scale .w{fill:var(--op-bg);stroke:var(--primary);stroke-width:1.5}
+.scale .gone{opacity:.25}
+
+/* Notes */
+.notes{display:grid;gap:16px;min-width:0}
+.notes section{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.notes h3{margin:0 0 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.notes p,.notes li{margin:0 0 6px;max-width:68ch}
+.notes ul{margin:0;padding-left:1.1em}
+.notes .ask{border-color:var(--primary)}
+.notes .ask h3{color:var(--primary)}
+code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
+.pager{display:flex;gap:8px}
+.pager button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 12px;cursor:pointer}
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Résoudre une équation, ligne par ligne</h1>
+    <p>Maquette du nouveau type d'écran du module Équations et inéquations (cours 2 à 8). Six états : la leçon avec la balance, choisir l'opération, écrire la ligne suivante, diviser, une inéquation où le sens change, puis la résolution complète. Touche les réponses : les fausses montrent les messages prévus.</p>
+  </header>
+  <nav class="nav" id="nav" aria-label="Écrans de la maquette"></nav>
+  <div class="layout">
+    <div>
+      <div class="phone" id="phone"></div>
+    </div>
+    <div class="notes" id="notes"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const M='−';
+  const X='<span class="x">x</span>';
+  // Une ligne : membres gauche/droite (HTML), signe, classe ; ops : annotation sous chaque membre.
+  const ln=(l,s,r,cls='')=>`<div class="ln ${cls}"><span class="l">${l}</span><span class="s">${s}</span><span class="r">${r}</span></div>`;
+  const ops=(o,isNew)=>`<div class="ops${isNew?' new':''}"><span class="l"><span class="opb">${o}</span></span><span></span><span class="r"><span class="opb">${o}</span></span></div>`;
+  const sheet=(rows)=>`<div class="sheet">${rows.join('')}</div>`;
+  const keys=()=>`<div class="keys">${['7','8','9','⌫','4','5','6',M,'1','2','3','','0'].map(k=>k===''?'<span></span>':`<button class="key${k==='⌫'||k===M?' op':''}" data-k="${k}">${k}</button>`).join('')}<button class="key op" data-k="ok" style="grid-column:span 3">Valider</button></div>`;
+  const top=(n,chip)=>`<div class="ph-top"><span class="ph-x" aria-hidden="true">×</span><div class="bar">${Array.from({length:8},(_,i)=>`<i class="${i<n?'d':''}"></i>`).join('')}</div></div><div class="chip">${chip}</div>`;
+
+  const S=[];
+
+  // 1. Leçon : la balance
+  S.push({name:'La balance',chip:'Pour apprendre',
+    state:{step:0, picked:null},
+    render(st){
+      const gone=st.step>=2;
+      const svg=`<svg class="scale" viewBox="0 0 300 150" role="img" aria-label="Une balance en équilibre : à gauche 2x et 3, à droite 7">
+        <line class="beam" x1="150" y1="20" x2="150" y2="140"/><line class="beam" x1="40" y1="40" x2="260" y2="40"/>
+        <line class="beam" x1="60" y1="40" x2="45" y2="95"/><line class="beam" x1="60" y1="40" x2="95" y2="95"/>
+        <line class="beam" x1="240" y1="40" x2="205" y2="95"/><line class="beam" x1="240" y1="40" x2="255" y2="95"/>
+        <path class="pan" d="M25 95 h90 a45 18 0 0 1 -90 0z"/><path class="pan" d="M185 95 h90 a45 18 0 0 1 -90 0z"/>
+        <rect class="w" x="30" y="66" width="40" height="28" rx="6"/><text x="50" y="86">2x</text>
+        <g class="${gone?'gone':''}"><rect class="w" x="76" y="66" width="34" height="28" rx="6"/><text x="93" y="86">3</text></g>
+        <rect class="w" x="${gone?'208':'208'}" y="66" width="${gone?'40':'64'}" height="28" rx="6"/><text x="${gone?'228':'240'}" y="86">${gone?'4':'7'}</text>
+        <line class="beam" x1="125" y1="140" x2="175" y2="140"/></svg>`;
+      const rows=[ln(`2${X} + 3`,'=','7','cur')];
+      if(st.step>=2){rows.push(ops(`${M}3`,st.step===2)); rows.push(ln(`2${X} + 3 ${M} 3`,'=',`7 ${M} 3`,'cur'+(st.step===2?' new':'')));}
+      if(st.step>=3){rows[0]=ln(`2${X} + 3`,'=','7','old'); rows[2]=ln(`2${X} + 3 ${M} 3`,'=',`7 ${M} 3`,'old'); rows.push(ln(`2${X}`,'=','4','cur new'));}
+      const texts=[
+        `<p class="lead">Une équation, c'est une balance en équilibre : les deux côtés pèsent pareil.</p>`,
+        `<p class="lead">On veut ${X} tout seul. D'abord, on enlève le 3.</p><p class="q">Pour que la balance reste droite, on retire 3…</p>`,
+        `<p class="lead">On retire 3 à gauche <b>et</b> à droite. On l'écrit sous chaque membre.</p>`,
+        `<div class="rule new"><b>Règle</b>Ce que je fais à un membre, je le fais à l'autre.</div>`];
+      let zone='';
+      if(st.step===1){
+        const o=(lab,i)=>{let c='';if(st.picked===i)c=i===0?'ok':'ko';return `<button class="opt ${c}" data-pick="${i}" ${st.picked===0?'disabled':''} style="font-size:1rem">${lab}</button>`;};
+        zone=`<div class="opts" style="grid-template-columns:1fr">${o('des deux côtés',0)}${o('à gauche seulement',1)}</div>`;
+        if(st.picked===1) zone+=`<div class="fb ko"><strong>La balance pencherait.</strong><p>Si on retire 3 à gauche seulement, la gauche devient plus légère : les deux côtés ne pèsent plus pareil.</p></div>`;
+        if(st.picked===0) zone+=`<button class="btn btn-main" data-next>Suite</button>`;
+      } else if(st.step<3) zone=`<button class="btn btn-main" data-next>Suite</button>`;
+      else zone=`<button class="btn btn-main" data-goto="1">Écran suivant</button>`;
+      return `${top(1,this.chip)}<div class="ph-body"><h2 class="t">Garder l'équilibre</h2>${st.step<3?svg:''}${sheet(rows)}${texts.slice(0,st.step+1).map((t,i)=>i===st.step?`<div class="new">${t}</div>`:'').join('')}<div class="zone">${zone}</div></div>`;
+    },
+    on(st,el){ if(el.dataset.next!==undefined){st.step++;st.picked=null;} if(el.dataset.pick!==undefined) st.picked=+el.dataset.pick; },
+    what:`Explication pas à pas (3 étapes) avec une scène nouvelle : la balance, puis la feuille de résolution. À l'étape 2, une phrase à trous existante (« des deux côtés » / « à gauche seulement »). À l'étape 3, l'opération apparaît sous chaque membre, puis la ligne réduite.`,
+    why:`La balance est l'image de remédiation conseillée par Éduscol ; elle casse l'idée d'un nombre qui « passe de l'autre côté » sans raison. La colonne du « = » fixe montre que la ligne garde le même équilibre.`,
+    engine:`<code>applyOp(eq, {k:'add', v:-3})</code> donne la ligne 2x + 3 − 3 = 7 − 3 ; <code>simplify</code> donne 2x = 4 ; <code>opLatex</code> donne « −3 ».`});
+
+  // 2. Choisir l'opération
+  const CH=[{l:`+5`,ok:true},{l:`${M}5`,m:`3${X} ${M} 5 ${M} 5, ça fait 3${X} ${M} 10 : le ${M}5 ne part pas. Pour l'enlever, on fait le contraire : +5.`,t:'Le −5 est toujours là.'},{l:`÷ 3`,m:`On enlève d'abord le nombre seul, et on divise à la fin. Sinon, ${M}5 serait divisé aussi.`,t:'Pas encore.'},{l:`${M}10`,m:`On garde ${X} à gauche et les nombres à droite : c'est le ${M}5, à gauche, qu'il faut enlever.`,t:'Regarde à gauche.'}];
+  S.push({name:"Choisir l'opération",chip:'Question',
+    state:{picked:null},
+    render(st){
+      const done=st.picked===0;
+      const rows=[ln(`3${X} ${M} 5`,'=','10',done?'old':'cur')];
+      if(done){rows.push(ops('+5',true));rows.push(ln(`3${X} ${M} 5 + 5`,'=','10 + 5','cur new'));}
+      const opt=(c,i)=>{let k='';if(st.picked===i)k=c.ok?'ok':'ko';return `<button class="opt ${k}" data-pick="${i}" ${done?'disabled':''}>${c.l}</button>`;};
+      let fb='';
+      if(st.picked!==null&&!done) fb=`<div class="fb ko new"><strong>${CH[st.picked].t}</strong><p>${CH[st.picked].m}</p></div>`;
+      if(done) fb=`<div class="fb ok new"><strong>Oui, +5 des deux côtés.</strong><p>${M}5 + 5 = 0 : le nombre seul disparaît à gauche.</p></div><button class="btn btn-main" data-goto="2">Continuer</button>`;
+      return `${top(3,this.chip)}<div class="ph-body"><h2 class="t">Que fais-tu des deux côtés ?</h2><p class="lead">Pour avoir ${X} tout seul, on enlève d'abord le nombre seul.</p>${sheet(rows)}<div class="zone">${done?'':`<p class="q">Choisis l'opération :</p><div class="opts">${CH.map(opt).join('')}</div>`}${fb}</div></div>`;
+    },
+    on(st,el){ if(el.dataset.pick!==undefined) st.picked=+el.dataset.pick; },
+    what:`Action nouvelle : choisir l'opération parmi 4 étiquettes. La bonne apparaît sous chaque membre (petite animation), puis la ligne « opération » s'écrit. Une fausse réponse ne note rien dans la leçon ; dans une question comptée, c'est la 1re réponse qui compte.`,
+    why:`Choisir l'opération est le vrai savoir-faire ; le calcul vient après. Les 3 pièges sont les erreurs classiques : faire la même opération que le terme (−5), diviser trop tôt, se tromper de membre.`,
+    engine:`<code>nextStep(eq)</code> donne la bonne opération ; les messages des pièges sont écrits dans le cours. Pas de nouveau type de question dans le moteur : c'est un choix parmi des étiquettes, avec une scène nouvelle.`});
+
+  // 3. Écrire la ligne suivante
+  S.push({name:'Écrire la ligne',chip:'Question',
+    state:{val:'',res:null},
+    render(st){
+      const cls=st.res==='ok'?'ok':st.res?'ko':'';
+      const rows=[ln(`3${X} ${M} 5`,'=','10','old'),ops('+5'),ln(`3${X} ${M} 5 + 5`,'=','10 + 5','old'),ln(`3${X}`,'=',`<span class="box ${cls}">${st.val||'&nbsp;'}</span>`,'cur')];
+      const msg={ok:['Juste.','10 + 5 = 15. Il reste à enlever le 3 devant le x.'],
+        'un-seul-cote':['Tu as gardé 10.','On a ajouté 5 des deux côtés : à droite aussi, 10 + 5.'],
+        'signe-garde':['Le 5 a changé de côté sans changer de signe.',`À droite, on a écrit + 5 : 10 + 5 = 15, pas 10 ${M} 5.`],
+        autre:['Pas tout à fait.','Calcule le membre de droite : 10 + 5.']};
+      let fb='';
+      if(st.res){const [t,p]=msg[st.res];fb=`<div class="fb ${st.res==='ok'?'ok':'ko'} new"><strong>${t}</strong><p>${p}</p></div>`;}
+      const zone=st.res==='ok'?`${fb}<button class="btn btn-main" data-goto="3">Continuer</button>`:`${fb}${keys()}`;
+      return `${top(4,this.chip)}<div class="ph-body"><h2 class="t">Écris la ligne suivante</h2><p class="lead">Réduis chaque membre. Le membre de gauche est déjà écrit.</p>${sheet(rows)}<div class="zone">${zone}</div></div>`;
+    },
+    on(st,el){const k=el.dataset.k;if(k===undefined)return;if(st.res&&st.res!=='ok'){st.res=null;}
+      if(k==='⌫')st.val=st.val.slice(0,-1);else if(k===M){st.val=st.val.startsWith(M)?st.val.slice(1):M+st.val;}
+      else if(k==='ok'){if(!st.val)return;const v=+st.val.replace(M,'-');st.res=v===15?'ok':v===10?'un-seul-cote':v===5?'signe-garde':'autre';}
+      else if(st.val.replace(M,'').length<3)st.val+=k;},
+    what:`Une case dans la ligne en cours, avec le clavier existant (chiffres, signe ${M}). Les lignes d'avant restent visibles en gris. Essaie 10 ou 5 pour voir les messages.`,
+    why:`Une case (deux au plus) plutôt qu'un clavier avec la lettre x : sur téléphone, taper toute une ligne est lent et source de fautes de frappe qui ne sont pas des fautes de maths.`,
+    engine:`<code>judgeLine(avant, ligneDonnée)</code> dit si la ligne garde les mêmes solutions et reconnaît <code>un-seul-cote</code> et <code>signe-garde</code>.`});
+
+  // 4. Diviser
+  S.push({name:'Diviser',chip:'Question',
+    state:{picked:null,val:'',res:null},
+    render(st){
+      const okOp=st.picked===0;
+      const rows=[ln(`3${X}`,'=','15',okOp?'old':'cur')];
+      if(okOp){rows.push(ops('÷ 3',true));const cls=st.res==='ok'?'final':'cur';const bx=st.res==='ok'?'5':`<span class="box ${st.res?'ko':''}">${st.val||'&nbsp;'}</span>`;rows.push(ln(X,'=',bx,cls+(st.res===null&&!st.val?' new':'')));}
+      let zone='';
+      if(!okOp){
+        const C=[{l:'÷ 3'},{l:`${M}3`,t:'3x, c’est 3 × x.',m:`On défait une multiplication par une division : ÷ 3 des deux côtés. ${M}3 donnerait 3${X} ${M} 3, et pas ${X}.`}];
+        zone=`<p class="q">Il reste 3 devant ${X}. Que fais-tu des deux côtés ?</p><div class="opts">${C.map((c,i)=>`<button class="opt ${st.picked===i?(i===0?'ok':'ko'):''}" data-pick="${i}">${c.l}</button>`).join('')}</div>`;
+        if(st.picked===1) zone+=`<div class="fb ko new"><strong>${C[1].t}</strong><p>${C[1].m}</p></div>`;
+      } else if(st.res==='ok'){
+        zone=`<div class="fb ok new"><strong>La solution est 5.</strong><p>Vérifie comme au cours « Tester si un nombre est solution » : 3 × 5 ${M} 5 = 10.</p></div><button class="btn btn-main" data-goto="4">Continuer</button>`;
+      } else {
+        if(st.res==='soustraire-coef') zone+=`<div class="fb ko new"><strong>Tu as enlevé 3 au lieu de diviser.</strong><p>15 ÷ 3 = 5. Le 3 devant ${X} multiplie : on divise.</p></div>`;
+        else if(st.res) zone+=`<div class="fb ko new"><strong>Pas tout à fait.</strong><p>Calcule 15 ÷ 3.</p></div>`;
+        zone+=keys();
+      }
+      return `${top(6,this.chip)}<div class="ph-body"><h2 class="t">Dernière étape : diviser</h2>${sheet(rows)}<div class="zone">${zone}</div></div>`;
+    },
+    on(st,el){ if(el.dataset.pick!==undefined){st.picked=+el.dataset.pick;return;}
+      const k=el.dataset.k;if(k===undefined)return;if(st.res&&st.res!=='ok')st.res=null;
+      if(k==='⌫')st.val=st.val.slice(0,-1);else if(k===M){st.val=st.val.startsWith(M)?st.val.slice(1):M+st.val;}
+      else if(k==='ok'){if(!st.val)return;const v=+st.val.replace(M,'-');st.res=v===5?'ok':v===12?'soustraire-coef':'autre';}
+      else if(st.val.replace(M,'').length<3)st.val+=k;},
+    what:`Les deux actions à la suite sur le même écran : choisir ÷ 3, puis taper la valeur de ${X}. La ligne finale passe en vert. Essaie ${M}3, puis 12.`,
+    why:`L'erreur « 3x = 15 donc x = 12 » est très fréquente : l'élève défait une multiplication par une soustraction. Le message rappelle que 3x veut dire 3 × x (vu au cours 1).`,
+    engine:`<code>nextStep</code> donne <code>{k:'div', v:3}</code> ; <code>judgeLine</code> reconnaît <code>soustraire-coef</code> ; <code>isFinal</code> dit que x = 5 termine la résolution.`});
+
+  // 5. Inéquation : le sens change
+  S.push({name:'Le sens change',chip:'Question',
+    state:{picked:null},
+    render(st){
+      const done=st.picked===1;
+      const rows=[ln(`${M}2${X}`,'⩽','6','old'),ops(`÷ (${M}2)`)];
+      if(done) rows.push(ln(X,`<span class="flip new">⩾</span>`,`${M}3`,'final'));
+      else rows.push(ln(X,'<span class="box">?</span>',`${M}3`,'cur'));
+      const C=[{l:'⩽'},{l:'⩾'}];
+      let zone=`<p class="q">On a divisé par ${M}2, un nombre négatif. Quel signe ?</p><div class="opts">${C.map((c,i)=>`<button class="opt ${st.picked===i?(i===1?'ok':'ko'):''}" data-pick="${i}" ${done?'disabled':''}>${c.l}</button>`).join('')}</div>`;
+      if(st.picked===0) zone+=`<div class="fb ko new"><strong>Le sens doit changer.</strong><p>Essaie ${X} = 0 : ${M}2 × 0 = 0, et 0 ⩽ 6 est vrai. Pourtant 0 ⩽ ${M}3 est faux. En divisant par un négatif, ⩽ devient ⩾.</p></div>`;
+      if(done) zone=`<div class="warn new">Diviser par un négatif : le sens change.</div><div class="fb ok new"><strong>Oui : ${X} ⩾ ${M}3.</strong><p>Les solutions sont tous les nombres plus grands que ${M}3, ${M}3 compris.</p></div><button class="btn btn-main" data-goto="5">Continuer</button>`;
+      return `${top(5,this.chip)}<div class="ph-body"><h2 class="t">Une inéquation</h2><p class="lead">Même méthode qu'une équation, avec une règle en plus.</p>${sheet(rows)}<div class="zone">${zone}</div></div>`;
+    },
+    on(st,el){ if(el.dataset.pick!==undefined) st.picked=+el.dataset.pick; },
+    what:`Même feuille, mais le signe du milieu se choisit (⩽ ou ⩾). Quand il change, il passe en orange avec un petit retournement, et un bandeau rappelle la règle.`,
+    why:`Oublier de changer le sens est la 1re erreur des élèves sur les inéquations. L'orange signale un changement à surveiller, pas une faute (le rouge reste réservé aux erreurs). Le message propose un test avec x = 0, la technique du cours 1.`,
+    engine:`<code>applyOp(eq, {k:'div', v:-2})</code> retourne déjà le sens ; <code>judgeLine</code> reconnaît <code>sens-non-change</code> ; <code>solutionSet</code> donne x ⩾ −3.`});
+
+  // 6. La résolution complète
+  S.push({name:'Résolution complète',chip:'Exemple',
+    state:{n:1},
+    render(st){
+      const all=[
+        ()=>ln(`5${X} + 1`,'=',`2${X} + 7`),
+        ()=>ops(`${M}2${X}`),()=>ln(`3${X} + 1`,'=','7'),
+        ()=>ops(`${M}1`),()=>ln(`3${X}`,'=','6'),
+        ()=>ops('÷ 3'),()=>ln(X,'=','2','final')];
+      const shown=all.slice(0,st.n*2-1).map((f,i,arr)=>{let h=f();if(i===arr.length-1&&st.n>1)h=h.replace('class="ln','class="ln new').replace('class="ops','class="ops new');return h;});
+      const notes=['On part de l’énoncé.',`Les ${X} d'un côté : ${M}2${X} des deux côtés.`,`Le nombre seul de l'autre côté : ${M}1 des deux côtés.`,`On divise par 3 : ${X} = 2.`];
+      const zone=st.n<4?`<button class="btn btn-main" data-next>Ligne suivante</button>`:`<div class="fb ok new"><strong>La solution est 2.</strong><p>Vérification : 5 × 2 + 1 = 11 et 2 × 2 + 7 = 11.</p></div><button class="btn btn-line" data-reset>Revoir depuis le début</button>`;
+      return `${top(8,this.chip)}<div class="ph-body"><h2 class="t">${X} des deux côtés</h2><p class="lead new">${notes[st.n-1]}</p>${sheet(shown)}<div class="zone">${zone}</div></div>`;
+    },
+    on(st,el){ if(el.dataset.next!==undefined)st.n++; if(el.dataset.reset!==undefined)st.n=1; },
+    what:`La résolution entière, une ligne à la fois : seulement les lignes réduites et l'opération sous chaque membre, sans la ligne « opération » (5x + 1 − 2x = …). C'est la forme qu'on garderait une fois la méthode connue.`,
+    why:`Montre où mène chaque étape et sert d'exemple guidé et de fiche mémo. Les trois étapes ont toujours le même ordre (les ${X} d'un côté, les nombres de l'autre, puis diviser), ce qui fait une méthode à retenir.`,
+    engine:`<code>resolve(eq)</code> donne toutes les lignes avec leur opération ; on n'affiche que les lignes « réduction » et les annotations.`});
+
+  const QUESTIONS=[
+    {q:`Écrit-on la ligne « opération » (3x − 5 + 5 = 10 + 5), ou seulement l'annotation sous chaque membre puis la ligne réduite ?`,r:`Les deux dans les cours 2 à 4 (on voit pourquoi le nombre disparaît), puis seulement l'annotation à partir du cours 5, comme dans l'écran « Résolution complète ».`},
+    {q:`Combien de cases l'élève remplit-il par ligne ?`,r:`Une case dans la leçon et les exemples ; deux au plus (coefficient et nombre, par exemple □x = □) dans les exercices de fin. Jamais de clavier avec la lettre x.`},
+    {q:`Les couleurs de signe du module Relatifs (orange pour les négatifs, bleu pour les positifs) dans les équations ?`,r:`Non : les équations restent en noir, l'indigo marque les opérations et l'orange le changement de sens. Les couleurs de signe reviennent seulement quand on calcule un membre (cours 1).`}];
+
+  const nav=document.getElementById('nav'),phone=document.getElementById('phone'),notes=document.getElementById('notes');
+  let idx=0;
+  const init=S.map(s=>JSON.stringify(s.state));
+  function draw(){
+    const s=S[idx];
+    [...nav.children].forEach((b,i)=>b.classList.toggle('on',i===idx));
+    phone.innerHTML=s.render(s.state);
+    notes.innerHTML=`<section><h3>Écran ${idx+1} sur ${S.length}, ${s.name}</h3><p><b>Ce que fait l'écran.</b> ${s.what}</p><p><b>Pourquoi.</b> ${s.why}</p><p><b>Dans le moteur.</b> ${s.engine}</p><div class="pager"><button data-p="-1" ${idx===0?'disabled':''}>Écran précédent</button><button data-p="1" ${idx===S.length-1?'disabled':''}>Écran suivant</button></div></section>
+      <section class="ask"><h3>Questions pour toi</h3><ul>${QUESTIONS.map((d,i)=>`<li><b>${i+1}.</b> ${d.q}<br><b>Recommandation :</b> ${d.r}</li>`).join('')}</ul></section>
+      <section><h3>Couleurs de cet écran</h3><ul><li>Indigo : l'opération faite des deux côtés (−3, ÷ 3).</li><li>Vert : la ligne finale juste. Rouge : seulement une réponse fausse.</li><li>Orange : le sens d'une inégalité qui change (à surveiller, pas une faute).</li></ul></section>`;
+  }
+  S.forEach((s,i)=>{const b=document.createElement('button');b.type='button';b.id='scr-'+i;b.textContent=`${i+1}. ${s.name}`;b.addEventListener('click',()=>{idx=i;S[i].state=JSON.parse(init[i]);draw();});nav.appendChild(b);});
+  phone.addEventListener('click',e=>{const el=e.target.closest('button');if(!el)return;
+    if(el.dataset.goto!==undefined){idx=+el.dataset.goto;S[idx].state=JSON.parse(init[idx]);draw();return;}
+    S[idx].on(S[idx].state,el);draw();});
+  notes.addEventListener('click',e=>{const el=e.target.closest('button[data-p]');if(!el)return;idx=Math.max(0,Math.min(S.length-1,idx+ +el.dataset.p));S[idx].state=JSON.parse(init[idx]);draw();});
+  draw();
+})();
+</script>
+</html>
