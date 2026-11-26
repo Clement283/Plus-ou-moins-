@@ -231,15 +231,20 @@ export interface LineVerdict {
   correct: boolean;
   /** La ligne donne x = … (ou x ⩾ …) : la résolution est finie. */
   final: boolean;
+  /** Juste mais sans avancer : une fois réduite, c'est la même ligne qu'avant (ligne recopiée). */
+  unchanged: boolean;
   errorId: StepErrorId | null;
 }
 
 /** Juge la ligne écrite par l'élève après `prev` : juste si elle garde les mêmes solutions. */
 export function judgeLine(prev: Equation, given: Equation): LineVerdict {
-  if (equivalent(prev, given)) return { correct: true, final: isFinal(given), errorId: null };
+  if (equivalent(prev, given)) {
+    const unchanged = !isFinal(given) && sameEquation(simplify(prev), simplify(given));
+    return { correct: true, final: isFinal(given), unchanged, errorId: null };
+  }
   const g = solutionSet(given);
   const hit = wrongNext(prev.div === undefined && isReduced(prev) ? prev : simplify(prev)).find((w) =>
     sameSet(solutionSet(w.eq), g),
   );
-  return { correct: false, final: false, errorId: hit?.id ?? null };
+  return { correct: false, final: false, unchanged: false, errorId: hit?.id ?? null };
 }

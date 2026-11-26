@@ -2,6 +2,7 @@ export * from './math/rational';
 export * from './math/expr';
 export * from './math/equation';
 export * from './math/solve';
+export * from './math/parse-equation';
 export * from './rng';
 export * from './time';
 export * from './events';

@@ -140,8 +140,9 @@ describe('solutionSet', () => {
 describe('judgeLine', () => {
   const e = equation([xt(2), cst(3)], [cst(7)]);
   it('right lines, finished or not', () => {
-    expect(judgeLine(e, equation([xt(2)], [cst(4)]))).toEqual({ correct: true, final: false, errorId: null });
-    expect(judgeLine(e, equation([xt(1)], [cst(2)]))).toEqual({ correct: true, final: true, errorId: null });
+    expect(judgeLine(e, equation([xt(2)], [cst(4)]))).toEqual({ correct: true, final: false, unchanged: false, errorId: null });
+    expect(judgeLine(e, equation([xt(1)], [cst(2)]))).toEqual({ correct: true, final: true, unchanged: false, errorId: null });
+    expect(judgeLine(e, equation([cst(3), xt(2)], [cst(7)])).unchanged).toBe(true);
     expect(judgeLine(e, applyOp(e, { k: 'add', v: -3 })).correct).toBe(true);
   });
   it('done on one side only', () =>
@@ -163,7 +164,7 @@ describe('judgeLine', () => {
       'sens-non-change',
     ));
   it('unknown mistake', () =>
-    expect(judgeLine(e, equation([xt(1)], [cst(9)]))).toEqual({ correct: false, final: false, errorId: null }));
+    expect(judgeLine(e, equation([xt(1)], [cst(9)]))).toEqual({ correct: false, final: false, unchanged: false, errorId: null }));
   it('wrong lines are never equivalent to the previous line', () => {
     for (const w of wrongNext(e)) expect(equivalent(w.eq, e)).toBe(false);
   });
