@@ -1,9 +1,9 @@
-// MODÈLE À COPIER pour un nouveau cours (déroulé guidé, 2026-11-26) : copie de la version guidée du cours 2 du module Équations.
+// MODÈLE À COPIER pour un nouveau cours (déroulé guidé, validé par le porteur du projet le 2026-11-26) : copie du cours 2 du module Équations.
 // Remplacer : l'identifiant (ID), le nom exporté, les règles, les textes, le générateur, les erreurs, le mémo ; garder la forme (parts, exemple guidé,
-// exercices de fin ligne par ligne). Les imports sont ceux de packages/engine/src/courses/essais/ ; ajuster les chemins relatifs au dossier du nouveau cours.
+// exercices de fin ligne par ligne, formats de révision). Les imports sont ceux de packages/engine/src/courses/essais/ ; ajuster les chemins relatifs au dossier du nouveau cours.
 
-// Cours 2 du module Équations et inéquations — VERSION GUIDÉE (essai, 2026-11-26) : même cours que `equations-ajouter-retirer`,
-// découverte, 3 règles, 2 petites questions, une comparaison utile (x + 3 = 7 contre x − 3 = 7), un exemple guidé (l'écran des exercices
+// Cours 2 du module Équations et inéquations (déroulé guidé, 2026-11-26) : découverte, 3 règles, 2 petites questions,
+// une comparaison utile (x + 3 = 7 contre x − 3 = 7), un exemple guidé (l'écran des exercices
 // avec l'aide affichée d'office) puis les 5 exercices ligne par ligne. Pas de série de pratique, ni d'« autres façons de faire ».
 // Fiche : docs/modules/02-equations-inequations/equations-ajouter-retirer.md
 // L'exercice garde le calcul qui donne x (c − b) dans `expr` et la réponse x dans `answer` ; l'équation x + b = c est dans `meta`.
@@ -19,7 +19,7 @@ import {
   type ErrorSpec,
 } from '../calculs/shared';
 
-const ID = 'equations-ajouter-retirer-guide';
+const ID = 'equations-ajouter-retirer';
 const RULE = 'Pour trouver x dans x + b = c, je retire (ou j’ajoute) le même nombre des deux côtés.';
 
 // ——— Exercice : x + b = c (b de signe quelconque), x = c − b ———
@@ -32,6 +32,7 @@ const mk = (level: Level, b: number, c: number): Exercise => ({
   ...makeExercise(ID, level, b > 0 ? op('-', num(c), num(b)) : op('+', num(c), num(-b))),
   meta: { b, c },
 });
+export const equationExercise = mk;
 function generate(level: Level, rng: Rng): Exercise {
   return redraw(
     () => {
@@ -233,12 +234,12 @@ const parts: LessonPart[] = [
   annonceFin(),
 ];
 
-export const equationsAjouterRetirerGuide: CourseDef = {
+export const equationsAjouterRetirer: CourseDef = {
   id: ID,
   moduleId: 'essais',
   order: 2,
-  title: 'Retirer ou ajouter le même nombre des deux côtés (version guidée)',
-  shortTitle: 'Ajouter, retirer (guidé)',
+  title: 'Retirer ou ajouter le même nombre des deux côtés',
+  shortTitle: 'Ajouter, retirer',
   rule: RULE,
   parts,
   // pas de série de pratique : la pastille s'arrête avant l'exemple guidé

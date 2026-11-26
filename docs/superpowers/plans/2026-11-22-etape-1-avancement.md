@@ -166,3 +166,8 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - **Reste du module : cours 7 à 11, bloqués** : il manque la saisie d'un intervalle avec sa droite colorée (cours 7 et 8) et le tableau de signes (cours 9 à 11), deux maquettes à valider. Cours 6 : il manque un écran qui lit un produit (x + 2)(x − 3) = 0 et une saisie de deux solutions (l'exercice demande « la plus petite » ou « la plus grande »).
 - Tests : moteur 1 206, api 35, web 462.
 
+## Module 2 : cours 1 à 6 validés, skills à jour, version sur le suivi (2026-11-26)
+- Le porteur du projet a validé les cours 1 à 6 (module Essais). La pull request #8 a été fusionnée à 14 h 00 ; le commit « version sur le suivi » est arrivé juste après et part dans la pull request suivante, avec la mise à jour des skills (modèle de cours = le cours 2 définitif, `formats` et `mix` des exercices, coût mesuré 97 000 jetons par cours, vérifier l'état de la pull request avant de dire qu'elle est à jour).
+- Numéro de version (date, heure, commit du build) en bas de la page de suivi : à comparer au dernier commit de `main` pour savoir si une mise en ligne est arrivée.
+- Reste : cours 7 à 11 (maquettes d'intervalles et de tableau de signes), écran « deux solutions » pour le cours 6, et décider quand les cours 1 à 6 sortent du module Essais pour être visibles des élèves.
+

@@ -16,7 +16,7 @@ Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, sc�
 1. **La fiche du cours** (`docs/modules/NN-nom/nom-du-cours.md`, chemin donné dans la demande). Elle contient règles, erreurs, techniques, reprises, niveaux.
 2. **Ce qui a déjà été vu** : le `module.md` de **chaque module précédent**, le `module.md` du module courant (**dont ses « Règles de rédaction »**) et les **12 premières lignes (points importants) de chaque cours précédent du module** (`head -n 12`). Adapter le cours à cela : vocabulaire déjà donné, techniques déjà connues.
 3. `references/catalogue-ecrans.md` : tous les écrans, scènes, actions, questions, signatures.
-4. `references/gabarit-cours-guide.ts.txt` : **le cours type** (version guidée du cours 2 du module Équations), à copier. `references/gabarit-cours.ts.txt` est l'**ancien déroulé** (série de pratique, deux exemples) des cours du module Relatifs : ne plus le copier pour un nouveau cours.
+4. `references/gabarit-cours-guide.ts.txt` : **le cours type** (cours 2 du module Équations, validé par le porteur du projet le 2026-11-26 avec les cours 1 à 6), à copier. `references/gabarit-cours.ts.txt` est l'**ancien déroulé** (série de pratique, deux exemples) des cours du module Relatifs : ne plus le copier pour un nouveau cours.
 
 **Ne pas ouvrir** : `docs/validation/` (archives), maquettes, snapshots, `types.ts`, `shared.ts`, le code des cours précédents, autres skills. Un doute précis se règle par un `grep` ciblé, jamais par une lecture entière. Si la fiche manque ou contredit le catalogue, le dire au lieu de deviner.
 
@@ -29,7 +29,7 @@ Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, sc�
 3. **Petites questions** (`small`) : **une par règle nouvelle au plus, 2 en tout**, sur le cas nouveau de la règle. Pas de petite question qui redit l'écran précédent.
 4. **Comparer deux cas** : **seulement si deux cas se confondent vraiment** et que la différence change quelque chose (x + 3 = 7 contre x − 3 = 7 : retirer ou ajouter). Jamais une comparaison décorative (un + contre un ×, un calcul à vérifier contre un calcul à trouver). Sinon, pas d'écran. Toujours `inPlace: true`, une phrase d'introduction, `note: ''`, deux lignes de conclusion, messages d'option d'une phrase.
 5. **Exemple guidé** : **l'écran des exercices de fin**, avec l'aide du cours affichée d'office (`guided: true`), non noté, **un seul**. Il montre un cas que les écrans de leçon n'ont pas montré (résultat négatif…).
-6. **Annonce de la fin** (`annonceFin()`, texte fixe) puis **5 exercices de fin**, générés, niveau 1, **uniquement la méthode de ce cours**, **avec les écrans qui font écrire** : `resoudre` (équations et inéquations), `calculer` (remplacer x et calculer par lignes). Une saisie d'un seul coup n'est qu'un format de révision.
+6. **Annonce de la fin** (`annonceFin()`, texte fixe) puis **5 exercices de fin**, générés, niveau 1, **uniquement la méthode de ce cours**, **avec les écrans qui font écrire** : `resoudre` (équations et inéquations), `calculer` (remplacer x et calculer par lignes). Une saisie d'un seul coup n'est qu'un format de révision. Dans le `CourseDef` : `endExercises: { count: 5, kind: 'saisie', mix: ['resoudre', …5 fois] }` **et** `formats: ['saisie', 'resoudre', 'resoudre']` (ou `'calculer'`), sinon la révision, l'entraînement et le calcul « du même genre » après une erreur retombent sur une saisie ; `customQuestion` renvoie la bonne question pour chaque type.
 7. **Fiche mémo** : règle, 1 ou 2 exemples, l'erreur à éviter, technique principale.
 
 **Il n'y a plus** de série de pratique de 4 questions, de deuxième exemple guidé, ni d'« Autres façons de faire » : les exercices et l'indice jouent ce rôle. (Les cours du module Relatifs, déjà en ligne, gardent l'ancien déroulé : ne pas les « corriger » sans demande.)
@@ -72,7 +72,7 @@ La qualité d'abord, mais **court** : un cours compte une quinzaine d'écrans, e
 
 **Modèle : Sonnet.** Si la conversation tourne sur un autre modèle (Opus, par exemple), **confier l'écriture à un assistant lancé avec l'outil Agent, `model: "sonnet"`**. Si la conversation est déjà sur Sonnet, écrire le cours directement.
 
-- **Un assistant peut écrire deux cours à la suite** : le 2e coûte moins (documents lus une fois). Mesures du 2026-11-26 sur Sonnet : un cours seul 190 000 à 200 000 jetons et 32 à 43 actions ; deux cours à la suite 266 000 jetons et 59 actions, soit environ 133 000 par cours. La consommation se lit à la fin de l'assistant, pas dans son compte rendu.
+- **Un assistant peut écrire deux cours à la suite** : le 2e coûte moins (documents lus une fois). Mesures du 2026-11-26 sur Sonnet : ancien déroulé, un cours seul 190 000 à 200 000 jetons et 32 à 43 actions, deux cours à la suite 133 000 par cours ; **déroulé guidé, deux cours à la suite (fiches comprises) 193 000 jetons et 40 actions, soit environ 97 000 par cours**. La consommation se lit à la fin de l'assistant, pas dans son compte rendu.
 - **Plusieurs assistants en parallèle** : possible si chacun a **son propre espace de travail** (`isolation: "worktree"`) et **part de la branche en cours** (leur message demande `git merge --ff-only <branche>` avant tout, puis `npm ci`) ; chacun commite sur sa branche sans pousser ; la conversation principale fusionne et résout à la main les conflits de `essais/index.ts`.
 - Son message contient : le chemin de la fiche (ou la demande de l'écrire), les chemins des `module.md` et des cours précédents à lire, la consigne d'appliquer ce skill, les décisions du porteur du projet déjà prises, la consigne de ne pas toucher aux fichiers communs (ou de le dire), et de rendre un compte rendu court. La conversation principale relit le compte rendu, lance `npm test` et décide de la suite.
 
@@ -84,6 +84,7 @@ La qualité d'abord, mais **court** : un cours compte une quinzaine d'écrans, e
 6. **Points importants** : compléter la section « Points importants » en haut de la fiche (format dans `modele-fiche.md`, 8 lignes au plus), notamment « Vu dans ce cours » ; si c'est le dernier cours du module, compléter aussi le `module.md`.
 7. À la fin, la suite complète une fois : `npm test 2>&1 | tail -8`. Si le cours allonge le calcul, vérifier la largeur du téléphone comme `apps/web/test/c05.test.tsx`.
 8. Rendre compte en quelques lignes : écrans, choix faits sans document, reste à faire. Mise en ligne **par lot** de cours. Même échec 3 fois de suite : s'arrêter et le dire.
+9. **Avant de dire qu'une pull request est « à jour », lire son état** (`merged`). Si elle a été fusionnée, tout ce qui est poussé ensuite sur la branche n'est dans aucune pull request : remettre la branche à jour avec `main` (`git merge origin/main`) et ouvrir une **nouvelle** pull request. Un cours n'est « en ligne » que lorsque le commit du build, affiché en bas du suivi, est celui de `main`.
 
 ## Mode maquette (rare)
 

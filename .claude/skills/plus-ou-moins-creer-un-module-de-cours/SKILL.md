@@ -25,6 +25,7 @@ NN = numéro du module dans `docs/modules.md`. Contenu (court, 60 lignes au plus
 
 - **Points importants du module** (en haut) : ce que l'élève saura faire en contrôle ; vocabulaire et notations de la classe ; techniques enseignées ; limites volontaires ; ce qui sert aux modules suivants. Ébauché ici, **complété à la fin du module** avec ce qui a vraiment été enseigné.
 - **Les cours dans l'ordre** : tableau titre · règle en une phrase · pourquoi un cours à part. **Nouvelle méthode = nouveau cours**, jamais deux méthodes dans un cours. Un module par défaut ; plusieurs seulement s'il est trop long ou si deux parties s'apprennent indépendamment (raisons données).
+- **Règles de rédaction des cours** (court) : reprendre celles du skill `plus-ou-moins-ecrire-un-cours` (cours courts, répétition limitée, étapes écrites sur l'écran), plus les retours du porteur du projet propres au module.
 - **Ce qui manque dans l'appli** : types d'écran absents de `.claude/skills/plus-ou-moins-ecrire-un-cours/references/catalogue-ecrans.md` (graphes, tableaux de signes, schémas, problèmes en mots, saisie d'une inconnue…). Les décider **ici**, avant les fiches : un nouveau type d'écran passe par une maquette.
 - **Questions pour toi** (5 au plus, chacune avec une recommandation) et **Sources**.
 
