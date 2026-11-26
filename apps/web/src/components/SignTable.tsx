@@ -58,7 +58,7 @@ export function SignTable({
 }) {
   const n = values.length;
   const cols = 2 * n + 1;
-  const style = { gridTemplateColumns: `minmax(84px,1.1fr) ${Array.from({ length: cols }, (_, i) => (i % 2 ? 'minmax(0,.8fr)' : 'minmax(0,1.2fr)')).join(' ')}` };
+  const style = { gridTemplateColumns: `minmax(92px,1.7fr) ${Array.from({ length: cols }, (_, i) => (i % 2 ? 'minmax(0,.8fr)' : 'minmax(0,1.2fr)')).join(' ')}` };
   const isCur = (t: Cursor, k: 'h' | 'l' | 'c', a: number, b = 0): boolean =>
     !!t && (k === 'h' ? 'h' in t && t.h === a : k === 'l' ? 'l' in t && t.l === a : 'r' in t && t.r === a && t.c === b);
   return (
