@@ -3,6 +3,7 @@ import { equationsTesterSolution } from './equations-tester-solution';
 import { equationsAjouterRetirer } from './equations-ajouter-retirer';
 import { equationsInconnueDeuxCotes } from './equations-inconnue-deux-cotes';
 import { equationsProduitNul } from './equations-produit-nul';
+import { inequationsIntervalles } from './inequations-intervalles';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
 import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
@@ -20,6 +21,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   equationsResoudrePremierDegre,
   equationsInconnueDeuxCotes,
   equationsProduitNul,
+  inequationsIntervalles,
 ];
 
 export const ESSAIS: ModuleDef = {
