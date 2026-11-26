@@ -378,7 +378,7 @@ function typedSeries(course: CourseDef, n: number, rng: Rng): Question[] {
   const prompts = new Set<string>();
   return Array.from({ length: n }, (_, i) => {
     const kind = course.endExercises.mix?.[i] ?? course.endExercises.kind;
-    const q = distinctFrom(prompts, () => buildQuestion(course, kind, { rng, level: 1, timesSeen: 0 }));
+    const q = distinctFrom(prompts, () => buildQuestion(course, kind, { rng, level: 1, timesSeen: 0, index: i }));
     prompts.add(promptOf(q));
     return q;
   });

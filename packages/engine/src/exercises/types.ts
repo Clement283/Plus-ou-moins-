@@ -92,6 +92,8 @@ export interface BuildCtx {
   level: Level;
   timesSeen: number;
   trapErrorType?: string;
+  /** Rang de l'exercice dans les 5 exercices de fin (0 à 4) : un cours peut varier ce qu'il demande ou garantir un cas. Absent ailleurs (révision, entraînement). */
+  index?: number;
 }
 
 /**
