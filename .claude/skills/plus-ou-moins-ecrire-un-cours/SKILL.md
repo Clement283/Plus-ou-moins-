@@ -67,6 +67,8 @@ Une action remplace « Suite » : erreur → message court, elle réessaie, rien
 
 Un seul assistant par cours, un cours à la fois. La qualité d'abord : prendre le temps qu'il faut.
 
+**Modèle : Sonnet.** Si la conversation tourne sur un autre modèle (Opus, par exemple), **confier l'écriture du cours à un seul assistant lancé avec l'outil Agent, `model: "sonnet"`** (jamais deux en parallèle). Son message contient : le chemin de la fiche, les chemins des `module.md` et des cours précédents à lire (règle ci-dessus), la consigne d'appliquer ce skill (étapes 1 à 8) et de rendre un compte rendu court. La conversation principale relit le compte rendu, lance `npm test` et décide de la suite. Si la conversation est déjà sur Sonnet, écrire le cours directement, sans assistant.
+
 1. Lire la fiche, le catalogue, le gabarit.
 2. Écrire `packages/engine/src/courses/<module>/cNN-nom.ts` en **un seul `Write`**, copié du gabarit.
 3. L'inscrire dans l'`index.ts` du dossier (import + liste).
