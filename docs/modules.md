@@ -5,7 +5,7 @@ Lu en premier par les skills `plus-ou-moins-creer-un-module-de-cours` et `plus-o
 | # | Module | Dossier | Cours | État |
 |---|---|---|---|---|
 | 1 | Relatifs (identifiant `calculs`) | `docs/modules/01-relatifs/` | 0 à 7 | écrit, en ligne |
-| 2 | Équations et inéquations | `docs/modules/02-equations-inequations/` | 11 prévus | module.md validé, fiche du cours 1 écrite |
+| 2 | Équations et inéquations | `docs/modules/02-equations-inequations/` | 11 prévus | module.md validé ; cours 1 à 4 écrits (module Essais) |
 | 3 | Priorités | — | — | plan archivé : `docs/validation/10-calculs/B-priorites.md` |
 | 4 | Suites numériques | — | — | à créer |
 | 5 | Fractions | — | — | plan archivé : `docs/validation/10-calculs/C-fractions.md` |
