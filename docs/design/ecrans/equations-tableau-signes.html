@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de signes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style>
+/* Mise en page : un téléphone qui montre le nouvel écran « résolution ligne par ligne », à côté les notes de conception de l'état affiché. Mêmes jetons que cours-4-v2.html. */
+:root{
+  --bg:#F2F3F8; --surface:#FFFFFF; --sunken:#E9EBF3; --line:#DDE0EA;
+  --ink:#1A1D2E; --muted:#565C73; --primary:#3B39D4; --on-primary:#FFFFFF;
+  --ok:#137F57; --ok-bg:#DDF3E9; --ko:#C42D47; --ko-bg:#FCE4E8;
+  --hl:#FFE27A; --hl-ink:#5C4100; --grey-bg:#ECEDF2;
+  --neg:#C25400; --pos:#1565C0; --chg:#D97A00; --chg-bg:#FFF0D2;
+  --op-bg:#E6E6FF; --op-ink:#2422A6;
+  --font:'Lexend','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px}
+.intro h1{font-size:1.6rem;margin:0 0 4px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:70ch}
+.layout{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.nav button.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.nav button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* Téléphone */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;min-height:720px;display:flex;flex-direction:column;overflow:hidden}
+.ph-top{display:flex;align-items:center;gap:12px;padding:16px 18px 6px}
+.ph-x{font-size:1.4rem;color:var(--muted);line-height:1}
+.bar{flex:1;display:flex;gap:3px}
+.bar i{flex:1;height:5px;border-radius:3px;background:var(--sunken)}
+.bar i.d{background:var(--primary)}
+.chip{margin:8px 18px 0;align-self:flex-start;font-size:.8rem;font-weight:600;color:var(--muted);background:var(--sunken);border-radius:999px;padding:5px 12px}
+.ph-body{flex:1;padding:14px 20px 20px;display:flex;flex-direction:column;gap:14px}
+h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:0}
+.q{font-weight:600;margin:0}
+.btn{font:inherit;font-weight:600;font-size:1.05rem;border-radius:16px;padding:15px;border:0;cursor:pointer;width:100%}
+.btn-main{background:var(--primary);color:var(--on-primary)}
+.btn-line{background:transparent;border:2px solid var(--line);color:var(--ink);font-size:.9rem;padding:9px}
+.btn:focus-visible,.opt:focus-visible,.key:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.zone{margin-top:auto;display:grid;gap:10px;padding-top:6px}
+.rule{border:2px solid var(--primary);border-radius:16px;padding:12px 14px}
+.rule b{display:block;color:var(--primary);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.opts{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.opt{font:inherit;font-size:1.3rem;font-weight:500;text-align:center;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.opt.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.opt:disabled{cursor:default}
+.fb{border-radius:14px;padding:12px 14px;display:grid;gap:4px}
+.fb.ok{background:var(--ok-bg)} .fb.ko{background:var(--ko-bg)}
+.fb strong{color:var(--ok)} .fb.ko strong{color:var(--ko)}
+.fb p{margin:0}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.key{font:inherit;font-size:1.3rem;font-weight:500;border:0;border-radius:12px;padding:11px 0;background:var(--sunken);color:var(--ink);cursor:pointer}
+.key.op{background:color-mix(in srgb,var(--primary) 16%,var(--sunken))}
+.new{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.new{animation:none}}
+
+
+
+/* ——— Nouveau : le tableau de signes ——— */
+.tbl{display:grid;border:2px solid var(--line);border-radius:14px;overflow:hidden;font-size:1.05rem}
+.tbl .c{display:flex;align-items:center;justify-content:center;min-height:46px;padding:2px 4px;border:0;background:var(--surface);color:var(--ink);font:inherit;border-bottom:1px solid var(--line);border-left:1px solid var(--line);position:relative}
+.tbl .c.lab{justify-content:flex-start;padding-left:10px;font-weight:600;border-left:0;background:var(--sunken);font-size:.95rem}
+.tbl .c.hd{background:var(--sunken);font-weight:600;color:var(--muted)}
+.tbl .last{border-bottom:0}
+.tbl button.c{cursor:pointer}
+.tbl button.c.cur{outline:3px solid var(--primary);outline-offset:-3px;background:color-mix(in srgb,var(--primary) 8%,var(--surface))}
+.tbl .c.empty::after{content:"";width:22px;height:22px;border:2px dashed var(--line);border-radius:6px}
+.tbl .c.s-p{color:var(--pos);font-weight:700;font-size:1.3rem}
+.tbl .c.s-m{color:var(--neg);font-weight:700;font-size:1.3rem}
+.tbl .c.s-z{font-weight:700;font-size:1.2rem}
+.tbl .c.s-d{background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px);background-size:11px 100%;background-position:center;background-repeat:no-repeat;font-weight:700}
+.tbl .c.root{border-left:2px solid var(--ink)}
+.tbl .c.ok{background:var(--ok-bg)} .tbl .c.ko{background:var(--ko-bg);box-shadow:inset 0 0 0 2px var(--ko)}
+.tbl .c.ghost{background:color-mix(in srgb,var(--primary) 14%,var(--surface))}
+.pal{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.pal .opt{font-size:1.3rem;padding:12px 0}
+.pal .opt.pp{color:var(--pos)} .pal .opt.pm{color:var(--neg)}
+.keys6{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.keys6 .key{font:inherit;font-size:1.2rem;font-weight:500;border:0;border-radius:12px;padding:11px 0;background:var(--sunken);color:var(--ink);cursor:pointer}
+.keys6 .go{background:var(--primary);color:var(--on-primary);font-weight:600;grid-column:1/-1}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px;display:grid;gap:8px;align-content:start}
+.note h3{margin:0;font-size:1rem}.note ul{margin:0;padding-left:1.1rem;display:grid;gap:6px}.note li{color:var(--muted)}.note li b{color:var(--ink)}
+.rel{font-size:1.3rem;font-weight:600;text-align:center;padding:10px;border-radius:14px;background:var(--sunken)}
+.hint{font-size:.85rem;color:var(--muted);margin:0;text-align:center}
+
+</style>
+<body><div class="wrap">
+<header class="intro"><h1>Tableau de signes</h1>
+<p>Maquette pour les cours 9 à 11 du module Équations et inéquations. Touche une case, puis un signe en bas ; « Vérifier » colore les cases. À valider : la grille, la palette (+ − 0 et double barre), la façon de saisir les valeurs et la lecture de S.</p></header>
+<div class="layout"><div style="display:grid;gap:12px"><div class="nav" id="nav"></div><div class="phone" id="phone"></div></div><aside class="note" id="note"></aside></div>
+</div>
+<script>
+const bar=n=>`<div class="ph-top"><span class="ph-x">×</span><div class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<n?'d':''}"></i>`).join('')}</div></div>`;
+const CLS={'+':'s-p','−':'s-m','0':'s-z','‖':'s-d','':'empty'};
+/* Un tableau : hd = en-tête (colonnes : intervalle, racine, intervalle, racine, intervalle) ; rows = {lab, exp, fixed?} */
+function T(spec){return {spec,st:spec.rows.map(r=>r.start?r.start.slice():r.exp.map(()=>'')),hdv:spec.hd.slice(),cur:null,checked:false,res:null}}
+let S,CUR;
+function cellRow(t,ri){const r=t.spec.rows[ri];return r.exp}
+function draw(){
+  const t=S,n=t.spec.cols,ph=document.getElementById('phone');
+  const g=`grid-template-columns:minmax(74px,.9fr) repeat(${n},minmax(0,1fr))`;
+  let h=`<div class="tbl" style="${g}"><div class="c lab hd" style="min-height:40px">x</div>`;
+  t.hdv.forEach((v,i)=>{const root=t.spec.rootAt.includes(i);const editable=root&&t.spec.hdEdit;
+    h+= editable? `<button class="c hd root ${t.cur&&t.cur.h===i?'cur':''} ${v===''?'empty':''}" data-h="${i}">${v}</button>`:`<div class="c hd ${root?'root':''}">${v}</div>`;});
+  t.spec.rows.forEach((r,ri)=>{const last=ri===t.spec.rows.length-1;
+    h+=`<div class="c lab ${last?'last':''}">${r.lab}</div>`;
+    r.exp.forEach((e,ci)=>{const v=t.st[ri][ci];const root=t.spec.rootAt.includes(ci);
+      const cls=['c',CLS[v],root?'root':'',last?'last':'',t.cur&&t.cur.r===ri&&t.cur.c===ci?'cur':'',t.res&&t.res[ri][ci]!==null?t.res[ri][ci]:''].join(' ');
+      const fixed=r.fixed;
+      h+= fixed? `<div class="${cls}">${v}</div>`:`<button class="${cls}" data-r="${ri}" data-c="${ci}" aria-label="${r.lab}, colonne ${ci+1}">${v}</button>`;});});
+  h+='</div>';
+  const onH=t.cur&&t.cur.h!==undefined;
+  const pal=onH?`<div class="keys6">${[7,8,9,'−','⌫',4,5,6,0,'/'].map(k=>`<button class="key" data-k="${k}">${k}</button>`).join('')}<button class="key go" data-go>Vérifier</button></div>`:
+   `<div class="pal">${['+','−','0',t.spec.dbar?'‖':null,'⌫'].filter(x=>x!==null).map(k=>`<button class="opt ${k==='+'?'pp':k==='−'?'pm':''}" data-p="${k}">${k}</button>`).join('')}</div><button class="btn btn-main" data-go>Vérifier</button>`;
+  ph.innerHTML=`${bar(t.spec.prog)}<div class="chip">${t.spec.chip}</div><div class="ph-body"><h2 class="t">${t.spec.title}</h2><div class="rel">${t.spec.rel}</div>${h}<p class="hint">${t.spec.hint}</p>${t.res?`<div class="fb ${t.ok?'ok':'ko'}"><strong>${t.ok?'Juste':'Pas tout à fait'}</strong><p>${t.msg}</p></div>`:''}<div class="zone">${pal}</div></div>`;
+  ph.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{t.cur={r:+b.dataset.r,c:+b.dataset.c};t.res=null;draw()});
+  ph.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{t.cur={h:+b.dataset.h};t.res=null;draw()});
+  ph.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{if(!t.cur||t.cur.h!==undefined)return;const k=b.dataset.p;t.st[t.cur.r][t.cur.c]=k==='⌫'?'':k;t.res=null;draw()});
+  ph.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k,i=t.cur.h;t.hdv[i]=k==='⌫'?t.hdv[i].slice(0,-1):(t.hdv[i]+k);t.res=null;draw()});
+  ph.querySelectorAll('[data-go]').forEach(b=>b.onclick=check);
+}
+function check(){
+  const t=S;let first=null;
+  t.res=t.spec.rows.map((r,ri)=>r.exp.map((e,ci)=>{if(r.fixed)return null;if(t.st[ri][ci]==='')return null;const ok=t.st[ri][ci]===e;if(!ok&&!first)first={ri,ci,got:t.st[ri][ci],exp:e};return ok?'ok':'ko'}));
+  const empty=t.spec.rows.some((r,ri)=>!r.fixed&&t.st[ri].some(v=>v===''));
+  const hdOk=!t.spec.hdEdit||t.spec.rootAt.every(i=>t.hdv[i]===t.spec.hd[i]);
+  if(!hdOk&&t.spec.hdEdit)t.spec.rootAt.forEach(i=>{});
+  t.ok=!first&&hdOk&&!empty;
+  t.msg=(!first&&hdOk&&empty)?'Remplis toutes les cases, puis vérifie.':t.ok?t.spec.good:(!hdOk?t.spec.badRoot:t.spec.bad(first));
+  t.cur=null;draw();
+}
+const N=(h,w)=>({h,w});
+const SC={
+signe:{n:'1 · Signe de ax + b',spec:()=>({prog:2,chip:'Cours 9 · Signe de ax + b',title:'Remplis le tableau de signes de 2x + 3',rel:'2x + 3',cols:3,rootAt:[1],hdEdit:true,hd:['−∞','−3/2','+∞'],rows:[{lab:'2x + 3',exp:['−','0','+']}],
+ hint:'Touche la valeur qui annule 2x + 3, puis chaque case.',good:'2x + 3 s’annule en −3/2, et a le signe de 2 (positif) à droite.',badRoot:'Cherche la valeur qui annule 2x + 3 : 2x + 3 = 0.',
+ bad:f=>f.exp==='0'?'Sous la valeur qui annule, on met 0.':'À droite de la valeur qui annule, 2x + 3 a le signe de 2 (+) ; à gauche, le signe contraire.'}),
+ note:['Écran 1 : le signe d’ax + b (cours 9)','Un tableau à une ligne : la valeur qui annule (colonne du milieu, marquée d’un trait épais) se **tape au clavier** (chiffres, −, /, ⌫), les trois signes se posent avec la palette.','Les cases vides sont en pointillés. La case choisie est entourée.','Question ouverte : l’élève doit-il d’abord taper la valeur, ou la voit-il déjà dans l’en-tête ? Je propose : à taper au cours 9 (c’est le sujet du cours), donnée ensuite.']},
+produit:{n:'2 · Produit',spec:()=>({prog:3,chip:'Cours 10 · Produit',title:'Signe de (x − 2)(x + 1)',rel:'(x − 2)(x + 1)',cols:5,rootAt:[1,3],hd:['−∞','−1','','2','+∞'],hdEdit:false,
+ rows:[{lab:'x − 2',exp:['−','−','−','0','+']},{lab:'x + 1',exp:['−','0','+','+','+']},{lab:'(x − 2)(x + 1)',exp:['+','0','−','0','+']}],
+ hint:'Une ligne par facteur, puis le signe du produit colonne par colonne.',good:'Règle des signes colonne par colonne : un facteur nul rend le produit nul.',badRoot:'',
+ bad:f=>f.ri===2?'Dans cette colonne, regarde les deux signes d’au-dessus : même signe donne +, signes différents donnent −.':'Rappel : un facteur a le signe de son coefficient de x à droite de sa valeur, le signe contraire à gauche.'}),
+ note:['Écran 2 : un produit (cours 10)','Une ligne par facteur, puis la ligne du produit. Les valeurs sont données (l’élève les a trouvées au cours 9). Il remplit **colonne par colonne** s’il veut ; rien n’oblige l’ordre.','Palette : + − 0 ⌫. Au clic sur « Vérifier », cases justes en vert, fausses en rouge ; le message nomme la règle de la **première** case fausse.','Question ouverte : ligne du produit à remplir par l’élève, ou affichée automatiquement une fois les facteurs justes ? Je propose : à remplir (c’est l’apprentissage de la règle des signes).']},
+quotient:{n:'3 · Quotient',spec:()=>({prog:4,chip:'Cours 11 · Quotient',title:'Signe de (x + 1) ÷ (x − 2)',rel:'(x + 1) ÷ (x − 2)',cols:5,rootAt:[1,3],hd:['−∞','−1','','2','+∞'],hdEdit:false,dbar:true,
+ rows:[{lab:'x + 1',exp:['−','0','+','+','+']},{lab:'x − 2',exp:['−','−','−','0','+']},{lab:'(x + 1) ÷ (x − 2)',exp:['+','0','−','‖','+']}],
+ hint:'La valeur qui annule le dénominateur : double barre ‖, pas 0.',good:'Sous la valeur interdite, on met une double barre : on ne divise pas par 0.',badRoot:'',
+ bad:f=>f.exp==='‖'?'On ne peut pas diviser par 0 : sous cette valeur, le quotient n’existe pas. Mets la double barre ‖.':'Même règle des signes que pour un produit, colonne par colonne.'}),
+ note:['Écran 3 : un quotient (cours 11)','Même tableau, avec une cinquième touche : la **double barre ‖** (dessinée avec deux traits). Elle se pose sous la valeur qui annule le dénominateur, dans la ligne du quotient.','L’erreur propre au cours : mettre 0 au lieu de ‖.']},
+lire:{n:'4 · Lire S',static:true,note:['Écran 4 : lire S dans le tableau','Une fois le tableau juste, l’élève **lit** la réponse : on lui demande « (x − 2)(x + 1) ≥ 0, quelles colonnes ? » (colonnes + et 0 en bleu clair), puis il écrit S avec la saisie d’intervalle déjà codée.','**Nouveau : la réunion ∪**. Il faut ajouter une touche ∪ à la saisie d’intervalle (deux intervalles séparés). C’est une extension de l’écran déjà codé ; pas de nouvelle maquette autre que ce dessin.','Pour un quotient ≤ 0 : la valeur interdite garde toujours un crochet ouvert, même avec ≤.']},
+erreur:{n:'5 · Une erreur',spec:()=>({prog:3,chip:'Cours 10 · Produit',title:'Signe de (x − 2)(x + 1)',rel:'(x − 2)(x + 1)',cols:5,rootAt:[1,3],hd:['−∞','−1','','2','+∞'],hdEdit:false,
+ rows:[{lab:'x − 2',exp:['−','−','−','0','+'],start:['−','−','−','0','+'],fixed:true},{lab:'x + 1',exp:['−','0','+','+','+'],start:['−','0','+','+','+'],fixed:true},{lab:'(x − 2)(x + 1)',exp:['+','0','−','0','+'],start:['+','0','+','0','+']}],
+ hint:'',good:'',badRoot:'',bad:()=>'Dans la colonne du milieu, x − 2 est négatif et x + 1 est positif : signes différents, donc le produit est négatif.'}),
+ after:t=>{t.res=t.spec.rows.map((r,ri)=>r.exp.map((e,ci)=>r.fixed?null:(t.st[ri][ci]===e?'ok':'ko')));t.ok=false;t.msg=t.spec.rows[0]&&t.spec.bad();},
+ note:['Écran 5 : une erreur de signe','Une seule case fausse en rouge. Le message reprend les **deux signes de la colonne** et applique la règle (même signe : +, signes différents : −).','Les autres erreurs reconnues : 0 oublié sous une valeur, ‖ oublié (ou 0 mis à sa place), signe de ax + b à l’envers.']}
+};
+function lireDraw(){
+ const ph=document.getElementById('phone');
+ const cols=['−∞','−1','','2','+∞'];
+ const rows=[{l:'x − 2',c:['−','−','−','0','+']},{l:'x + 1',c:['−','0','+','+','+']},{l:'(x − 2)(x + 1)',c:['+','0','−','0','+']}];
+ const keep=[true,true,false,true,true];
+ let h=`<div class="tbl" style="grid-template-columns:minmax(74px,.9fr) repeat(5,minmax(0,1fr))"><div class="c lab hd" style="min-height:40px">x</div>${cols.map((v,i)=>`<div class="c hd ${i%2?'root':''} ${keep[i]?'ghost':''}">${v}</div>`).join('')}`;
+ rows.forEach((r,ri)=>{const last=ri===2;h+=`<div class="c lab ${last?'last':''}">${r.l}</div>`+r.c.map((v,i)=>`<div class="c ${CLS[v]} ${i%2?'root':''} ${last?'last':''} ${keep[i]?'ghost':''}">${v}</div>`).join('')});h+='</div>';
+ ph.innerHTML=`${bar(4)}<div class="chip">Cours 10 · Produit</div><div class="ph-body"><h2 class="t">Résous (x − 2)(x + 1) ≥ 0</h2>${h}<p class="hint">Les colonnes en bleu : le produit est positif ou nul.</p>
+ <div class="sol" style="display:flex;justify-content:center;align-items:center;gap:6px;font-size:1.3rem;font-weight:600;padding:12px;border:2px solid var(--line);border-radius:16px;flex-wrap:wrap"><span style="color:var(--muted);font-weight:500">S =</span><span class="opt" style="padding:6px 10px">]−∞ , −1]</span><span class="opt" style="padding:6px 12px;background:var(--op-bg);color:var(--op-ink);border-color:var(--op-bg)">∪</span><span class="opt" style="padding:6px 10px">[2 , +∞[</span></div>
+ <p class="hint">Deux intervalles : la touche ∪ les relie.</p><div class="zone"><button class="btn btn-main">Valider</button></div></div>`;
+}
+const nav=document.getElementById('nav'),nt=document.getElementById('note');
+function show(k){nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));const d=SC[k];
+ nt.innerHTML='<h3>'+d.note[0]+'</h3><ul>'+d.note.slice(1).map(t=>'<li>'+t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</li>').join('')+'</ul>';
+ if(d.static){lireDraw();return}
+ S=T(d.spec());if(d.after)d.after(S);draw();}
+Object.keys(SC).forEach(k=>{const b=document.createElement('button');b.textContent=SC[k].n;b.dataset.k=k;b.onclick=()=>show(k);nav.appendChild(b)});
+show('signe');
+</script></body></html>
