@@ -7,6 +7,7 @@ import type { CourseDef } from '../courses/types';
 import type { Answer, Outcome, Question } from './types';
 import { normalizeCalc } from './rewrite';
 import { familyOf, signError } from '../courses/errors-util';
+import { gradeResolution, solutionText } from './resoudre';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -190,6 +191,24 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
         given,
         expected: q.expected,
         message: hit ? hit.message : q.fallback,
+      };
+    }
+
+    case 'resoudre': {
+      if (!('lines' in a)) return mismatch(q);
+      const g = gradeResolution(q.start, a.lines);
+      const given = a.lines.at(-1) ?? '';
+      const expected = solutionText(q.start);
+      if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given, expected };
+      if (g.firstError === null) return { ...right(given, expected), helped: a.hinted, message: '' };
+      return {
+        correct: false,
+        unfinished: false,
+        errorType: g.firstError,
+        errorFamily: familyOf(course, g.firstError),
+        given,
+        expected,
+        message: g.firstErrorText ? `${g.firstErrorText.title} ${g.firstErrorText.message}` : '',
       };
     }
 

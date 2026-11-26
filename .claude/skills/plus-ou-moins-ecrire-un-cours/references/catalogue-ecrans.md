@@ -36,7 +36,7 @@ Tous les helpers s'importent de `./shared`. Toujours `M` (−) dans les textes, 
 
 ## Questions (comptées sauf `decouverte`)
 
-`saisie(ex)` : taper le résultat. `trou(ex, '= \\square', valeur)` : une case dans une résolution (`above` = lignes déjà posées). `signBox(ex, positif, idErreurSigne)` : boutons + / −. `choix` / `small` : choix en bas de l'écran. `droiteQ(ex, {from,to}, jumps)` : toucher l'arrivée sur la droite. `ordre(ex, étiquettes, ordreAffiché)` : remettre dans l'ordre. Formats de révision (`formats` du `CourseDef`) : `saisie`, `droite`, `signe`, `vraifaux`, `erreur` (exemple : `c04-soustraire.ts`).
+`saisie(ex)` : taper le résultat. `trou(ex, '= \\square', valeur)` : une case dans une résolution (`above` = lignes déjà posées). `signBox(ex, positif, idErreurSigne)` : boutons + / −. `choix` / `small` : choix en bas de l'écran. `droiteQ(ex, {from,to}, jumps)` : toucher l'arrivée sur la droite. `ordre(ex, étiquettes, ordreAffiché)` : remettre dans l'ordre. `resoudre` (module Équations) : `{ kind: 'resoudre', ex, start: equation(…) }` (`packages/engine/src/math/equation.ts`) ; l'élève écrit chaque ligne en entier (clavier : chiffres, x, + − ÷, = ou < > ⩽ ⩾), avec sa méthode ; chaque ligne est jugée (`judgeTypedLine`), l'opération faite s'affiche sous chaque membre, « Un indice » donne l'étape du cours et marque « avec aide » ; juste si aucune ligne fausse en route (maquette `docs/design/ecrans/equations-resolution-ligne.html`, validée). Construit par le cours (`customQuestion`), pas de générateur commun. Formats de révision (`formats` du `CourseDef`) : `saisie`, `droite`, `signe`, `vraifaux`, `erreur` (exemple : `c04-soustraire.ts`).
 
 ## Erreurs reconnues
 

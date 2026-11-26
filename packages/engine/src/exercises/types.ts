@@ -4,6 +4,7 @@ import type { RawInput } from '../input/raw';
 import type { Rational } from '../math/rational';
 import type { Rng } from '../rng';
 import type { Exercise, Level } from '../courses/types';
+import type { Equation } from '../math/equation';
 
 export type { QuestionKind } from '../events';
 
@@ -61,6 +62,12 @@ export type Question =
       steps: string[];
     }
   | {
+      /** « À toi de résoudre » : l'élève écrit chaque ligne, avec sa méthode, jusqu'à x = … */
+      kind: 'resoudre';
+      ex: Exercise;
+      start: Equation;
+    }
+  | {
       kind: 'droite';
       ex: Exercise;
       promptLatex: string;
@@ -90,7 +97,9 @@ export type Answer =
   | { classes: string[] }
   | { bool: boolean }
   | { text: string }
-  | { point: number };
+  | { point: number }
+  /** « résoudre » : toutes les lignes validées, dans l'ordre (fausses comprises) ; `hinted` : l'indice a été ouvert. */
+  | { lines: string[]; hinted: boolean };
 
 export interface Outcome {
   correct: boolean;
@@ -99,6 +108,8 @@ export interface Outcome {
   errorFamily: ErrorFamily | null;
   given: string;
   expected: string;
-  /** Texte propre à la réponse (« choix », « Réécris »). */
+  /** Texte propre à la réponse (« choix », « Réécris », « résoudre »). */
   message?: string;
+  /** Juste avec l'indice (« résoudre ») : « avec aide » dans le suivi. */
+  helped?: boolean;
 }

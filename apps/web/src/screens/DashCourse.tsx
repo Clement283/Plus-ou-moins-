@@ -132,6 +132,11 @@ export default function DashCourse({ eleve, id }: { eleve: string; id: string })
           ) : (
             <p className="t-body2">Aucune erreur sur 28 jours.</p>
           )}
+          {c.helped28 > 0 && (
+            <p className="t-body2">
+              Avec aide : {c.helped28} {c.helped28 > 1 ? 'résolutions justes trouvées' : 'résolution juste trouvée'} avec l’indice.
+            </p>
+          )}
         </section>
 
         <section className="card block">
