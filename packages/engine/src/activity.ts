@@ -364,8 +364,9 @@ function memeType(item: QuestionItem, q: Question, errorType: string | null, rng
 /** n distinct end-of-course style exercises (typed, level 1; 'erreur' for Cours 0). */
 function typedSeries(course: CourseDef, n: number, rng: Rng): Question[] {
   const prompts = new Set<string>();
-  return Array.from({ length: n }, () => {
-    const q = distinctFrom(prompts, () => buildQuestion(course, course.endExercises.kind, { rng, level: 1, timesSeen: 0 }));
+  return Array.from({ length: n }, (_, i) => {
+    const kind = course.endExercises.mix?.[i] ?? course.endExercises.kind;
+    const q = distinctFrom(prompts, () => buildQuestion(course, kind, { rng, level: 1, timesSeen: 0 }));
     prompts.add(promptOf(q));
     return q;
   });

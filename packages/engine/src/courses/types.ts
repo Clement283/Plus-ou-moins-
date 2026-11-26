@@ -243,7 +243,7 @@ export interface MemoCard {
   tip: string;
 }
 
-export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur';
+export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre';
 
 export interface CourseDef {
   id: string;
@@ -264,7 +264,7 @@ export interface CourseDef {
    */
   unePhrase?: boolean;
   /** 'erreur' = the Cours 0 exception. */
-  endExercises: { count: 5; kind: 'saisie' | 'trou' | 'erreur' };
+  endExercises: { count: 5; kind: 'saisie' | 'trou' | 'erreur'; /** Type de chaque exercice de fin, dans l'ordre (sinon `kind` partout) : « resoudre » à partir du cours 4 du module Équations. */ mix?: QuestionKind[] };
   generate(level: Level, rng: Rng): Exercise;
   /** In detection order. */
   errors: ErrorDef[];

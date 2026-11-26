@@ -4,11 +4,12 @@
 // restent dans le test propre au cours (propertyChecks de helpers.ts), car ils dépendent des maths du cours.
 import { describe, expect, it } from 'vitest';
 import { CALCULS_COURSES } from '../../src/courses/calculs';
+import { ESSAIS_COURSES } from '../../src/courses/essais';
 import { courseRunItems } from '../../src';
 import { lessonStep, type CourseDef, type LessonPart } from '../../src/courses/types';
 import { seededRng } from '../../src/rng';
 
-const COURSES = CALCULS_COURSES.filter((c) => c.unePhrase === true);
+const COURSES = [...CALCULS_COURSES, ...ESSAIS_COURSES].filter((c) => c.unePhrase === true);
 const isAnnonce = (p: LessonPart): boolean => p.type === 'etapes' && p.title.startsWith('Place aux');
 /** Les écrans : une partie `joinPrevious` partage l'écran de la précédente. */
 const isScreen = (p: LessonPart): boolean => !(p.type === 'question' && p.joinPrevious === true);

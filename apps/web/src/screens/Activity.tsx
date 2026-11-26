@@ -251,7 +251,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
           <div className="q-expr" data-copie>
             <h2 className="t-h5">On le fait ensemble</h2>
             <p className="t-math">
-              <MathView latex={toLatex(ex.expr)} />
+              <MathView latex={typeof ex.meta?.latex === 'string' ? ex.meta.latex : toLatex(ex.expr)} />
             </p>
           </div>
           <p className="t-body1">
