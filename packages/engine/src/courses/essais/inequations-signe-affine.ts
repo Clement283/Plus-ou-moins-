@@ -10,7 +10,7 @@ import { rat, type Rational } from '../../math/rational';
 import type { Rng } from '../../rng';
 import { tableauQuestion } from '../../exercises/tableau';
 import type { Outcome, Question } from '../../exercises/types';
-import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level, Scene } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, chance, choix, decouverte, draw, etapes, exemple, explanation,
   hl, is, lecon, linesScene, options3, redraw, small, step, texted, toks, trouOf,
@@ -115,47 +115,53 @@ const guess = choix(
   '2x - 6',
 );
 
+/** Une scène en lignes d'écriture, avec le tableau de signes du facteur ax + b (`upTo` : jusqu'où il est dessiné). */
+const tabScene = (a: number, b: number, upTo: 'valeurs' | 'lignes' | 'signes', ...calcs: (string | ReturnType<typeof hl>)[][]): Scene => ({
+  ...linesScene(...calcs),
+  table: { op: 'seul', factors: [{ a, b }], upTo },
+});
+
 const valeur: EtapeStep[] = [
   step('Le signe de **2x − 6** change là où l’expression vaut 0. On cherche cette valeur de x : c’est la solution de 2x − 6 = 0.', {
     scene: linesScene(['2x − 6 = 0']),
   }),
   step('On résout comme au cours 4 : on ajoute 6 des deux côtés, puis on divise par 2. On trouve x = [ ? ].', {
     scene: linesScene(['2x − 6 = 0'], ['2x = 6']),
-    after: linesScene(['2x − 6 = 0'], ['2x = 6'], ['x = ', hl('3')]),
+    after: tabScene(2, -6, 'valeurs', ['2x − 6 = 0'], ['2x = 6'], ['x = ', hl('3')]),
     action: trouOf('On résout comme au cours 4 : on ajoute 6 des deux côtés, puis on divise par 2. On trouve x = [ ? ].', ['3', '−3', '6'], 0, {
       1: '2 × (−3) − 6 = −12, pas 0. On ajoute 6 des deux côtés : 2x = 6.',
       2: '2x = 6 : il reste à diviser par 2.',
     }),
   }),
-  step(undefined, { scene: linesScene(['−x + 4 = 0'], ['x = ', hl('4')]), rule: { n: 1, text: REGLE1 } }),
+  step(undefined, { scene: tabScene(-1, 4, 'valeurs', ['−x + 4 = 0'], ['x = ', hl('4')]), rule: { n: 1, text: REGLE1 } }),
 ];
 
 const droite: EtapeStep[] = [
   step('Au cours précédent, on résout 2x − 6 ≥ 0 : 2x ≥ 6, puis x ≥ 3, en divisant par 2, un nombre positif.', {
-    scene: linesScene(['2x − 6 ≥ 0'], ['2x ≥ 6'], ['x ≥ 3']),
+    scene: tabScene(2, -6, 'valeurs', ['2x − 6 ≥ 0'], ['2x ≥ 6'], ['x ≥ 3']),
   }),
   step('Donc pour x plus grand que 3, 2x − 6 est [ ? ] : son signe est celui de 2.', {
-    scene: linesScene(['2x − 6 ≥ 0'], ['x ≥ 3']),
-    after: linesScene(['x > 3 donne 2x − 6 ', hl('> 0')]),
+    scene: tabScene(2, -6, 'valeurs', ['2x − 6 ≥ 0'], ['x ≥ 3']),
+    after: tabScene(2, -6, 'signes', ['x > 3 donne 2x − 6 ', hl('> 0')]),
     action: trouOf('Donc pour x plus grand que 3, 2x − 6 est [ ? ] : son signe est celui de 2.', ['positif', 'négatif'], 0, {
       1: 'x ≥ 3 est la solution de 2x − 6 ≥ 0 : ces valeurs rendent 2x − 6 positif ou nul.',
     }),
   }),
-  step(undefined, { scene: linesScene(['−x + 4 ≥ 0'], ['−x ≥ −4'], ['x ≤ 4'], ['À droite de 4 : signe ', hl('−'), ', celui de a = −1']), rule: { n: 2, text: REGLE2 } }),
+  step(undefined, { scene: tabScene(-1, 4, 'signes', ['−x + 4 ≥ 0'], ['−x ≥ −4'], ['x ≤ 4'], ['À droite de 4 : signe ', hl('−'), ', celui de a = −1']), rule: { n: 2, text: REGLE2 } }),
 ];
 
 const gauche: EtapeStep[] = [
   step('Dans 2x − 6, essayons x = 0, à **gauche** de 3 : 2 × 0 − 6 = −6.', {
-    scene: linesScene(['x = 0 : 2 × 0 − 6 = ', hl('−6')]),
+    scene: tabScene(2, -6, 'valeurs', ['x = 0 : 2 × 0 − 6 = ', hl('−6')]),
   }),
   step('Pour x = 0, on trouve −6 : le signe est [ ? ] de celui de a = 2.', {
-    scene: linesScene(['x = 0 : 2 × 0 − 6 = −6']),
-    after: linesScene(['x = 0 : 2 × 0 − 6 = −6'], ['a = 2 est +, et −6 est ', hl('−')]),
+    scene: tabScene(2, -6, 'valeurs', ['x = 0 : 2 × 0 − 6 = −6']),
+    after: tabScene(2, -6, 'signes', ['x = 0 : 2 × 0 − 6 = −6'], ['a = 2 est +, et −6 est ', hl('−')]),
     action: trouOf('Pour x = 0, on trouve −6 : le signe est [ ? ] de celui de a = 2.', ['contraire', 'pareil'], 0, {
       1: 'a = 2 est positif, mais −6 est négatif : les signes sont contraires.',
     }),
   }),
-  step(undefined, { scene: linesScene(['−x + 4 : x = 4 donne 0'], ['x = 0 : −0 + 4 = 4'], ['À gauche de 4 : signe ', hl('+'), ', contraire de a = −1']), rule: { n: 3, text: REGLE3 } }),
+  step(undefined, { scene: tabScene(2, 4, 'signes', ['2x + 4 : x = −2 donne 0'], ['x = −5 : 2 × (−5) + 4 = −6'], ['À gauche de −2 : signe ', hl('−'), ', contraire de a = 2']), rule: { n: 3, text: REGLE3 } }),
 ];
 
 const exGuide = mk(1, 3, 9); // 3x + 9, valeur −3

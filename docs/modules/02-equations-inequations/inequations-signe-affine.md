@@ -5,7 +5,7 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 - À retenir : (1) ax + b s'annule pour x = −b/a, solution de ax + b = 0 ; (2) à droite de cette valeur, ax + b a le signe de a ; (3) à gauche, le signe contraire ; on range ces trois faits dans un tableau de signes (valeur en 1re ligne, facteur en 1re colonne, signes − 0 +).
 - Pièges : valeur écrite sans changer le signe de b (2x − 6 : 3 ou −3 ?) ; signes à l'envers (signe de a à gauche) ; 0 oublié sous la valeur ; facteur mal recopié sur la ligne.
 - Vu dans ce cours : valeur qui annule, signe à droite et à gauche, lien avec ax + b ≥ 0 du cours 8 (a > 0 : x ≥ −b/a ; a < 0 : le sens se retourne), tableau de signes d'un seul facteur (valeurs, lignes, signes).
-- Écarts et choix : un seul facteur (produit et quotient aux cours suivants) ; niveau 1 : racine entière non nulle, a de ±1 à ±5 ; niveaux 2 et 3 : racine rationnelle possible ; 5 exercices de fin en tableau complet (valeurs, ligne, signes) ; la leçon n'a pas de scène « tableau » : elle montre les signes en lignes d'écriture, le tableau vient à l'exemple guidé.
+- Écarts et choix : un seul facteur (produit et quotient aux cours suivants) ; niveau 1 : racine entière non nulle, a de ±1 à ±5 ; niveaux 2 et 3 : racine rationnelle possible ; 5 exercices de fin en tableau complet (valeurs, ligne, signes) ; la leçon montre le tableau d'un facteur dans ses scènes (`Scene.table` : les valeurs d'abord, puis les signes) ; exercices de fin : toujours le tableau complet.
 - Dans l'appli : 8 écrans pour apprendre (3 règles, 1 comparaison, 2 petites questions, exemple guidé 3x + 9 en `tableau` complet) ; `essais/inequations-signe-affine.ts` ; révision : `saisie` (la valeur qui annule) et `tableau`.
 
 ## Fiche
@@ -32,4 +32,4 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 ### Niveaux (les nombres ET la longueur du calcul)
 1 : a de ±1 à ±5, racine entière non nulle de ±1 à ±9 · 2 : a de ±2 à ±5, b de ±1 à ±12, racine rationnelle possible · 3 : a de ±2 à ±9, b de ±1 à ±30.
 ### Hors catalogue
-Les scènes de leçon n'ont pas de tableau de signes (`SignTable` n'existe que dans l'écran de réponse) : la leçon utilise des lignes d'écriture. À ajouter au catalogue pour montrer le tableau dans les étapes.
+Rien : le tableau de signes se dessine dans les scènes de leçon (`Scene.table`, `upTo`).

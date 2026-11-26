@@ -5,7 +5,7 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 - À retenir : (1) une ligne par facteur, avec les valeurs qui les annulent rangées de la plus petite à la plus grande en 1re ligne ; (2) dans chaque colonne, deux signes pareils donnent +, deux signes différents donnent −, un facteur nul rend le produit nul (0) ; (3) pour résoudre « produit ≥ 0 » (ou >, ≤, <), je garde les colonnes qui conviennent, avec les 0 si l'inégalité est large, puis j'écris un intervalle par morceau, reliés par ∪.
 - Pièges : valeurs dans le désordre ; signe d'un facteur à l'envers (a négatif) ; règle des signes mal appliquée ; 0 oublié ou en trop ; un seul morceau au lieu de deux ; crochet fermé contre ∞ ; crochet ouvert pour un 0 gardé (≥, ≤).
 - Vu dans ce cours : tableau d'un produit de deux facteurs ax + b (valeurs, lignes, signes), colonnes, 0 du produit, lecture de S avec ∪, lien avec les cours 7 (crochets) et 9 (signe d'un facteur).
-- Écarts et choix : produit de deux facteurs seulement (jamais de quotient : cours 11) ; valeurs distinctes ; niveau 1 : valeurs entières de ±1 à ±6, a de ±1 ou ±2 ; niveau 3 : valeurs rationnelles possibles ; exercices de fin : tableau, S, tableau, S, S (tableau complet à chaque fois) ; la leçon montre le tableau en lignes d'écriture (pas de scène « tableau »).
+- Écarts et choix : produit de deux facteurs seulement (jamais de quotient : cours 11) ; valeurs distinctes ; niveau 1 : valeurs entières de ±1 à ±6, a de ±1 ou ±2 ; niveau 3 : valeurs rationnelles possibles ; exercices de fin : tableau complet, S, tableau avec les lignes données (`ask` selon le rang de l'exercice), S, S ; la leçon montre le tableau dans ses scènes (valeurs rangées, signes colonne par colonne avec `rows`, lecture de S avec `ghost` et `interval`).
 - Dans l'appli : 8 écrans pour apprendre (3 règles, 1 comparaison, 2 petites questions, exemple guidé (3x + 6)(x − 4) en `tableau` complet) ; `essais/inequations-tableau-signes-produit.ts` ; révision : `saisie` (la plus petite valeur), `tableau`, `intervalle`.
 
 ## Fiche
@@ -31,4 +31,4 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 ### Niveaux (les nombres ET la longueur du calcul)
 1 : valeurs entières de ±1 à ±6, a de ±1 (3 fois sur 4) ou ±2 · 2 : valeurs de ±1 à ±9, a de ±1 à ±4 · 3 : a de ±2 à ±5, b de ±1 à ±12, valeurs rationnelles possibles.
 ### Hors catalogue
-Les scènes de leçon n'ont pas de tableau de signes : lignes d'écriture dans la leçon, vrai tableau à l'exemple guidé. Pas de moyen de varier `ask` selon le rang de l'exercice de fin : `ask` par défaut (tout) partout.
+Rien : tableau et intervalle se dessinent dans les scènes de leçon. `ask` varie selon le rang de l'exercice de fin (`BuildCtx.index`) : rang 0 complet, rang 2 lignes données.

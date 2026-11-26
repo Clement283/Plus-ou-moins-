@@ -70,7 +70,7 @@ describe('Cours 6 — Équation produit nul', () => {
 
   it('générateur et calculs-pièges (1 000 tirages par niveau)', () =>
     propertyChecks(
-      c,
+      { ...c, errors: c.errors.filter((e) => ['diviser-oublie', 'signe-oublie', 'autre-solution'].includes(e.id)) },
       (ex, level) => {
         const pr = m(ex);
         const [x1, x2] = roots(pr);
@@ -88,11 +88,28 @@ describe('Cours 6 — Équation produit nul', () => {
       606,
     ));
 
-  it('exercices de fin : saisie et « À toi de résoudre » sur un facteur', () => {
+  it('exercices de fin : les deux solutions et « À toi de résoudre » sur un facteur', () => {
     const kinds = courseRunItems(c, seededRng(3))
       .filter((i) => i.type === 'question' && i.activity === 'fin')
       .map((f) => (f.type === 'question' ? f.question.kind : ''));
-    expect(kinds).toEqual(['saisie', 'resoudre', 'saisie', 'resoudre', 'saisie']);
+    expect(kinds).toEqual(['solutions', 'resoudre', 'solutions', 'resoudre', 'solutions']);
+  });
+
+  it('question « solutions » : les deux valeurs, dans l’ordre voulu', () => {
+    const rng = seededRng(4);
+    for (let i = 0; i < 100; i++) {
+      const q = buildQuestion(c, 'solutions', { rng, level: 1, timesSeen: 0 });
+      if (q.kind !== 'solutions') throw new Error('solutions');
+      const [x1, x2] = roots(m(q.ex));
+      expect(q.roots).toEqual([rat(x1 as number), rat(x2 as number)]);
+      expect(checkAnswer(c, q, { values: [String(x2).replace('-', '−'), String(x1).replace('-', '−')], hinted: false }).correct).toBe(true);
+      expect(checkAnswer(c, q, { values: [String(x1).replace('-', '−'), String(x1).replace('-', '−')], hinted: false }).correct).toBe(false);
+    }
+  });
+
+  it('exemple guidé : question « solutions » avec l’aide d’office', () => {
+    const ex = c.parts.find((x) => x.type === 'question' && x.activity === 'exemple');
+    expect(ex && ex.type === 'question' && ex.question).toMatchObject({ kind: 'solutions', guided: true });
   });
 
   it('À toi de résoudre : le facteur donne la solution demandée', () => {

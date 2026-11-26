@@ -5,12 +5,12 @@
 // L'exercice garde la borne dans `expr` (num(b)) et `answer` ; le symbole et la borne sont dans `meta` ({ rel, b }).
 import { num } from '../../math/expr';
 import { relationLatex } from '../../math/equation';
-import { intervalLatex, intervalOfRelation } from '../../math/intervalle';
+import { type Interval, intervalLatex, intervalOfRelation } from '../../math/intervalle';
 import { rat } from '../../math/rational';
 import type { Rng } from '../../rng';
 import { intervalleQuestion, type Strict } from '../../exercises/intervalle';
 import type { Outcome, Question } from '../../exercises/types';
-import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, LineScene, Level, Scene } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level, Scene } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, choix, decouverte, draw, etapes, exemple, explanation, hl, is,
   lecon, linesScene, makeExercise, options3, small, step, texted, toks, trouOf, txt,
@@ -83,12 +83,9 @@ const REGLE1 = '**On écrit la plus petite borne à gauche : −∞ si les valeu
 const REGLE2 = '**Borne comprise (≤ ou ≥) : crochet fermé, tourné vers la borne. Borne exclue (< ou >) : crochet ouvert, tourné à l’opposé.**';
 const REGLE3 = '**Contre ∞, le crochet est toujours ouvert, même quand l’autre borne est comprise.**';
 
-/** La droite graduée existante : seule la borne est marquée (pas d'intervalle colorié dans les scènes de leçon). */
-const lineScene = (line: LineScene, ...calc: (string | ReturnType<typeof hl>)[]): Scene => ({
-  layout: 'line',
-  calcs: [{ tokens: calc.map((t) => (typeof t === 'string' ? { t } : t)) }],
-  line,
-});
+/** Une scène en lignes d'écriture, avec un ou deux intervalles coloriés sur la droite graduée (rond plein : borne comprise). */
+const ivScene = (calcs: (string | ReturnType<typeof hl>)[][], ...intervals: Interval[]): Scene => ({ ...linesScene(...calcs), interval: { intervals } });
+const iv = (rel: Strict, b: number): Interval => intervalOfRelation(rel, rat(b));
 
 const guess = choix(
   mk(1, '<', 3),
@@ -104,51 +101,44 @@ const guess = choix(
 
 const bornes: EtapeStep[] = [
   step('Dans **x < 3**, les solutions sont tous les nombres plus petits que 3. Sur la droite, elles vont **vers la gauche**, sans fin.', {
-    scene: lineScene(
-      { from: -4, to: 6, jumps: [], highlight: [3], marks: [{ at: 3, text: 'borne' }], legend: 'les solutions sont à gauche de 3', tone: 'color' },
-      'x < ',
-      hl('3'),
-    ),
+    scene: ivScene([['x < ', hl('3')]], iv('<', 3)),
   }),
   step('Les valeurs s’en vont vers la gauche, sans fin : la borne de gauche de l’intervalle est [ ? ].', {
-    scene: linesScene(['x < 3']),
-    after: linesScene(['x < 3'], [']', hl('−∞'), ' , 3[']),
+    scene: ivScene([['x < 3']], iv('<', 3)),
+    after: ivScene([['x < 3'], [']', hl('−∞'), ' , 3[']], iv('<', 3)),
     action: trouOf('Les valeurs s’en vont vers la gauche, sans fin : la borne de gauche de l’intervalle est [ ? ].', ['−∞', '+∞'], 0, {
       1: '+∞ est tout à droite. Ici les valeurs vont vers la gauche, donc vers −∞.',
     }),
   }),
-  step(undefined, { scene: linesScene(['x > 3'], [']3 , ', hl('+∞'), '[']), rule: { n: 1, text: REGLE1 } }),
+  step(undefined, { scene: ivScene([['x > 3'], [']3 , ', hl('+∞'), '[']], iv('>', 3)), rule: { n: 1, text: REGLE1 } }),
 ];
 
 const crochets: EtapeStep[] = [
   step('Dans **x ≥ 2**, le nombre 2 est **compris** : c’est une solution. Dans **x > 2**, il est **exclu** : 2 n’est pas plus grand que 2.', {
-    scene: linesScene(['x ≥ ', hl('2')], ['x > ', hl('2')]),
+    scene: ivScene([['x ≥ ', hl('2')]], iv('>=', 2)),
   }),
   step('Dans x > 2, le nombre 2 est exclu : le crochet est [ ? ], il tourne le dos au 2.', {
-    scene: linesScene(['x > 2']),
-    after: linesScene(['x > 2'], [hl(']'), '2 , +∞[']),
+    scene: ivScene([['x > 2']], iv('>', 2)),
+    after: ivScene([['x > 2'], [hl(']'), '2 , +∞[']], iv('>', 2)),
     action: trouOf('Dans x > 2, le nombre 2 est exclu : le crochet est [ ? ], il tourne le dos au 2.', ['ouvert', 'fermé'], 0, {
       1: 'Un crochet fermé touche le 2 et le garde dans l’intervalle. Or 2 n’est pas une solution de x > 2.',
     }),
   }),
-  step(undefined, { scene: linesScene(['x ≥ 2'], [hl('['), '2 , +∞[']), rule: { n: 2, text: REGLE2 } }),
+  step(undefined, { scene: ivScene([['x ≥ 2'], [hl('['), '2 , +∞[']], iv('>=', 2)), rule: { n: 2, text: REGLE2 } }),
 ];
 
 const infini: EtapeStep[] = [
   step('**∞ n’est pas un nombre** : on s’en approche sans jamais l’atteindre. Dans x ≥ 4, les nombres grandissent sans fin.', {
-    scene: lineScene(
-      { from: -1, to: 9, jumps: [], highlight: [4], marks: [{ at: 4, text: 'borne' }], legend: 'les nombres continuent vers la droite, sans fin', tone: 'color' },
-      'x ≥ 4',
-    ),
+    scene: ivScene([['x ≥ 4']], iv('>=', 4)),
   }),
   step('Dans x ≥ 4, le 4 est compris, mais +∞ n’est jamais atteint : son crochet est [ ? ].', {
-    scene: linesScene(['x ≥ 4']),
-    after: linesScene(['x ≥ 4'], ['[4 , +∞', hl('[')]),
+    scene: ivScene([['x ≥ 4']], iv('>=', 4)),
+    after: ivScene([['x ≥ 4'], ['[4 , +∞', hl('[')]], iv('>=', 4)),
     action: trouOf('Dans x ≥ 4, le 4 est compris, mais +∞ n’est jamais atteint : son crochet est [ ? ].', ['ouvert', 'fermé'], 0, {
       1: '+∞ n’est pas un nombre : on ne peut pas le garder dans l’intervalle, un crochet fermé serait faux.',
     }),
   }),
-  step(undefined, { scene: linesScene(['x ≤ 5'], [hl(']'), '−∞ , 5]']), rule: { n: 3, text: REGLE3 } }),
+  step(undefined, { scene: ivScene([['x ≤ 5'], [hl(']'), '−∞ , 5]']], iv('<=', 5)), rule: { n: 3, text: REGLE3 } }),
 ];
 
 const exGuide = mk(1, '>', -2); // x > −2, ]−2 , +∞[

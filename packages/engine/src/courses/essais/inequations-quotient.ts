@@ -4,13 +4,14 @@
 // Fiche : docs/modules/02-equations-inequations/inequations-quotient.md
 // L'exercice garde la valeur interdite (celle du bas) dans `expr` et `answer` ; haut et bas sont dans `meta` ({ f1, f2 }).
 import { num, op } from '../../math/expr';
+import type { Interval } from '../../math/intervalle';
 import { type Factor, factorLatex, factorRoot, factorText, rootText, wholeLatex } from '../../math/tableau';
 import { eqRat, type Rational, rat } from '../../math/rational';
 import type { Rng } from '../../rng';
 import { intervalleFromTable, type Strict } from '../../exercises/intervalle';
 import { tableauQuestion } from '../../exercises/tableau';
 import type { Outcome, Question } from '../../exercises/types';
-import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level, Scene, SceneTable } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, chance, choix, decouverte, draw, etapes, exemple, explanation,
   hl, is, lecon, linesScene, options3, redraw, small, step, texted, toks, trouOf,
@@ -105,15 +106,19 @@ const saisieQ = (ex: Exercise): Question => ({
   ex,
   promptLatex: `${wholeLatex('quotient', factorsOf(ex))} \\quad\\text{valeur interdite :}\\quad x = \\square`,
 });
-const tableauOf = (ex: Exercise) => tableauQuestion(ex, 'quotient', factorsOf(ex));
-/** Une inégalité large 3 fois sur 4 : c'est elle qui fait confondre la valeur interdite avec une borne comprise. */
-const relOf = (rng: Rng): Strict => (chance(rng, 0.75) ? (chance(rng, 0.5) ? '<=' : '>=') : chance(rng, 0.5) ? '<' : '>');
+const tableauOf = (ex: Exercise, ask?: { valeurs: boolean; lignes: boolean }) => tableauQuestion(ex, 'quotient', factorsOf(ex), ask);
+/** Rang 2 des exercices de fin : les lignes sont données (valeurs et signes à écrire) ; partout ailleurs, le tableau complet. */
+const askOf = (index: number | undefined): { valeurs: boolean; lignes: boolean } => ({ valeurs: true, lignes: index !== 2 });
+
+/** Une inégalité large (≤ ou ≥) fait confondre la valeur interdite avec une borne comprise : le rang 1 des exercices de fin l'est toujours, les autres 3 fois sur 4. */
+const relOf = (rng: Rng, index?: number): Strict =>
+  index === 1 || chance(rng, 0.75) ? (chance(rng, 0.5) ? '<=' : '>=') : chance(rng, 0.5) ? '<' : '>';
 const customQuestion: CourseDef['customQuestion'] = (kind, ctx) => {
   const trap = errors.find((e) => e.id === ctx.trapErrorType);
-  if (kind === 'tableau') return tableauOf(trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng));
+  if (kind === 'tableau') return tableauOf(trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng), askOf(ctx.index));
   if (kind === 'intervalle') {
     const ex = trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng);
-    return intervalleFromTable(ex, tableauOf(ex), relOf(ctx.rng));
+    return intervalleFromTable(ex, tableauOf(ex), relOf(ctx.rng, ctx.index));
   }
   return saisieQ(trap ? trap.trap(ctx.level, ctx.rng) : generateInt(ctx.level, ctx.rng));
 };
@@ -141,53 +146,72 @@ const guess = choix(
   '(x + 1) \\div (x - 2)',
 );
 
+/** Une scène en lignes d'écriture, avec le tableau de signes (`upTo`, `rows` : jusqu'où il est dessiné ; `ghost` : colonnes qui conviennent) et S en intervalles. */
+type Calc = (string | ReturnType<typeof hl>)[];
+const F = (a: number, b: number): Factor => ({ a, b });
+const tab = (
+  table: Omit<SceneTable, 'op' | 'factors'> & { factors: Factor[] },
+  calcs: Calc[],
+  intervals?: Interval[],
+): Scene => ({
+  ...linesScene(...calcs),
+  table: { op: 'quotient', ...table },
+  ...(intervals ? { interval: { intervals } } : {}),
+});
+const piece = (lo: number | null, hi: number | null, loClosed: boolean, hiClosed: boolean): Interval => ({
+  lo: lo === null ? null : rat(lo),
+  hi: hi === null ? null : rat(hi),
+  loClosed,
+  hiClosed,
+});
+
 const lignes: EtapeStep[] = [
   step('Dans **(x + 1) ÷ (x − 2)**, on ne peut pas diviser par 0. Le bas x − 2 vaut 0 pour x = 2 : cette valeur est **interdite**.', {
     scene: linesScene(['(x + 1) ÷ (x − 2)'], ['x − 2 = 0 : x = 2, interdit']),
   }),
   step('Pour x = 2, le bas vaut 0 : le quotient [ ? ].', {
     scene: linesScene(['(x + 1) ÷ (x − 2)']),
-    after: linesScene(['x = ', hl('2'), ' : le quotient n’existe pas']),
+    after: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'valeurs' }, [['x = ', hl('2'), ' : le quotient n’existe pas']]),
     action: trouOf('Pour x = 2, le bas vaut 0 : le quotient [ ? ].', ['n’existe pas', 'vaut 0'], 0, {
       1: 'Un quotient vaut 0 quand le haut vaut 0. Quand le bas vaut 0, il n’existe pas.',
     }),
   }),
   step(undefined, {
-    scene: linesScene(['(2x − 4) ÷ (x + 3)'], ['haut : 2x − 4 = 0 en 2'], ['bas : x + 3 = 0 en −3, interdit']),
+    scene: tab({ factors: [F(2, -4), F(1, 3)], upTo: 'lignes' }, [['(2x − 4) ÷ (x + 3)'], ['haut : 2x − 4 = 0 en 2'], ['bas : x + 3 = 0 en −3, interdit']]),
     rule: { n: 1, text: REGLE1 },
   }),
 ];
 
 const signes: EtapeStep[] = [
   step('Le tableau se remplit comme celui d’un produit. Pour (x + 1) ÷ (x − 2), les valeurs sont −1 (haut) et 2 (bas).', {
-    scene: linesScene(['x + 1 : − 0 + + +'], ['x − 2 : − − − 0 +']),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', rows: 2 }, [['(x + 1) ÷ (x − 2)']]),
   }),
   step('Sous la valeur interdite 2, on écrit [ ? ] : le quotient n’existe pas.', {
-    scene: linesScene(['x + 1 : − 0 + + +'], ['x − 2 : − − − 0 +']),
-    after: linesScene(['x + 1 : − 0 + + +'], ['x − 2 : − − − 0 +'], ['(x + 1) ÷ (x − 2) : + 0 − ', hl('‖'), ' +']),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', rows: 2 }, [['(x + 1) ÷ (x − 2)']]),
+    after: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes' }, [['Sous 2, on écrit ', hl('‖')]]),
     action: trouOf('Sous la valeur interdite 2, on écrit [ ? ] : le quotient n’existe pas.', ['‖', '0'], 0, {
       1: '0 voudrait dire que le quotient vaut 0. Or en 2 il n’existe pas : on écrit la double barre ‖.',
     }),
   }),
   step(undefined, {
-    scene: linesScene(['−x + 1 : + + + 0 −'], ['x + 3 : − 0 + + +'], ['(−x + 1) ÷ (x + 3) : − ‖ + 0 −']),
+    scene: tab({ factors: [F(-1, 1), F(1, 3)], upTo: 'signes' }, [['(−x + 1) ÷ (x + 3)']]),
     rule: { n: 2, text: REGLE2 },
   }),
 ];
 
 const lecture: EtapeStep[] = [
   step('Pour résoudre **(x + 1) ÷ (x − 2) ≥ 0**, on garde les colonnes + et 0 : le 0 en −1 est gardé, la barre en 2 ne l’est jamais.', {
-    scene: linesScene(['(x + 1) ÷ (x − 2) : ', hl('+ 0'), ' − ‖ ', hl('+')]),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', ghost: '>=' }, [['(x + 1) ÷ (x − 2) ≥ 0 : on garde ', hl('+ et 0')]]),
   }),
   step('En 2, la valeur est interdite : le crochet de 2 est [ ? ], même avec ≥.', {
-    scene: linesScene(['(x + 1) ÷ (x − 2) : + 0 − ‖ +']),
-    after: linesScene(['(x + 1) ÷ (x − 2) : + 0 − ‖ +'], [']−∞ , −1] ∪ ]', hl('2'), ' , +∞[']),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', ghost: '>=' }, [['(x + 1) ÷ (x − 2) ≥ 0']]),
+    after: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', ghost: '>=' }, [[']−∞ , −1] ∪ ]', hl('2'), ' , +∞[']], [piece(null, -1, false, true), piece(2, null, false, false)]),
     action: trouOf('En 2, la valeur est interdite : le crochet de 2 est [ ? ], même avec ≥.', ['ouvert', 'fermé'], 0, {
       1: 'Le quotient n’existe pas en 2 : 2 ne peut pas être une solution, donc le crochet est ouvert.',
     }),
   }),
   step(undefined, {
-    scene: linesScene(['(−x + 1) ÷ (x + 3) ≤ 0 : ', hl('−'), ' ‖ + ', hl('0 −')], [']−∞ , −3[ ∪ [1 , +∞[']),
+    scene: tab({ factors: [F(-1, 1), F(1, 3)], upTo: 'signes', ghost: '<=' }, [['(−x + 1) ÷ (x + 3) ≤ 0 : on garde ', hl('− et 0')], [']−∞ , −3[ ∪ [1 , +∞[']], [piece(null, -3, false, false), piece(1, null, true, false)]),
     rule: { n: 3, text: REGLE3 },
   }),
 ];

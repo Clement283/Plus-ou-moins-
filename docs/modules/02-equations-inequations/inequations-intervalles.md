@@ -5,7 +5,7 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 - À retenir : (1) un intervalle s'écrit avec deux bornes, la plus petite à gauche : −∞ si les valeurs vont vers la gauche (x < 3 donne ]−∞ , 3[), +∞ si elles vont vers la droite ; (2) crochet fermé (tourné vers la borne) si la borne est comprise (≤ ou ≥), ouvert si elle est exclue (< ou >) ; (3) contre ∞, le crochet est toujours ouvert, car ∞ n'est pas un nombre.
 - Pièges : crochet fermé contre ∞ ([−∞ , 3]) ; mauvais côté (x < 3 écrit ]3 , +∞[) ; bornes à l'envers ; bonne borne, mauvais crochet (x < 3 écrit ]−∞ , 3]) ; signe de la borne perdu (x > −2 écrit ]2 , +∞[).
 - Vu dans ce cours : intervalle, bornes, crochet ouvert / fermé, ±∞ (jamais atteint), virgule entre les bornes (`SEP` de l'appli) ; lecture d'un intervalle en inégalité (petite question) ; la borne est exclue ou comprise (comparaison x < 3 contre x ≤ 3).
-- Écarts et choix : bornes entières (niveau 1 : 1 à 9, négatives une fois sur trois ; niveau 2 : 10 à 30 ; niveau 3 : 10 à 99, les deux signes) ; l'élève ne résout rien ici (inéquations au cours suivant) ; la droite de la leçon montre seulement la borne (pas encore d'intervalle colorié dans les scènes de leçon) ; l'intervalle colorié apparaît dans l'aperçu de l'écran de réponse.
+- Écarts et choix : bornes entières (niveau 1 : 1 à 9, négatives une fois sur trois ; niveau 2 : 10 à 30 ; niveau 3 : 10 à 99, les deux signes) ; l'élève ne résout rien ici (inéquations au cours suivant) ; les scènes de leçon colorient l'intervalle sur la droite (`Scene.interval`, rond plein pour une borne comprise) ; l'écran de comparaison (`compare`) n'a pas d'intervalle : il reste en lignes d'écriture.
 - Dans l'appli : 8 écrans pour apprendre (3 règles, 1 comparaison, 2 petites questions, exemple guidé x > −2), 5 exercices de fin en question `intervalle` ; `essais/inequations-intervalles.ts` ; révision : `saisie` (la borne) et `intervalle`.
 
 ## Fiche
@@ -32,4 +32,4 @@ x < 3 a une infinité de solutions (2, 1, 0, −1, 1,5…) : on ne peut pas les 
 ### Niveaux (les nombres ET la longueur du calcul)
 1 : bornes de 1 à 9, négatives une fois sur trois · 2 : de 10 à 30, les deux signes · 3 : de 10 à 99, les deux signes · les quatre symboles à tous les niveaux.
 ### Hors catalogue
-Les scènes de leçon n'ont pas de droite avec intervalle colorié (seul `IntervalLine` le fait, dans l'écran de réponse) : la leçon utilise la droite graduée existante (borne surlignée) et des lignes d'écriture. À ajouter au catalogue si on veut colorier l'intervalle dans les étapes.
+Rien : l'intervalle colorié existe dans les scènes de leçon (`Scene.interval`). Seul l'écran « comparer deux cas » ne sait pas le dessiner.

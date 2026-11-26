@@ -1,17 +1,18 @@
 // Cours 10 du module Équations et inéquations (déroulé guidé) : tableau de signes d'un produit, puis lecture de S.
 // Découverte (signe de (x − 2)(x + 1) en 0), 3 règles (valeurs et lignes, règle des signes par colonne, lecture de S),
 // 2 petites questions, une comparaison utile (≥ 0 contre ≤ 0), un exemple guidé (tableau complet de (3x + 6)(x − 4))
-// puis 5 exercices : tableau, S, tableau, S, S.
+// puis 5 exercices : tableau complet, S, tableau avec les lignes données, S, S.
 // Fiche : docs/modules/02-equations-inequations/inequations-tableau-signes-produit.md
 // L'exercice garde la plus petite valeur qui annule le produit dans `expr` et `answer` ; les facteurs sont dans `meta` ({ f1, f2 }).
 import { num, op } from '../../math/expr';
+import type { Interval } from '../../math/intervalle';
 import { type Factor, factorLatex, factorRoot, factorText, rootText, wholeLatex } from '../../math/tableau';
 import { eqRat, type Rational, rat } from '../../math/rational';
 import type { Rng } from '../../rng';
 import { intervalleFromTable, type Strict } from '../../exercises/intervalle';
 import { tableauQuestion } from '../../exercises/tableau';
 import type { Outcome, Question } from '../../exercises/types';
-import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level, Scene, SceneTable } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, chance, choix, decouverte, draw, etapes, exemple, explanation,
   hl, is, lecon, linesScene, options3, redraw, small, step, texted, toks, trouOf,
@@ -109,10 +110,13 @@ const saisieQ = (ex: Exercise): Question => ({
   ex,
   promptLatex: `${wholeLatex('produit', factorsOf(ex))} = 0 \\quad\\text{la plus petite valeur :}\\quad x = \\square`,
 });
-const tableauOf = (ex: Exercise) => tableauQuestion(ex, 'produit', factorsOf(ex));
+const tableauOf = (ex: Exercise, ask?: { valeurs: boolean; lignes: boolean }) => tableauQuestion(ex, 'produit', factorsOf(ex), ask);
+/** Rang 2 des exercices de fin : les lignes sont données (valeurs et signes à écrire) ; partout ailleurs, le tableau complet. */
+const askOf = (index: number | undefined): { valeurs: boolean; lignes: boolean } => ({ valeurs: true, lignes: index !== 2 });
+
 const customQuestion: CourseDef['customQuestion'] = (kind, ctx) => {
   const trap = errors.find((e) => e.id === ctx.trapErrorType);
-  if (kind === 'tableau') return tableauOf(trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng));
+  if (kind === 'tableau') return tableauOf(trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng), askOf(ctx.index));
   if (kind === 'intervalle') {
     const ex = trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng);
     return intervalleFromTable(ex, tableauOf(ex), RELS[draw(ctx.rng, [0, 3])] as Strict);
@@ -143,51 +147,70 @@ const guess = choix(
   '(x - 2)(x + 1)',
 );
 
+/** Une scène en lignes d'écriture, avec le tableau de signes (`upTo`, `rows` : jusqu'où il est dessiné ; `ghost` : colonnes qui conviennent) et S en intervalles. */
+type Calc = (string | ReturnType<typeof hl>)[];
+const F = (a: number, b: number): Factor => ({ a, b });
+const tab = (
+  table: Omit<SceneTable, 'op' | 'factors'> & { factors: Factor[] },
+  calcs: Calc[],
+  intervals?: Interval[],
+): Scene => ({
+  ...linesScene(...calcs),
+  table: { op: 'produit', ...table },
+  ...(intervals ? { interval: { intervals } } : {}),
+});
+const piece = (lo: number | null, hi: number | null, loClosed: boolean, hiClosed: boolean): Interval => ({
+  lo: lo === null ? null : rat(lo),
+  hi: hi === null ? null : rat(hi),
+  loClosed,
+  hiClosed,
+});
+
 const lignes: EtapeStep[] = [
   step('Pour **(x − 2)(x + 1)**, on étudie chaque facteur : x − 2 s’annule en 2, et x + 1 s’annule en −1.', {
     scene: linesScene(['(x − 2)(x + 1)'], ['x − 2 = 0 : x = 2'], ['x + 1 = 0 : x = −1']),
   }),
   step('Dans la 1re ligne du tableau, les valeurs vont de la plus petite à la plus grande : −1 est écrite [ ? ] 2.', {
     scene: linesScene(['x − 2 : 2'], ['x + 1 : −1']),
-    after: linesScene(['Valeurs : ', hl('−1'), ' ; 2']),
+    after: tab({ factors: [F(1, -2), F(1, 1)], upTo: 'valeurs' }, [['Valeurs : ', hl('−1'), ' ; 2']]),
     action: trouOf('Dans la 1re ligne du tableau, les valeurs vont de la plus petite à la plus grande : −1 est écrite [ ? ] 2.', ['avant', 'après'], 0, {
       1: '−1 est plus petit que 2 : il s’écrit à gauche, donc avant.',
     }),
   }),
-  step(undefined, { scene: linesScene(['(2x − 4)(x + 3)'], ['2x − 4 : 2'], ['x + 3 : −3'], ['Valeurs : −3 ; 2']), rule: { n: 1, text: REGLE1 } }),
+  step(undefined, { scene: tab({ factors: [F(2, -4), F(1, 3)], upTo: 'lignes' }, [['(2x − 4)(x + 3)'], ['Valeurs : −3 ; 2']]), rule: { n: 1, text: REGLE1 } }),
 ];
 
 const signes: EtapeStep[] = [
   step('Chaque facteur se remplit comme au cours précédent. Pour (x + 1)(x − 2), les valeurs sont −1 et 2.', {
-    scene: linesScene(['x + 1 : − 0 + + +'], ['x − 2 : − − − 0 +']),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', rows: 2 }, [['(x + 1)(x − 2)']]),
   }),
   step('Dans la colonne entre −1 et 2, x + 1 est + et x − 2 est − : les signes sont différents, le produit est [ ? ].', {
-    scene: linesScene(['x + 1 : − 0 + + +'], ['x − 2 : − − − 0 +']),
-    after: linesScene(['x + 1 : − 0 + + +'], ['x − 2 : − − − 0 +'], ['(x + 1)(x − 2) : + 0 ', hl('−'), ' 0 +']),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', rows: 2 }, [['(x + 1)(x − 2)']]),
+    after: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes' }, [['Entre −1 et 2, le produit est ', hl('−')]]),
     action: trouOf('Dans la colonne entre −1 et 2, x + 1 est + et x − 2 est − : les signes sont différents, le produit est [ ? ].', ['−', '+', '0'], 0, {
       1: '+ × − donne −. Deux signes pareils donnent +, deux signes différents donnent −.',
       2: 'Le produit n’est nul que si un facteur est nul : ce n’est pas le cas dans cette colonne.',
     }),
   }),
   step(undefined, {
-    scene: linesScene(['−x + 1 : + + + 0 −'], ['x + 3 : − 0 + + +'], ['(−x + 1)(x + 3) : − 0 + 0 −']),
+    scene: tab({ factors: [F(-1, 1), F(1, 3)], upTo: 'signes' }, [['(−x + 1)(x + 3)']]),
     rule: { n: 2, text: REGLE2 },
   }),
 ];
 
 const lecture: EtapeStep[] = [
   step('Pour résoudre **(x + 1)(x − 2) ≥ 0**, on garde les colonnes où le produit est + ou 0.', {
-    scene: linesScene(['(x + 1)(x − 2) : ', hl('+ 0'), ' − ', hl('0 +')]),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', ghost: '>=' }, [['(x + 1)(x − 2) ≥ 0 : on garde ', hl('+ et 0')]]),
   }),
   step('Le produit vaut 0 en −1 et en 2, et ≥ garde le 0 : les crochets de −1 et de 2 sont [ ? ].', {
-    scene: linesScene(['(x + 1)(x − 2) : + 0 − 0 +']),
-    after: linesScene(['(x + 1)(x − 2) : + 0 − 0 +'], [']−∞ , ', hl('−1'), '] ∪ [', hl('2'), ' , +∞[']),
+    scene: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', ghost: '>=' }, [['(x + 1)(x − 2) ≥ 0']]),
+    after: tab({ factors: [F(1, 1), F(1, -2)], upTo: 'signes', ghost: '>=' }, [[']−∞ , ', hl('−1'), '] ∪ [', hl('2'), ' , +∞[']], [piece(null, -1, false, true), piece(2, null, true, false)]),
     action: trouOf('Le produit vaut 0 en −1 et en 2, et ≥ garde le 0 : les crochets de −1 et de 2 sont [ ? ].', ['fermés', 'ouverts'], 0, {
       1: 'Avec ≥, le 0 est gardé : la borne est comprise, donc le crochet est fermé.',
     }),
   }),
   step(undefined, {
-    scene: linesScene(['(−x + 1)(x + 3) < 0 : ', hl('−'), ' 0 + 0 ', hl('−')], [']−∞ , −3[ ∪ ]1 , +∞[']),
+    scene: tab({ factors: [F(-1, 1), F(1, 3)], upTo: 'signes', ghost: '<' }, [['(−x + 1)(x + 3) < 0 : on garde ', hl('−')], [']−∞ , −3[ ∪ ]1 , +∞[']], [piece(null, -3, false, false), piece(1, null, false, false)]),
     rule: { n: 3, text: REGLE3 },
   }),
 ];

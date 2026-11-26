@@ -33,4 +33,4 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 ### Niveaux (les nombres ET la longueur du calcul)
 1 : a de ±2 à ±5, b de 1 à 9, x de ±1 à ±9 · 2 : a jusqu'à 9, b jusqu'à 20, x jusqu'à 12 · 3 : a jusqu'à 12, b jusqu'à 30, x jusqu'à 15 · les 4 symboles à tous les niveaux.
 ### Hors catalogue
-Rien : `resoudre` gère les inéquations, `intervalle` en variante `flip` fait choisir le symbole. Les scènes de leçon n'ont pas d'intervalle colorié (voir le cours 7).
+Rien : `resoudre` gère les inéquations, `intervalle` en variante `flip` fait choisir le symbole, et la règle 3 montre l'intervalle obtenu colorié (`Scene.interval`).

@@ -1,12 +1,13 @@
 // Cours 6 du module Équations et inéquations — « Équation produit nul » (déroulé guidé, 2026-11-26).
-// Le moteur ne lit pas un produit de facteurs : la leçon utilise les écrans existants (phrases à trous, petites questions,
-// comparaison) et les exercices demandent UNE solution (saisie : « la plus petite » ou « la plus grande ») ou résolvent UN facteur
-// (« À toi de résoudre » sur px + q = 0). Version idéale : lecture du produit et saisie des deux solutions (voir la fiche).
+// La leçon utilise les écrans existants (phrases à trous, petites questions, comparaison). Les exercices de fin saisissent les DEUX
+// solutions (question « solutions » : S = { ▢ ; ▢ }, exemple guidé compris) ou résolvent UN facteur (« À toi de résoudre » sur px + q = 0).
+// La saisie d'une seule solution (« la plus petite » ou « la plus grande ») reste un format de révision.
 // Fiche : docs/modules/02-equations-inequations/equations-produit-nul.md
 // L'exercice garde la racine demandée, −q ÷ p, dans `expr` ; les deux facteurs (p, q, r, s) et la demande (ask) sont dans `meta`.
 import { num, op } from '../../math/expr';
 import { cst, equation, memberLatex, xt, type Equation } from '../../math/equation';
 import { rat } from '../../math/rational';
+import { solutionsQuestion } from '../../exercises/solutions';
 import type { Rng } from '../../rng';
 import type { Outcome, Question } from '../../exercises/types';
 import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
@@ -109,7 +110,23 @@ const specs: ErrorSpec[] = [
     sample: (ex) => otherRoot(m(ex)),
   },
 ];
-const errors: ErrorDef[] = buildErrors(specs, resolution).map((x): ErrorDef => ({ ...x, rule: RULES[x.id] as NonNullable<ErrorDef['rule']> }));
+const numericErrors: ErrorDef[] = buildErrors(specs, resolution).map((x): ErrorDef => ({ ...x, rule: RULES[x.id] as NonNullable<ErrorDef['rule']> }));
+/** Erreurs de la question « solutions » (ids de exercises/solutions.ts) : pas de valeur piège sur un nombre, la question les reconnaît elle-même. */
+const solutionsError = (id: string, family: ErrorDef['family'], rule: NonNullable<ErrorDef['rule']>, text: (ex: Exercise) => string): ErrorDef => ({
+  id,
+  family,
+  rule,
+  detect: () => false,
+  explain: (ex) => explanation(text(ex), resolution(ex)),
+  trap: (level, rng) => generate(level, rng),
+  wrongValues: () => [],
+});
+const errors: ErrorDef[] = [
+  ...numericErrors,
+  solutionsError('signe', 'signe', RULE_2, () => 'Pour chaque facteur, on retire ou on ajoute le nombre seul des deux côtés : x + 2 = 0 donne x = −2.'),
+  solutionsError('valeur', 'calcul', RULE_2, () => 'Résous chaque facteur égal à 0 : une équation par facteur, en retirant le nombre seul puis en divisant.'),
+  solutionsError('une-seule', 'calcul', RULE_3, () => 'Chaque facteur donne sa solution : il y a deux valeurs différentes à écrire.'),
+];
 
 // ——— Questions : le produit est affiché, on demande une solution ; « À toi de résoudre » pour un facteur ———
 const saisieQ = (ex: Exercise): Question => ({
@@ -118,10 +135,16 @@ const saisieQ = (ex: Exercise): Question => ({
   promptLatex: `${productTex(m(ex))} \\quad\\text{la plus ${askWord(m(ex))} solution :}\\quad x = \\square`,
 });
 const factorEq = (ex: Exercise): Equation => equation([xt(fac(ex).a), cst(fac(ex).b)], [cst(0)]);
+const solutionsQ = (ex: Exercise): Question =>
+  solutionsQuestion(ex, [
+    { a: m(ex).p, b: m(ex).q },
+    { a: m(ex).r, b: m(ex).s },
+  ]);
 const customQuestion: CourseDef['customQuestion'] = (kind, ctx) => {
   const trap = errors.find((x) => x.id === ctx.trapErrorType);
   const ex = trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng);
-  return kind === 'resoudre' ? { kind: 'resoudre', ex, start: factorEq(ex) } : saisieQ(ex);
+  if (kind === 'resoudre') return { kind: 'resoudre', ex, start: factorEq(ex) };
+  return kind === 'solutions' ? solutionsQ(ex) : saisieQ(ex);
 };
 
 const OTHER = (ex: Exercise): string => {
@@ -248,9 +271,9 @@ const parts: LessonPart[] = [
       ['5 et 1', 'x + 1 = 0 donne x = −1 : le signe change.'],
     ], 0),
   ),
-  texted(exemple({ kind: 'resoudre', ex: exGuide, start: factorEq(exGuide), guided: true }), {
+  texted(exemple({ ...(solutionsQ(exGuide) as Extract<Question, { kind: 'solutions' }>), guided: true as const }), {
     title: 'On le fait ensemble',
-    subtitle: 'Dans (3x + 9)(x − 2) = 0, le facteur 3x + 9 est nul. Résous 3x + 9 = 0. À chaque ligne, une aide te dit quoi faire.',
+    subtitle: 'Résous (3x + 9)(x − 2) = 0 : une valeur pour chaque facteur. À chaque étape, une aide te dit quoi faire.',
   }),
   annonceFin(),
 ];
@@ -266,9 +289,9 @@ export const equationsProduitNul: CourseDef = {
   // pas de série de pratique : la pastille s'arrête avant l'exemple guidé
   lessonLength: parts.findIndex((x) => x.type === 'question' && x.activity === 'exemple'),
   unePhrase: true,
-  // saisie d'une solution (le produit est affiché) ou résolution d'un facteur : le moteur ne lit pas encore le produit
-  endExercises: { count: 5, kind: 'saisie', mix: ['saisie', 'resoudre', 'saisie', 'resoudre', 'saisie'] },
-  formats: ['saisie', 'resoudre', 'resoudre'],
+  // les deux solutions (S = { ▢ ; ▢ }) en alternance avec la résolution d'un facteur
+  endExercises: { count: 5, kind: 'saisie', mix: ['solutions', 'resoudre', 'solutions', 'resoudre', 'solutions'] },
+  formats: ['saisie', 'resoudre', 'solutions'],
   generate,
   errors,
   generalExplanation: (ex) => explanation(RULE, resolution(ex)),

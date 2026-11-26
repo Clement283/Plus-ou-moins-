@@ -103,6 +103,14 @@ describe('Cours 10 — Tableau de signes d’un produit', () => {
     expect(c.feedbackText?.(q, { ...o, correct: true })).toBeNull();
   });
 
+  it('exercices de fin : le rang 2 donne les lignes, les autres tableaux sont complets', () => {
+    const fins = courseRunItems(c, seededRng(9)).filter((i) => i.type === 'question' && i.activity === 'fin');
+    const ask = fins.map((f) => (f.type === 'question' && f.question.kind === 'tableau' ? f.question.ask : null));
+    expect(ask).toEqual([{ valeurs: true, lignes: true }, null, { valeurs: true, lignes: false }, null, null]);
+    const dflt = c.customQuestion?.('tableau', { rng: seededRng(1), level: 1, timesSeen: 0 });
+    expect(dflt?.kind === 'tableau' && dflt.ask).toEqual({ valeurs: true, lignes: true });
+  });
+
   it('exercices de fin : tableau, S, tableau, S, S (jamais de quotient)', () => {
     const fins = courseRunItems(c, seededRng(9)).filter((i) => i.type === 'question' && i.activity === 'fin');
     expect(fins.map((f) => f.type === 'question' && f.question.kind)).toEqual(['tableau', 'intervalle', 'tableau', 'intervalle', 'intervalle']);

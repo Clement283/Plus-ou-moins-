@@ -22,6 +22,9 @@ Tous les helpers s'importent de `./shared`. Toujours `M` (−) dans les textes, 
 - `oneScene('−3 + ', hl('5'))` : un calcul ; `linesScene(['ligne 1'], ['ligne 2'])` : résolution ligne à ligne (la dernière est surlignée).
 - `hl('x')` surligne ce dont la phrase parle (jaune, **leçon seulement**). Un morceau peut aussi être `{ t, anim: 'pin'|'bump'|'slide' }` ou `{ t, dim: true }`.
 - Autres layouts (`Scene.layout`) : `'row'`, `'pairs'` (mal écrit / bien écrit, avec `tag`), `'line'` (droite graduée : `scene.line = { from, to, jumps:[{from, by, after?}], highlight?, marks?, tone }`).
+- `Scene.interval = { intervals: Interval[] }` : un ou deux intervalles coloriés sur une droite graduée sous les calculs (rond plein pour une borne comprise) ; `intervalOfRelation(rel, rat(b))` ou `{ lo, hi, loClosed, hiClosed }` (null = ∞). Exemple : `{ ...linesScene(['x < 3']), interval: { intervals: [intervalOfRelation('<', rat(3))] } }`. Cours 7, 8, 10, 11. Pas dans `compare`.
+- `Scene.table = SceneTable` : tableau de signes sans saisie, `{ op: 'seul'|'produit'|'quotient', factors: [{a,b}…], upTo?: 'valeurs'|'lignes'|'signes', rows?: lignes de signes déjà remplies, ghost?: '<'|'<='|'>'|'>=' (colonnes qui conviennent) }`, combinable avec `interval` (lecture de S). Garder au moins une ligne avec `hl` dans la scène `after` d'une phrase à trous. Cours 9 à 11.
+- `BuildCtx.index` (0 à 4) : rang de l'exercice de fin, donné à `customQuestion` (absent en révision et en entraînement : prévoir un défaut) ; sert à varier l'aide (`ask` d'un tableau) ou à garantir un symbole.
 - `after` : scène montrée dès que l'action est réussie. Sans `scene`, la précédente reste affichée.
 
 ## Actions d'une étape (`action`, remplacent « Suite » ; rien n'est noté)

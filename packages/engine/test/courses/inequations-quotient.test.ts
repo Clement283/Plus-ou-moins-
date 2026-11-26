@@ -107,6 +107,19 @@ describe('Cours 11 — Quotient et valeur interdite', () => {
     expect(large / 300).toBeGreaterThan(0.6);
   });
 
+  it('exercices de fin : au moins une lecture de S avec ≤ ou ≥ (le rang 1 l’est toujours), lignes données au rang 2', () => {
+    for (let seed = 1; seed <= 200; seed++) {
+      const fins = courseRunItems(c, seededRng(seed)).filter((i) => i.type === 'question' && i.activity === 'fin');
+      const rel = (k: number): string | undefined => {
+        const f = fins[k];
+        return f?.type === 'question' && f.question.kind === 'intervalle' ? f.question.table?.rel : undefined;
+      };
+      expect(['<=', '>=']).toContain(rel(1));
+      const ask = fins.map((f) => (f.type === 'question' && f.question.kind === 'tableau' ? f.question.ask : null));
+      expect(ask).toEqual([{ valeurs: true, lignes: true }, null, { valeurs: true, lignes: false }, null, null]);
+    }
+  });
+
   it('lecture de S : un ou deux intervalles, bonne réponse juste, mauvais crochet refusé', () => {
     const rng = seededRng(11);
     for (let i = 0; i < 100; i++) {

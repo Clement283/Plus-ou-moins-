@@ -7,11 +7,12 @@
 import { num, op } from '../../math/expr';
 import { cst, equation, equationLatex, relationLatex, xt, type Equation, type Relation } from '../../math/equation';
 import { resolve } from '../../math/solve';
+import { type Interval, intervalOfRelation } from '../../math/intervalle';
 import { rat } from '../../math/rational';
 import type { Rng } from '../../rng';
 import { intervalleFromInequality } from '../../exercises/intervalle';
 import type { Outcome, Question } from '../../exercises/types';
-import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level, Scene } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, chance, choix, decouverte, draw, etapes, exemple, explanation,
   hl, intOf, is, lecon, linesScene, options3, redraw, small, step, texted, toks, trouOf,
@@ -135,6 +136,10 @@ const guess = choix(
   '-2x < 6',
 );
 
+/** Une scène en lignes d'écriture, avec l'intervalle obtenu colorié sur la droite graduée. */
+const ivScene = (calcs: (string | ReturnType<typeof hl>)[][], ...intervals: Interval[]): Scene => ({ ...linesScene(...calcs), interval: { intervals } });
+const iv = (rel: Strict, b: number): Interval => intervalOfRelation(rel, rat(b));
+
 const retourne: EtapeStep[] = [
   step('Partons d’une inégalité vraie : **2 < 5**. Multiplions les deux côtés par −1 : on obtient −2 et −5.', {
     scene: linesScene(['2 < 5'], ['−2 ', hl('?'), ' −5']),
@@ -169,12 +174,12 @@ const intervalle: EtapeStep[] = [
   }),
   step('Le bon sens est x < −4 : l’intervalle est [ ? ].', {
     scene: linesScene(['−3x > 12'], ['x < −4']),
-    after: linesScene(['−3x > 12'], ['x < −4'], [']', hl('−∞'), ' , −4[']),
+    after: ivScene([['−3x > 12'], ['x < −4'], [']', hl('−∞'), ' , −4[']], iv('<', -4)),
     action: trouOf('Le bon sens est x < −4 : l’intervalle est [ ? ].', [']−∞ , −4[', ']−4 , +∞['], 0, {
       1: 'Cet intervalle est celui de x > −4, le sens de départ. Il faut lire le sens après la division.',
     }),
   }),
-  step(undefined, { scene: linesScene(['−x ≥ 2'], ['x ≤ −2'], [hl(']'), '−∞ , −2]']), rule: { n: 3, text: REGLE3 } }),
+  step(undefined, { scene: ivScene([['−x ≥ 2'], ['x ≤ −2'], [hl(']'), '−∞ , −2]']], iv('<=', -2)), rule: { n: 3, text: REGLE3 } }),
 ];
 
 const exGuide = mk(1, -4, 5, 9, '<'); // −4x + 5 < 9, x > −1
