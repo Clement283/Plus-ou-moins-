@@ -55,9 +55,10 @@ const accounts: Accounts = {
   sam: createUser('Sam', 'eleve'),
   tess: createUser('Tess', 'eleve'),
   apercu: createUser('Aperçu', 'eleve'),
+  capture: createUser('Capture', 'eleve'),
 };
-// Compte « aperçu » : tous les cours ouverts, Essais compris (tous-les-cours.spec.ts).
-run('npx', ['wrangler', 'd1', 'execute', 'plus-ou-moins', '--local', '--command', `UPDATE users SET apercu=1 WHERE id='${accounts.apercu.id}'`], API);
+// Comptes « aperçu » : tous les cours ouverts, Essais compris (tous-les-cours.spec.ts, captures.spec.ts).
+run('npx', ['wrangler', 'd1', 'execute', 'plus-ou-moins', '--local', '--command', `UPDATE users SET apercu=1 WHERE id IN ('${accounts.apercu.id}', '${accounts.capture.id}')`], API);
 writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts));
 
 const dev = spawn('npx', ['wrangler', 'dev', '--local', '--ip', '127.0.0.1', '--port', PORT], { cwd: API, stdio: 'inherit' });

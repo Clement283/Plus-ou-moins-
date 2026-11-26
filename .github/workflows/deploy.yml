@@ -22,6 +22,82 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  parcours:
+    name: Parcours des cours et captures
+    # Pull requests seulement, et seulement si elles touchent à l'appli, aux cours ou aux tests (pas pour de la documentation).
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fichiers modifiés par la pull request
+        id: diff
+        run: |
+          git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD > changed.txt
+          cat changed.txt
+          if grep -qE '^(apps/|packages/|e2e/|scripts/|package(-lock)?\.json$|playwright\.config\.ts$)' changed.txt; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.diff.outputs.app == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - if: steps.diff.outputs.app == 'true'
+        run: npm ci
+      - name: Navigateur des tests
+        if: steps.diff.outputs.app == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Chaque cours du début à la fin (et captures des cours modifiés)
+        if: steps.diff.outputs.app == 'true'
+        run: |
+          export CAPTURE_FILES="$(cat changed.txt)"
+          npx playwright test --trace off
+      - name: Détails de l'échec
+        if: failure() && steps.diff.outputs.app == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: echec-des-tests
+          path: test-results/
+          retention-days: 7
+      - name: Envoyer les captures
+        id: upload
+        if: ${{ !cancelled() && hashFiles('captures/**') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-des-cours
+          path: captures/
+          retention-days: 30
+      - name: Lien des captures sur la pull request
+        if: ${{ !cancelled() && steps.upload.outputs.artifact-url != '' }}
+        uses: actions/github-script@v7
+        env:
+          URL: ${{ steps.upload.outputs.artifact-url }}
+        with:
+          script: |
+            const fs = require('fs');
+            const courses = fs.readdirSync('captures').sort();
+            const marker = '<!-- captures-des-cours -->';
+            const body = [
+              marker,
+              '### Captures des cours modifiés',
+              ...courses.map((c) => `- \`${c}\` : ${fs.readdirSync(`captures/${c}`).length} écrans`),
+              '',
+              `[Télécharger les captures](${process.env.URL}) (fichier .zip, gardé 30 jours).`,
+              '',
+              `_Mises à jour au commit ${context.sha.slice(0, 7)}._`,
+            ].join('\n');
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const old = comments.find((c) => c.body?.includes(marker));
+            if (old) await github.rest.issues.updateComment({ owner, repo, comment_id: old.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
+
   deploy:
     name: Mise en ligne Cloudflare
     # Seulement après un push sur main ET si les tests sont verts.
@@ -42,3 +118,15 @@ jobs:
         run: cd apps/api && npx wrangler d1 migrations apply plus-ou-moins --remote
       - name: Construire et déployer
         run: npm run deploy
+      - name: Vérifier que le site répond
+        # La page de l'appli doit s'afficher et l'API répondre (401 sans connexion). Jusqu'à 1 minute d'attente.
+        run: |
+          URL=https://plus-ou-moins.ballam-clement3.workers.dev
+          for i in 1 2 3 4 5 6; do
+            api=$(curl -s -o /dev/null -w '%{http_code}' "$URL/api/me")
+            if curl -fsS "$URL/" | grep -q '<div id="root">' && [ "$api" = 401 ]; then
+              echo "Le site et l'API répondent."; exit 0
+            fi
+            echo "Essai $i : pas encore (API : $api), nouvel essai dans 10 s."; sleep 10
+          done
+          echo "::error::Le site ne répond pas correctement après la mise en ligne."; exit 1
