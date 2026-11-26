@@ -1,5 +1,5 @@
 // Lire une ligne tapée par l'élève : « 2x+3=7 », « −x + 4 ⩾ 2x », « x = −3 ».
-// Le clavier de l'appli n'a que : chiffres, x, +, −, =, <, >, ⩽, ⩾ (et l'espace, ignoré).
+// Le clavier de l'appli n'a que : chiffres, x, +, −, ÷ (une fraction : 12/3, 3x/3, −6/−2), =, <, >, ⩽, ⩾ (et l'espace, ignoré).
 import { type Equation, type Member, type Relation, cst, xt } from './equation';
 
 export type ParseError =
@@ -23,19 +23,24 @@ const REL: Record<string, Relation> = {
   '>=': '>=',
 };
 
-/** Un membre : suite de termes « ±nombre », « ±x », « ±nombre x ». Les termes nuls sont retirés. */
+const TERM = '(\\d*x|\\d+)(\\/-?\\d+)?';
+const MEMBER = new RegExp(`^[+-]?${TERM}([+-]${TERM})*$`);
+
+/** Un membre : suite de termes « ±nombre », « ±x », « ±nombre x », chacun éventuellement « /nombre ». Les termes nuls sont retirés. */
 function member(s: string): Member | null {
-  if (!/^[+-]?(\d*x|\d+)([+-](\d*x|\d+))*$/.test(s)) return null;
+  if (!MEMBER.test(s)) return null;
   const out: Member = [];
-  for (const m of s.matchAll(/([+-]?)(\d*)(x?)/g)) {
+  for (const m of s.matchAll(/([+-]?)(\d*)(x?)(?:\/(-?\d+))?/g)) {
     if (m[0] === '') continue;
     const sign = m[1] === '-' ? -1 : 1;
+    const den = m[4] === undefined ? undefined : Number(m[4]);
+    if (den === 0) return null;
     if (m[3]) {
       const c = sign * (m[2] === '' ? 1 : Number(m[2]));
-      if (c !== 0) out.push(xt(c));
+      if (c !== 0) out.push(xt(c, den));
     } else {
       const v = sign * Number(m[2]);
-      if (v !== 0) out.push(cst(v));
+      if (v !== 0) out.push(cst(v, den));
     }
   }
   return out.length ? out : [cst(0)];
@@ -45,7 +50,8 @@ export function parseEquation(text: string): ParseResult {
   const s = text
     .replace(/\s+/g, '')
     .replace(/[−–]/g, '-')
-    .replace(/X/g, 'x');
+    .replace(/X/g, 'x')
+    .replace(/÷/g, '/');
   if (s === '') return { ok: false, error: 'vide' };
   const rels = s.match(/<=|>=|[=<>⩽⩾≤≥]/g) ?? [];
   if (rels.length === 0) return { ok: false, error: 'sans-signe' };

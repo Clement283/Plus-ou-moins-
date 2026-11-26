@@ -104,6 +104,9 @@ h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
 .strike{text-decoration:line-through;text-decoration-color:var(--ko);text-decoration-thickness:3px}
 .mark{color:var(--ko);font-size:.85rem;font-weight:600;text-align:center}
 /* La balance */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.78em;line-height:1.1;margin:0 .1em}
+.fr > span:first-child{border-bottom:2px solid currentColor;padding:0 .2em .05em}
+.fr > span:last-child{padding:.05em .2em 0}
 .scale{width:100%;max-width:300px;height:auto;margin:0 auto;display:block;color:var(--ink)}
 .scale text{font-family:var(--font);font-size:15px;font-weight:600;fill:currentColor;text-anchor:middle}
 .scale .beam{stroke:currentColor;stroke-width:3;stroke-linecap:round}
@@ -308,16 +311,23 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
       if(rels.length>1) return {err:'Une ligne a un seul signe du milieu.'};
       const r=rels[0],i=s.indexOf(r),l=s.slice(0,i),rt=s.slice(i+1);
       if(!l||!rt) return {err:'Il faut un membre de chaque côté du signe.'};
-      const re=/^[+-]?(\d*x|\d+)([+-](\d*x|\d+))*$/;
-      if(!re.test(l)||!re.test(rt)) return {err:'Cette ligne est mal écrite. Exemple : 3x + 1 = 7.'};
-      const mem=m=>{let a=0,b=0;const keys=[];for(const t of m.matchAll(/([+-]?)(\d*)(x?)/g)){if(!t[0])continue;const sg=t[1]==='-'?-1:1;if(t[3]){const c=sg*(t[2]===''?1:+t[2]);if(c){a+=c;keys.push('x'+c);}}else{const v=sg*+t[2];if(v){b+=v;keys.push('n'+v);}}}return {a,b,keys};};
-      return {L:mem(l),R:mem(rt),rel:r,text:t};
+      const T='(\\d*x|\\d+)(\\/-?\\d+)?',re=new RegExp('^[+-]?'+T+'([+-]'+T+')*$');
+      if(!re.test(l)||!re.test(rt)) return {err:'Cette ligne est mal écrite. Exemple : 3x + 1 = 7, ou x = 12 ÷ 3.'};
+      let bad=false;
+      const mem=m=>{let a=0,b=0;const keys=[];for(const t of m.matchAll(/([+-]?)(\d*)(x?)(?:\/(-?\d+))?/g)){if(!t[0])continue;const sg=t[1]==='-'?-1:1;const den=t[4]===undefined?1:+t[4];if(den===0){bad=true;continue;}if(t[3]){const c=sg*(t[2]===''?1:+t[2]);if(c){a+=c/den;keys.push('x'+c+'/'+den);}}else{const v=sg*+t[2];if(v){b+=v/den;keys.push('n'+v+'/'+den);}}}return {a:SOLVE.r(a),b:SOLVE.r(b),keys};};
+      const L=mem(l),R=mem(rt);
+      if(bad) return {err:'On ne divise jamais par 0.'};
+      return {L,R,rel:r,text:t};
     },
+    r:v=>Math.round(v*1e9)/1e9,
+    gcd:(a,b)=>b===0?Math.abs(a):SOLVE.gcd(b,a%b),
+    // Une fraction qui se simplifie (12/3, −6/−2) : ligne juste mais pas finie.
+    reducible:e=>[...e.L.keys,...e.R.keys].some(k=>{const [n,d]=k.slice(1).split('/').map(Number);return d!==1&&(d<0||SOLVE.gcd(n,d)!==1);}),
     flip:r=>({'=':'=','<':'>','>':'<','⩽':'⩾','⩾':'⩽'})[r],
     set(e){const a=e.L.a-e.R.a,b=e.R.b-e.L.b;
       if(a===0){const d=-b;const ok={'=':d===0,'<':d<0,'⩽':d<=0,'>':d>0,'⩾':d>=0}[e.rel];return ok?'all':'none';}
-      const rel=a<0?SOLVE.flip(e.rel):e.rel;return rel+':'+(b/a);},
-    alone:(m,x)=>x?(m.a===1&&m.b===0&&m.keys.length===1):(m.a===0&&m.keys.length<=1),
+      const rel=a<0?SOLVE.flip(e.rel):e.rel;return rel+':'+SOLVE.r(b/a);},
+    alone:(m,x)=>x?(m.keys.length===1&&m.keys[0]==='x1/1'):(m.a===0&&m.keys.length<=1&&!(m.keys[0]&&SOLVE.reducible({L:m,R:{keys:[]}}))),
     final:e=>(SOLVE.alone(e.L,1)&&SOLVE.alone(e.R,0))||(SOLVE.alone(e.L,0)&&SOLVE.alone(e.R,1)),
     unreduced:m=>m.keys.filter(k=>k[0]==='x').length>1||m.keys.filter(k=>k[0]==='n').length>1,
     sameTerms:(e,f)=>e.rel===f.rel&&[e.L,e.R].every((m,i)=>{const n=i?f.R:f.L;return m.keys.slice().sort().join()===n.keys.slice().sort().join();}),
@@ -327,24 +337,24 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
     // Ce que l'élève a fait, lu en comparant les deux lignes.
     done(p,g){
       if(g.L.a===p.R.a&&g.L.b===p.R.b&&g.R.a===p.L.a&&g.R.b===p.L.b&&g.rel===SOLVE.flip(p.rel)&&!(p.L.a===p.R.a&&p.L.b===p.R.b))return {k:'swap'};
-      const dla=g.L.a-p.L.a,dlb=g.L.b-p.L.b,dra=g.R.a-p.R.a,drb=g.R.b-p.R.b;
-      if(dla===dra&&dlb===drb&&g.rel===p.rel)return dla===0&&dlb===0?{k:'reduce'}:{k:'add',x:dla,n:dlb};
-      const d=g.L.a?p.L.a/g.L.a:g.L.b?p.L.b/g.L.b:g.R.a?p.R.a/g.R.a:g.R.b?p.R.b/g.R.b:0;
-      if(Number.isInteger(d)&&d!==0&&d!==1&&g.L.a*d===p.L.a&&g.L.b*d===p.L.b&&g.R.a*d===p.R.a&&g.R.b*d===p.R.b&&g.rel===(d<0?SOLVE.flip(p.rel):p.rel))return {k:'div',v:d};
+      const r=SOLVE.r,dla=r(g.L.a-p.L.a),dlb=r(g.L.b-p.L.b),dra=r(g.R.a-p.R.a),drb=r(g.R.b-p.R.b);
+      if(dla===dra&&dlb===drb&&g.rel===p.rel)return dla===0&&dlb===0?{k:'reduce'}:(Number.isInteger(dla)&&Number.isInteger(dlb)?{k:'add',x:dla,n:dlb}:{k:'several'});
+      const d=r(g.L.a?p.L.a/g.L.a:g.L.b?p.L.b/g.L.b:g.R.a?p.R.a/g.R.a:g.R.b?p.R.b/g.R.b:0);
+      if(Number.isInteger(d)&&d!==0&&d!==1&&r(g.L.a*d)===p.L.a&&r(g.L.b*d)===p.L.b&&r(g.R.a*d)===p.R.a&&r(g.R.b*d)===p.R.b&&g.rel===(d<0?SOLVE.flip(p.rel):p.rel))return {k:'div',v:d};
       return {k:'several'};},
     doneText(o){if(o.k==='add')return [o.x?SOLVE.sgn(o.x,1):'',o.n?SOLVE.sgn(o.n):''].filter(Boolean).join(' ');if(o.k==='div')return SOLVE.opText(o);return '';},
     error(p,g){
-      const dla=g.L.a-p.L.a,dlb=g.L.b-p.L.b,dra=g.R.a-p.R.a,drb=g.R.b-p.R.b;
+      const r=SOLVE.r,dla=r(g.L.a-p.L.a),dlb=r(g.L.b-p.L.b),dra=r(g.R.a-p.R.a),drb=r(g.R.b-p.R.b);
       const zl=!dla&&!dlb,zr=!dra&&!drb,ineq=p.rel!=='=';
       if(ineq&&g.rel===SOLVE.flip(p.rel)&&dla===dra&&dlb===drb)return 'sens-change-a-tort';
       if(g.rel===p.rel){
         if(zl!==zr){const side=zl?'R':'L';return SOLVE.unreduced(p[side])&&g[side].keys.length<p[side].keys.length?'reduction':'un-seul-cote';}
         if(!zl&&dla===-dra&&dlb===-drb)return 'signe-garde';}
       const a=p.L.a-p.R.a,b=p.R.b-p.L.b;
-      if(SOLVE.alone(g.L,1)&&SOLVE.alone(g.R,0)&&p.R.a===0&&p.L.b===0){const v=g.R.b;
-        if(v===b-a)return 'soustraire-coef';
-        if(a<0&&v===b/-a)return 'signe-perdu-division';
-        if(ineq&&a<0&&g.rel===p.rel&&v===b/a)return 'sens-non-change';}
+      if(g.L.a===1&&g.L.b===0&&g.R.a===0&&p.R.a===0&&p.L.b===0){const v=g.R.b;
+        if(v===r(b-a))return 'soustraire-coef';
+        if(a<0&&v===r(b/-a))return 'signe-perdu-division';
+        if(ineq&&a<0&&g.rel===p.rel&&v===r(b/a))return 'sens-non-change';}
       return null;},
     lin(a,b){const t=[];if(a)t.push((a<0?M:'')+(Math.abs(a)===1?'':Math.abs(a))+'x');if(b)t.push(t.length?(b<0?M+' '+(-b):'+ '+b):(b<0?M+(-b):''+b));return t.length?t.join(' '):'0';},
     // La méthode du cours, à partir de l'énoncé : lignes réduites et opération sous chaque membre.
@@ -354,8 +364,17 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
         if(o.k==='addX'){L.a+=o.c;R.a+=o.c;}else if(o.k==='add'){L.b+=o.v;R.b+=o.v;}else{L={a:L.a/o.v,b:L.b/o.v};R={a:R.a/o.v,b:R.b/o.v};if(o.v<0)rel=SOLVE.flip(rel);}
         out.push({op:SOLVE.opText(o),text:[SOLVE.lin(L.a,L.b),rel,SOLVE.lin(R.a,R.b)]});}
       return out;},
-    fmt(t){return t.replace(/\s+/g,'').replace(/-/g,M).replace(/([+−=<>⩽⩾])/g,' $1 ').replace(/^ ([+−]) /,'$1').replace(/([=<>⩽⩾])  ([+−]) /,'$1 $2').replace(/x/g,X).trim();},
-    split(t){const f=SOLVE.fmt(t);const m=f.match(/^(.*?) ([=<>⩽⩾]) (.*)$/);return m?[m[1],m[2],m[3]]:[f,'',''];}
+    // Un membre écrit comme dans un cahier ; une fraction s'affiche en étage.
+    fmtM(m){const raw=()=>m.replace(/-/g,M).replace(/\//g,' ÷ ').replace(/x/g,X);if(!m)return '';
+      let out='',used=0,first=true;
+      for(const t of m.matchAll(/([+-]?)(\d*x|\d+)(?:\/(-?\d+))?/g)){if(!t[0])continue;used+=t[0].length;
+        const body=t[2].replace('x',X),neg=t[1]==='-';
+        if(t[3]!==undefined){const fr=`<span class="fr"><span>${first&&neg?M:''}${body}</span><span>${t[3].replace('-',M)}</span></span>`;out+=first?fr:` ${neg?M:'+'} ${fr}`;}
+        else out+=first?(neg?M:'')+body:` ${neg?M:'+'} ${body}`;
+        first=false;}
+      return used===m.length?out:raw();},
+    split(t){const s=t.replace(/\s+/g,'').replace(/\u2212/g,'-');const m=s.match(/^(.*?)([=<>⩽⩾])(.*)$/);return m?[SOLVE.fmtM(m[1]),m[2],SOLVE.fmtM(m[3])]:[SOLVE.fmtM(s),'',''];},
+    fmt(t){const [a,s,b]=SOLVE.split(t);return s?`${a} ${s} ${b}`:a;}
   };
   const EX7=[{t:`4x ${M} 3 = x + 9`,name:'une équation'},{t:`3x + 5 > 5x ${M} 1`,name:'une inéquation'}];
   const MSG7={'un-seul-cote':['Tu as changé un seul membre.','Ce que tu fais à un membre, fais-le à l’autre.'],
@@ -381,12 +400,13 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
       } else {
         const field=`<div class="field" style="font-size:1.35rem;font-weight:500;min-height:54px;border:2px solid var(--primary);border-radius:14px;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">${st.typed?SOLVE.fmt(st.typed):'<span style="color:var(--muted);font-size:1rem">Écris la ligne suivante</span>'}</div>`;
         const ineq=st.lines[0].e.rel!=='=';
-        const K=['7','8','9','⌫','4','5','6','x','1','2','3','+',M,'0',...(ineq?['<','>']:['=','']),...(ineq?['⩽','⩾']:[])];
-        const keysH=`<div class="keys">${K.map(k=>k===''?'<span></span>':`<button class="key${'⌫+=<>⩽⩾'.includes(k)||k===M?' op':''}" data-t="${k}" ${k==='x'?'style="font-style:italic"':''}>${k}</button>`).join('')}<button class="key op" data-t="ok" style="grid-column:span ${ineq?2:4}">Valider</button></div>`;
+        const K=['7','8','9','⌫','4','5','6','x','1','2','3','+',M,'0','÷',...(ineq?['<','>','⩽','⩾']:['='])];
+        const keysH=`<div class="keys">${K.map(k=>k===''?'<span></span>':`<button class="key${'⌫+=<>⩽⩾÷'.includes(k)||k===M?' op':''}" data-t="${k}" ${k==='x'?'style="font-style:italic"':''} ${k==='÷'?'aria-label="diviser (fraction)"':''}>${k}</button>`).join('')}<button class="key op" data-t="ok" style="grid-column:1 / -1">Valider</button></div>`;
         let fb='';if(st.fb)fb=`<div class="fb ${st.fb.ok?'ok':'ko'} new"><strong>${st.fb.t}</strong><p>${st.fb.p}</p></div>`;
         let hintTxt='';
         if(st.hint){const e=last.e;
-          if(SOLVE.unreduced(e.L)||SOLVE.unreduced(e.R))hintTxt=`Méthode du cours : regroupe d'abord les ${X} entre eux et les nombres entre eux, dans chaque membre.`;
+          if(SOLVE.reducible(e))hintTxt=`Méthode du cours : simplifie la fraction (par exemple 12 ÷ 3 = 4).`;
+          else if(SOLVE.unreduced(e.L)||SOLVE.unreduced(e.R))hintTxt=`Méthode du cours : regroupe d'abord les ${X} entre eux et les nombres entre eux, dans chaque membre.`;
           else{const o=SOLVE.next(e);hintTxt=o.k==='swap'?`Méthode du cours : échange les deux membres pour avoir ${X} à gauche${ineq?' (le sens change)':''}.`:`Méthode du cours : <span class="opb">${SOLVE.opText(o).replace(/x/g,X)}</span> des deux côtés.`;}}
         const hint=st.hint?`<p class="q new" style="font-weight:500">${hintTxt}</p>`:`<button class="btn btn-line" data-hint>Un indice</button>`;
         zone=`${fb}${field}${keysH}${hint}`;
@@ -401,7 +421,7 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
       if(el.dataset.hint!==undefined){st.hint=true;return;}
       const k=el.dataset.t;if(k===undefined)return;
       if(k==='⌫'){st.typed=st.typed.slice(0,-1);return;}
-      if(k!=='ok'){st.typed+=k===M?'-':k;if(st.fb&&!st.fb.ok)st.fb=null;return;}
+      if(k!=='ok'){st.typed+=k===M?'-':k==='÷'?'/':k;if(st.fb&&!st.fb.ok)st.fb=null;return;}
       const g=SOLVE.parse(st.typed);
       if(g.err){st.fb={ok:false,t:'Je ne peux pas lire cette ligne.',p:g.err};return;}
       const prev=st.lines[st.lines.length-1].e;
@@ -409,12 +429,12 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
         if(!SOLVE.final(g)&&SOLVE.sameTerms(g,prev)){st.fb={ok:false,t:'C’est la même ligne.',p:'Elle est juste, mais tu l’as recopiée. Fais une opération des deux côtés, ou regroupe des termes.'};return;}
         const d=SOLVE.done(prev,g);
         st.lines.push({e:g,text:st.typed,op:SOLVE.doneText(d)});st.typed='';st.hint=false;
-        st.fb=SOLVE.final(g)?null:{ok:true,t:'Ligne juste.',p:d.k==='reduce'?'Tu as regroupé les termes. Continue.':d.k==='several'?'Tu as fait plusieurs étapes d’un coup : c’est juste.':'Continue jusqu’à avoir x tout seul.'};return;}
+        st.fb=SOLVE.final(g)?null:{ok:true,t:'Ligne juste.',p:SOLVE.reducible(g)?`Simplifie la fraction pour avoir ${X} tout seul.`:d.k==='reduce'?'Tu as regroupé les termes. Continue.':d.k==='several'?'Tu as fait plusieurs étapes d’un coup : c’est juste.':'Continue jusqu’à avoir x tout seul.'};return;}
       const id=SOLVE.error(prev,g);
       const [t,p]=id?MSG7[id]:['Cette ligne n’a plus les mêmes solutions.','Reprends la ligne d’avant : ce que tu fais à un membre, fais-le à l’autre.'];
       st.fb={ok:false,t,p};
     },
-    what:`L'élève résout seul, du début à la fin, <b>avec sa méthode</b>. Il écrit chaque ligne en entier (chiffres, <i>x</i>, +, ${M}, et =, ou <, >, ⩽, ⩾). Toute ligne qui garde les mêmes solutions est juste : plusieurs opérations d'un coup (4${X} ${M} ${X} = 9 + 3), les ${X} à droite, la réponse écrite 4 = ${X}. Sous chaque membre s'affiche <b>ce qu'il a fait</b> (« ${M}${X} +3 »), pas l'étape du cours ; une ligne où il a seulement regroupé n'a pas d'étiquette. L'indice et la fin montrent la méthode du cours. Essaie 4x − x = 9 + 3, puis 3x = 12, puis x = 4.`,
+    what:`L'élève résout seul, du début à la fin, <b>avec sa méthode</b>. Il écrit chaque ligne en entier (chiffres, <i>x</i>, +, ${M}, et =, ou <, >, ⩽, ⩾). Toute ligne qui garde les mêmes solutions est juste : plusieurs opérations d'un coup (4${X} ${M} ${X} = 9 + 3), les ${X} à droite, la réponse écrite 4 = ${X}. Sous chaque membre s'affiche <b>ce qu'il a fait</b> (« ${M}${X} +3 »), pas l'étape du cours ; une ligne où il a seulement regroupé n'a pas d'étiquette. L'indice et la fin montrent la méthode du cours. Essaie 4x − x = 9 + 3, puis 3x = 12, puis 3x ÷ 3 = 12 ÷ 3 (la touche ÷ écrit une fraction), puis x = 4.`,
     why:`Tu l'as demandé : l'outil montre la bonne méthode (indice, puis « Voir la méthode du cours » à la fin si l'élève a fait autrement) mais accepte la sienne. Une ligne n'est refusée que si elle change les solutions ; seule une ligne recopiée telle quelle est signalée comme « n'avance pas ».`,
     engine:`<code>parseEquation</code> lit la ligne ; <code>judgeLine</code> accepte toute ligne équivalente, dit si elle est recopiée et renvoie l'opération faite (<code>inferOp</code>, écrite par <code>doneOpLatex</code>) ; les erreurs sont reconnues quelle que soit l'opération choisie (un seul membre, signe gardé, erreur en regroupant, sens changé à tort, et les erreurs de division) ; <code>resolve</code> donne la méthode du cours.`});
 

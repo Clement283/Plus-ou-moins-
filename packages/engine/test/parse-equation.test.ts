@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cst, equationLatex, xt } from '../src/math/equation';
 import { parseEquation } from '../src/math/parse-equation';
-import { judgeLine } from '../src/math/solve';
+import { hasReducibleFraction, judgeLine } from '../src/math/solve';
 import { equation } from '../src/math/equation';
 
 const ok = (s: string) => {
@@ -39,5 +39,22 @@ describe('parseEquation', () => {
     expect(judgeLine(prev, ok('2x=4')).correct).toBe(true);
     expect(judgeLine(prev, ok('2x=10')).errorId).toBe('signe-garde');
     expect(judgeLine(prev, ok('x=2')).final).toBe(true);
+  });
+  it('fractions: dividing written as a fraction, simplified at the end', () => {
+    expect(equationLatex(ok('3x/3=12/3'))).toBe('\\frac{3x}{3} = \\frac{12}{3}');
+    expect(equationLatex(ok('x = 12÷3'))).toBe('x = \\frac{12}{3}');
+    expect(equationLatex(ok('−2x/−2 < −6/−2'))).toBe('\\frac{-2x}{-2} < \\frac{-6}{-2}');
+    expect(equationLatex(ok('x = 1 − 3/2'))).toBe('x = 1 - \\frac{3}{2}');
+    expect(parseEquation('x=3/0')).toEqual({ ok: false, error: 'mal-ecrit' });
+    const p = equation([xt(3)], [cst(12)]);
+    const v = judgeLine(p, ok('3x/3=12/3'));
+    expect(v).toMatchObject({ correct: true, final: false, done: { k: 'div', v: 3 } });
+    expect(hasReducibleFraction(ok('3x/3=12/3'))).toBe(true);
+    expect(judgeLine(p, ok('x=12/3'))).toMatchObject({ correct: true, final: false });
+    expect(judgeLine(ok('x=12/3'), ok('x=4'))).toMatchObject({ correct: true, final: true, done: { k: 'reduce' } });
+    expect(judgeLine(equation([xt(2)], [cst(3)]), ok('x=3/2'))).toMatchObject({ correct: true, final: true });
+    expect(hasReducibleFraction(ok('x=3/2'))).toBe(false);
+    expect(judgeLine(equation([xt(-2)], [cst(-6)], '>'), ok('−2x/−2 > −6/−2')).errorId).toBe('sens-non-change');
+    expect(judgeLine(equation([xt(-2)], [cst(-6)], '>'), ok('−2x/−2 < −6/−2')).correct).toBe(true);
   });
 });

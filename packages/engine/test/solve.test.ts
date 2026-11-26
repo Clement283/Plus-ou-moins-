@@ -48,8 +48,8 @@ describe('applyOp, opLatex, simplify', () => {
       'x \\geqslant -3',
     );
   });
-  it('refuses a non-integer division', () =>
-    expect(() => simplify(applyOp(equation([xt(2)], [cst(3)]), { k: 'div', v: 2 }))).toThrow());
+  it('a non-integer division gives an irreducible fraction', () =>
+    expect(equationLatex(simplify(applyOp(equation([xt(2)], [cst(3)]), { k: 'div', v: 2 })))).toBe('x = \\frac{3}{2}'));
 });
 
 describe('nextStep', () => {

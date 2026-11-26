@@ -55,12 +55,11 @@ export function applyOp(eq: Equation, op: StepOp): Equation {
   }
 }
 
-/** Membre réduit, x d'abord : 2x + 1, −x, 7, 0. Exige des coefficients entiers. */
+/** Membre réduit, x d'abord : 2x + 1, −x, 7, 0, ou une fraction irréductible (3/2). */
 function reduced(a: Rational, b: Rational): Member {
-  if (a.d !== 1 || b.d !== 1) throw new Error('Coefficients non entiers');
   const m: Member = [];
-  if (a.n !== 0) m.push(xt(a.n));
-  if (b.n !== 0) m.push(cst(b.n));
+  if (a.n !== 0) m.push(xt(a.n, a.d));
+  if (b.n !== 0) m.push(cst(b.n, b.d));
   return m.length ? m : [cst(0)];
 }
 
@@ -75,7 +74,9 @@ export function simplify(eq: Equation): Equation {
 }
 
 const sameTerm = (s: Member[number], t: Member[number]) =>
-  s.k === t.k && (s.k === 'x' ? s.coef === (t as typeof s).coef : s.v === (t as typeof s).v);
+  s.k === t.k &&
+  (s.den ?? 1) === (t.den ?? 1) &&
+  (s.k === 'x' ? s.coef === (t as typeof s).coef : s.v === (t as typeof s).v);
 const sameMember = (m: Member, n: Member) =>
   m.length === n.length && m.every((t, i) => sameTerm(t, n[i]!));
 
@@ -85,8 +86,18 @@ export const sameEquation = (e: Equation, f: Equation): boolean =>
 
 export const isReduced = (eq: Equation): boolean => eq.div === undefined && sameEquation(eq, simplify(eq));
 
-const xAlone = (m: Member) => m.length === 1 && m[0]!.k === 'x' && m[0]!.coef === 1;
-const numAlone = (m: Member) => m.length === 1 && m[0]!.k === 'num';
+const xAlone = (m: Member) => m.length === 1 && m[0]!.k === 'x' && m[0]!.coef === 1 && m[0]!.den === undefined;
+const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b));
+/** Un nombre seul, écrit simplement : 4, −3, ou une fraction irréductible à dénominateur positif (3/2). */
+const numAlone = (m: Member) => {
+  const t = m[0];
+  if (m.length !== 1 || t?.k !== 'num') return false;
+  return t.den === undefined || (t.den > 1 && gcd(t.v, t.den) === 1);
+};
+
+/** Une fraction qui se simplifie (12/3, −6/−2) : la ligne est juste mais pas finie. */
+export const hasReducibleFraction = (eq: Equation): boolean =>
+  [...eq.left, ...eq.right].some((t) => t.den !== undefined && (t.den < 0 || gcd(t.k === 'x' ? t.coef : t.v, t.den) !== 1));
 
 /** Ligne finale : x = 2, x ⩾ −3, ou écrite à l'envers : 2 = x, −3 ⩽ x. */
 export function isFinal(eq: Equation): boolean {
@@ -201,8 +212,11 @@ export function wrongNext(prev: Equation): { id: StepErrorId; eq: Equation }[] {
   const op = nextStep(prev);
   if (!op || op.k !== 'div') return [];
   const out: { id: StepErrorId; eq: Equation | null }[] = [];
-  const a = collect(prev.left).a.n;
-  const b = collect(prev.right).b.n;
+  const ca = collect(prev.left).a;
+  const cb = collect(prev.right).b;
+  if (ca.d !== 1 || cb.d !== 1) return [];
+  const a = ca.n;
+  const b = cb.n;
   const ineq = prev.rel !== '=';
   if (b - a !== 0) out.push({ id: 'soustraire-coef', eq: { left: [xt(1)], right: [cst(b - a)], rel: prev.rel } });
   if (a < 0 && b % a === 0 && b !== 0)
@@ -303,7 +317,7 @@ export interface LineVerdict {
   errorId: StepErrorId | null;
 }
 
-const termKey = (t: Member[number]) => (t.k === 'x' ? `x${t.coef}` : `n${t.v}`);
+const termKey = (t: Member[number]) => (t.k === 'x' ? `x${t.coef}` : `n${t.v}`) + `/${t.den ?? 1}`;
 const sameTermsAnyOrder = (m: Member, n: Member) =>
   m.length === n.length && [...m].map(termKey).sort().join() === [...n].map(termKey).sort().join();
 

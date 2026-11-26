@@ -5,8 +5,11 @@
 import { type Expr, num, op } from './expr';
 import { type Rational, add, div, mul, rat, sub } from './rational';
 
-/** Terme en x (coef·x) ou nombre seul. Coefficient non nul, entier. */
-export type Term = { k: 'x'; coef: number } | { k: 'num'; v: number };
+/**
+ * Terme en x (coef·x) ou nombre seul, coefficient entier non nul. `den` : fraction écrite
+ * par l'élève ou issue d'une division (12/3, 3x/3, −6/−2), gardée telle qu'écrite.
+ */
+export type Term = { k: 'x'; coef: number; den?: number } | { k: 'num'; v: number; den?: number };
 export type Member = Term[];
 export type Relation = '=' | '<' | '<=' | '>' | '>=';
 export interface Equation {
@@ -17,15 +20,22 @@ export interface Equation {
   div?: number;
 }
 
-export const xt = (coef: number): Term => ({ k: 'x', coef });
-export const cst = (v: number): Term => ({ k: 'num', v });
+export const xt = (coef: number, den?: number): Term =>
+  den === undefined || den === 1 ? { k: 'x', coef } : { k: 'x', coef, den };
+export const cst = (v: number, den?: number): Term =>
+  den === undefined || den === 1 ? { k: 'num', v } : { k: 'num', v, den };
 export const equation = (left: Member, right: Member, rel: Relation = '='): Equation => ({
   left,
   right,
   rel,
 });
 
+/** Numérateur tel qu'écrit. */
 const value = (t: Term): number => (t.k === 'x' ? t.coef : t.v);
+/** Signe du terme (numérateur et dénominateur compris). */
+const signOf = (t: Term): number => Math.sign(value(t)) * Math.sign(t.den ?? 1);
+/** Valeur du coefficient (fraction comprise). */
+export const termValue = (t: Term): Rational => rat(value(t), t.den ?? 1);
 
 /** Un membre nul s'écrit [cst(0)]. */
 export const isZeroMember = (m: Member): boolean => m.length === 1 && m[0]!.k === 'num' && m[0]!.v === 0;
@@ -37,13 +47,22 @@ function check(m: Member): void {
     // 0 seulement comme nombre en tête : « 0 », ou « 0 − 3 » quand on retire 3 d'un membre nul.
     const zeroOk = v === 0 && i === 0 && t.k === 'num';
     if ((v === 0 && !zeroOk) || !Number.isInteger(v)) throw new Error(`Terme invalide : ${v}`);
+    if (t.den !== undefined && (t.den === 0 || !Number.isInteger(t.den))) throw new Error(`Dénominateur invalide : ${t.den}`);
   });
 }
 
-/** Écriture d'un terme sans son signe : 3x, x, 7. */
+/** Écriture d'un terme sans son signe : 3x, x, 7, \\frac{12}{3}. */
 function body(t: Term): string {
   const a = Math.abs(value(t));
-  return t.k === 'num' ? `${a}` : a === 1 ? 'x' : `${a}x`;
+  const top = t.k === 'num' ? `${a}` : a === 1 && t.den === undefined ? 'x' : `${a}x`;
+  return t.den === undefined ? top : `\\frac{${top}}{${Math.abs(t.den)}}`;
+}
+
+/** Fraction à dénominateur négatif, écrite telle quelle : \\frac{-6}{-2}. */
+function rawFrac(t: Term): string {
+  const n = value(t);
+  const top = t.k === 'num' ? `${n}` : `${n}x`;
+  return `\\frac{${top}}{${t.den}}`;
 }
 
 /** LaTeX d'un membre, à la façon d'un cahier : 2x - 3, -x + 4, 5 - x. */
@@ -51,6 +70,7 @@ export function memberLatex(m: Member): string {
   check(m);
   return m
     .map((t, i) => {
+      if (t.den !== undefined && t.den < 0) return i === 0 ? rawFrac(t) : `+ ${rawFrac(t)}`;
       const negative = value(t) < 0;
       if (i === 0) return negative ? `-${body(t)}` : body(t);
       return `${negative ? '-' : '+'} ${body(t)}`;
@@ -89,18 +109,20 @@ export function flipRel(rel: Relation): Relation {
  */
 export function substitute(m: Member, v: number): Expr {
   check(m);
+  const over = (t: Term, e: Expr): Expr => (t.den === undefined ? e : op('/', e, num(Math.abs(t.den))));
   const abs = (t: Term): Expr => {
     const a = Math.abs(value(t));
-    if (t.k === 'num') return num(a);
-    return a === 1 ? num(v) : op('*', num(a), num(v));
+    if (t.k === 'num') return over(t, num(a));
+    return over(t, a === 1 ? num(v) : op('*', num(a), num(v)));
   };
   const first = (t: Term): Expr => {
-    if (t.k === 'num') return num(t.v);
-    return t.coef === 1 ? num(v) : op('*', num(t.coef), num(v));
+    const n = value(t) * Math.sign(t.den ?? 1);
+    if (t.k === 'num') return over(t, num(n));
+    return over(t, n === 1 ? num(v) : op('*', num(n), num(v)));
   };
   return m
     .slice(1)
-    .reduce<Expr>((acc, t) => op(value(t) < 0 ? '-' : '+', acc, abs(t)), first(m[0]!));
+    .reduce<Expr>((acc, t) => op(signOf(t) < 0 ? '-' : '+', acc, abs(t)), first(m[0]!));
 }
 
 /** Membre réduit à a·x + b. */
@@ -109,8 +131,8 @@ export function collect(m: Member): { a: Rational; b: Rational } {
   let a = rat(0);
   let b = rat(0);
   for (const t of m) {
-    if (t.k === 'x') a = add(a, rat(t.coef));
-    else b = add(b, rat(t.v));
+    if (t.k === 'x') a = add(a, termValue(t));
+    else b = add(b, termValue(t));
   }
   return { a, b };
 }
