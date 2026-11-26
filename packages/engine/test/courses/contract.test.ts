@@ -22,10 +22,11 @@ describe.each(COURSES.map((c) => [c.id, c] as [string, CourseDef]))('contrat de 
     expect(isAnnonce(c.parts[c.parts.length - 1] as LessonPart)).toBe(true);
   });
 
-  it('12 à 15 écrans pour apprendre ; jamais plus de 2 lectures d’affilée ; 5 étapes au plus', () => {
+  // 8 à 15 : les cours du module Équations visent environ 10 blocs (règles de rédaction de docs/modules/02-equations-inequations/module.md, 2026-11-26)
+  it('8 à 15 écrans pour apprendre ; jamais plus de 2 lectures d’affilée ; 5 étapes au plus', () => {
     const before = c.parts.slice(0, c.parts.length - 1);
     const n = before.filter(isScreen).length;
-    expect(n, 'écrans pour apprendre').toBeGreaterThanOrEqual(12);
+    expect(n, 'écrans pour apprendre').toBeGreaterThanOrEqual(8);
     expect(n, 'écrans pour apprendre').toBeLessThanOrEqual(15);
     for (const p of c.parts) {
       if (p.type !== 'etapes' || isAnnonce(p)) continue;

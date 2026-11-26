@@ -1,6 +1,7 @@
 import type { CourseDef, ModuleDef } from '../types';
 import { equationsTesterSolution } from './equations-tester-solution';
 import { equationsAjouterRetirer } from './equations-ajouter-retirer';
+import { equationsAjouterRetirerCourt } from './equations-ajouter-retirer-court';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
 import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
@@ -14,6 +15,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   c07b,
   equationsTesterSolution,
   equationsAjouterRetirer,
+  equationsAjouterRetirerCourt,
   equationsDiviser,
   equationsResoudrePremierDegre,
 ];
