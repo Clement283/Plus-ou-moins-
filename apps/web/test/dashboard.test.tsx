@@ -130,6 +130,15 @@ describe('Suivi, accueil', () => {
     await waitFor(() => expect(again.$('.who')?.textContent).toBe('Hugo'));
   });
 
+  it('la version de l’appli est affichée en bas de la page de suivi', async () => {
+    load('elle-bloque');
+    const v = await mount(<Dashboard />);
+    const version = v.$('main .app-version');
+    expect(version?.textContent).toMatch(/^Version /);
+    expect(version?.getAttribute('aria-label')).toContain('Version de l\'appli');
+    expect(v.$('main')?.lastElementChild).toBe(version); // tout en bas
+  });
+
   it('lecture seule : aucun bouton d’action, seulement de la navigation', async () => {
     load('elle-bloque');
     const v = await mount(<Dashboard />);
