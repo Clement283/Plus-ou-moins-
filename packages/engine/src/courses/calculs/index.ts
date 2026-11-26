@@ -17,4 +17,5 @@ export const CALCULS: ModuleDef = {
   theme: 'les bases du calcul, sans lesquelles on perd des points partout (second degré, fractions, équations…).',
   colorVar: '--module-calculs',
   courseIds: CALCULS_COURSES.map((c) => c.id),
+  firstNumber: 0,
 };

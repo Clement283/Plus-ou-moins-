@@ -1,4 +1,4 @@
-// Cours N — TITRE. Fiche : docs/modules/NN-nom/cNN-nom.md. Copier ce fichier en cNN-nom.ts, remplacer chaque « À ÉCRIRE »,
+// Cours N — TITRE. Fiche : docs/modules/NN-nom/nom-du-cours.md. Copier ce fichier en nom-du-cours.ts, remplacer chaque « À ÉCRIRE »,
 // adapter les blocs marqués « ADAPTER », puis supprimer ces commentaires-guides. Tout le reste est fixe.
 import { num, op, toLatex } from '../../math/expr';
 import type { Rng } from '../../rng';
@@ -10,7 +10,7 @@ import {
   redraw, resultLine, saisie, sg, signBox, signs, small, step, stepped, texted, toks, toText, trou, trouOf, txt,
 } from './shared';
 
-const ID = 'cNN-nom';
+const ID = 'nom-du-cours';
 const RULE = 'À ÉCRIRE : la règle du cours en une phrase.';
 
 // ——— Générateur (ADAPTER) : la réponse doit toujours être un entier juste ; niveau = taille des nombres ET longueur du calcul si le cours s'y prête ———
@@ -129,7 +129,7 @@ const parts: LessonPart[] = [
   annonceFin(), // fixe : ne pas réécrire
 ];
 
-export const cNN: CourseDef = {
+export const monCours: CourseDef = {
   id: ID,
   moduleId: MODULE_ID,
   order: 99, // numéro du cours (fiche)

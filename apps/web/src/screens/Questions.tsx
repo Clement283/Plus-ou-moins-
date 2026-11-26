@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { getCourse } from '@pom/engine';
+import { courseNumberLabel, getCourse } from '@pom/engine';
 import { go, toHash } from '../router';
 import { refreshQuestions, useMyQuestions } from '../store/questions';
 import { AppBar } from '../ui/AppBar';
 
 export const courseKicker = (courseId: string): string => {
   try {
-    return `Cours ${getCourse(courseId).order}`;
+    return courseNumberLabel(courseId);
   } catch {
     return 'Cours';
   }

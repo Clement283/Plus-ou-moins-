@@ -12,6 +12,8 @@ export interface ModuleDef {
   theme: string;
   colorVar: string;
   courseIds: string[];
+  /** Numéro du premier cours du module (1 par défaut ; le module Relatifs commence au Cours 0). */
+  firstNumber?: number;
 }
 
 export interface Exercise {
@@ -246,6 +248,7 @@ export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur'
 export interface CourseDef {
   id: string;
   moduleId: string;
+  /** Numéro affiché (« Cours 5 »). Recalculé par `getCourse` d'après l'ordre des modules : la valeur écrite ici ne compte que pour les cours hors de MODULES. */
   order: number;
   title: string;
   /** Nom court, pour les listes serrées (bilan de séance). */

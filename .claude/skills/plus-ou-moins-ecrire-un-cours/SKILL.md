@@ -13,7 +13,7 @@ Un cours est **du contenu**, pas du design : l'apparence (boutons, couleurs, sc�
 
 ## Ce que tu lis, et rien d'autre
 
-1. **La fiche du cours** (`docs/modules/NN-nom/cNN-nom.md`, chemin donné dans la demande). Elle contient règles, erreurs, techniques, reprises, niveaux.
+1. **La fiche du cours** (`docs/modules/NN-nom/nom-du-cours.md`, chemin donné dans la demande). Elle contient règles, erreurs, techniques, reprises, niveaux.
 2. **Ce qui a déjà été vu** : le `module.md` de **chaque module précédent**, le `module.md` du module courant et les **12 premières lignes (points importants) de chaque cours précédent du module** (`head -n 12`). Adapter le cours à cela : vocabulaire déjà donné, techniques déjà connues, reprises.
 3. `references/catalogue-ecrans.md` : tous les écrans, scènes, actions, questions, signatures.
 4. `references/gabarit-cours.ts.txt` : le cours type, déjà à la bonne forme.
@@ -70,10 +70,10 @@ Un seul assistant par cours, un cours à la fois. La qualité d'abord : prendre 
 **Modèle : Sonnet.** Si la conversation tourne sur un autre modèle (Opus, par exemple), **confier l'écriture du cours à un seul assistant lancé avec l'outil Agent, `model: "sonnet"`** (jamais deux en parallèle). Son message contient : le chemin de la fiche, les chemins des `module.md` et des cours précédents à lire (règle ci-dessus), la consigne d'appliquer ce skill (étapes 1 à 8) et de rendre un compte rendu court. La conversation principale relit le compte rendu, lance `npm test` et décide de la suite. Si la conversation est déjà sur Sonnet, écrire le cours directement, sans assistant.
 
 1. Lire la fiche, le catalogue, le gabarit.
-2. Écrire `packages/engine/src/courses/<module>/cNN-nom.ts` en **un seul `Write`**, copié du gabarit.
+2. Écrire `packages/engine/src/courses/<module>/nom-du-cours.ts` en **un seul `Write`**, copié du gabarit.
 3. L'inscrire dans l'`index.ts` du dossier (import + liste).
-4. Écrire `packages/engine/test/courses/cNN.test.ts`, court : seulement ce qui dépend des maths du cours (`propertyChecks` pour le générateur et les calculs-pièges ; un test par message de `feedbackText`). La **forme** (nombre d'écrans, lectures d'affilée, règles des erreurs, pastille, exercices de fin) est vérifiée **automatiquement** par `test/courses/contract.test.ts` pour tout cours `unePhrase`. **Aucun test de texte, aucun instantané** : le porteur du projet relit chaque cours.
-5. `cd packages/engine && npx vitest run test/courses/cNN.test.ts test/courses/contract.test.ts 2>&1 | tail -15` ; corriger ; recommencer.
+4. Écrire `packages/engine/test/courses/nom-du-cours.test.ts`, court : seulement ce qui dépend des maths du cours (`propertyChecks` pour le générateur et les calculs-pièges ; un test par message de `feedbackText`). La **forme** (nombre d'écrans, lectures d'affilée, règles des erreurs, pastille, exercices de fin) est vérifiée **automatiquement** par `test/courses/contract.test.ts` pour tout cours `unePhrase`. **Aucun test de texte, aucun instantané** : le porteur du projet relit chaque cours.
+5. `cd packages/engine && npx vitest run test/courses/nom-du-cours.test.ts test/courses/contract.test.ts 2>&1 | tail -15` ; corriger ; recommencer.
 6. **Points importants** : compléter la section « Points importants » en haut de la fiche (format dans `modele-fiche.md`, 8 lignes au plus), notamment « Vu dans ce cours » ; si c'est le dernier cours du module, compléter aussi le `module.md`.
 7. À la fin, la suite complète une fois : `npm test 2>&1 | tail -8`. Si le cours allonge le calcul, vérifier la largeur du téléphone comme `apps/web/test/c05.test.tsx`.
 8. Rendre compte en quelques lignes : écrans, note du cours, choix, reste à faire. Mise en ligne **par lot** de cours. Même échec 3 fois de suite : s'arrêter et le dire.

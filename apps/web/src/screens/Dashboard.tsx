@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DAILY_GOAL_MS, getCourse, type Dashboard as Dash, type DayPoint } from '@pom/engine';
+import { DAILY_GOAL_MS, courseNumberLabel, getCourse, type Dashboard as Dash, type DayPoint } from '@pom/engine';
 import { Acc, ErrItem, OfflineAlert, errorLabel, listOrders, lowerFirst, plural, upperFirst, longDate, weekdayLetter, when } from '../components/FollowBits';
 import { go, toHash } from '../router';
 import { useSession } from '../store/progress';
@@ -132,7 +132,7 @@ function Reviews({ dash, today }: { dash: Dash; today: string }) {
             {p.items.map((r) => (
               <div className="fact" key={r.courseId}>
                 <span className="fact__label">
-                  Cours {getCourse(r.courseId).order}, {lowerFirst(r.title)}
+                  {courseNumberLabel(r.courseId)}, {lowerFirst(r.title)}
                 </span>
                 <span className="fact__sub">{r.due < today ? `depuis ${when(r.due, today)}` : "pour aujourd'hui"}</span>
               </div>
@@ -214,7 +214,7 @@ function ToRework({ dash, eleve }: { dash: Dash; eleve: string }) {
                 </span>
                 <div className="crow__text">
                   <span className="crow__title">
-                    Cours {getCourse(r.courseId).order}, {r.title}
+                    {courseNumberLabel(r.courseId)}, {r.title}
                   </span>
                   {pct !== null && (
                     <span className="crow__meta">
