@@ -1,30 +1,30 @@
 # Module 2 — Équations et inéquations
 
-*Statut : module.md à valider (2026-11-26). Aucune fiche, aucun cours écrit. Pas de document de classe reçu : plan bâti sur les programmes de `docs/sources/` et une recherche (voir Sources).*
+*Statut : module.md à valider (2026-11-26, seconde 2026 ajoutée). Aucune fiche, aucun cours écrit. Pas de document de classe reçu : plan bâti sur les programmes de `docs/sources/` et une recherche (voir Sources).*
 
-**Attention, programme** : le programme de 1re spécialité de `docs/sources/` (BO 2019) **n'a pas de chapitre « équations et inéquations du 1er degré »** ; il parle du second degré (p. 7 : « Résolution de l'équation du second degré », signe, « équation, inéquation »), traité au module 6. Le 1er degré vient du **cycle 4** (programme 2026, p. 10-11) et de la **seconde** (BO 2019, p. 6, 7, 12). De nouveaux programmes de seconde et de première (BO n° 14 du 2 avril 2026) s'appliquent depuis la rentrée 2026 : **non téléchargés** (le site du ministère bloque les robots). Ce module est donc une **révision outillée pour la 1re**.
+**Attention, programme** : le programme de 1re spécialité de `docs/sources/` (BO 2019) **n'a pas de chapitre « équations et inéquations du 1er degré »** ; il parle du second degré (p. 7 : « Résolution de l'équation du second degré », signe, « équation, inéquation »), traité au module 6. Le 1er degré vient du **cycle 4** (programme 2026, p. 10-11) et de la **seconde** (programme 2026, `maths_2nde_gt_2026.pdf`, p. 5, 7, 8, 10). Le **nouveau programme de 1re spécialité (2026) manque** : les références de 1re restent celles du BO 2019. Ce module est donc une **révision outillée pour la 1re** ; la seconde 2026 range ces résolutions dans les **automatismes** (p. 5 : « Résoudre une équation du type […] a𝑥 + b = c𝑥 + d […] ou une inéquation du premier degré »).
 
 ## Points importants du module
 - **À la fin, l'élève sait** : dire si un nombre est solution ; résoudre ax + b = c et ax + b = cx + d en écrivant une ligne par opération ; résoudre une équation produit nul ; résoudre une inéquation du 1er degré et écrire la réponse en intervalle ; trouver le signe de ax + b ; résoudre une inéquation produit (et quotient) par un tableau de signes.
-- **Vocabulaire et notations** : inconnue, membre de gauche / de droite, solution, ensemble des solutions S = {…} ; intervalles [a ; b], ]a ; +∞[ (2nde p. 6) ; ≤ « inférieur ou égal » ; « ⇔ » non exigé, une ligne par étape. Couleurs du module 1 gardées (orange/bleu pour les signes, rouge = erreur).
+- **Vocabulaire et notations** : inconnue, membre de gauche / de droite, solution, ensemble des solutions S = {…} ; intervalles : le programme écrit [a, +∞[, ]−∞, a] avec une **virgule** (2nde 2026 p. 7), beaucoup de profs écrivent « ; » (à trancher) ; ≤ « inférieur ou égal » ; « ⇔ » non exigé, une ligne par étape. Couleurs du module 1 gardées (orange/bleu pour les signes, rouge = erreur).
 - **Techniques enseignées** : la balance (même opération des deux côtés), d'abord le nombre seul puis le coefficient ; vérifier en remplaçant ; « un produit est nul si un facteur est nul » ; × ou ÷ par un négatif change le sens ; ax + b a le signe de a à droite de sa racine ; règle des signes du module 1 réutilisée dans le tableau.
-- **Limites volontaires** : coefficients et solutions **entiers** (le module Fractions vient après) ; parenthèses avec distributivité simple seulement (vue en 4e, cycle 4 p. 10) ; pas de valeur absolue, pas de second degré, pas de système.
+- **Limites volontaires** : coefficients et solutions **entiers** (le module Fractions vient après) ; parenthèses avec distributivité simple seulement (vue en 4e, cycle 4 p. 10) ; pas de valeur absolue |x − a| ⩽ r (2nde 2026 p. 7), pas d'équation quotient A(x)/B(x) = k (p. 8, après le module Fractions), pas de x² = a (module Carrés), pas de second degré, pas de système.
 - **Sert aux modules suivants** : le second degré (forme factorisée, signe, p. 7 de 1re), signe de la dérivée et variations (p. 10 de 1re), suites (seuil : résoudre uₙ > k).
 
 ## Les cours dans l'ordre
 | # | Identifiant | Règle en une phrase | Pourquoi un cours à part | Source |
 |---|---|---|---|---|
-| 1 | `equations-tester-solution` | Un nombre est solution si, en le mettant à la place de x, les deux membres donnent le même résultat. | Sens de l'inconnue et du « = » (difficulté citée par Éduscol) ; réutilise les relatifs. | 2nde p. 7 ; 1re p. 16 |
-| 2 | `equations-ajouter-retirer` | x + b = c : on retire (ou ajoute) le même nombre des deux côtés. | 1re opération sur les deux membres ; casse la « transposition » magique. | cycle 4 p. 10 |
+| 1 | `equations-tester-solution` | Un nombre est solution si, en le mettant à la place de x, les deux membres donnent le même résultat. | Sens de l'inconnue et du « = » (difficulté citée par Éduscol) ; réutilise les relatifs. | 2nde 2026 p. 8 ; 1re 2019 p. 16 |
+| 2 | `equations-ajouter-retirer` | x + b = c : on retire (ou ajoute) le même nombre des deux côtés. | 1re opération sur les deux membres ; casse la « transposition » magique. | cycle 4 p. 10 ; 2nde 2026 p. 8 (a + x = b) |
 | 3 | `equations-diviser` | ax = c : on divise les deux côtés par a (jamais 0), signe compris. | Méthode différente ; erreur type : soustraire a, ou oublier le signe de a. | cycle 4 p. 10 |
 | 4 | `equations-resoudre-premier-degre` | ax + b = c : d'abord on enlève b, ensuite on divise par a. | Enchaîner deux opérations dans le bon ordre, une ligne chacune. | cycle 4 p. 10 |
 | 5 | `equations-inconnue-deux-cotes` | ax + b = cx + d : on regroupe les x d'un côté, les nombres de l'autre. | Nouvelle étape (retirer cx) ; c'est la forme des contrôles. | cycle 4 p. 10 |
-| 6 | `equations-produit-nul` | (ax + b)(cx + d) = 0 : un facteur est nul, on résout deux équations, S a deux valeurs. | Autre raisonnement ; prépare la forme factorisée du 2nd degré. | cycle 4 p. 11 ; 1re p. 7 |
-| 7 | `inequations-intervalles` | Un ensemble de solutions s'écrit en intervalle ; crochet fermé si la borne est comprise, toujours ouvert vers ∞. | Notation nouvelle (crochets, ∞) avant de résoudre. | 2nde p. 6 |
-| 8 | `inequations-resoudre-premier-degre` | Même méthode qu'une équation, mais multiplier ou diviser par un négatif change le sens. | Seule règle nouvelle, et 1re erreur des élèves. | 2nde p. 7 ; cycle 4 p. 11 |
-| 9 | `inequations-signe-affine` | ax + b s'annule en −b/a ; à droite il a le signe de a, à gauche le signe contraire. | Méthode de lecture du signe, base du tableau. | 2nde p. 12 |
-| 10 | `inequations-tableau-signes-produit` | Une ligne par facteur, puis la règle des signes colonne par colonne, puis on lit S. | Nouvel outil (tableau) ; sert toute la 1re. | 2nde p. 12 |
-| 11 | `inequations-quotient` | Comme un produit, mais la valeur qui annule le dénominateur est interdite (double barre, crochet ouvert). | Erreur propre : inclure la valeur interdite avec ≤. | 2nde p. 12 |
+| 6 | `equations-produit-nul` | (ax + b)(cx + d) = 0 : un facteur est nul, on résout deux équations, S a deux valeurs. | Autre raisonnement ; prépare la forme factorisée du 2nd degré. | cycle 4 p. 11 ; 2nde 2026 p. 8 ; 1re 2019 p. 7 |
+| 7 | `inequations-intervalles` | Un ensemble de solutions s'écrit en intervalle ; crochet fermé si la borne est comprise, toujours ouvert vers ∞. | Notation nouvelle (crochets, ∞) avant de résoudre. | 2nde 2026 p. 7 |
+| 8 | `inequations-resoudre-premier-degre` | Même méthode qu'une équation, mais multiplier ou diviser par un négatif change le sens. | Seule règle nouvelle, et 1re erreur des élèves. | 2nde 2026 p. 5 et 8 (ax + b ⩾ cx + d) ; cycle 4 p. 11 |
+| 9 | `inequations-signe-affine` | ax + b s'annule en −b/a ; à droite il a le signe de a, à gauche le signe contraire. | Méthode de lecture du signe, base du tableau. | 2nde 2026 p. 10-11 |
+| 10 | `inequations-tableau-signes-produit` | Une ligne par facteur, puis la règle des signes colonne par colonne, puis on lit S. | Nouvel outil (tableau) ; sert toute la 1re. | 2nde 2026 p. 8 et 10 |
+| 11 | `inequations-quotient` | Comme un produit, mais la valeur qui annule le dénominateur est interdite (double barre, crochet ouvert). | Erreur propre : inclure la valeur interdite avec ≤. | 2nde 2026 p. 8 et 10 |
 
 ## Ce qui manque dans l'appli (comparé au catalogue d'écrans)
 - **Moteur** : les calculs sont des entiers sans lettre ; il faut un type « équation » (expression avec x, deux membres) et des générateurs à solution entière. Pas d'écran, mais du code moteur avant le cours 2.
@@ -35,11 +35,11 @@
 - **Tableau de signes** à remplir (+, −, 0, double barre) : nouvel écran. Maquette (cours 9 à 11).
 
 ## Questions pour toi
-1. **Programmes 2026** : peux-tu déposer dans `docs/sources/` les PDF des nouveaux programmes de seconde et de 1re spécialité (BO n° 14 du 2 avril 2026) ? *Recommandation : oui, avant les fiches ; je vérifierai les pages et corrigerai les références.*
-2. **Documents de classe** : as-tu le chapitre du prof (ou un contrôle) ? *Recommandation : l'envoyer si possible, pour reprendre son ordre et ses notations (⇔, S = …).*
+1. **Programme de 1re spécialité 2026** (seconde 2026 reçue) : peux-tu le déposer ? *Recommandation : oui, avant les fiches ; il ne changera sans doute que les liens vers le second degré.*
+2. **Documents de classe** : as-tu le chapitre du prof (ou un contrôle) ? *Recommandation : l'envoyer si possible, pour reprendre son ordre et ses notations (⇔, S = …, virgule ou point-virgule dans les intervalles).*
 3. **Solutions entières seulement** jusqu'au module Fractions ? *Recommandation : oui ; les solutions fractionnaires reviennent au module Fractions.*
 4. **Un module de 11 cours ou deux** (Équations 1-6, Inéquations 7-11) ? *Recommandation : un seul module ; les inéquations reprennent tout le travail sur les équations.*
 5. **Ordre des maquettes** : *Recommandation : 1) résolution ligne par ligne (bloque 7 cours), 2) intervalle (saisie + droite), 3) tableau de signes ; le cours 1 peut s'écrire dès que le moteur sait lire x.*
 
 ## Sources
-`docs/sources/maths_cycle4_annexe2_bo.pdf` (programme 2026, p. 10-11) ; `maths_annexe_2egt_bo.pdf` (BO 2019, p. 6, 7, 12) ; `maths_spe_annexe_1eg_bo.pdf` (BO 2019, p. 3, 7, 10, 16). Erreurs classiques : sens oublié avec un négatif, > ou ≥, une valeur au lieu d'un intervalle (travail-industrie.com, fiche CRPE inéquations ; xm1math.net, diaporama inéquations 2nde) ; transposition fausse, balance comme image (Éduscol, « Résolution des équations, méthode accessible » ; IREM de Grenoble) ; valeur interdite et crochets (Schoolmouv, digiSchool, Bordas).
+`docs/sources/maths_cycle4_annexe2_bo.pdf` (programme 2026, p. 10-11) ; `maths_2nde_gt_2026.pdf` (programme 2026, p. 5, 7, 8, 10-11 ; remplace `maths_annexe_2egt_bo.pdf`, BO 2019) ; `maths_spe_annexe_1eg_bo.pdf` (BO 2019, p. 3, 7, 10, 16). Erreurs classiques : sens oublié avec un négatif, > ou ≥, une valeur au lieu d'un intervalle (travail-industrie.com, fiche CRPE inéquations ; xm1math.net, diaporama inéquations 2nde) ; transposition fausse, balance comme image (Éduscol, « Résolution des équations, méthode accessible » ; IREM de Grenoble) ; valeur interdite et crochets (Schoolmouv, digiSchool, Bordas).
