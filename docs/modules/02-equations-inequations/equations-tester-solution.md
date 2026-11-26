@@ -6,7 +6,7 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 - Pièges : 2x lu « 2 collé à 3 » (23) ou « 2 + 3 » ; signe perdu sans parenthèses (5 − x pour x = −3 → 2) ; conclure en ne calculant qu'un membre.
 - Vu dans ce cours : inconnue, équation, membre de gauche / de droite, solution ; « 2x » veut dire 2 × x ; vérifier une solution (servira à chaque cours du module).
 - Écarts et choix : membres de la forme ax + b seulement (× puis +, connu du collège), car le module Priorités vient après ; pas de x² ; nombres testés entiers de −9 à 9.
-- Dans l'appli : à écrire (`equations-tester-solution.ts`) ; demande d'abord le type « équation » dans le moteur.
+- Dans l'appli : à écrire (`equations-tester-solution.ts`) ; s'appuie sur `src/math/equation.ts`.
 
 ## Fiche
 ### Règles (3) : une phrase chacune, et l'erreur qu'elle évite
@@ -32,4 +32,4 @@ Une équation est une question : « pour quel nombre les deux côtés donnent-il
 ### Niveaux (les nombres ET la longueur du calcul)
 1 : ax + b = c, a et b de −9 à 9, nombre testé de −5 à 5 · 2 : ax + b = cx + d · 3 : un membre à trois termes (ax + b − cx), nombre testé de −9 à 9 · calculs-pièges : x négatif avec un « − x », a négatif. Moitié des nombres testés solutions, moitié non.
 ### Hors catalogue
-Pas de nouvel écran (saisie d'un entier, choix « solution / pas solution »). Il manque le **moteur** : un type « équation » (deux membres avec x), son affichage et un générateur ; à coder et tester avant le cours.
+Pas de nouvel écran (saisie d'un entier, choix « solution / pas solution »). Moteur prêt : `packages/engine/src/math/equation.ts` (membres avec x, `memberLatex`, `substitute` qui rend le calcul 3 × (−2) + 4, `isSolution`, `solveLinear`) ; le générateur du cours reste à écrire avec le cours.
