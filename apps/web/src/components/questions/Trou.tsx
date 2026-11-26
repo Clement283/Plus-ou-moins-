@@ -25,7 +25,7 @@ export function Trou({ q, course, locked, onAnswer, header, footer, notice, text
           </p>
         ))}
         {/* exemple guidé : le calcul de départ reste affiché, puis les lignes déjà posées, avant la case */}
-        <Resolution texts={texts?.above?.length ? { ...texts, above: [toLatex(q.ex.expr), ...texts.above] } : undefined} part="above" />
+        <Resolution texts={texts?.above?.length ? { ...texts, above: [typeof q.ex.meta?.latex === 'string' ? q.ex.meta.latex : toLatex(q.ex.expr), ...texts.above] } : undefined} part="above" />
         <p className="t-math-xl">
           {before && <Math latex={`${before}{}\\,`} />}
           <span className={cls} aria-label="Case à remplir">

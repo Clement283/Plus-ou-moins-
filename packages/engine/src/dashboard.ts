@@ -155,6 +155,8 @@ export interface CourseView {
   failedRun: FailedRun | null;
   reviews: { day: string; ok: boolean }[];
   errors28: ErrorCount[];
+  /** Réponses justes trouvées avec l'indice (« À toi de résoudre ») sur 28 jours : « avec aide ». */
+  helped28: number;
   lastErrors: WrongCalcul[];
 }
 
@@ -364,6 +366,7 @@ export function computeDashboard(events: AppEvent[], today: string): Dashboard {
         failedRun: failedRunOf(id, dashStatus(c)),
         reviews: c.reviewHistory.map((r) => ({ ...r })),
         errors28: countErrors(wrong28.filter((e) => e.courseId === id)).map(({ errorType, family, count }) => ({ errorType, family, count })),
+        helped28: calculs28.filter((e) => e.courseId === id && isRight(e) && e.helped === true).length,
         lastErrors: wrongOfCourse.slice(-LISTED_ERRORS_MAX).reverse().map(wrongCalcul),
       };
     }

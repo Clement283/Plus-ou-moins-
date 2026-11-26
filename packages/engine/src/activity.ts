@@ -41,6 +41,7 @@ import type { Outcome, Question } from './exercises/types';
 import { buildQuestion, buildSlot, type Slot } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
 import { toLatex } from './math/expr';
+import { equationLatex } from './math/equation';
 import { type Rng, pick, seededRng, shuffle } from './rng';
 import type { ProgressState } from './srs';
 import { qcmSeen, type ReviewSession } from './reviews';
@@ -178,6 +179,7 @@ function answerEvent(s: ActivityState, step: Extract<Step, { type: 'question' }>
     attempt: (s.answered[item.itemId] ?? 0) + 1,
     skipped,
     durationMs,
+    ...(o.helped ? { helped: true } : {}),
   };
 }
 
@@ -328,6 +330,8 @@ export function promptOf(q: Question): string {
       return q.calcLatex ? `${q.prompt} ${q.calcLatex}` : q.prompt;
     case 'reecrire':
       return q.givenLatex;
+    case 'resoudre':
+      return equationLatex(q.start);
     case 'droite':
       return q.promptLatex;
   }
@@ -337,8 +341,8 @@ export function promptOf(q: Question): string {
 export function availableKinds(course: CourseDef): QuestionKind[] {
   if (!course.customCheck) return course.formats?.includes('droite') ? [...ALL_KINDS, 'droite'] : [...ALL_KINDS];
   const probe = { rng: seededRng(0), level: 1 as Level, timesSeen: 0 };
-  // « choix » et « reecrire » n'existent que pour les cours qui les construisent (Cours 0).
-  return [...ALL_KINDS, 'choix', 'reecrire'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
+  // « choix », « reecrire » et « resoudre » n'existent que pour les cours qui les construisent.
+  return [...ALL_KINDS, 'choix', 'reecrire', 'resoudre'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
 }
 
 /** Doc 04 §7.2: keeps the QCM formula of the original (« début » below 5 QCM seen). */
@@ -360,8 +364,9 @@ function memeType(item: QuestionItem, q: Question, errorType: string | null, rng
 /** n distinct end-of-course style exercises (typed, level 1; 'erreur' for Cours 0). */
 function typedSeries(course: CourseDef, n: number, rng: Rng): Question[] {
   const prompts = new Set<string>();
-  return Array.from({ length: n }, () => {
-    const q = distinctFrom(prompts, () => buildQuestion(course, course.endExercises.kind, { rng, level: 1, timesSeen: 0 }));
+  return Array.from({ length: n }, (_, i) => {
+    const kind = course.endExercises.mix?.[i] ?? course.endExercises.kind;
+    const q = distinctFrom(prompts, () => buildQuestion(course, kind, { rng, level: 1, timesSeen: 0 }));
     prompts.add(promptOf(q));
     return q;
   });

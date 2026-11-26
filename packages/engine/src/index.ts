@@ -1,5 +1,8 @@
 export * from './math/rational';
 export * from './math/expr';
+export * from './math/equation';
+export * from './math/solve';
+export * from './math/parse-equation';
 export * from './rng';
 export * from './time';
 export * from './events';
@@ -13,6 +16,7 @@ export * from './dashboard';
 export type { Answer, BuildCtx, Outcome, Question } from './exercises/types';
 export { buildQuestion } from './exercises/build';
 export { normalizeCalc } from './exercises/rewrite';
+export * from './exercises/resoudre';
 export { checkAnswer, checkParts } from './exercises/check';
 export * from './home';
 export * from './feedback';

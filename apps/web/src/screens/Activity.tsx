@@ -128,7 +128,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     playSound(o.correct ? 'juste' : 'faux');
     // « Toucher la faute » : les cases ne sont pas des lignes, le titre du moteur (« ligne 3 ») ne convient pas
     const touch = step.question.kind === 'erreur' && step.question.accept !== undefined;
-    const ownMessage = step.question.kind === 'choix' || step.question.kind === 'reecrire'; // le message est la réponse : pas de préfixe
+    const ownMessage = step.question.kind === 'choix' || step.question.kind === 'reecrire' || step.question.kind === 'resoudre'; // le message est la réponse : pas de préfixe
     const shownFeedback: Feedback =
       feedback.tone !== 'faux'
         ? feedback
@@ -251,7 +251,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
           <div className="q-expr" data-copie>
             <h2 className="t-h5">On le fait ensemble</h2>
             <p className="t-math">
-              <MathView latex={toLatex(ex.expr)} />
+              <MathView latex={typeof ex.meta?.latex === 'string' ? ex.meta.latex : toLatex(ex.expr)} />
             </p>
           </div>
           <p className="t-body1">

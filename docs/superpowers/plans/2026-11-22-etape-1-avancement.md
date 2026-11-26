@@ -141,3 +141,13 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Tests : moteur 986, api 35, web 439, scripts 7 (tous verts).
 - Mise en ligne bloquée : le proxy de la session refuse api.cloudflare.com (403) ; l'autorisation de l'hôte a été refusée. À refaire une fois le domaine autorisé : `npm run deploy` (construit), puis `cd apps/api && CLOUDFLARE_API_TOKEN=x CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npx wrangler deploy`.
 - Ensuite : modules B, C, D (documents de classe attendus).
+
+## Module 2 « Équations et inéquations » : cours 1 à 4 (2026-11-26), pull request #7, pas encore fusionnée
+- Plan validé : `docs/modules/02-equations-inequations/module.md` (11 cours). Programmes téléchargés dans `docs/sources/` : seconde 2026 et cycle 4 2026. **Manque : le programme de 1re spécialité 2026** (celui de 2019 est cité pour le second degré) ; pas de cours du prof reçu.
+- Moteur : `packages/engine/src/math/equation.ts`, `solve.ts`, `parse-equation.ts` (équations et inéquations du 1er degré, fractions écrites, jugement d'une ligne quelle que soit la méthode de l'élève) ; question `resoudre` (`exercises/resoudre.ts`, `Resoudre.tsx`) ; champ `helped` (indice, « avec aide » dans le suivi). Maquette validée : `docs/design/ecrans/equations-resolution-ligne.html`.
+- Cours 1 à 4 écrits par des assistants Sonnet, dans le module « Essais » (comptes aperçu seulement), fiches dans le dossier du module :
+  - cours 1 `equations-tester-solution` : 190 000 jetons, 32 actions ; cours 2 `equations-ajouter-retirer` : 197 000 et 43 (fiche comprise) ; cours 3 `equations-diviser` et 4 `equations-resoudre-premier-degre` par un seul assistant : 266 000 et 59, soit environ 133 000 par cours.
+  - Le 2e cours d'un même assistant coûte moins cher (les documents ne sont lus qu'une fois).
+- Tests : moteur 1 148, api 35, web 452 (verts après fusion des trois branches).
+- À vérifier : reprises entre les cours 2 et 3 (le cours 3 a été écrit sans voir le cours 2) ; l'écran « Calcul passé » du cours 2 ; le cours 1 n'a pas de « solution ou pas solution » dans ses exercices de fin ; textes d'écran non relus.
+- Reste du module : cours 5 à 11 (fiches à écrire), maquettes d'intervalles et de tableau de signes.

@@ -1,12 +1,22 @@
 import type { CourseDef, ModuleDef } from '../types';
+import { equationsTesterSolution } from './equations-tester-solution';
+import { equationsAjouterRetirer } from './equations-ajouter-retirer';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
+import { equationsDiviser } from '../equations/equations-diviser';
+import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
 
 /**
  * Module « Essais » : cours à l'essai, visibles seulement des comptes « aperçu » (relecture, « Tester les cours »).
  * Il n'est PAS dans MODULES : l'élève ne le voit jamais, il ne compte ni dans sa progression ni dans le suivi.
  * Tous les cours y sont ouverts (aucun ordre à respecter).
  */
-export const ESSAIS_COURSES: CourseDef[] = [c07b];
+export const ESSAIS_COURSES: CourseDef[] = [
+  c07b,
+  equationsTesterSolution,
+  equationsAjouterRetirer,
+  equationsDiviser,
+  equationsResoudrePremierDegre,
+];
 
 export const ESSAIS: ModuleDef = {
   id: 'essais',

@@ -8,6 +8,7 @@ import { Ordre } from './Ordre';
 import { Paires } from './Paires';
 import { Qcm, isSignBox } from './Qcm';
 import { Reecrire } from './Reecrire';
+import { Resoudre } from './Resoudre';
 import { Saisie } from './Saisie';
 import { Signe } from './Signe';
 import { Trou } from './Trou';
@@ -63,5 +64,6 @@ export function QuestionView({ question: q, course, locked, onAnswer, header, fo
     case 'choix': return <Choix q={q} {...common} />;
     case 'reecrire': return <Reecrire q={q} {...common} />;
     case 'droite': return <Droite q={q} {...common} />;
+    case 'resoudre': return <Resoudre q={q} {...common} />;
   }
 }
