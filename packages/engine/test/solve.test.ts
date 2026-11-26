@@ -3,6 +3,7 @@ import { cst, equation, equationLatex, xt, type Equation } from '../src/math/equ
 import { rat } from '../src/math/rational';
 import {
   applyOp,
+  doneOpLatex,
   equivalent,
   isFinal,
   judgeLine,
@@ -140,8 +141,8 @@ describe('solutionSet', () => {
 describe('judgeLine', () => {
   const e = equation([xt(2), cst(3)], [cst(7)]);
   it('right lines, finished or not', () => {
-    expect(judgeLine(e, equation([xt(2)], [cst(4)]))).toEqual({ correct: true, final: false, unchanged: false, errorId: null });
-    expect(judgeLine(e, equation([xt(1)], [cst(2)]))).toEqual({ correct: true, final: true, unchanged: false, errorId: null });
+    expect(judgeLine(e, equation([xt(2)], [cst(4)]))).toMatchObject({ correct: true, final: false, unchanged: false, errorId: null });
+    expect(judgeLine(e, equation([xt(1)], [cst(2)]))).toMatchObject({ correct: true, final: true, unchanged: false, errorId: null });
     expect(judgeLine(e, equation([cst(3), xt(2)], [cst(7)])).unchanged).toBe(true);
     expect(judgeLine(e, applyOp(e, { k: 'add', v: -3 })).correct).toBe(true);
   });
@@ -164,7 +165,40 @@ describe('judgeLine', () => {
       'sens-non-change',
     ));
   it('unknown mistake', () =>
-    expect(judgeLine(e, equation([xt(1)], [cst(9)]))).toEqual({ correct: false, final: false, unchanged: false, errorId: null }));
+    expect(judgeLine(e, equation([xt(1)], [cst(9)]))).toMatchObject({ correct: false, final: false, unchanged: false, errorId: null }));
+  it('her own method: several operations at once, then reduce, then divide', () => {
+    const p0 = equation([xt(4), cst(-3)], [xt(1), cst(9)]);
+    const p1 = equation([xt(4), xt(-1)], [cst(9), cst(3)]); // 4x − x = 9 + 3
+    const v1 = judgeLine(p0, p1);
+    expect(v1).toMatchObject({ correct: true, unchanged: false, done: { k: 'add', x: -1, n: 3 } });
+    expect(doneOpLatex(v1.done!)).toBe('-x +3');
+    const p2 = equation([xt(3)], [cst(12)]);
+    expect(judgeLine(p1, p2)).toMatchObject({ correct: true, unchanged: false, done: { k: 'reduce' } });
+    expect(judgeLine(p1, equation([xt(1)], [cst(4)]))).toMatchObject({ correct: true, final: true, done: { k: 'div', v: 3 } });
+  });
+  it('x moved to the right, answer written 4 = x', () => {
+    const p0 = equation([xt(4), cst(-3)], [xt(1), cst(9)]);
+    const p1 = equation([cst(-3)], [xt(-3), cst(9)]);
+    expect(judgeLine(p0, p1)).toMatchObject({ correct: true, done: { k: 'add', x: -4, n: 0 } });
+    expect(judgeLine(equation([cst(-12)], [xt(-3)]), equation([cst(4)], [xt(1)]))).toMatchObject({
+      correct: true,
+      final: true,
+      done: { k: 'div', v: -3 },
+    });
+  });
+  it('a recopied line (terms in another order) does not move forward', () =>
+    expect(judgeLine(e, equation([cst(3), xt(2)], [cst(7)])).unchanged).toBe(true));
+  it('mistake while grouping terms', () =>
+    expect(judgeLine(equation([xt(4), xt(-1)], [cst(12)]), equation([xt(4)], [cst(12)])).errorId).toBe('reduction'));
+  it('direction changed for no reason', () =>
+    expect(judgeLine(equation([xt(2), cst(3)], [cst(7)], '<'), equation([xt(2)], [cst(4)], '>')).errorId).toBe(
+      'sens-change-a-tort',
+    ));
+  it('swap of the members is read as such', () =>
+    expect(judgeLine(equation([cst(7)], [xt(2)], '<'), equation([xt(2)], [cst(7)], '>'))).toMatchObject({
+      correct: true,
+      done: { k: 'swap' },
+    }));
   it('wrong lines are never equivalent to the previous line', () => {
     for (const w of wrongNext(e)) expect(equivalent(w.eq, e)).toBe(false);
   });

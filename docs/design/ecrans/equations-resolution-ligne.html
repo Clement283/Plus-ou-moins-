@@ -298,7 +298,7 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
     why:`Montre où mène chaque étape et sert d'exemple guidé et de fiche mémo. Les trois étapes ont toujours le même ordre (les ${X} d'un côté, les nombres de l'autre, puis diviser), ce qui fait une méthode à retenir.`,
     engine:`<code>resolve(eq)</code> donne toutes les lignes avec leur opération ; on n'affiche que les lignes « réduction » et les annotations.`});
 
-  // 7. À toi de résoudre : l'élève écrit chaque ligne en entier (petite copie de parse-equation.ts et solve.ts).
+  // 7. À toi de résoudre : l'élève écrit chaque ligne en entier, avec sa méthode (petite copie de parse-equation.ts et solve.ts).
   const SOLVE={
     parse(t){
       const s=t.replace(/\s+/g,'').replace(/−/g,'-');
@@ -310,57 +310,94 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
       if(!l||!rt) return {err:'Il faut un membre de chaque côté du signe.'};
       const re=/^[+-]?(\d*x|\d+)([+-](\d*x|\d+))*$/;
       if(!re.test(l)||!re.test(rt)) return {err:'Cette ligne est mal écrite. Exemple : 3x + 1 = 7.'};
-      const mem=m=>{let a=0,b=0;for(const t of m.matchAll(/([+-]?)(\d*)(x?)/g)){if(!t[0])continue;const sg=t[1]==='-'?-1:1;if(t[3])a+=sg*(t[2]===''?1:+t[2]);else b+=sg*+t[2];}return {a,b};};
+      const mem=m=>{let a=0,b=0;const keys=[];for(const t of m.matchAll(/([+-]?)(\d*)(x?)/g)){if(!t[0])continue;const sg=t[1]==='-'?-1:1;if(t[3]){const c=sg*(t[2]===''?1:+t[2]);if(c){a+=c;keys.push('x'+c);}}else{const v=sg*+t[2];if(v){b+=v;keys.push('n'+v);}}}return {a,b,keys};};
       return {L:mem(l),R:mem(rt),rel:r,text:t};
     },
     flip:r=>({'=':'=','<':'>','>':'<','⩽':'⩾','⩾':'⩽'})[r],
     set(e){const a=e.L.a-e.R.a,b=e.R.b-e.L.b;
       if(a===0){const d=-b;const ok={'=':d===0,'<':d<0,'⩽':d<=0,'>':d>0,'⩾':d>=0}[e.rel];return ok?'all':'none';}
       const rel=a<0?SOLVE.flip(e.rel):e.rel;return rel+':'+(b/a);},
-    final:e=>e.L.a===1&&e.L.b===0&&e.R.a===0,
-    same:(e,f)=>e.rel===f.rel&&e.L.a===f.L.a&&e.L.b===f.L.b&&e.R.a===f.R.a&&e.R.b===f.R.b,
+    alone:(m,x)=>x?(m.a===1&&m.b===0&&m.keys.length===1):(m.a===0&&m.keys.length<=1),
+    final:e=>(SOLVE.alone(e.L,1)&&SOLVE.alone(e.R,0))||(SOLVE.alone(e.L,0)&&SOLVE.alone(e.R,1)),
+    unreduced:m=>m.keys.filter(k=>k[0]==='x').length>1||m.keys.filter(k=>k[0]==='n').length>1,
+    sameTerms:(e,f)=>e.rel===f.rel&&[e.L,e.R].every((m,i)=>{const n=i?f.R:f.L;return m.keys.slice().sort().join()===n.keys.slice().sort().join();}),
     next(e){if(e.L.a===0&&e.R.a===0)return null;if(e.L.a===0)return {k:'swap'};if(e.R.a!==0)return {k:'addX',c:-e.R.a};if(e.L.b!==0)return {k:'add',v:-e.L.b};if(e.L.a!==1)return {k:'div',v:e.L.a};return null;},
-    opText(o){if(!o)return '';const n=v=>(v<0?M:'+')+Math.abs(v);if(o.k==='add')return n(o.v);if(o.k==='addX')return (o.c<0?M:'+')+(Math.abs(o.c)===1?'':Math.abs(o.c))+'x';if(o.k==='div')return '÷ '+(o.v<0?'('+M+Math.abs(o.v)+')':o.v);return 'échanger les membres';},
-    wrong(e){const o=SOLVE.next(e);if(!o)return [];const out=[];const mk=(L,R,rel)=>({L,R,rel:rel||e.rel});const ineq=e.rel!=='=';
-      if(o.k==='add'){out.push(['un-seul-cote',mk({a:e.L.a,b:e.L.b+o.v},e.R)]);out.push(['signe-garde',mk({a:e.L.a,b:0},{a:e.R.a,b:e.R.b-o.v})]);}
-      if(o.k==='addX'){out.push(['un-seul-cote',mk({a:e.L.a,b:e.L.b},{a:0,b:e.R.b})]);out.push(['signe-garde',mk({a:e.L.a-o.c,b:e.L.b},{a:0,b:e.R.b})]);}
-      if(o.k==='div'){const a=e.L.a,b=e.R.b;out.push(['soustraire-coef',mk({a:1,b:0},{a:0,b:b-a})]);
-        if(a<0)out.push(['signe-perdu-division',mk({a:1,b:0},{a:0,b:b/-a},SOLVE.flip(e.rel))]);
-        if(a<0&&ineq)out.push(['sens-non-change',mk({a:1,b:0},{a:0,b:b/a})]);}
+    sgn:(v,x)=>(v<0?M:'+')+(x&&Math.abs(v)===1?'':Math.abs(v))+(x?'x':''),
+    opText(o){if(!o)return '';if(o.k==='add')return SOLVE.sgn(o.v);if(o.k==='addX')return SOLVE.sgn(o.c,1);if(o.k==='div')return '÷ '+(o.v<0?'('+M+Math.abs(o.v)+')':o.v);return 'échanger les membres';},
+    // Ce que l'élève a fait, lu en comparant les deux lignes.
+    done(p,g){
+      if(g.L.a===p.R.a&&g.L.b===p.R.b&&g.R.a===p.L.a&&g.R.b===p.L.b&&g.rel===SOLVE.flip(p.rel)&&!(p.L.a===p.R.a&&p.L.b===p.R.b))return {k:'swap'};
+      const dla=g.L.a-p.L.a,dlb=g.L.b-p.L.b,dra=g.R.a-p.R.a,drb=g.R.b-p.R.b;
+      if(dla===dra&&dlb===drb&&g.rel===p.rel)return dla===0&&dlb===0?{k:'reduce'}:{k:'add',x:dla,n:dlb};
+      const d=g.L.a?p.L.a/g.L.a:g.L.b?p.L.b/g.L.b:g.R.a?p.R.a/g.R.a:g.R.b?p.R.b/g.R.b:0;
+      if(Number.isInteger(d)&&d!==0&&d!==1&&g.L.a*d===p.L.a&&g.L.b*d===p.L.b&&g.R.a*d===p.R.a&&g.R.b*d===p.R.b&&g.rel===(d<0?SOLVE.flip(p.rel):p.rel))return {k:'div',v:d};
+      return {k:'several'};},
+    doneText(o){if(o.k==='add')return [o.x?SOLVE.sgn(o.x,1):'',o.n?SOLVE.sgn(o.n):''].filter(Boolean).join(' ');if(o.k==='div')return SOLVE.opText(o);return '';},
+    error(p,g){
+      const dla=g.L.a-p.L.a,dlb=g.L.b-p.L.b,dra=g.R.a-p.R.a,drb=g.R.b-p.R.b;
+      const zl=!dla&&!dlb,zr=!dra&&!drb,ineq=p.rel!=='=';
+      if(ineq&&g.rel===SOLVE.flip(p.rel)&&dla===dra&&dlb===drb)return 'sens-change-a-tort';
+      if(g.rel===p.rel){
+        if(zl!==zr){const side=zl?'R':'L';return SOLVE.unreduced(p[side])&&g[side].keys.length<p[side].keys.length?'reduction':'un-seul-cote';}
+        if(!zl&&dla===-dra&&dlb===-drb)return 'signe-garde';}
+      const a=p.L.a-p.R.a,b=p.R.b-p.L.b;
+      if(SOLVE.alone(g.L,1)&&SOLVE.alone(g.R,0)&&p.R.a===0&&p.L.b===0){const v=g.R.b;
+        if(v===b-a)return 'soustraire-coef';
+        if(a<0&&v===b/-a)return 'signe-perdu-division';
+        if(ineq&&a<0&&g.rel===p.rel&&v===b/a)return 'sens-non-change';}
+      return null;},
+    lin(a,b){const t=[];if(a)t.push((a<0?M:'')+(Math.abs(a)===1?'':Math.abs(a))+'x');if(b)t.push(t.length?(b<0?M+' '+(-b):'+ '+b):(b<0?M+(-b):''+b));return t.length?t.join(' '):'0';},
+    // La méthode du cours, à partir de l'énoncé : lignes réduites et opération sous chaque membre.
+    course(e){let L={a:e.L.a,b:e.L.b},R={a:e.R.a,b:e.R.b},rel=e.rel;const out=[];
+      for(let n=0;n<6;n++){const o=SOLVE.next({L,R,rel});if(!o)break;
+        if(o.k==='swap'){[L,R]=[R,L];rel=SOLVE.flip(rel);out.push({op:'',text:[SOLVE.lin(L.a,L.b),rel,SOLVE.lin(R.a,R.b)]});continue;}
+        if(o.k==='addX'){L.a+=o.c;R.a+=o.c;}else if(o.k==='add'){L.b+=o.v;R.b+=o.v;}else{L={a:L.a/o.v,b:L.b/o.v};R={a:R.a/o.v,b:R.b/o.v};if(o.v<0)rel=SOLVE.flip(rel);}
+        out.push({op:SOLVE.opText(o),text:[SOLVE.lin(L.a,L.b),rel,SOLVE.lin(R.a,R.b)]});}
       return out;},
     fmt(t){return t.replace(/\s+/g,'').replace(/-/g,M).replace(/([+−=<>⩽⩾])/g,' $1 ').replace(/^ ([+−]) /,'$1').replace(/([=<>⩽⩾])  ([+−]) /,'$1 $2').replace(/x/g,X).trim();},
     split(t){const f=SOLVE.fmt(t);const m=f.match(/^(.*?) ([=<>⩽⩾]) (.*)$/);return m?[m[1],m[2],m[3]]:[f,'',''];}
   };
   const EX7=[{t:`4x ${M} 3 = x + 9`,name:'une équation'},{t:`3x + 5 > 5x ${M} 1`,name:'une inéquation'}];
   const MSG7={'un-seul-cote':['Tu as changé un seul membre.','Ce que tu fais à un membre, fais-le à l’autre.'],
-    'signe-garde':['Un terme a changé de côté sans changer de signe.','Écris l’opération des deux côtés : le terme disparaît d’un côté et apparaît avec le signe contraire de l’autre.'],
-    'soustraire-coef':['Tu as soustrait au lieu de diviser.','Le nombre devant x multiplie : on divise les deux membres par ce nombre.'],
+    'signe-garde':['Un terme a changé de côté sans changer de signe.','Quand un terme disparaît d’un côté, il apparaît de l’autre avec le signe contraire.'],
+    'reduction':['Erreur en regroupant.',`Regroupe les ${X} entre eux et les nombres entre eux : par exemple 4${X} ${M} ${X} = 3${X}.`],
+    'sens-change-a-tort':['Le sens ne change pas ici.','On change le sens seulement quand on multiplie ou divise par un nombre négatif.'],
+    'soustraire-coef':['Tu as soustrait au lieu de diviser.',`Le nombre devant ${X} multiplie : on divise les deux membres par ce nombre.`],
     'signe-perdu-division':['Le signe s’est perdu.','Tu divises par un nombre négatif : le résultat change de signe.'],
     'sens-non-change':['Le sens doit changer.','Tu as divisé par un nombre négatif : < devient >, ⩽ devient ⩾.']};
   S.push({name:'À toi de résoudre',chip:'Exercice',
-    state:{ex:0,lines:null,typed:'',fb:null,hint:false},
+    state:{ex:0,lines:null,typed:'',fb:null,hint:false,showCourse:false},
     render(st){
       if(!st.lines){const e=SOLVE.parse(EX7[st.ex].t);st.lines=[{e,text:EX7[st.ex].t}];}
       const last=st.lines[st.lines.length-1];const done=SOLVE.final(last.e);
-      const rows=[];st.lines.forEach((l,i)=>{if(l.op)rows.push(ops(l.op.replace(/x/g,X),i===st.lines.length-1));const [a,s,b]=SOLVE.split(l.text);rows.push(ln(a,s,b,(done&&i===st.lines.length-1)?'final':i===st.lines.length-1?'cur':'old'));});
+      const rows=[];st.lines.forEach((l,i)=>{if(l.op)rows.push(ops(l.op.replace(/x/g,X),i===st.lines.length-1));else if(i>0)rows.push(`<div class="ops"><span></span><span></span><span></span></div>`);const [a,s,b]=SOLVE.split(l.text);rows.push(ln(a,s,b,(done&&i===st.lines.length-1)?'final':i===st.lines.length-1?'cur':'old'));});
       const exs=`<div class="opts" style="grid-template-columns:1fr 1fr">${EX7.map((x,i)=>`<button class="opt" style="font-size:.85rem;padding:6px;${i===st.ex?'border-color:var(--primary)':''}" data-ex="${i}">${x.name}</button>`).join('')}</div>`;
       let zone='';
       if(done){const s=SOLVE.set(st.lines[0].e);const [r,v]=s.split(':');const val=(+v<0?M+(-v):v);
-        zone=`<div class="fb ok new"><strong>Résolu en ${st.lines.length-1} lignes.</strong><p>${r==='='?`La solution est ${val}.`:`Les solutions : tous les nombres ${({'<':'plus petits que','>':'plus grands que','⩽':'plus petits que','⩾':'plus grands que'})[r]} ${val}${r.length&&'⩽⩾'.includes(r)?', '+val+' compris':''}.`}</p></div><button class="btn btn-line" data-restart>Recommencer</button>`;
+        const course=SOLVE.course(st.lines[0].e);
+        const same=course.length===st.lines.length-1&&course.every((c,i)=>c.op===(st.lines[i+1].op||''));
+        const cs=st.showCourse?sheet([ln(...SOLVE.split(EX7[st.ex].t),'old'),...course.flatMap(c=>[c.op?ops(c.op.replace(/x/g,X)):'',ln(c.text[0].replace(/x/g,X),c.text[1],c.text[2])])]):'';
+        zone=`<div class="fb ok new"><strong>Résolu en ${st.lines.length-1} ligne${st.lines.length>2?'s':''}.</strong><p>${r==='='?`La solution est ${val}.`:`Les solutions : tous les nombres ${({'<':'plus petits que','>':'plus grands que','⩽':'plus petits que','⩾':'plus grands que'})[r]} ${val}${'⩽⩾'.includes(r)?', '+val+' compris':''}.`} ${same?'Tu as suivi la méthode du cours.':'Ta méthode est juste. Tu peux la comparer avec celle du cours.'}</p></div>${same?'':(st.showCourse?`<p class="q">La méthode du cours</p>${cs}`:`<button class="btn btn-line" data-course>Voir la méthode du cours</button>`)}<button class="btn btn-line" data-restart>Recommencer</button>`;
       } else {
         const field=`<div class="field" style="font-size:1.35rem;font-weight:500;min-height:54px;border:2px solid var(--primary);border-radius:14px;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">${st.typed?SOLVE.fmt(st.typed):'<span style="color:var(--muted);font-size:1rem">Écris la ligne suivante</span>'}</div>`;
         const ineq=st.lines[0].e.rel!=='=';
         const K=['7','8','9','⌫','4','5','6','x','1','2','3','+',M,'0',...(ineq?['<','>']:['=','']),...(ineq?['⩽','⩾']:[])];
         const keysH=`<div class="keys">${K.map(k=>k===''?'<span></span>':`<button class="key${'⌫+=<>⩽⩾'.includes(k)||k===M?' op':''}" data-t="${k}" ${k==='x'?'style="font-style:italic"':''}>${k}</button>`).join('')}<button class="key op" data-t="ok" style="grid-column:span ${ineq?2:4}">Valider</button></div>`;
         let fb='';if(st.fb)fb=`<div class="fb ${st.fb.ok?'ok':'ko'} new"><strong>${st.fb.t}</strong><p>${st.fb.p}</p></div>`;
-        const hint=st.hint?`<p class="q new" style="font-weight:500">Indice : <span class="opb">${SOLVE.opText(SOLVE.next(last.e))}</span> des deux côtés.</p>`:`<button class="btn btn-line" data-hint>Un indice</button>`;
+        let hintTxt='';
+        if(st.hint){const e=last.e;
+          if(SOLVE.unreduced(e.L)||SOLVE.unreduced(e.R))hintTxt=`Méthode du cours : regroupe d'abord les ${X} entre eux et les nombres entre eux, dans chaque membre.`;
+          else{const o=SOLVE.next(e);hintTxt=o.k==='swap'?`Méthode du cours : échange les deux membres pour avoir ${X} à gauche${ineq?' (le sens change)':''}.`:`Méthode du cours : <span class="opb">${SOLVE.opText(o).replace(/x/g,X)}</span> des deux côtés.`;}}
+        const hint=st.hint?`<p class="q new" style="font-weight:500">${hintTxt}</p>`:`<button class="btn btn-line" data-hint>Un indice</button>`;
         zone=`${fb}${field}${keysH}${hint}`;
       }
       return `${top(7,this.chip)}<div class="ph-body"><h2 class="t">Résous ${EX7[st.ex].name}</h2>${exs}${sheet(rows)}<div class="zone">${zone}</div></div>`;
     },
     on(st,el){
-      if(el.dataset.ex!==undefined){st.ex=+el.dataset.ex;st.lines=null;st.typed='';st.fb=null;st.hint=false;return;}
-      if(el.dataset.restart!==undefined){st.lines=null;st.typed='';st.fb=null;st.hint=false;return;}
+      const reset=()=>{st.lines=null;st.typed='';st.fb=null;st.hint=false;st.showCourse=false;};
+      if(el.dataset.ex!==undefined){st.ex=+el.dataset.ex;reset();return;}
+      if(el.dataset.restart!==undefined){reset();return;}
+      if(el.dataset.course!==undefined){st.showCourse=true;return;}
       if(el.dataset.hint!==undefined){st.hint=true;return;}
       const k=el.dataset.t;if(k===undefined)return;
       if(k==='⌫'){st.typed=st.typed.slice(0,-1);return;}
@@ -369,23 +406,23 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
       if(g.err){st.fb={ok:false,t:'Je ne peux pas lire cette ligne.',p:g.err};return;}
       const prev=st.lines[st.lines.length-1].e;
       if(SOLVE.set(g)===SOLVE.set(prev)){
-        if(!SOLVE.final(g)&&SOLVE.same(g,prev)){st.fb={ok:false,t:'C’est la même ligne.',p:'Elle est juste, mais elle n’avance pas. Fais une opération des deux côtés.'};return;}
-        const o=SOLVE.next(prev);
-        st.lines.push({e:g,text:st.typed,op:SOLVE.opText(o)&&o.k!=='swap'?SOLVE.opText(o):''});st.typed='';st.hint=false;
-        st.fb=SOLVE.final(g)?null:{ok:true,t:'Ligne juste.',p:'Continue jusqu’à avoir x tout seul.'};return;}
-      const w=SOLVE.wrong(prev).find(([,c])=>SOLVE.set(c)===SOLVE.set(g));
-      const [t,p]=w?MSG7[w[0]]:['Cette ligne n’a plus les mêmes solutions.','Reprends la ligne d’avant et fais la même opération des deux côtés.'];
+        if(!SOLVE.final(g)&&SOLVE.sameTerms(g,prev)){st.fb={ok:false,t:'C’est la même ligne.',p:'Elle est juste, mais tu l’as recopiée. Fais une opération des deux côtés, ou regroupe des termes.'};return;}
+        const d=SOLVE.done(prev,g);
+        st.lines.push({e:g,text:st.typed,op:SOLVE.doneText(d)});st.typed='';st.hint=false;
+        st.fb=SOLVE.final(g)?null:{ok:true,t:'Ligne juste.',p:d.k==='reduce'?'Tu as regroupé les termes. Continue.':d.k==='several'?'Tu as fait plusieurs étapes d’un coup : c’est juste.':'Continue jusqu’à avoir x tout seul.'};return;}
+      const id=SOLVE.error(prev,g);
+      const [t,p]=id?MSG7[id]:['Cette ligne n’a plus les mêmes solutions.','Reprends la ligne d’avant : ce que tu fais à un membre, fais-le à l’autre.'];
       st.fb={ok:false,t,p};
     },
-    what:`L'élève résout seul, du début à la fin. Il écrit chaque ligne en entier avec un clavier complet (chiffres, <i>x</i>, +, ${M}, et =, ou <, >, ⩽, ⩾ pour une inéquation). Chaque ligne est jugée à la validation : juste, elle s'ajoute à la feuille avec l'opération sous chaque membre ; fausse, un message dit quelle erreur. Le bouton « Un indice » montre l'opération à faire. Essaie 3x − 3 = 9 (juste), puis 3x = 6 (signe gardé), puis 3x = 12 et x = 9 (soustraction au lieu de division). Pour l'inéquation, finis par x > 3 pour voir le message sur le sens.`,
-    why:`C'est ce que tu as demandé : savoir résoudre complètement, comme en contrôle. L'élève peut écrire la ligne « opération » ou sauter directement à la ligne réduite : les deux sont justes. Une ligne recopiée est signalée (juste, mais elle n'avance pas).`,
-    engine:`<code>parseEquation(texte)</code> lit la ligne tapée ; <code>judgeLine(avant, ligne)</code> donne juste, fini, recopiée ou l'erreur reconnue ; <code>nextStep</code> donne l'indice.`});
+    what:`L'élève résout seul, du début à la fin, <b>avec sa méthode</b>. Il écrit chaque ligne en entier (chiffres, <i>x</i>, +, ${M}, et =, ou <, >, ⩽, ⩾). Toute ligne qui garde les mêmes solutions est juste : plusieurs opérations d'un coup (4${X} ${M} ${X} = 9 + 3), les ${X} à droite, la réponse écrite 4 = ${X}. Sous chaque membre s'affiche <b>ce qu'il a fait</b> (« ${M}${X} +3 »), pas l'étape du cours ; une ligne où il a seulement regroupé n'a pas d'étiquette. L'indice et la fin montrent la méthode du cours. Essaie 4x − x = 9 + 3, puis 3x = 12, puis x = 4.`,
+    why:`Tu l'as demandé : l'outil montre la bonne méthode (indice, puis « Voir la méthode du cours » à la fin si l'élève a fait autrement) mais accepte la sienne. Une ligne n'est refusée que si elle change les solutions ; seule une ligne recopiée telle quelle est signalée comme « n'avance pas ».`,
+    engine:`<code>parseEquation</code> lit la ligne ; <code>judgeLine</code> accepte toute ligne équivalente, dit si elle est recopiée et renvoie l'opération faite (<code>inferOp</code>, écrite par <code>doneOpLatex</code>) ; les erreurs sont reconnues quelle que soit l'opération choisie (un seul membre, signe gardé, erreur en regroupant, sens changé à tort, et les erreurs de division) ; <code>resolve</code> donne la méthode du cours.`});
 
   const QUESTIONS=[
     {q:`L'élève choisit-il l'opération (étiquettes) avant d'écrire chaque ligne, dans l'écran « À toi de résoudre » ?`,r:`Non : il écrit directement ses lignes, comme sur sa copie ; l'opération s'affiche sous chaque membre une fois la ligne juste. Le choix par étiquettes reste pour la leçon et les exemples guidés.`},
     {q:`Où sert la résolution complète ?`,r:`Dans les exercices de fin (au moins 2 sur 5 à partir du cours 4), les révisions et l'entraînement. La leçon garde les cases, plus rapides.`},
     {q:`Que coûte l'indice ?`,r:`Il montre l'opération à faire ; la question reste juste si les lignes sont justes, mais elle compte comme « avec aide » dans le suivi (comme l'aide qui s'efface des exemples guidés).`}];
-  const DECIDED=[`Ligne « opération » écrite dans les cours 2 à 4, puis seulement l'opération sous chaque membre (réponse 1 : oui).`,`L'élève doit pouvoir résoudre complètement une équation ou une inéquation : écran « À toi de résoudre » (réponse 2).`,`Pas de couleurs de signe dans les équations : noir, indigo pour l'opération, orange pour le sens qui change (réponse 3 : oui).`];
+  const DECIDED=[`Ligne « opération » écrite dans les cours 2 à 4, puis seulement l'opération sous chaque membre (réponse 1 : oui).`,`L'élève doit pouvoir résoudre complètement une équation ou une inéquation : écran « À toi de résoudre » (réponse 2) ; l'outil montre la méthode du cours mais accepte celle de l'élève (retour du 2026-11-26).`,`Pas de couleurs de signe dans les équations : noir, indigo pour l'opération, orange pour le sens qui change (réponse 3 : oui).`];
 
   const nav=document.getElementById('nav'),phone=document.getElementById('phone'),notes=document.getElementById('notes');
   let idx=0;

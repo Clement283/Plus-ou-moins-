@@ -10,7 +10,7 @@ import {
   flipRel,
   xt,
 } from './equation';
-import { type Rational, div, eqRat, rat } from './rational';
+import { type Rational, div, eqRat, mul, neg, rat, sub } from './rational';
 
 /** Ce qu'on fait aux deux membres. `swap` : on échange les membres (7 = 2x devient 2x = 7). */
 export type StepOp =
@@ -85,11 +85,13 @@ export const sameEquation = (e: Equation, f: Equation): boolean =>
 
 export const isReduced = (eq: Equation): boolean => eq.div === undefined && sameEquation(eq, simplify(eq));
 
-/** Ligne finale : x = 2, x ⩾ −3 (x seul à gauche, un nombre à droite). */
+const xAlone = (m: Member) => m.length === 1 && m[0]!.k === 'x' && m[0]!.coef === 1;
+const numAlone = (m: Member) => m.length === 1 && m[0]!.k === 'num';
+
+/** Ligne finale : x = 2, x ⩾ −3, ou écrite à l'envers : 2 = x, −3 ⩽ x. */
 export function isFinal(eq: Equation): boolean {
   if (eq.div !== undefined) return false;
-  const [t, ...rest] = eq.left;
-  return t?.k === 'x' && t.coef === 1 && rest.length === 0 && eq.right.length === 1 && eq.right[0]!.k === 'num';
+  return (xAlone(eq.left) && numAlone(eq.right)) || (numAlone(eq.left) && xAlone(eq.right));
 }
 
 /**
@@ -175,6 +177,8 @@ export function resolve(start: Equation): { lines: ResolutionLine[]; set: Soluti
 export type StepErrorId =
   | 'un-seul-cote'
   | 'signe-garde'
+  | 'reduction'
+  | 'sens-change-a-tort'
   | 'soustraire-coef'
   | 'signe-perdu-division'
   | 'sens-non-change';
@@ -188,63 +192,134 @@ const tryEq = (f: () => Equation): Equation | null => {
 };
 
 /**
- * Les lignes fausses typiques après `prev` (ligne réduite), une par erreur classique :
- * opération faite d'un seul côté ; « passer de l'autre côté » sans changer le signe ;
+ * Lignes fausses typiques au moment de diviser, sur la ligne réduite a·x = b (`prev`) :
  * soustraire le coefficient au lieu de diviser ; signe perdu en divisant par un négatif ;
- * sens de l'inégalité non changé.
+ * sens de l'inégalité non changé. (Les erreurs d'addition sont reconnues par `judgeLine`
+ * quelle que soit l'opération choisie, voir `addError`.)
  */
 export function wrongNext(prev: Equation): { id: StepErrorId; eq: Equation }[] {
   const op = nextStep(prev);
-  if (!op) return [];
+  if (!op || op.k !== 'div') return [];
   const out: { id: StepErrorId; eq: Equation | null }[] = [];
-  const r = collect(prev.right);
-  const l = collect(prev.left);
+  const a = collect(prev.left).a.n;
+  const b = collect(prev.right).b.n;
   const ineq = prev.rel !== '=';
-  if (op.k === 'add' || op.k === 'addX') {
-    const t = op.k === 'add' ? cst(op.v) : xt(op.c);
-    const opp = op.k === 'add' ? cst(-op.v) : xt(-op.c);
-    out.push({ id: 'un-seul-cote', eq: tryEq(() => ({ ...prev, left: [...prev.left, t] })) });
-    out.push({ id: 'un-seul-cote', eq: tryEq(() => ({ ...prev, right: [...prev.right, t] })) });
-    // Le terme « passe de l'autre côté » en gardant son signe : 2x + 3 = 7 → 2x = 7 + 3 ; 5x + 1 = 2x + 7 → 7x + 1 = 7.
-    const moved = op.k === 'add'
-      ? { left: [...prev.left, t], right: [...prev.right, opp] }
-      : { left: [...prev.left, opp], right: [...prev.right, t] };
-    out.push({ id: 'signe-garde', eq: tryEq(() => ({ ...prev, ...moved })) });
-  }
-  if (op.k === 'div') {
-    const a = l.a.n;
-    const b = r.b.n;
-    out.push({ id: 'un-seul-cote', eq: { left: [xt(1)], right: [b === 0 ? cst(0) : cst(b)], rel: prev.rel } });
-    if (b - a !== 0) out.push({ id: 'soustraire-coef', eq: { left: [xt(1)], right: [cst(b - a)], rel: prev.rel } });
-    const good = applyOp(prev, op);
-    if (a < 0 && b % a === 0 && b !== 0)
-      out.push({ id: 'signe-perdu-division', eq: { left: [xt(1)], right: [cst(b / -a)], rel: prev.rel } });
-    if (ineq && a < 0) out.push({ id: 'sens-non-change', eq: tryEq(() => ({ ...good, rel: prev.rel })) });
-  }
-  if (op.k === 'swap' && ineq) {
-    out.push({ id: 'sens-non-change', eq: { left: prev.right, right: prev.left, rel: prev.rel } });
-  }
+  if (b - a !== 0) out.push({ id: 'soustraire-coef', eq: { left: [xt(1)], right: [cst(b - a)], rel: prev.rel } });
+  if (a < 0 && b % a === 0 && b !== 0)
+    out.push({ id: 'signe-perdu-division', eq: { left: [xt(1)], right: [cst(b / -a)], rel: flipRel(prev.rel) } });
+  if (ineq && a < 0) out.push({ id: 'sens-non-change', eq: tryEq(() => ({ ...applyOp(prev, op), rel: prev.rel })) });
   return out.filter((w): w is { id: StepErrorId; eq: Equation } => w.eq !== null && !equivalent(w.eq, prev));
+}
+
+type Lin = { a: Rational; b: Rational };
+const linSub = (p: Lin, q: Lin): Lin => ({ a: sub(p.a, q.a), b: sub(p.b, q.b) });
+const linZero = (p: Lin) => p.a.n === 0 && p.b.n === 0;
+const linEq = (p: Lin, q: Lin) => eqRat(p.a, q.a) && eqRat(p.b, q.b);
+const linNeg = (p: Lin): Lin => ({ a: neg(p.a), b: neg(p.b) });
+/** Le membre a-t-il des termes à regrouper (deux termes en x, ou deux nombres) ? */
+const unreduced = (m: Member) =>
+  m.filter((t) => t.k === 'x').length > 1 || m.filter((t) => t.k === 'num').length > 1;
+
+/** Ce que l'élève a fait entre deux lignes, lu en comparant les membres (pas la méthode du cours). */
+export type DoneOp =
+  | { k: 'add'; x: number; n: number } // ajouté x·x + n aux deux membres (−x + 3 : x = −1, n = 3)
+  | { k: 'div'; v: number }
+  | { k: 'swap' }
+  | { k: 'reduce' } // seulement regroupé
+  | { k: 'several' }; // plusieurs étapes d'un coup (juste, mais sans une seule opération lisible)
+
+/** Pour une ligne juste : l'opération faite, à écrire sous chaque membre. */
+export function inferOp(prev: Equation, given: Equation): DoneOp {
+  const pl = collect(prev.left);
+  const pr = collect(prev.right);
+  const gl = collect(given.left);
+  const gr = collect(given.right);
+  if (linEq(gl, pr) && linEq(gr, pl) && given.rel === flipRel(prev.rel) && !linEq(pl, pr)) return { k: 'swap' };
+  const dl = linSub(gl, pl);
+  const dr = linSub(gr, pr);
+  if (linEq(dl, dr) && given.rel === prev.rel) {
+    if (linZero(dl)) return { k: 'reduce' };
+    if (dl.a.d === 1 && dl.b.d === 1) return { k: 'add', x: dl.a.n, n: dl.b.n };
+  }
+  // Division : prev = d · given, membre à membre (le sens change si d < 0).
+  const ratio = (p: Lin, g: Lin): Rational | null => {
+    if (g.a.n !== 0) return div(p.a, g.a);
+    if (g.b.n !== 0) return div(p.b, g.b);
+    return null;
+  };
+  const d = ratio(pl, gl) ?? ratio(pr, gr);
+  if (d && d.d === 1 && d.n !== 0 && d.n !== 1) {
+    const k = rat(d.n);
+    const times = (g: Lin): Lin => ({ a: mul(g.a, k), b: mul(g.b, k) });
+    const rel = d.n < 0 ? flipRel(prev.rel) : prev.rel;
+    if (linEq(times(gl), pl) && linEq(times(gr), pr) && given.rel === rel) return { k: 'div', v: d.n };
+  }
+  return { k: 'several' };
+}
+
+/** Écriture de l'opération faite : « −x + 3 », « ÷ 3 », null pour une réduction ou plusieurs étapes. */
+export function doneOpLatex(op: DoneOp): string | null {
+  switch (op.k) {
+    case 'add': {
+      const parts: string[] = [];
+      if (op.x !== 0) parts.push(opLatex({ k: 'addX', c: op.x })!);
+      if (op.n !== 0) parts.push(opLatex({ k: 'add', v: op.n })!);
+      return parts.join(' ');
+    }
+    case 'div': return opLatex({ k: 'div', v: op.v });
+    default: return null;
+  }
+}
+
+/**
+ * Erreurs d'une étape « on ajoute aux deux membres », quelle que soit l'opération choisie :
+ * un seul membre a changé ; un terme a changé de côté en gardant son signe ; erreur en regroupant ;
+ * sens changé sans raison.
+ */
+function addError(prev: Equation, given: Equation): StepErrorId | null {
+  const dl = linSub(collect(given.left), collect(prev.left));
+  const dr = linSub(collect(given.right), collect(prev.right));
+  const ineq = prev.rel !== '=';
+  if (ineq && given.rel === flipRel(prev.rel) && linEq(dl, dr)) return 'sens-change-a-tort';
+  if (given.rel !== prev.rel) return null;
+  if (linZero(dl) !== linZero(dr)) {
+    const changed = linZero(dl) ? 'right' : 'left';
+    // Le membre qui change était à regrouper et l'élève l'a raccourci : erreur en regroupant.
+    if (unreduced(prev[changed]) && given[changed].length < prev[changed].length) return 'reduction';
+    return 'un-seul-cote';
+  }
+  if (!linZero(dl) && linEq(dl, linNeg(dr))) return 'signe-garde';
+  return null;
 }
 
 export interface LineVerdict {
   correct: boolean;
-  /** La ligne donne x = … (ou x ⩾ …) : la résolution est finie. */
+  /** La ligne donne x = … (ou x ⩾ …, ou 2 = x) : la résolution est finie. */
   final: boolean;
-  /** Juste mais sans avancer : une fois réduite, c'est la même ligne qu'avant (ligne recopiée). */
+  /** Juste mais recopiée : mêmes termes qu'avant, au plus dans un autre ordre. Réduire, c'est avancer. */
   unchanged: boolean;
+  /** Pour une ligne juste : ce que l'élève a fait (sa méthode, pas forcément celle du cours). */
+  done: DoneOp | null;
   errorId: StepErrorId | null;
 }
 
-/** Juge la ligne écrite par l'élève après `prev` : juste si elle garde les mêmes solutions. */
+const termKey = (t: Member[number]) => (t.k === 'x' ? `x${t.coef}` : `n${t.v}`);
+const sameTermsAnyOrder = (m: Member, n: Member) =>
+  m.length === n.length && [...m].map(termKey).sort().join() === [...n].map(termKey).sort().join();
+
+/** Juge la ligne écrite par l'élève après `prev` : juste si elle garde les mêmes solutions, quelle que soit la méthode. */
 export function judgeLine(prev: Equation, given: Equation): LineVerdict {
   if (equivalent(prev, given)) {
-    const unchanged = !isFinal(given) && sameEquation(simplify(prev), simplify(given));
-    return { correct: true, final: isFinal(given), unchanged, errorId: null };
+    const final = isFinal(given);
+    const unchanged =
+      !final && given.rel === prev.rel && sameTermsAnyOrder(given.left, prev.left) && sameTermsAnyOrder(given.right, prev.right);
+    return { correct: true, final, unchanged, done: unchanged ? null : inferOp(prev, given), errorId: null };
   }
-  const g = solutionSet(given);
-  const hit = wrongNext(prev.div === undefined && isReduced(prev) ? prev : simplify(prev)).find((w) =>
-    sameSet(solutionSet(w.eq), g),
-  );
-  return { correct: false, final: false, unchanged: false, errorId: hit?.id ?? null };
+  let errorId = addError(prev, given);
+  if (!errorId) {
+    const g = solutionSet(given);
+    const base = prev.div === undefined && isReduced(prev) ? prev : simplify(prev);
+    errorId = wrongNext(base).find((w) => sameSet(solutionSet(w.eq), g))?.id ?? null;
+  }
+  return { correct: false, final: false, unchanged: false, done: null, errorId };
 }
