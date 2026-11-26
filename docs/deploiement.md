@@ -32,6 +32,19 @@ Pourquoi les fichiers sont intégrés au Worker : dans l'environnement cloud de 
 cd apps/api && npx wrangler d1 migrations apply plus-ou-moins --remote
 ```
 
+## Revenir en arrière sur la base (Time Travel)
+Cloudflare garde l'historique de la base D1 tout seul (7 jours avec l'offre gratuite, 30 avec l'offre payante) : rien à installer, aucune sauvegarde à faire. Pour remettre la base dans l'état d'une minute donnée (ex. juste avant une erreur) :
+
+```bash
+cd apps/api && npx wrangler d1 time-travel info plus-ou-moins --timestamp=2026-11-26T08:00:00Z
+```
+
+```bash
+cd apps/api && npx wrangler d1 time-travel restore plus-ou-moins --timestamp=2026-11-26T08:00:00Z
+```
+
+`info` montre l'état à cette heure sans rien changer ; `restore` remplace toute la base par cet état (ce qui a été fait depuis est perdu, mais `restore` affiche un repère pour annuler : `--bookmark=<repère>`). L'heure est en UTC (Paris − 1 h en hiver, − 2 h en été). À lancer depuis un ordinateur avec le jeton Cloudflare (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) : pas depuis une session Claude (réseau Cloudflare bloqué).
+
 ## Créer un compte
 
 ```bash
