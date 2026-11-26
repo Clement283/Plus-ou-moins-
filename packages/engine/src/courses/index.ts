@@ -13,7 +13,15 @@ export const MODULES: ModuleDef[] = [CALCULS];
 /** Module d'essais : hors de MODULES, réservé aux comptes « aperçu ». */
 export { ESSAIS };
 
-const COURSES = new Map<string, CourseDef>([...CALCULS_COURSES, ...ESSAIS_COURSES].map((c) => [c.id, c]));
+/**
+ * Le numéro affiché d'un cours (`order`) est **calculé** : sa place dans l'ordre des modules de `MODULES`, à partir de 0.
+ * Insérer un cours ou un module décale donc les numéros tout seul ; l'identifiant (`id`) ne change jamais.
+ * (Les cours « Essais », hors de MODULES, gardent le `order` écrit dans leur fichier.)
+ */
+const RANK = new Map(MODULES.flatMap((m) => m.courseIds).map((id, i) => [id, i]));
+const COURSES = new Map<string, CourseDef>(
+  [...CALCULS_COURSES, ...ESSAIS_COURSES].map((c) => [c.id, RANK.has(c.id) ? { ...c, order: RANK.get(c.id)! } : c]),
+);
 
 export function getCourse(id: string): CourseDef {
   const c = COURSES.get(id);

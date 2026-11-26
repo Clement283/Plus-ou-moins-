@@ -1,4 +1,4 @@
-# Modèle de fiche de cours (`docs/modules/NN-nom/cNN-nom.md`)
+# Modèle de fiche de cours (`docs/modules/NN-nom/nom-du-cours.md`)
 
 Une par cours, dans le dossier de son module. **Points importants en haut** : on relit les 12 premières lignes des cours précédents pour adapter le suivant. Le skill cours lit la fiche en plus de son catalogue. 40 lignes au plus pour la fiche, des phrases courtes, pas de texte d'écran.
 

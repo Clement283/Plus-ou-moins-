@@ -7,7 +7,7 @@ description: Use when turning a math chapter of the French lycée programme (e.g
 
 ## Principe
 
-Entrée : **un chapitre du programme** et les documents de classe. Sortie : un **dossier de module** `docs/modules/NN-nom/` avec un `module.md` : le descriptif global du module et la **liste ordonnée de ses cours** (une méthode par cours). Chaque cours est ensuite détaillé dans sa **fiche** (`cNN-nom.md`, même dossier), puis écrit avec `plus-ou-moins-ecrire-un-cours`.
+Entrée : **un chapitre du programme** et les documents de classe. Sortie : un **dossier de module** `docs/modules/NN-nom/` avec un `module.md` : le descriptif global du module et la **liste ordonnée de ses cours** (une méthode par cours). Chaque cours est ensuite détaillé dans sa **fiche** (`nom-du-cours.md`, même dossier), puis écrit avec `plus-ou-moins-ecrire-un-cours`.
 
 Le skill décide **ce qui est important** ; il ne rédige aucun texte d'écran. Ce skill ne contient **aucun plan de module** : la liste des modules, leur ordre et leur état sont dans **`docs/modules.md`**, qu'il lit en premier et met à jour en dernier.
 
@@ -30,13 +30,13 @@ NN = numéro du module dans `docs/modules.md`. Contenu (court, 60 lignes au plus
 
 À valider par le porteur du projet **avant toute fiche**. Pas de page HTML sauf demande. Ensuite : créer le dossier, ajouter la ligne à `docs/modules.md`.
 
-## 2. Détailler un cours : `cNN-nom.md`
+## 2. Détailler un cours : `nom-du-cours.md`
 
 Sur demande, juste avant d'écrire un cours : une fiche au format de `references/modele-fiche.md` (40 lignes au plus), dans le dossier du module. Le skill lit alors le `module.md` du module et le **début (points importants) de chaque cours précédent du module** pour adapter le cours à ce qui a déjà été vu.
 
 ## Numéros et reprises
 
-- Identifiant de cours **stable** (`cNN`, jamais renuméroté) ; l'ordre d'apprentissage vient de `docs/modules.md` et de la liste du `module.md`. Si un changement rend les numéros incohérents, **le dire avant d'écrire**.
+- **Identifiant de cours = un nom sans numéro** (`equations-premier-degre`), **stable**, qui sert aussi de nom de fichier (fiche `.md`, code `.ts`, test). Jamais de numéro dans un identifiant : insérer un cours ne doit rien casser. L'ordre d'apprentissage vient de `docs/modules.md` et de la liste du `module.md` ; **le numéro affiché à l'élève (« Cours 5 ») est calculé** par l'appli d'après cet ordre. Les cours déjà existants gardent leur ancien identifiant (`c04-soustraire`…), car la progression de l'élève y est attachée. **Dans un texte d'écran, ne jamais citer un autre cours par son numéro** : le désigner par son titre.
 - **Reprise naturelle** : un cours contient souvent les méthodes d'avant ; le noter dans la fiche.
 - **Comparer deux cas** et **série de pratique** : un cas et **une des 4 questions** viennent d'un cours précédent ; le 1er cours d'un module les prend dans le **module précédent** selon `docs/modules.md`.
 - **Jamais de calculs d'anciens cours dans les 5 exercices de fin** : le mélange va dans la série de pratique, les révisions et l'entraînement.

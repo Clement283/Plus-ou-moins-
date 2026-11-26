@@ -1,6 +1,6 @@
 # Registre des modules
 
-Lu en premier par les skills `plus-ou-moins-creer-un-module-de-cours` et `plus-ou-moins-ecrire-un-cours`. **Seule source de l'ordre des modules.** Un module = un dossier `docs/modules/NN-nom/` avec un `module.md` (descriptif global et points importants du module) et un fichier par cours `cNN-nom.md` (points importants en haut, fiche en dessous).
+Lu en premier par les skills `plus-ou-moins-creer-un-module-de-cours` et `plus-ou-moins-ecrire-un-cours`. **Seule source de l'ordre des modules.** Un module = un dossier `docs/modules/NN-nom/` avec un `module.md` (descriptif global et points importants du module) et un fichier par cours `nom-du-cours.md` (points importants en haut, fiche en dessous).
 
 | # | Module | Dossier | Cours | État |
 |---|---|---|---|---|
@@ -14,8 +14,10 @@ Lu en premier par les skills `plus-ou-moins-creer-un-module-de-cours` et `plus-o
 
 Ordre voulu par le porteur du projet (2026-11-25) : les modules de révision (Relatifs, Priorités, Fractions, Carrés) sont intercalés avec les chapitres de l'année. Les plans archivés de 3, 5 et 7 servent de point de départ : on les réécrit en `module.md` plus court quand vient leur tour.
 
-## Numéros de cours
-Chaque cours a un **identifiant stable** (`cNN`, jamais renuméroté). L'ordre d'apprentissage est celui de ce tableau puis de la liste des cours du `module.md`. Les numéros 8 à 24 du plan archivé sont provisoires : le premier module à créer reprend à partir de `c08`.
+## Identifiants et numéros de cours
+- Un cours a un **identifiant sans numéro** (`equations-premier-degre`), stable, qui sert aussi de nom de fichier (fiche, code, test). Les cours du module 1 gardent leurs anciens identifiants (`c04-soustraire`…) : la progression de l'élève y est attachée.
+- Le **numéro affiché** (« Cours 5 ») est **calculé** par l'appli d'après l'ordre des modules (`packages/engine/src/courses/index.ts`), à partir de 0. Ajouter un cours ou un module décale les numéros tout seul, sans rien renommer.
+- Dans un texte d'écran, désigner un autre cours par son **titre**, pas par son numéro.
 
 ## Qui lit quoi
 - **Écrire le cours d'un module** : ce registre ; le `module.md` de **chaque module précédent** ; le `module.md` du module courant ; le **début (points importants, 12 premières lignes) de chaque cours précédent du module** ; la fiche du cours à écrire.
