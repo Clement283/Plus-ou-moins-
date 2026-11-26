@@ -22,10 +22,11 @@ describe.each(COURSES.map((c) => [c.id, c] as [string, CourseDef]))('contrat de 
     expect(isAnnonce(c.parts[c.parts.length - 1] as LessonPart)).toBe(true);
   });
 
-  it('12 à 15 écrans pour apprendre ; jamais plus de 2 lectures d’affilée ; 5 étapes au plus', () => {
+  // 8 à 15 : les cours du module Équations visent environ 10 blocs (règles de rédaction de docs/modules/02-equations-inequations/module.md, 2026-11-26)
+  it('8 à 15 écrans pour apprendre ; jamais plus de 2 lectures d’affilée ; 5 étapes au plus', () => {
     const before = c.parts.slice(0, c.parts.length - 1);
     const n = before.filter(isScreen).length;
-    expect(n, 'écrans pour apprendre').toBeGreaterThanOrEqual(12);
+    expect(n, 'écrans pour apprendre').toBeGreaterThanOrEqual(8);
     expect(n, 'écrans pour apprendre').toBeLessThanOrEqual(15);
     for (const p of c.parts) {
       if (p.type !== 'etapes' || isAnnonce(p)) continue;
@@ -64,9 +65,14 @@ describe.each(COURSES.map((c) => [c.id, c] as [string, CourseDef]))('contrat de 
     expect(lessonStep(c, len - 1)).toEqual({ n: total, total });
     expect(lessonStep(c, len)).toBeNull();
     const pratique = c.parts.findIndex((p) => p.type === 'pratique');
-    expect(pratique, 'une série de pratique').toBeGreaterThanOrEqual(len - 1);
-    const p = c.parts[pratique];
-    expect(p?.type === 'pratique' && p.questions.length).toBe(4);
+    if (pratique >= 0) {
+      expect(pratique, 'une série de pratique').toBeGreaterThanOrEqual(len - 1);
+      const p = c.parts[pratique];
+      expect(p?.type === 'pratique' && p.questions.length).toBe(4);
+    } else {
+      // version guidée du module Équations : pas de série, un exemple guidé juste après la leçon
+      expect(c.parts[len], 'un exemple guidé').toMatchObject({ type: 'question', activity: 'exemple' });
+    }
   });
 
   it('exercices de fin : 5, niveau 1, sur la méthode de ce cours seulement', () => {

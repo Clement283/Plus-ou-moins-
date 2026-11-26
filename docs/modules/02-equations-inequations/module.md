@@ -11,6 +11,12 @@
 - **Limites volontaires** : coefficients et solutions **entiers** (le module Fractions vient après) ; parenthèses avec distributivité simple seulement (vue en 4e, cycle 4 p. 10) ; pas de valeur absolue |x − a| ⩽ r (2nde 2026 p. 7), pas d'équation quotient A(x)/B(x) = k (p. 8, après le module Fractions), pas de x² = a (module Carrés), pas de second degré, pas de système.
 - **Sert aux modules suivants** : le second degré (forme factorisée, signe, p. 7 de 1re), signe de la dérivée et variations (p. 10 de 1re), suites (seuil : résoudre uₙ > k).
 
+## Règles de rédaction des cours (retours du porteur du projet, 2026-11-26)
+- **Cours courts : environ 10 blocs de leçon.** Les 4 premiers cours en ont environ 17 : à raccourcir.
+- **Un même geste (par exemple « on retire le même nombre des deux côtés ») n'est montré que 2 ou 3 fois dans un cours** : une fois au début, une fois au milieu, au plus une fois vers la fin. Jamais 4 ou 5 écrans d'affilée qui disent la même chose.
+- **Pas plus de 2 écrans du même type d'affilée.** Une nouvelle règle ou un nouveau cas change vraiment quelque chose (nombre négatif, x à droite, ajouter au lieu de retirer), sinon on ne l'ajoute pas.
+- **Tout se fait sur l'écran** : étapes écrites dans les exercices (calcul par lignes au cours 1, résolution ligne par ligne aux cours 2 à 4) ; ce qui reste sur brouillon vient plus tard.
+
 ## Les cours dans l'ordre
 | # | Identifiant | Règle en une phrase | Pourquoi un cours à part | Source |
 |---|---|---|---|---|
@@ -30,6 +36,7 @@
 - **Moteur** : les calculs sont des entiers sans lettre ; il faut un type « équation » (expression avec x, deux membres) et des générateurs à solution entière. Pas d'écran, mais du code moteur avant le cours 2.
 - **Résolution ligne par ligne interactive** : `linesScene` affiche, `trou` met une case ; il manque **choisir l'opération à faire des deux côtés** (« −3 » écrit sous chaque membre) puis taper la ligne suivante. Maquette (sert aux cours 2 à 8).
   *Maquette `docs/design/ecrans/equations-resolution-ligne.html`, **validée le 2026-11-26** (l'élève résout avec sa méthode, touche ÷ pour les fractions) ; réponses du porteur du projet : ligne « opération » écrite aux cours 2 à 4, puis seulement l'opération sous chaque membre ; l'élève doit pouvoir **résoudre complètement** (écran « À toi de résoudre », clavier avec x et les signes) ; pas de couleurs de signe dans les équations ; dans « À toi de résoudre », pas de choix d'étiquette avant chaque ligne ; résolution complète dans au moins 2 exercices de fin sur 5 à partir du cours 4, et en révision et entraînement ; indice = réponse juste si les lignes sont justes, marquée « avec aide » dans le suivi. Moteur : `solve.ts`, `parse-equation.ts`.*
+- **Calculer par lignes** (cours 1, puis chaque fois qu'on remplace x par un nombre) : l'élève remplace x puis calcule étape par étape (−3 × 4 + 7, −12 + 7, −5), puis compare les deux membres. Même feuille que « À toi de résoudre », sans la lettre x, clavier du « Réécris ». *Maquette : 8e état de `equations-resolution-ligne.html`, à valider. Décisions du 2026-11-26 : étapes écrites dans tous les exercices de fin à partir du cours 1 (calcul par lignes au cours 1, résolution ligne par ligne aux cours 2 à 4) ; cours raccourcis à environ 10 blocs de leçon ; cours 1 à 4 corrigés après l'essai des cours 2 à 4.*
 - **Saisie de S** : deux valeurs pour le produit nul ; **intervalle** (crochets à choisir, bornes, ∞). Maquette.
 - **Choix du symbole** < ≤ > ≥ (comme `signBox`) : petite brique, peut-être sans maquette.
 - **Droite graduée avec intervalle colorié** et crochets : extension du layout `'line'`. Maquette.

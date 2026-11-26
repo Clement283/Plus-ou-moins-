@@ -8,6 +8,7 @@ import type { Answer, Outcome, Question } from './types';
 import { normalizeCalc } from './rewrite';
 import { familyOf, signError } from '../courses/errors-util';
 import { gradeResolution, solutionText } from './resoudre';
+import { gradeCalcul, verdictText } from './calculer';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -209,6 +210,27 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
         given,
         expected,
         message: g.firstErrorText ? `${g.firstErrorText.title} ${g.firstErrorText.message}` : '',
+      };
+    }
+
+    case 'calculer': {
+      if (!('calcLines' in a)) return mismatch(q);
+      const g = gradeCalcul(q, a.calcLines);
+      const given = a.calcLines.at(-1) ?? '';
+      const expected = verdictText(q.isSolution);
+      if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given, expected };
+      const verdictRight = a.firstPick === q.isSolution;
+      if (g.firstError === null && verdictRight) return { ...right(given, expected), helped: a.hinted, message: '' };
+      const errorType = g.firstError ?? 'verdict';
+      const family: ErrorFamily = g.firstError === 'signe' ? 'signe' : g.firstError === 'priorite' ? 'calcul' : 'autre';
+      return {
+        correct: false,
+        unfinished: false,
+        errorType,
+        errorFamily: family,
+        given,
+        expected,
+        message: g.firstErrorText ? `${g.firstErrorText.title} ${g.firstErrorText.message}` : 'Compare les deux membres : sont-ils égaux ?',
       };
     }
 

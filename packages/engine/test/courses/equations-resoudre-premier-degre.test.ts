@@ -86,10 +86,10 @@ describe('Cours 4 — Résoudre ax + b = c', () => {
     expect(checkAnswer(c, r, { lines, hinted: false })).toMatchObject({ correct: true });
   });
 
-  it('exercices de fin : 2 résolutions complètes sur 5, niveau 1', () => {
+  it('exercices de fin : 5 « À toi de résoudre » (décision du 2026-11-26)', () => {
     const kinds = courseRunItems(c, seededRng(3))
       .filter((i) => i.type === 'question' && i.activity === 'fin')
       .map((f) => (f.type === 'question' ? f.question.kind : ''));
-    expect(kinds).toEqual(['saisie', 'resoudre', 'saisie', 'resoudre', 'saisie']);
+    expect(kinds).toEqual(Array(5).fill('resoudre'));
   });
 });

@@ -1,4 +1,6 @@
-// Cours 2 du module Équations et inéquations — Retirer ou ajouter le même nombre des deux côtés.
+// Cours 2 du module Équations et inéquations (déroulé guidé, 2026-11-26) : découverte, 3 règles, 2 petites questions,
+// une comparaison utile (x + 3 = 7 contre x − 3 = 7), un exemple guidé (l'écran des exercices
+// avec l'aide affichée d'office) puis les 5 exercices ligne par ligne. Pas de série de pratique, ni d'« autres façons de faire ».
 // Fiche : docs/modules/02-equations-inequations/equations-ajouter-retirer.md
 // L'exercice garde le calcul qui donne x (c − b) dans `expr` et la réponse x dans `answer` ; l'équation x + b = c est dans `meta`.
 import { num, op, toLatex } from '../../math/expr';
@@ -48,8 +50,8 @@ const eqText = (ex: Exercise): string => equationLatex(eqOf(ex)).replace(/-/g, '
 
 // ——— Erreurs reconnues ———
 const RULE_1 = { n: 1, label: 'La balance', partIndex: 1 };
-const RULE_2 = { n: 2, label: 'L’opération contraire', partIndex: 3 };
-const RULE_3 = { n: 3, label: 'Calculer le membre de droite', partIndex: 6 };
+const RULE_2 = { n: 2, label: 'L’opération contraire', partIndex: 2 };
+const RULE_3 = { n: 3, label: 'Calculer le membre de droite', partIndex: 4 };
 const RULES: Record<string, NonNullable<ErrorDef['rule']>> = { 'un-seul-cote': RULE_1, 'mauvais-sens': RULE_2, 'signe-calcul': RULE_3 };
 const abs = (ex: Exercise): number => Math.abs(bc(ex).b);
 /** Signe de b dans x + b (« + » ou « − ») et le signe de l'opération contraire. */
@@ -145,21 +147,10 @@ const balance: EtapeStep[] = [
 ];
 
 const contraire: EtapeStep[] = [
-  step('Je veux **x tout seul**. Dans x + 3 = 7, le 3 est collé à x : il **s’ajoute** à x.', { scene: linesScene(['x ', hl('+ 3'), ' = 7']) }),
-  step('Pour faire disparaître + 3, il faut retirer 3 des deux côtés.', {
-    scene: linesScene(['x + 3 = 7']),
-    after: linesScene(['x + 3 = 7'], ['x + 3 ', hl('− 3'), ' = 7 ', hl('− 3')]),
-    action: trouOf('Pour faire disparaître + 3, il faut [ ? ] 3 des deux côtés.', ['retirer', 'ajouter'], 0, {
-      1: 'Ajouter 3 donnerait x + 6 : le 3 ne disparaît pas, il grossit. Il faut faire le contraire de « + 3 ».',
-    }),
-  }),
-  step('Comme 3 − 3 = 0, il reste **x** à gauche. À droite, 7 − 3 = 4. Donc **x = 4**.', {
-    scene: linesScene(['x + 3 = 7'], ['x + 3 − 3 = 7 − 3'], ['x = ', hl('4')]),
-  }),
-  step('Dans x − 3 = 5, le 3 est retiré de x. Pour le faire disparaître, il faut ajouter 3 des deux côtés.', {
+  step('Dans **x − 3 = 5**, le 3 est **retiré** de x. Pour le faire disparaître, on fait le contraire : on l’**ajoute**, des deux côtés.', {
     scene: linesScene(['x ', hl('− 3'), ' = 5']),
     after: linesScene(['x − 3 = 5'], ['x − 3 ', hl('+ 3'), ' = 5 ', hl('+ 3')]),
-    action: trouOf('Dans x − 3 = 5, le 3 est retiré de x. Pour le faire disparaître, il faut [ ? ] 3 des deux côtés.', ['ajouter', 'retirer'], 0, {
+    action: trouOf('Pour faire disparaître − 3, il faut [ ? ] 3 des deux côtés.', ['ajouter', 'retirer'], 0, {
       1: 'Retirer 3 donnerait x − 6 : le 3 ne disparaît pas. Il faut faire le contraire de « − 3 ».',
     }),
   }),
@@ -180,64 +171,7 @@ const calculer: EtapeStep[] = [
   step(undefined, { scene: linesScene(['x + 9 = 4'], ['x + 9 − 9 = 4 − 9'], ['x = ', hl('−5')]), rule: { n: 3, text: REGLE3 } }),
 ];
 
-const ex1 = mk(1, 6, 15);
-const ex2 = mk(1, -4, 7);
-const ex4 = mk(1, -5, 4);
-
-const PRATIQUE = pratique(
-  'Pratique',
-  [
-    { question: opTrouQ(mk(1, 4, 9)), texts: { consigne: 'Pour trouver x dans x + 4 = 9, on retire 4 des deux côtés. **Tape le nombre retiré à droite.**' } },
-    {
-      question: choix(
-        mk(1, 5, 12),
-        'Quelle ligne vient juste après x + 5 = 12 ?',
-        options3(
-          ['x + 5 − 5 = 12 − 5', 'Oui : on retire 5 des deux côtés.'],
-          ['x + 5 − 5 = 12', 'On a retiré 5 à gauche seulement. Il faut le faire aussi à droite.'],
-          ['x + 5 + 5 = 12 + 5', 'On a ajouté 5 : le 5 ne disparaît pas. Il faut le retirer.'],
-        ),
-        0,
-        'x + 5 = 12',
-      ),
-      texts: { consigne: 'Touche la bonne ligne.' },
-    },
-    {
-      question: choix(
-        mk(1, 5, 9),
-        'Le nombre 4 est-il solution de x + 5 = 9 ? Remplace x par 4.',
-        options3(
-          ['Oui, 4 + 5 = 9', 'Oui : les deux membres donnent 9.'],
-          ['Non, 4 + 5 = 8', 'Recalcule : 4 + 5 = 9.'],
-          ['Non, 4 + 5 = 10', 'Recalcule : 4 + 5 = 9.'],
-        ),
-        0,
-        'x + 5 = 9',
-      ),
-      texts: { consigne: 'Remplace x par 4, calcule le membre de gauche, puis touche la bonne réponse.' },
-    },
-    {
-      question: { kind: 'resoudre', ex: ex4, start: eqOf(ex4) },
-      texts: { consigne: 'Écris chaque ligne, avec ta méthode, jusqu’à avoir x tout seul. Tu peux demander un indice.' },
-    },
-  ],
-  'Maintenant, deux exemples pour t’aider à les résoudre en entier.',
-);
-
-const exemple1: EtapeStep[] = [
-  step('Résolvons **x + 6 = 15**. Le 6 s’ajoute à x : on le **retire des deux côtés**.', { scene: linesScene(['x + 6 = 15']), action: { type: 'comprends' } }),
-  step('On écrit la ligne « opération » : **x + 6 − 6 = 15 − 6**.', {
-    scene: linesScene(['x + 6 = 15'], [hl('x + 6 − 6 = 15 − 6')]),
-    action: { type: 'comprends' },
-  }),
-];
-const exemple2: EtapeStep[] = [
-  step('Résolvons **x − 4 = 7**. Ici le 4 est retiré de x : on l’**ajoute des deux côtés**.', { scene: linesScene(['x − 4 = 7']), action: { type: 'comprends' } }),
-  step('On écrit la ligne « opération » : **x − 4 + 4 = 7 + 4**.', {
-    scene: linesScene(['x − 4 = 7'], [hl('x − 4 + 4 = 7 + 4')]),
-    action: { type: 'comprends' },
-  }),
-];
+const exGuide = mk(1, 6, 2); // x + 6 = 2, x = −4
 
 const parts: LessonPart[] = [
   texted(decouverte(guess), {
@@ -246,30 +180,13 @@ const parts: LessonPart[] = [
     mention: NOT_COUNTED_GUESS,
   }),
   etapes(RULE_1.label, balance),
-  lecon(
-    small(mk(1, 5, 9), 'x + 5 = 9', 'On retire 5 du plateau de gauche de x + 5 = 9. Que fait-on à droite ?', [
-      ['On retire aussi 5', 'Oui : 9 − 5, pour garder l’équilibre.'],
-      ['On ajoute 5', 'Ajouter 5 à droite penche la balance encore plus : il faut retirer, comme à gauche.'],
-      ['On ne touche à rien', 'Alors la balance penche : ce qu’on fait à gauche, on le fait à droite.'],
-    ], 0),
-  ),
   etapes(RULE_2.label, contraire),
   lecon(
-    small(mk(1, 6, 10), 'x + 6 = 10', 'Quelle opération fait disparaître le 6 ?', [
-      ['Retirer 6 des deux côtés', 'Oui : 6 − 6 = 0, il reste x.'],
-      ['Ajouter 6 des deux côtés', 'Ajouter 6 donnerait x + 12 : le 6 grossit.'],
-      ['Retirer 6 à gauche seulement', 'Il faut le faire des deux côtés pour garder l’équilibre.'],
+    small(mk(1, -4, 9), 'x - 4 = 9', 'Quelle opération fait disparaître le − 4 ?', [
+      ['Ajouter 4 des deux côtés', 'Oui : − 4 + 4 = 0, il reste x.'],
+      ['Retirer 4 des deux côtés', 'Retirer 4 donnerait x − 8 : le 4 ne disparaît pas.'],
+      ['Ajouter 4 à gauche seulement', 'Il faut le faire des deux côtés pour garder l’équilibre.'],
     ], 0),
-  ),
-  texted(
-    lecon(
-      small(mk(1, -4, 9), 'x - 4 = 9', 'Quelle opération fait disparaître le − 4 ?', [
-        ['Ajouter 4 des deux côtés', 'Oui : − 4 + 4 = 0, il reste x.'],
-        ['Retirer 4 des deux côtés', 'Retirer 4 donnerait x − 8 : le 4 ne disparaît pas.'],
-        ['Ajouter 4 à gauche seulement', 'Il faut le faire des deux côtés pour garder l’équilibre.'],
-      ], 0),
-    ),
-    { joinPrevious: true },
   ),
   etapes(RULE_3.label, calculer),
   lecon(
@@ -283,93 +200,32 @@ const parts: LessonPart[] = [
     decouverte(
       choix(
         mk(1, 3, 7),
-        'Dans lequel des deux calculs retire-t-on 3 pour trouver x ?',
+        'Dans laquelle des deux équations ajoute-t-on 3 des deux côtés ?',
         options3(
-          ['Dans le calcul A, 7 − 3', 'Oui : 7 − 3 est le calcul fait à droite pour trouver x.'],
-          ['Dans le calcul B, 4 + 3', 'Dans le B, x vaut déjà 4 : on remplace x et on additionne, pour vérifier.'],
-          ['Dans les deux calculs', 'Le B ajoute 3 : il sert seulement à vérifier une réponse.'],
+          ['Dans B, x − 3 = 7', 'Oui : dans B, le 3 est retiré de x, on l’ajoute.'],
+          ['Dans A, x + 3 = 7', 'Dans A, le 3 s’ajoute à x : on le retire.'],
+          ['Dans les deux', 'Le signe devant le 3 change l’opération.'],
         ),
         0,
       ),
     ),
     {
       title: 'Comparer deux cas',
-      intro: ['Voici deux calculs qui se ressemblent. Regarde bien l’opération.'],
+      intro: ['Regarde le signe devant le 3.'],
       mention: NOT_COUNTED_UNDERSTAND,
       compare: {
-        a: { label: 'Calcul A : trouver x', latex: '7 - 3' },
-        b: { label: 'Calcul B : vérifier x = 4', latex: '4 + 3' },
-        note: 'Le calcul B vient du cours précédent : tu sais déjà le faire. Ici, tu observes seulement ce qui change.',
-        highlight: { a: toks('7 ', hl('−'), ' 3'), b: toks('4 ', hl('+'), ' 3') },
-        after: ['Dans le calcul A, on retire 3 pour trouver x.', 'Dans le calcul B, x vaut déjà 4 : on additionne 3 pour vérifier.', 'On retire pour chercher x, on remplace x pour vérifier.'],
+        a: { label: 'Équation A', latex: 'x + 3 = 7' },
+        b: { label: 'Équation B', latex: 'x - 3 = 7' },
+        note: '',
+        inPlace: true,
+        highlight: { a: toks('x ', hl('+ 3'), ' = 7'), b: toks('x ', hl('− 3'), ' = 7') },
+        after: ['Dans A, on retire 3 : x = 7 − 3 = 4.', 'Dans B, on ajoute 3 : x = 7 + 3 = 10.'],
       },
     },
   ),
-  autres({
-    title: 'Autres façons de faire',
-    recap: {
-      title: 'Les règles à retenir',
-      rules: [
-        { title: '1. La même chose des deux côtés', ok: 'x + 3 − 3 = 7 − 3', ko: 'x + 3 − 3 = 7' },
-        { title: '2. L’opération contraire', ok: 'x − 3 = 5 : j’ajoute 3', ko: 'x − 3 = 5 : je retire 3' },
-        { title: '3. Je calcule avec les signes', ok: 'x = 4 − 9 = −5', ko: 'x = 4 − 9 = 5' },
-      ],
-      sentence: 'Je retire (ou j’ajoute) le même nombre des deux côtés pour avoir x tout seul.',
-    },
-    intro: 'La méthode marche toujours. Voici d’autres façons de faire : **choisis celle que tu veux essayer**.',
-    techniques: [
-      {
-        name: 'Quel nombre ?',
-        quand: 'Les nombres sont petits.',
-        example: 'x + 3 = 7 : quel nombre plus 3 fait 7 ? C’est 4.',
-        how: 'Tu cherches de tête le nombre qui, ajouté à 3, donne 7. Tu peux ensuite écrire la ligne « opération » pour vérifier.',
-        essai: {
-          kind: 'saisie',
-          consigne: 'Essaie de tête : x + 5 = 9. **Tape x.**',
-          calc: 'x + 5 = 9',
-          answer: 4,
-          yes: 'Oui : 4 + 5 = 9.',
-          errors: [
-            { values: [14], message: '14 + 5 = 19, pas 9. Cherche le nombre qui, plus 5, fait 9.' },
-            { values: [9], message: '9 + 5 = 14, pas 9. Il faut aussi retirer 5 à droite.' },
-          ],
-          fallback: 'Pas tout à fait : remplace x par ton nombre et regarde si tu trouves 9.',
-        },
-      },
-      {
-        name: 'Vérifier en remplaçant',
-        quand: 'Après chaque résolution.',
-        example: 'x = 4 pour x + 3 = 7 : 4 + 3 = 7, c’est juste.',
-        how: 'Tu remplaces x par ta réponse et tu calcules le membre de gauche. Si tu trouves le membre de droite, c’est bon.',
-        essai: {
-          kind: 'choix',
-          consigne: 'On a trouvé x = 6 pour x + 4 = 10. **Touche la bonne conclusion.**',
-          calc: 'x + 4 = 10',
-          options: ['6 + 4 = 10 : c’est juste', '6 + 4 = 11 : c’est faux', '6 + 4 = 2 : c’est faux'],
-          correct: 0,
-          yes: 'Oui : 6 + 4 = 10, la réponse est juste.',
-          no: 'Calcule 6 + 4 : on trouve 10, comme à droite.',
-        },
-      },
-    ],
-    outro: 'Ensuite, tu t’entraînes avec quatre questions.',
-  }),
-  PRATIQUE,
-  etapes('Exemple 1 sur 2', exemple1),
-  texted(exemple(trou(ex1, 'x = 15 - 6 = \\square', 9)), {
-    consigne: 'Tape le résultat de 15 − 6, avec les touches du clavier.',
-    intro: ['Équation de départ : **x + 6 = 15**.'],
-    help: 'On a retiré 6 des deux côtés, donc x = 15 − 6.',
-  }),
-  etapes('Exemple 2 sur 2', exemple2),
-  texted(exemple(trou(ex2, 'x - 4 + \\square = 7 + 4', 4)), {
-    consigne: 'Tape le nombre ajouté des deux côtés.',
-    intro: ['Équation de départ : **x − 4 = 7**.'],
-  }),
-  texted(exemple(trou(ex2, 'x = 7 + 4 = \\square', 11)), {
-    consigne: 'Tape le résultat de 7 + 4.',
-    intro: ['Maintenant que x est tout seul, calcule le membre de droite.'],
-    mention: '',
+  texted(exemple({ kind: 'resoudre', ex: exGuide, start: eqOf(exGuide), guided: true }), {
+    title: 'On le fait ensemble',
+    subtitle: 'Résous x + 6 = 2. À chaque ligne, une aide te dit quoi faire.',
   }),
   annonceFin(),
 ];
@@ -382,9 +238,12 @@ export const equationsAjouterRetirer: CourseDef = {
   shortTitle: 'Ajouter, retirer',
   rule: RULE,
   parts,
-  lessonLength: parts.findIndex((p) => p.type === 'pratique'),
+  // pas de série de pratique : la pastille s'arrête avant l'exemple guidé
+  lessonLength: parts.findIndex((p) => p.type === 'question' && p.activity === 'exemple'),
   unePhrase: true,
-  endExercises: { count: 5, kind: 'saisie' },
+  // « résoudre » : l'élève écrit ses lignes (décision du 2026-11-26) ; 3 formats pour que la révision garde 3 questions
+  endExercises: { count: 5, kind: 'saisie', mix: ['resoudre', 'resoudre', 'resoudre', 'resoudre', 'resoudre'] },
+  formats: ['saisie', 'resoudre', 'resoudre'],
   generate,
   errors,
   generalExplanation: (ex) => explanation(RULE, resolution(ex)),

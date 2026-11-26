@@ -38,7 +38,7 @@ Sur demande, juste avant d'écrire un cours : une fiche au format de `references
 
 - **Identifiant de cours = un nom sans numéro** (`equations-premier-degre`), **stable**, qui sert aussi de nom de fichier (fiche `.md`, code `.ts`, test). Jamais de numéro dans un identifiant : insérer un cours ne doit rien casser. L'ordre d'apprentissage vient de `docs/modules.md` et de la liste du `module.md` ; **le numéro affiché à l'élève (« Cours 3 ») est calculé** par l'appli : place du cours dans son module, qui repart de 1. Les cours déjà existants gardent leur ancien identifiant (`c04-soustraire`…), car la progression de l'élève y est attachée. **Dans un texte d'écran, ne jamais citer un autre cours par son numéro** : le désigner par son titre.
 - **Reprise naturelle** : un cours contient souvent les méthodes d'avant ; le noter dans la fiche.
-- **Comparer deux cas** et **série de pratique** : un cas et **une des 4 questions** viennent d'un cours précédent ; le 1er cours d'un module les prend dans le **module précédent** selon `docs/modules.md`.
+- **Comparer deux cas** (déroulé guidé, voir `plus-ou-moins-ecrire-un-cours`) : seulement si deux cas **se confondent vraiment** (x + 3 = 7 contre x − 3 = 7) ; la fiche dit lesquels ou « aucun ». **Plus de série de pratique** : le mélange d'anciens calculs se fait par les révisions et l'entraînement. (Ancien déroulé, cours du module Relatifs : un cas et une des 4 questions venaient d'un cours précédent.)
 - **Jamais de calculs d'anciens cours dans les 5 exercices de fin** : le mélange va dans la série de pratique, les révisions et l'entraînement.
 
 ## Ne pas faire

@@ -43,6 +43,29 @@ function valueOf(ex: Exercise, mode: 'colle' | 'paren' | 'signe'): number {
   return acc;
 }
 
+/** Le membre lu de gauche à droite, sans la priorité du produit : 4 + 3x pour x = 2 donne (4 + 3) × 2. */
+const prio = (ex: Exercise): number => {
+  const m = ex.meta as unknown as Meta;
+  const mem = m.side === 'left' ? m.left : m.right;
+  let acc = 0;
+  mem.forEach((t, i) => {
+    const raw = t.k === 'x' ? t.coef : t.v;
+    const a = Math.abs(raw);
+    const sub = i > 0 && raw < 0;
+    if (i === 0) acc = t.k === 'x' ? raw * m.x : raw;
+    else if (t.k === 'num') acc = sub ? acc - a : acc + a;
+    else if (a === 1) acc = sub ? acc - m.x : acc + m.x;
+    else acc = (sub ? acc - a : acc + a) * m.x;
+  });
+  return acc;
+};
+
+/** Valeur de l'autre membre. */
+const other = (ex: Exercise): number => {
+  const m = ex.meta as unknown as Meta;
+  return evaluate(substitute(m.side === 'left' ? m.right : m.left, m.x)).n;
+};
+
 describe('Équations, cours 1 — Tester si un nombre est solution', () => {
   it('est dans le module Essais', () => expect(ESSAIS_COURSES).toContain(c));
 
@@ -55,7 +78,8 @@ describe('Équations, cours 1 — Tester si un nombre est solution', () => {
   });
 
   it.each([
-    [A, 10, 'signe-relatif'],
+    [A, 10, 'signe'],
+    [mk([cst(4), xt(3)], 2), 14, 'priorite'], // 4 + 3x pour x = 2 : (4 + 3) × 2 au lieu de 4 + 3 × 2
     [A, 5, 'x-colle'],
     [A, 2, 'autre'],
     [B, 2, 'parentheses-oubliees'],
@@ -77,6 +101,7 @@ describe('Équations, cours 1 — Tester si un nombre est solution', () => {
     expect(c.feedbackText?.(q(A), o('x-colle'))).toContain('3 × x');
     expect(c.feedbackText?.(q(B), o('parentheses-oubliees'))).toContain('5 − (−3)');
     expect(c.feedbackText?.(q(A), o('signe-relatif'))).toContain('négatif');
+    expect(c.feedbackText?.(q(mk([cst(4), xt(3)], 2)), o('priorite'))).toContain('la multiplication passe avant');
     expect(c.feedbackText?.(q(A), o(null))).toContain('3 × (−2) + 4');
     expect(c.feedbackText?.(q(A), { ...o(null), correct: true })).toBeNull();
   });
@@ -91,7 +116,9 @@ describe('Équations, cours 1 — Tester si un nombre est solution', () => {
       {
         'x-colle': { holds: (ex) => valueOf(ex, 'colle') !== ex.answer.n, wrong: (ex) => valueOf(ex, 'colle') },
         'parentheses-oubliees': { holds: (ex) => valueOf(ex, 'paren') !== ex.answer.n, wrong: (ex) => valueOf(ex, 'paren') },
-        'signe-relatif': { holds: (ex) => valueOf(ex, 'signe') !== ex.answer.n, wrong: (ex) => valueOf(ex, 'signe') },
+        priorite: { holds: (ex) => prio(ex) !== ex.answer.n, wrong: prio },
+        signe: { holds: (ex) => valueOf(ex, 'signe') !== ex.answer.n, wrong: (ex) => valueOf(ex, 'signe') },
+        verdict: { holds: (ex) => other(ex) !== ex.answer.n, wrong: other },
       },
       4242,
     ));
@@ -108,11 +135,16 @@ describe('Équations, cours 1 — Tester si un nombre est solution', () => {
     expect(yes).toBeLessThan(260);
   });
 
-  it('forme : 12 à 15 écrans, exercices de fin au niveau 1, erreurs reliées à une règle', () => {
+  it('exercices de fin : 5 « calculer », une règle pour chaque erreur de « calculer par lignes »', () => {
+    const fins = courseRunItems(c, seededRng(9)).filter((i) => i.type === 'question' && i.activity === 'fin');
+    for (const f of fins) expect(f.type === 'question' && f.question.kind).toBe('calculer');
+    for (const id of ['priorite', 'signe', 'verdict']) expect(c.errors.find((e) => e.id === id)?.rule, id).toBeDefined();
+  });
+
+  it('forme : 8 écrans avant l’annonce, exercices de fin au niveau 1, erreurs reliées à une règle', () => {
     const before = c.parts.slice(0, -1);
     const n = before.filter((p) => !(p.type === 'question' && p.joinPrevious === true)).length;
-    expect(n).toBeGreaterThanOrEqual(12);
-    expect(n).toBeLessThanOrEqual(15);
+    expect(n).toBe(8);
     const fins = courseRunItems(c, seededRng(9)).filter((i) => i.type === 'question' && i.activity === 'fin');
     expect(fins).toHaveLength(5);
     for (const f of fins) if (f.type === 'question' && 'ex' in f.question) expect(f.question.ex.level).toBe(1);

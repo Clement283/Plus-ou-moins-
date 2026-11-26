@@ -120,6 +120,11 @@ export interface Compare {
   /** Après la réponse, sans droite : les deux calculs avec leurs morceaux surlignés. */
   highlight?: { a: SceneToken[]; b: SceneToken[] };
   after: string[];
+  /**
+   * Option des cours récents : après la réponse, les morceaux surlignés (`highlight`) remplacent les deux calculs d'en haut
+   * au lieu d'en ajouter une seconde copie en dessous. Les cours déjà en ligne gardent l'écran d'origine.
+   */
+  inPlace?: true;
 }
 
 /** Indices touchés → message. */
@@ -243,7 +248,7 @@ export interface MemoCard {
   tip: string;
 }
 
-export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre';
+export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre' | 'calculer';
 
 export interface CourseDef {
   id: string;

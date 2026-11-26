@@ -85,6 +85,9 @@ h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
 .ln.old{color:var(--muted);font-size:1.25rem}
 .ln.cur{background:var(--surface)}
 .ln.final{background:var(--ok-bg);color:var(--ok)}
+.ln.calc{grid-template-columns:1fr;justify-items:center}
+.calcbox{background:var(--surface);border-radius:var(--r,16px);border:1px solid var(--line);padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:1.25rem;font-weight:500}
+.calcbox__x{font-size:.95rem;color:var(--muted);font-weight:500}
 .ops{display:grid;grid-template-columns:1fr 2.2em 1fr;font-size:.9rem;font-weight:600;padding:0 4px 4px}
 .ops .l{text-align:right} .ops .r{text-align:left}
 .opb{display:inline-block;background:var(--op-bg);color:var(--op-ink);border-radius:8px;padding:1px 8px}
@@ -130,7 +133,7 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
 <div class="wrap">
   <header class="intro">
     <h1>Résoudre une équation, ligne par ligne</h1>
-    <p>Maquette du nouveau type d'écran du module Équations et inéquations (cours 2 à 8). Sept états : la leçon avec la balance, choisir l'opération, écrire la ligne suivante, diviser, une inéquation où le sens change, la résolution complète en exemple, puis « À toi de résoudre », où l'élève écrit lui-même chaque ligne. Touche les réponses : les fausses montrent les messages prévus.</p>
+    <p>Maquette du nouveau type d'écran du module Équations et inéquations (cours 2 à 8). Huit états : la leçon avec la balance, choisir l'opération, écrire la ligne suivante, diviser, une inéquation où le sens change, la résolution complète en exemple, puis « À toi de résoudre », où l'élève écrit lui-même chaque ligne, et enfin « Calculer par lignes » (cours 1), où il remplace x et calcule étape par étape. Touche les réponses : les fausses montrent les messages prévus.</p>
   </header>
   <nav class="nav" id="nav" aria-label="Écrans de la maquette"></nav>
   <div class="layout">
@@ -438,11 +441,115 @@ code{font-size:.85em;background:var(--sunken);border-radius:6px;padding:1px 5px}
     why:`Tu l'as demandé : l'outil montre la bonne méthode (indice, puis « Voir la méthode du cours » à la fin si l'élève a fait autrement) mais accepte la sienne. Une ligne n'est refusée que si elle change les solutions ; seule une ligne recopiée telle quelle est signalée comme « n'avance pas ».`,
     engine:`<code>parseEquation</code> lit la ligne ; <code>judgeLine</code> accepte toute ligne équivalente, dit si elle est recopiée et renvoie l'opération faite (<code>inferOp</code>, écrite par <code>doneOpLatex</code>) ; les erreurs sont reconnues quelle que soit l'opération choisie (un seul membre, signe gardé, erreur en regroupant, sens changé à tort, et les erreurs de division) ; <code>resolve</code> donne la méthode du cours.`});
 
+  // 8. Calculer par lignes : l'élève remplace x puis calcule étape par étape (cours 1 : tester si un nombre est solution).
+  const CALC={
+    norm:s=>s.replace(/\s+/g,'').replace(/−/g,'-').replace(/×/g,'*').replace(/÷/g,'/'),
+    // Une ligne de calcul lue comme sur la copie : valeur, nombre d'opérations, erreurs d'écriture.
+    parse(raw){
+      const s=CALC.norm(raw);
+      if(!s)return {err:'Tape une ligne avant de valider.'};
+      if(!/^[0-9+\-*/()]+$/.test(s))return {err:'Cette ligne contient un signe que je ne connais pas.'};
+      let i=0,ops=0,bad=false;
+      const expr=top=>{let v=term(top);while(s[i]==='+'||s[i]==='-'){const o=s[i++];ops++;const r=term(false);v=o==='+'?v+r:v-r;}return v;};
+      const term=first=>{let v=factor(first);while(s[i]==='*'||s[i]==='/'){const o=s[i++];ops++;const r=factor(false);if(o==='/'&&r===0)throw 'zero';v=o==='*'?v*r:v/r;}return v;};
+      const factor=allowNeg=>{
+        if(s[i]==='-'){if(!allowNeg)bad=true;i++;return -factor(true);}
+        if(s[i]==='('){i++;const v=expr(true);if(s[i]!==')')throw 'paren';i++;return v;}
+        const m=s.slice(i).match(/^\d+/);if(!m)throw 'syntax';i+=m[0].length;return +m[0];};
+      let v;
+      try{v=expr(true);if(i<s.length)throw 'syntax';}
+      catch(e){return {err:e==='zero'?'On ne divise jamais par 0.':'Cette ligne est mal écrite. Exemple : −3 × 4 + 7.'};}
+      if(bad)return {err:'Un nombre négatif se met entre parenthèses, sauf au début : 5 − (−3).'};
+      const toks=s.match(/\d+|[+\-*/()]/g)||[];
+      // Calcul « à l'envers » (+ et − avant × et ÷) : sert à reconnaître la priorité oubliée.
+      let alt=null;
+      if(!toks.includes('(')){const t=toks.slice();if(t[0]==='-'){t.shift();t[0]='-'+t[0];}
+        const groups=[],mul=[];let sum=+t[0];
+        for(let k=1;k<t.length;k+=2){const o=t[k],n=+t[k+1];
+          if(o==='+')sum+=n;else if(o==='-')sum-=n;else{groups.push(sum);mul.push(o);sum=n;}}
+        groups.push(sum);alt=groups[0];for(let k=0;k<mul.length;k++)alt=mul[k]==='*'?alt*groups[k+1]:alt/groups[k+1];}
+      return {v,ops,alt,s,key:s.replace(/\((-\d+)\)/g,'$1')};
+    },
+    same:(a,b)=>Math.abs(a-b)<1e-9,
+    fmt(raw){const s=CALC.norm(raw);let out='';
+      for(let k=0;k<s.length;k++){const c=s[k],p=s[k-1];
+        if('+*/'.includes(c))out+=` ${c==='*'?'×':c==='/'?'÷':c} `;
+        else if(c==='-')out+=(k===0||p==='(')?M:` ${M} `;
+        else out+=c;}
+      return out.trim();},
+    show:v=>(v<0?M:'')+Math.abs(v)
+  };
+  const EX8=[
+    {eq:`${M}3${X} + 7 = ${M}5`,left:`${M}3${X} + 7`,xv:4,first:['-3*4+7'],right:-5,name:'−3x + 7'},
+    {eq:`5 ${M} ${X} = 8`,left:`5 ${M} ${X}`,xv:-3,first:['5-(-3)'],right:8,name:'5 − x'}];
+  const MSG8={
+    sans:['Commence par remplacer x.','Écris le membre de gauche en mettant la valeur de x à la place de x, entre parenthèses si elle est négative.'],
+    recopie:['C’est la même ligne.','Calcule une opération pour avancer.'],
+    plus:['Cette ligne est plus longue.','Chaque ligne doit avoir moins d’opérations que la précédente, ou en changer une.'],
+    prio:['On fait d’abord les × et les ÷.','Les multiplications et les divisions passent avant les additions et les soustractions.'],
+    signe:['Erreur de signe.','Reprends la règle des signes : même signe, résultat positif ; signes différents, résultat négatif.'],
+    autre:['Cette ligne n’a pas la même valeur.','Reprends la ligne d’avant et calcule une seule opération.']};
+  S.push({name:'Calculer par lignes',chip:'Exercice',
+    state:{ex:0,lines:null,typed:'',fb:null,hint:false,phase:'write',picked:null},
+    render(st){
+      const E=EX8[st.ex];
+      if(!st.lines)st.lines=[];
+      const rows=st.lines.map((l,i)=>`<div class="ln calc ${st.phase==='write'&&i===st.lines.length-1?'cur':'old'}${st.phase!=='write'&&i===st.lines.length-1?' final':''}"><span>${CALC.fmt(l.text)}</span></div>`);
+      const head=`<div class="calcbox"><div class="calcbox__eq">${E.eq}</div><div class="calcbox__x">pour ${X} = ${CALC.show(E.xv)}</div></div>`;
+      let zone='';
+      if(st.phase==='write'){
+        const K=['7','8','9','÷','4','5','6','×','1','2','3',M,'(','0',')','+'];
+        const keysH=`<div class="keys">${K.map(k=>`<button class="key${'÷×−+'.includes(k)?' op':''}" data-t="${k}">${k}</button>`).join('')}<button class="key op" data-t="⌫" style="grid-column:span 2" aria-label="effacer">⌫</button><button class="key op" data-t="ok" style="grid-column:span 2">Valider</button></div>`;
+        let fb='';if(st.fb)fb=`<div class="fb ${st.fb.ok?'ok':'ko'} new"><strong>${st.fb.t}</strong><p>${st.fb.p}</p></div>`;
+        const last=st.lines[st.lines.length-1];
+        const hintTxt=!last?`Écris le membre de gauche en remplaçant ${X} par ${CALC.show(E.xv)}.`:/[×÷]/.test(CALC.fmt(last.text))?'Commence par la multiplication ou la division : elle passe avant l’addition.':'Additionne ou soustrais de gauche à droite.';
+        const hint=st.hint?`<p class="q new" style="font-weight:500">${hintTxt}</p>`:`<button class="btn btn-line" data-hint>Un indice</button>`;
+        const field=`<div class="field" style="font-size:1.35rem;font-weight:500;min-height:54px;border:2px solid var(--primary);border-radius:14px;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">${st.typed?CALC.fmt(st.typed):`<span style="color:var(--muted);font-size:1rem">${st.lines.length?'Écris la ligne suivante':'Remplace x, écris la 1re ligne'}</span>`}</div>`;
+        zone=`${fb}${field}${keysH}${hint}`;
+      } else {
+        const L=st.lines[st.lines.length-1].v;
+        const opts=`<div class="opts" style="grid-template-columns:1fr 1fr">${['Oui','Non'].map((t,i)=>{let c='';if(st.picked===i)c=(i===0)===(CALC.same(L,E.right))?'ok':'ko';return `<button class="opt ${c}" data-pick="${i}" ${st.phase==='done'?'disabled':''}>${t}</button>`;}).join('')}</div>`;
+        const good=CALC.same(L,E.right);
+        let msg='';
+        if(st.phase==='done')msg=`<div class="fb ok new"><strong>${good?`Oui, ${CALC.show(E.xv)} est solution.`:`Non, ${CALC.show(E.xv)} n’est pas solution.`}</strong><p>${CALC.show(L)} ${good?'=':'≠'} ${CALC.show(E.right)} : ${good?'les deux membres sont égaux.':'les deux membres sont différents.'}</p></div><button class="btn btn-line" data-restart>Recommencer</button>`;
+        else if(st.picked!==null)msg=`<div class="fb ko new"><strong>Compare les deux membres.</strong><p>Le membre de gauche vaut ${CALC.show(L)}, celui de droite ${CALC.show(E.right)}. Ils sont ${good?'égaux':'différents'}.</p></div>`;
+        zone=`<p class="q">Le membre de gauche vaut <b>${CALC.show(L)}</b>, celui de droite <b>${CALC.show(E.right)}</b>. ${CALC.show(E.xv)} est-il solution ?</p>${opts}${msg}`;
+      }
+      const exs=`<div class="opts" style="grid-template-columns:1fr 1fr">${EX8.map((x,i)=>`<button class="opt" style="font-size:.85rem;padding:6px;${i===st.ex?'border-color:var(--primary)':''}" data-ex="${i}">${x.name}</button>`).join('')}</div>`;
+      return `${top(8,this.chip)}<div class="ph-body"><h2 class="t">Calcule le membre de gauche</h2>${exs}${head}<div class="sheet">${rows.join('')||'<div class="ln calc old"><span style="color:var(--muted);font-size:1rem">Tes lignes s’écrivent ici</span></div>'}</div><div class="zone">${zone}</div></div>`;
+    },
+    on(st,el){
+      const reset=()=>{st.lines=null;st.typed='';st.fb=null;st.hint=false;st.phase='write';st.picked=null;};
+      if(el.dataset.ex!==undefined){st.ex=+el.dataset.ex;reset();return;}
+      if(el.dataset.restart!==undefined){reset();return;}
+      if(el.dataset.hint!==undefined){st.hint=true;return;}
+      if(el.dataset.pick!==undefined){st.picked=+el.dataset.pick;const good=CALC.same(st.lines[st.lines.length-1].v,EX8[st.ex].right);if((st.picked===0)===good)st.phase='done';return;}
+      const k=el.dataset.t;if(k===undefined)return;
+      if(k==='⌫'){st.typed=st.typed.slice(0,-1);return;}
+      if(k!=='ok'){st.typed+=k===M?'-':k;if(st.fb&&!st.fb.ok)st.fb=null;return;}
+      const E=EX8[st.ex],p=CALC.parse(st.typed);
+      if(p.err){st.fb={ok:false,t:'Je ne peux pas lire cette ligne.',p:p.err};return;}
+      const prev=st.lines.length?CALC.parse(st.lines[st.lines.length-1].text):null;
+      if(!prev){
+        if(!E.first.some(f=>CALC.parse(f).key===p.key)){st.fb={ok:false,t:MSG8.sans[0],p:MSG8.sans[1]};return;}
+      } else if(!CALC.same(p.v,prev.v)){
+        const id=prev.alt!==null&&CALC.same(p.v,prev.alt)?'prio':Math.abs(p.v)===Math.abs(prev.v)?'signe':'autre';
+        st.fb={ok:false,t:MSG8[id][0],p:MSG8[id][1]};return;
+      } else if(p.key===prev.key){st.fb={ok:false,t:MSG8.recopie[0],p:MSG8.recopie[1]};return;}
+      else if(p.ops>prev.ops){st.fb={ok:false,t:MSG8.plus[0],p:MSG8.plus[1]};return;}
+      st.lines.push({text:st.typed,v:p.v});st.typed='';st.hint=false;
+      if(p.ops===0){st.phase='verdict';st.fb=null;}
+      else st.fb={ok:true,t:'Ligne juste.',p:'Continue jusqu’à obtenir un seul nombre.'};
+    },
+    what:`L'élève calcule le membre de gauche <b>sur l'écran</b>, ligne par ligne, comme sur sa copie. Ligne 1 : il remplace x (−3 × 4 + 7). Ensuite chaque ligne garde la même valeur et avance (−12 + 7, puis −5). Il écrit tout ce qu'il veut, par exemple plusieurs étapes d'un coup ou (−3) × 4 + 7. Quand il a un seul nombre, l'écran compare avec le membre de droite : « Oui » ou « Non », est-ce une solution ? Essaie −3×4+7, puis −12+7, puis −5 ; ou −3×11 pour voir « On fait d'abord les × et les ÷ ».`,
+    why:`Tu l'as demandé : l'élève doit pouvoir tout faire dans l'appli, sans calculer de tête. C'est la même feuille que « À toi de résoudre », sans la lettre x : le clavier est celui du « Réécris » (chiffres, × ÷ + −, parenthèses). Les erreurs reconnues sont celles du module Relatifs (priorité des opérations, signe).`,
+    engine:`<code>parseCalc</code> lit une ligne (valeur, nombre d'opérations, nombre négatif sans parenthèses) ; <code>judgeCalcLine(avant, ligne)</code> exige la même valeur, une ligne qui avance, et reconnaît la priorité oubliée (−3 × 11 au lieu de −12 + 7). Dans le vrai écran, l'erreur de signe d'une opération (−3 × 4 écrit 12) sera reconnue en comparant avec chaque calcul d'une seule opération ; la maquette ne montre que le message général. La question compte juste si aucune ligne n'a été fausse en route ; l'indice marque « avec aide ».`});
+
   const QUESTIONS=[
     {q:`L'élève choisit-il l'opération (étiquettes) avant d'écrire chaque ligne, dans l'écran « À toi de résoudre » ?`,r:`Non : il écrit directement ses lignes, comme sur sa copie ; l'opération s'affiche sous chaque membre une fois la ligne juste. Le choix par étiquettes reste pour la leçon et les exemples guidés.`},
     {q:`Où sert la résolution complète ?`,r:`Dans les exercices de fin (au moins 2 sur 5 à partir du cours 4), les révisions et l'entraînement. La leçon garde les cases, plus rapides.`},
     {q:`Que coûte l'indice ?`,r:`Il montre l'opération à faire ; la question reste juste si les lignes sont justes, mais elle compte comme « avec aide » dans le suivi (comme l'aide qui s'efface des exemples guidés).`}];
-  const DECIDED=[`Ligne « opération » écrite dans les cours 2 à 4, puis seulement l'opération sous chaque membre (réponse 1 : oui).`,`L'élève doit pouvoir résoudre complètement une équation ou une inéquation : écran « À toi de résoudre » (réponse 2) ; l'outil montre la méthode du cours mais accepte celle de l'élève (retour du 2026-11-26).`,`Pas de couleurs de signe dans les équations : noir, indigo pour l'opération, orange pour le sens qui change (réponse 3 : oui).`];
+  const DECIDED=[`Ligne « opération » écrite dans les cours 2 à 4, puis seulement l'opération sous chaque membre (réponse 1 : oui).`,`L'élève doit pouvoir résoudre complètement une équation ou une inéquation : écran « À toi de résoudre » (réponse 2) ; l'outil montre la méthode du cours mais accepte celle de l'élève (retour du 2026-11-26).`,`Pas de couleurs de signe dans les équations : noir, indigo pour l'opération, orange pour le sens qui change (réponse 3 : oui).`,`Étapes écrites dans tous les exercices de fin à partir du cours 1 : calcul par lignes au cours 1 (écran 8), résolution ligne par ligne aux cours 2 à 4 (retour du 2026-11-26).`,`Cours raccourcis à environ 10 blocs de leçon ; les cours 1 à 4 seront corrigés après l'essai des cours 2 à 4 (retour du 2026-11-26).`];
 
   const nav=document.getElementById('nav'),phone=document.getElementById('phone'),notes=document.getElementById('notes');
   let idx=0;
