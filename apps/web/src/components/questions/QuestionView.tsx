@@ -3,6 +3,9 @@ import type { Activity, Answer, CourseDef, Outcome, PartTexts, Question } from '
 import { Calculer } from './Calculer';
 import { Choix } from './Choix';
 import { Classer } from './Classer';
+import { Intervalle } from './Intervalle';
+import { Solutions } from './Solutions';
+import { Tableau } from './Tableau';
 import { Erreur } from './Erreur';
 import { ErreurEcriture } from './ErreurEcriture';
 import { Ordre } from './Ordre';
@@ -67,5 +70,8 @@ export function QuestionView({ question: q, course, locked, onAnswer, header, fo
     case 'droite': return <Droite q={q} {...common} />;
     case 'resoudre': return <Resoudre q={q} {...common} />;
     case 'calculer': return <Calculer q={q} {...common} />;
+    case 'intervalle': return <Intervalle q={q} {...common} />;
+    case 'tableau': return <Tableau q={q} {...common} />;
+    case 'solutions': return <Solutions q={q} {...common} />;
   }
 }

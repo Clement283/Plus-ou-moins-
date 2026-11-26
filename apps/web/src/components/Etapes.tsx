@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { prefersReducedMotion } from './reducedMotion';
 import type { EtapeStep, Scene, SceneToken } from '@pom/engine';
 import { LineView } from './NumberLine';
+import { IntervalLine } from './IntervalLine';
+import { SceneTableView } from './etapes/SceneTable';
 import { Trou, TrouPhrase } from './etapes/Trou';
 import { Graduation } from './etapes/Graduation';
 import { Morceau } from './etapes/Morceau';
@@ -92,6 +94,8 @@ function SceneView({
             ),
           )}
       {scene.line && (lineNode ?? <LineView line={grey ? { ...scene.line, tone: 'neutral' } : scene.line} revealed={revealed} replay={replay} />)}
+      {scene.interval && <IntervalLine interval={scene.interval.intervals[0] ?? null} interval2={scene.interval.intervals[1] ?? null} />}
+      {scene.table && <SceneTableView table={scene.table} />}
       {scene.caption && <span className="scene-cap">{scene.caption}</span>}
     </div>
   );

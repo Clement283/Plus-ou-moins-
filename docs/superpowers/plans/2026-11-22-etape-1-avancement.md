@@ -171,3 +171,29 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Numéro de version (date, heure, commit du build) en bas de la page de suivi : à comparer au dernier commit de `main` pour savoir si une mise en ligne est arrivée.
 - Reste : cours 7 à 11 (maquettes d'intervalles et de tableau de signes), écran « deux solutions » pour le cours 6, et décider quand les cours 1 à 6 sortent du module Essais pour être visibles des élèves.
 
+
+## Module 2 : écran « intervalle » codé (2026-11-26)
+- Maquette `docs/design/ecrans/equations-intervalles.html` validée par le porteur du projet, puis codée : question `intervalle` (`exercises/intervalle.ts`, `math/intervalle.ts`), composants `questions/Intervalle.tsx`, `IntervalLine.tsx` (droite colorée, réutilisable), `SymbolPicker.tsx` (< ≤ > ≥, réutilisable), `IntervalKeypad.tsx`, styles `styles/intervalle.css`. Cours 8 : `flip` = choix du symbole après une division par un négatif, puis S.
+- Fait en plus de la maquette : fractions a/b et décimaux dans les bornes ; une seule réponse jugée à « Valider » (pas de « Réessayer » : même fonctionnement que les autres questions, la correction s'affiche une fois verrouillée) ; l'aperçu de la droite se colore pendant la frappe sans dire si c'est juste.
+- Aucun cours ne l'utilise encore : cours 7 `inequations-intervalles` et 8 `inequations-resoudre-premier-degre` à écrire (fiches d'abord). Lecture d'un intervalle sur la droite (cours 7) : question `choix` existante, à tester avec `IntervalLine` dans la leçon.
+- Tests : moteur 1 212, api 35, web 468 (verts).
+- Reste : maquette du tableau de signes (cours 9 à 11), écran « deux solutions » du cours 6, programme de 1re spécialité 2026.
+
+## Module 2 : tableau de signes, réunion ∪ et « deux solutions » codés (2026-11-26)
+- Maquette `docs/design/ecrans/equations-tableau-signes.html` validée (l'élève construit les valeurs, la 1re colonne et les signes ; ce qu'on demande dépend de l'exercice ; quotient en fraction ; double barre). Codé : questions `tableau` (`exercises/tableau.ts`, `math/tableau.ts`, `questions/Tableau.tsx`, `SignTable.tsx`, `TableKeypad.tsx`) et `solutions` (cours 6 : `exercises/solutions.ts`, `questions/Solutions.tsx`) ; `intervalle` étendu : réunion ∪ (`expected2`, bouton « Relier un autre intervalle ») et tableau à lire (`intervalleFromTable`).
+- Pas encore regardé rendu dans un navigateur : seuls les tests l'ont exercé.
+- Tests : moteur 1 224, api 35, web 474 (verts).
+- Reste : écrire les cours 7 à 11 et brancher `solutions` dans le cours 6 (écran « deux solutions »).
+
+## Module 2 : cours 7 à 11 écrits (2026-11-26)
+- Cours 7 `inequations-intervalles`, 8 `inequations-resoudre-premier-degre`, 9 `inequations-signe-affine`, 10 `inequations-tableau-signes-produit`, 11 `inequations-quotient` : fiches dans `docs/modules/02-equations-inequations/`, code dans `packages/engine/src/courses/essais/` (module Essais, comptes aperçu seulement). Écrits par un seul assistant Sonnet, un cours à la fois.
+- Coût mesuré (jetons ; actions du compteur système) : cours 7 : 151 514 ; 24 · cours 8 : 43 800 ; 13 · cours 9 : 26 586 ; 5 · cours 10 : 26 580 ; 4 · cours 11 : 23 243 ; 5 · total : 271 723 jetons ; 51 actions. Le 1er cours paie la lecture des documents ; les suivants coûtent environ 25 000 à 45 000.
+- Tests : moteur 1 287, api 35, web 474 (verts).
+- Pas essayés dans l'appli ni relus. Manques signalés : pas d'intervalle colorié ni de tableau de signes dans les écrans de leçon (seulement dans les questions) ; le rang de l'exercice n'est pas dans `BuildCtx` (impossible de donner plus d'aide au 1er exercice de fin qu'aux suivants) ; le cours 6 n'utilise pas encore la question `solutions`.
+
+## Module 2 : corrections après les cours 7 à 11 (2026-11-26)
+- Scènes de leçon : `Scene.interval` (intervalle(s) colorié(s)) et `Scene.table` (tableau de signes, `upTo`, `rows`, `ghost`) ; utilisées aux cours 7 à 11. Limite : l'écran « comparer deux cas » n'a pas de champ intervalle.
+- `BuildCtx.index` (rang 0 à 4 de l'exercice de fin) : cours 10 et 11 donnent les lignes au tableau de rang 2 ; cours 11 garantit une lecture de S en ≤ ou ≥ (rang 1).
+- Cours 6 : question `solutions` dans 3 exercices de fin sur 5 et dans l'exemple guidé.
+- Coût de la passe : 44 413 jetons, 16 actions (compteur système). Total des cours 7 à 11 et corrections : 316 136 jetons.
+- Tests : moteur 1 291, api 35, web 477 (verts).
