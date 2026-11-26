@@ -36,7 +36,7 @@
  *   from a generator seeded by (seed, itemId), so `answer` gives the same result for the same state.
  */
 import type { Activity, AppEvent, QuestionKind } from './events';
-import { getCourse, type Autres, type CourseDef, type EtapeStep, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
+import { getCourse, type Autres, type CourseDef, type ReviewFormat, type EtapeStep, type Exercise, type Level, type LessonBlock, type LessonPart, type PartTexts } from './courses';
 import type { Outcome, Question } from './exercises/types';
 import { buildQuestion, buildSlot, type Slot } from './exercises/build';
 import { valueLatex } from './exercises/build/common';
@@ -341,7 +341,11 @@ export function promptOf(q: Question): string {
 
 /** The kinds of question the course can build (Cours 0 builds only its own formats). */
 export function availableKinds(course: CourseDef): QuestionKind[] {
-  if (!course.customCheck) return course.formats?.includes('droite') ? [...ALL_KINDS, 'droite'] : [...ALL_KINDS];
+  if (!course.customCheck) {
+    // « droite », « resoudre » et « calculer » : seulement pour les cours qui les prévoient (formats de révision ou exercices de fin)
+    const has = (k: QuestionKind): boolean => course.formats?.includes(k as ReviewFormat) === true || course.endExercises.mix?.includes(k) === true;
+    return [...ALL_KINDS, ...(['droite', 'resoudre', 'calculer'] as const).filter(has)];
+  }
   const probe = { rng: seededRng(0), level: 1 as Level, timesSeen: 0 };
   // « choix », « reecrire » et « resoudre » n'existent que pour les cours qui les construisent.
   return [...ALL_KINDS, 'choix', 'reecrire', 'resoudre', 'calculer'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];

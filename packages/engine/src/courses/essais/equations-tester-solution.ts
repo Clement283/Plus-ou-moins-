@@ -369,6 +369,8 @@ const course: CourseDef = {
   unePhrase: true,
   // « calculer » : l'élève remplace x et calcule ligne par ligne (décision du 2026-11-26)
   endExercises: { count: 5, kind: 'saisie', mix: ['calculer', 'calculer', 'calculer', 'calculer', 'calculer'] },
+  // « calculer » (Calculer par lignes) en révision et en entraînement ; 3 formats pour que la révision garde 3 questions
+  formats: ['saisie', 'calculer', 'calculer'],
   generate,
   errors,
   generalExplanation: (e) => explanation(RULE, resolution(e)),
