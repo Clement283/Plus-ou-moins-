@@ -6,6 +6,7 @@ import { equationsProduitNul } from './equations-produit-nul';
 import { inequationsIntervalles } from './inequations-intervalles';
 import { inequationsResoudrePremierDegre } from './inequations-resoudre-premier-degre';
 import { inequationsSigneAffine } from './inequations-signe-affine';
+import { inequationsTableauSignesProduit } from './inequations-tableau-signes-produit';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
 import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
@@ -26,6 +27,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   inequationsIntervalles,
   inequationsResoudrePremierDegre,
   inequationsSigneAffine,
+  inequationsTableauSignesProduit,
 ];
 
 export const ESSAIS: ModuleDef = {
