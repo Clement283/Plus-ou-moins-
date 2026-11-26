@@ -6,7 +6,8 @@ Module : Équations et inéquations (`docs/modules/02-equations-inequations/modu
 - Pièges : 2x lu « 2 collé à 3 » (23) ou « 2 + 3 » ; signe perdu sans parenthèses (5 − x pour x = −3 → 2) ; conclure en ne calculant qu'un membre.
 - Vu dans ce cours : inconnue, équation, membre de gauche / de droite, solution ; « 2x » veut dire 2 × x ; vérifier une solution (servira à chaque cours du module).
 - Écarts et choix : membres de la forme ax + b seulement (× puis +, connu du collège), car le module Priorités vient après ; pas de x² ; nombres testés entiers de −9 à 9.
-- Dans l'appli : à écrire (`equations-tester-solution.ts`) ; s'appuie sur `src/math/equation.ts`.
+- Dans l’appli : écrit, module « Essais » (`packages/engine/src/courses/essais/equations-tester-solution.ts`, test `equations-tester-solution.test.ts`) ; s’appuie sur `src/math/equation.ts`. Exercices de fin : saisie de la valeur d’un membre (gauche, parfois droite), l’équation et le nombre testé affichés au-dessus ; la conclusion « solution / pas solution » est travaillée dans la leçon (choix), pas dans les exercices de fin.
+- Choix sans document : erreur `un-seul-membre` non détectée en saisie (traitée par les messages des choix de la leçon) ; membres écrits ax + b ou b + ax, jamais −x en tête ; niveau 3 : coefficients jusqu’à 6 pour tenir dans la largeur du téléphone.
 
 ## Fiche
 ### Règles (3) : une phrase chacune, et l'erreur qu'elle évite
