@@ -369,9 +369,10 @@ export async function runCourse(page: Page, courseId: string, opts: RunOptions =
         await seen(at, null, 'etapes');
         await playEtapes(page, (p as { steps: EtapeStep[] }).steps, !!opts.wrongTaps, (i) => seen(at, i, 'etapes'));
       } else if (screen === 'lecon') {
-        expect(p.type, `partie ${at}`).toBe('explication');
-        await seen(at, null, 'explication');
-        await page.getByRole('button', { name: 'Suivant' }).click();
+        expect(['explication', 'autres'], `partie ${at}`).toContain(p.type);
+        await seen(at, null, p.type);
+        // « Autres façons de faire » : on peut continuer sans essayer de technique
+        await page.getByRole('button', { name: p.type === 'autres' ? 'Continuer' : 'Suivant', exact: true }).click();
       } else if (p.type === 'pratique') {
         seriesOf = p.questions.length;
         series = p.questions.map((x) => ({ question: x.question, at }));

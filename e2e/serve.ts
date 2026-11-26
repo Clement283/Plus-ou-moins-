@@ -54,7 +54,10 @@ const accounts: Accounts = {
   paul: createUser('Paul', 'suiveur', lou.id),
   sam: createUser('Sam', 'eleve'),
   tess: createUser('Tess', 'eleve'),
+  apercu: createUser('Aperçu', 'eleve'),
 };
+// Compte « aperçu » : tous les cours ouverts, Essais compris (tous-les-cours.spec.ts).
+run('npx', ['wrangler', 'd1', 'execute', 'plus-ou-moins', '--local', '--command', `UPDATE users SET apercu=1 WHERE id='${accounts.apercu.id}'`], API);
 writeFileSync(ACCOUNTS_FILE, JSON.stringify(accounts));
 
 const dev = spawn('npx', ['wrangler', 'dev', '--local', '--ip', '127.0.0.1', '--port', PORT], { cwd: API, stdio: 'inherit' });
