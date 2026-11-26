@@ -7,6 +7,7 @@ import { setTestMode } from '../store/testMode';
 import { useCurrentStudent, useStudentDashboard, useStudentQuestions, useStudents, type Student } from '../store/follow';
 import { Icon } from '../ui/Icon';
 import { Sheet } from '../ui/Sheet';
+import { AppVersion } from '../ui/AppVersion';
 
 /** Page de suivi, accueil (maquette `suivi.html` écran 1, doc 05 §1) : lecture seule, cinq blocs. */
 
@@ -330,12 +331,14 @@ export default function Dashboard() {
     return (
       <main className="app-body" data-screen="suivi">
         <p className="t-body1">Aucun élève à suivre pour l'instant.</p>
+        <AppVersion />
       </main>
     );
   if (!student || !dash)
     return (
       <main className="app-body" data-screen="suivi">
         {students.failed && !students.data && <OfflineAlert />}
+        <AppVersion />
       </main>
     );
   const t = dash.home.state.today;
@@ -400,6 +403,8 @@ export default function Dashboard() {
       <CommonErrors dash={dash} />
       <ToRework dash={dash} eleve={student.id} />
       <ClementQuestions eleve={student.id} />
+      {/* la version du build (date, heure, commit) : pour vérifier qu'une mise en ligne est bien arrivée */}
+      <AppVersion />
     </main>
   );
 }
