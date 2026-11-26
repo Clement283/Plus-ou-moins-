@@ -1,6 +1,6 @@
 # Module 2 — Équations et inéquations
 
-*Statut : module.md à valider (2026-11-26, seconde 2026 ajoutée). Aucune fiche, aucun cours écrit. Pas de document de classe reçu : plan bâti sur les programmes de `docs/sources/` et une recherche (voir Sources).*
+*Statut : module.md validé par le porteur du projet le 2026-11-26, avec les recommandations des questions 3 à 5 (questions 1 et 2 : documents toujours attendus). Fiche écrite : cours 1. Aucun cours codé. Pas de document de classe reçu : plan bâti sur les programmes de `docs/sources/` et une recherche (voir Sources).*
 
 **Attention, programme** : le programme de 1re spécialité de `docs/sources/` (BO 2019) **n'a pas de chapitre « équations et inéquations du 1er degré »** ; il parle du second degré (p. 7 : « Résolution de l'équation du second degré », signe, « équation, inéquation »), traité au module 6. Le 1er degré vient du **cycle 4** (programme 2026, p. 10-11) et de la **seconde** (programme 2026, `maths_2nde_gt_2026.pdf`, p. 5, 7, 8, 10). Le **nouveau programme de 1re spécialité (2026) manque** : les références de 1re restent celles du BO 2019. Ce module est donc une **révision outillée pour la 1re** ; la seconde 2026 range ces résolutions dans les **automatismes** (p. 5 : « Résoudre une équation du type […] a𝑥 + b = c𝑥 + d […] ou une inéquation du premier degré »).
 
@@ -34,7 +34,7 @@
 - **Droite graduée avec intervalle colorié** et crochets : extension du layout `'line'`. Maquette.
 - **Tableau de signes** à remplir (+, −, 0, double barre) : nouvel écran. Maquette (cours 9 à 11).
 
-## Questions pour toi
+## Questions pour toi (réponse : recommandations retenues)
 1. **Programme de 1re spécialité 2026** (seconde 2026 reçue) : peux-tu le déposer ? *Recommandation : oui, avant les fiches ; il ne changera sans doute que les liens vers le second degré.*
 2. **Documents de classe** : as-tu le chapitre du prof (ou un contrôle) ? *Recommandation : l'envoyer si possible, pour reprendre son ordre et ses notations (⇔, S = …, virgule ou point-virgule dans les intervalles).*
 3. **Solutions entières seulement** jusqu'au module Fractions ? *Recommandation : oui ; les solutions fractionnaires reviennent au module Fractions.*
