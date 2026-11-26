@@ -5,8 +5,8 @@ import { QuestionView } from '../src/components/questions/QuestionView';
 
 afterEach(cleanup);
 
-// « Comparer deux cas » de la version guidée du cours 2 : option `inPlace` (une seule copie des équations, surlignée sur place)
-const course = getCourse('equations-ajouter-retirer-guide');
+// « Comparer deux cas » du cours 2 : option `inPlace` (une seule copie des équations, surlignée sur place)
+const course = getCourse('equations-ajouter-retirer');
 const part = course.parts.find((p) => p.type === 'question' && p.compare !== undefined);
 
 describe('Comparer deux cas, surlignage sur place', () => {
