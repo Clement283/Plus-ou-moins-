@@ -29,7 +29,7 @@
 ## Ce qui manque dans l'appli (comparé au catalogue d'écrans)
 - **Moteur** : les calculs sont des entiers sans lettre ; il faut un type « équation » (expression avec x, deux membres) et des générateurs à solution entière. Pas d'écran, mais du code moteur avant le cours 2.
 - **Résolution ligne par ligne interactive** : `linesScene` affiche, `trou` met une case ; il manque **choisir l'opération à faire des deux côtés** (« −3 » écrit sous chaque membre) puis taper la ligne suivante. Maquette (sert aux cours 2 à 8).
-  *Maquette `docs/design/ecrans/equations-resolution-ligne.html` (2026-11-26) ; réponses du porteur du projet : ligne « opération » écrite aux cours 2 à 4, puis seulement l'opération sous chaque membre ; l'élève doit pouvoir **résoudre complètement** (écran « À toi de résoudre », clavier avec x et les signes) ; pas de couleurs de signe dans les équations. Moteur : `solve.ts`, `parse-equation.ts`.*
+  *Maquette `docs/design/ecrans/equations-resolution-ligne.html`, **validée le 2026-11-26** (l'élève résout avec sa méthode, touche ÷ pour les fractions) ; réponses du porteur du projet : ligne « opération » écrite aux cours 2 à 4, puis seulement l'opération sous chaque membre ; l'élève doit pouvoir **résoudre complètement** (écran « À toi de résoudre », clavier avec x et les signes) ; pas de couleurs de signe dans les équations. Moteur : `solve.ts`, `parse-equation.ts`.*
 - **Saisie de S** : deux valeurs pour le produit nul ; **intervalle** (crochets à choisir, bornes, ∞). Maquette.
 - **Choix du symbole** < ≤ > ≥ (comme `signBox`) : petite brique, peut-être sans maquette.
 - **Droite graduée avec intervalle colorié** et crochets : extension du layout `'line'`. Maquette.
