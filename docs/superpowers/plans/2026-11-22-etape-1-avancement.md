@@ -184,3 +184,9 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Pas encore regardé rendu dans un navigateur : seuls les tests l'ont exercé.
 - Tests : moteur 1 224, api 35, web 474 (verts).
 - Reste : écrire les cours 7 à 11 et brancher `solutions` dans le cours 6 (écran « deux solutions »).
+
+## Module 2 : cours 7 à 11 écrits (2026-11-26)
+- Cours 7 `inequations-intervalles`, 8 `inequations-resoudre-premier-degre`, 9 `inequations-signe-affine`, 10 `inequations-tableau-signes-produit`, 11 `inequations-quotient` : fiches dans `docs/modules/02-equations-inequations/`, code dans `packages/engine/src/courses/essais/` (module Essais, comptes aperçu seulement). Écrits par un seul assistant Sonnet, un cours à la fois.
+- Coût mesuré (jetons ; actions du compteur système) : cours 7 : 151 514 ; 24 · cours 8 : 43 800 ; 13 · cours 9 : 26 586 ; 5 · cours 10 : 26 580 ; 4 · cours 11 : 23 243 ; 5 · total : 271 723 jetons ; 51 actions. Le 1er cours paie la lecture des documents ; les suivants coûtent environ 25 000 à 45 000.
+- Tests : moteur 1 287, api 35, web 474 (verts).
+- Pas essayés dans l'appli ni relus. Manques signalés : pas d'intervalle colorié ni de tableau de signes dans les écrans de leçon (seulement dans les questions) ; le rang de l'exercice n'est pas dans `BuildCtx` (impossible de donner plus d'aide au 1er exercice de fin qu'aux suivants) ; le cours 6 n'utilise pas encore la question `solutions`.
