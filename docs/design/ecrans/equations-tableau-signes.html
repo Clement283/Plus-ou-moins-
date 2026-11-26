@@ -114,19 +114,23 @@ h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
 .chips .opt.used{opacity:.35}
 .note{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px;display:grid;gap:8px;align-content:start}
 .note h3{margin:0;font-size:1rem}.note ul{margin:0;padding-left:1.1rem;display:grid;gap:6px}.note li{color:var(--muted)}.note li b{color:var(--ink)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;margin:0 2px}.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 4px 1px}.frac>span:last-child{padding:1px 4px 0}
+.modes{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.85rem;color:var(--muted)}.modes button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}.modes button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .hint{font-size:.85rem;color:var(--muted);margin:0;text-align:center}
 
 </style>
 <body><div class="wrap">
 <header class="intro"><h1>Tableau de signes : l'élève le construit</h1>
 <p>Maquette pour les cours 9 à 11. L'élève construit tout le tableau en trois étapes : <b>1</b> les valeurs de la 1re ligne, <b>2</b> les facteurs de la 1re colonne, <b>3</b> les signes. Chaque étape se vérifie avant la suivante. Les pastilles d'étape en haut permettent de voir chaque étape sans tout refaire. La barre part sous le chiffre et passe au milieu de la colonne.</p></header>
-<div class="layout"><div style="display:grid;gap:12px"><div class="nav" id="nav"></div><div class="phone" id="phone"></div></div><aside class="note" id="note"></aside></div>
+<div class="layout"><div style="display:grid;gap:12px"><div class="nav" id="nav"></div><div class="modes" id="modes"></div><div class="phone" id="phone"></div></div><aside class="note" id="note"></aside></div>
 </div>
 <script>
 const bar=n=>`<div class="ph-top"><span class="ph-x">×</span><div class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<n?'d':''}"></i>`).join('')}</div></div>`;
+const strip=t=>t.replace(/^\((.*)\)$/,'$1');
+const R=t=>{const i=t.indexOf('÷');if(i<0)return t;const a=t.slice(0,i).trim(),c=t.slice(i+1).trim();if(!a||!c)return t;return `<span class="frac"><span>${strip(a)}</span><span>${strip(c)}</span></span>`};
 const CLS={'+':'s-p','−':'s-m','0':'s-z','‖':'s-d','':'empty'};
 const SPECS={
-signe:{n:'1 · Signe de ax + b',chip:'Cours 9 · Signe de ax + b',prog:2,title:'Fais le tableau de signes de 2x + 3',
+signe:{n:'1 · Signe de ax + b',chip:'Cours 9 · Signe de ax + b',prog:2,expr:'2x + 3',
  roots:['−3/2'],factors:['2x + 3'],whole:null,signs:[['−','0','+']],dbar:false,
  h1:'Quelle valeur annule 2x + 3 ? Écris-la dans la 1re ligne.',
  m1:v=>'La valeur qui annule 2x + 3 est la solution de 2x + 3 = 0.',
@@ -134,7 +138,7 @@ signe:{n:'1 · Signe de ax + b',chip:'Cours 9 · Signe de ax + b',prog:2,title:'
  good:['La valeur est −3/2.','2x + 3 est le seul facteur.','2x + 3 a le signe de 2 (+) à droite de −3/2, le signe contraire à gauche.'],
  bad3:f=>f.exp==='0'?'Sous la valeur qui annule, on met 0.':'À droite de la valeur, 2x + 3 a le signe de 2 (+) ; à gauche, le signe contraire.',
  note:['Cours 9 : le signe d’ax + b','**Étape 1 :** l’élève tape la valeur qui annule (clavier : chiffres, −, /). **Étape 2 :** il pose le facteur dans la 1re colonne. **Étape 3 :** les signes.','Ici le tableau n’a qu’une ligne et une valeur : les trois étapes sont courtes. La barre est tracée au milieu de la colonne, sous la valeur ; le 0 se pose dessus.']},
-produit:{n:'2 · Produit',chip:'Cours 10 · Produit',prog:3,title:'Fais le tableau de signes de (x − 2)(x + 1)',
+produit:{n:'2 · Produit',chip:'Cours 10 · Produit',prog:3,expr:'(x − 2)(x + 1)',
  roots:['−1','2'],factors:['x + 1','x − 2'],whole:'(x − 2)(x + 1)',
  signs:[['−','0','+','+','+'],['−','−','−','0','+'],['+','0','−','0','+']],dbar:false,
  h1:'Quelles valeurs annulent x − 2 et x + 1 ? Écris-les dans la 1re ligne, de la plus petite à la plus grande.',
@@ -142,8 +146,8 @@ produit:{n:'2 · Produit',chip:'Cours 10 · Produit',prog:3,title:'Fais le table
  m2:'Il faut un facteur par ligne, puis la dernière ligne pour le produit en entier.',
  good:['Les deux valeurs sont justes, dans l’ordre.','Un facteur par ligne, puis le produit.','Règle des signes colonne par colonne : un facteur nul rend le produit nul.'],
  bad3:f=>f.ri===2?'Dans cette colonne, regarde les deux signes d’au-dessus : même signe donne +, signes différents donnent −.':'Un facteur a le signe de son coefficient de x à droite de sa valeur, le signe contraire à gauche.',
- note:['Cours 10 : un produit','**Étape 1 :** la 1re ligne (−∞, valeur, valeur, +∞) se remplit au clavier ; il y a autant de cases que de valeurs. **Étape 2 :** la 1re colonne : on touche une case de ligne puis un facteur dans la banque (« x − 2 », « x + 1 », « (x − 2)(x + 1) »). **Étape 3 :** les signes avec la palette.','Chaque étape se vérifie : si elle est juste, la suivante s’ouvre ; sinon le message dit pourquoi.','Question ouverte : l’élève tape le facteur au clavier (plus long) ou le prend dans la banque ? Je propose la banque : le sujet du cours est le signe, pas l’écriture du facteur.']},
-quotient:{n:'3 · Quotient',chip:'Cours 11 · Quotient',prog:4,title:'Fais le tableau de signes de (x + 1) ÷ (x − 2)',
+ note:['Cours 10 : un produit','**Étape 1 :** la 1re ligne (−∞, valeur, valeur, +∞) se remplit au clavier ; il y a autant de cases que de valeurs. **Étape 2 :** la 1re colonne : on touche une case de la colonne et on écrit le facteur au clavier (x, chiffres, + − ÷, parenthèses). **Étape 3 :** les signes avec la palette. **L’exercice décide ce qu’on demande** (boutons « Ce qu’on demande » à gauche) : les signes seulement, valeurs + signes, ou tout. Quand on demande tout, l’élève écrit aussi la 1re colonne.','Chaque étape se vérifie : si elle est juste, la suivante s’ouvre ; sinon le message dit pourquoi.','La dernière ligne est l’expression en entière : produit avec parenthèses, ou quotient écrit avec ÷ (affiché en fraction).']},
+quotient:{n:'3 · Quotient',chip:'Cours 11 · Quotient',prog:4,expr:'(x + 1) ÷ (x − 2)',
  roots:['−1','2'],factors:['x + 1','x − 2'],whole:'(x + 1) ÷ (x − 2)',
  signs:[['−','0','+','+','+'],['−','−','−','0','+'],['+','0','−','‖','+']],dbar:true,
  h1:'Quelles valeurs annulent x + 1 et x − 2 ? Écris-les dans la 1re ligne.',
@@ -153,10 +157,12 @@ quotient:{n:'3 · Quotient',chip:'Cours 11 · Quotient',prog:4,title:'Fais le ta
  bad3:f=>f.exp==='‖'?'On ne peut pas diviser par 0 : sous la valeur qui annule le bas, le quotient n’existe pas. Mets la double barre ‖.':'Même règle des signes que pour un produit, colonne par colonne.',
  note:['Cours 11 : un quotient','Mêmes trois étapes. À l’étape 3, la palette a une touche de plus : **‖** (double barre), pour la valeur qui annule le dénominateur. La double barre se dessine avec deux traits à la place de la barre épaisse.','Erreur propre au cours : mettre 0 au lieu de ‖ sous la valeur interdite.']}
 };
-let S,K;
-function init(key,step,fill){K=key;const sp=SPECS[key];S={sp,step,hd:sp.roots.map(()=>''),labs:sp.factors.concat(sp.whole?[sp.whole]:[]).map(()=>''),st:sp.signs.map(r=>r.map(()=>'')),cur:null,res:null,done:[false,false,false],msg:null};
+let S,K,MODE='tout';
+function init(key,step,fill){K=key;if(fill===undefined){fill=0;step=MODE==='signes'?3:1}const sp=SPECS[key];S={sp,step,hd:sp.roots.map(()=>''),labs:sp.factors.concat(sp.whole?[sp.whole]:[]).map(()=>''),st:sp.signs.map(r=>r.map(()=>'')),cur:null,res:null,done:[false,false,false],msg:null};
  if(fill>=1){S.hd=sp.roots.slice();S.done[0]=true}
  if(fill>=2){S.labs=sp.factors.concat(sp.whole?[sp.whole]:[]);S.done[1]=true}
+ if(MODE!=='tout'&&fill<2){S.labs=sp.factors.concat(sp.whole?[sp.whole]:[]);S.done[1]=true}
+ if(MODE==='signes'){S.hd=sp.roots.slice();S.done[0]=true}
  draw();}
 function tableHTML(){
  const sp=S.sp,n=sp.roots.length,cols=n*2+1,rows=S.step>=2?S.labs.length:0;
@@ -169,7 +175,7 @@ function tableHTML(){
    h+=edit?`<button class="c hd ${v===''?'empty':''} ${S.cur&&S.cur.h===k?'cur':''}" data-h="${k}">${v}</button>`:`<div class="c hd">${v}</div>`;}
   else h+=`<div class="c hd"></div>`;}
  for(let r=0;r<rows;r++){const last=r===rows-1,L=S.labs[r];
-  h+=S.step===2?`<button class="c lab ${L===''?'empty':''} ${S.cur&&S.cur.l===r?'cur':''} ${last?'last':''}" data-l="${r}">${L}</button>`:`<div class="c lab ${last?'last':''}">${L}</div>`;
+  h+=S.step===2?`<button class="c lab ${L===''?'empty':''} ${S.cur&&S.cur.l===r?'cur':''} ${last?'last':''}" data-l="${r}">${R(L)}</button>`:`<div class="c lab ${last?'last':''}">${R(L)}</div>`;
   for(let c=0;c<cols;c++){
    const v=S.step===3?S.st[r][c]:'';const root=c%2===1;
    const res=S.res&&S.res[r]?S.res[r][c]:'';
@@ -183,19 +189,18 @@ function draw(){
  const stepper=`<div class="steps">${['1 · Les valeurs','2 · Les lignes','3 · Les signes'].map((t,i)=>`<button class="${S.step===i+1?'on':S.done[i]?'done':''}" data-s="${i+1}">${t}</button>`).join('')}</div>`;
  let ctl='',hint='';
  if(S.step===1){hint=sp.h1;ctl=`<div class="keys6">${[7,8,9,'−','⌫',4,5,6,'/',0,1,2,3].map(k=>`<button class="key" data-k="${k}">${k}</button>`).join('')}</div><button class="btn btn-main" data-go>Vérifier</button>`}
- if(S.step===2){hint='Touche une case de la 1re colonne, puis le facteur qui va dedans.';
-  const bank=sp.factors.slice().reverse().concat(sp.whole?[sp.whole]:[]);
-  ctl=`<div class="chips">${bank.map(b=>`<button class="opt ${S.labs.includes(b)?'used':''}" data-b="${b}">${b}</button>`).join('')}</div><button class="btn btn-main" data-go>Vérifier</button>`}
+ if(S.step===2){hint='Touche une case de la 1re colonne, puis écris le facteur (la dernière ligne : le produit'+(sp.expr.includes('÷')?', ou le quotient avec ÷':'')+' en entier).';
+  ctl=`<div class="keys6">${[7,8,9,'÷','⌫',4,5,6,'+','x',1,2,3,'−',0,'(',')'].map(k=>`<button class="key" data-t="${k}">${k}</button>`).join('')}</div><button class="btn btn-main" data-go>Vérifier</button>`}
  if(S.step===3){hint='Touche une case, puis un signe. 0 sous une valeur qui annule'+(sp.dbar?', ‖ si on ne peut pas diviser.':'.');
   ctl=`<div class="pal">${['+','−','0',sp.dbar?'‖':null,'⌫'].filter(x=>x!==null).map(k=>`<button class="opt ${k==='+'?'pp':k==='−'?'pm':''}" data-p="${k}">${k}</button>`).join('')}</div><button class="btn btn-main" data-go>Vérifier</button>`}
- ph.innerHTML=`${bar(sp.prog)}<div class="chip">${sp.chip}</div><div class="ph-body"><h2 class="t">${sp.title}</h2>${stepper}${tableHTML()}<p class="hint">${hint}</p>${S.msg?`<div class="fb ${S.ok?'ok':'ko'}"><strong>${S.ok?'Juste':'Pas tout à fait'}</strong><p>${S.msg}</p></div>`:''}<div class="zone">${ctl}</div></div>`;
+ ph.innerHTML=`${bar(sp.prog)}<div class="chip">${sp.chip}</div><div class="ph-body"><h2 class="t">Fais le tableau de signes de ${R(sp.expr)}</h2>${stepper}${tableHTML()}<p class="hint">${hint}</p>${S.msg?`<div class="fb ${S.ok?'ok':'ko'}"><strong>${S.ok?'Juste':'Pas tout à fait'}</strong><p>${S.msg}</p></div>`:''}<div class="zone">${ctl}</div></div>`;
  const on=(sel,f)=>ph.querySelectorAll(sel).forEach(b=>b.onclick=()=>f(b));
  on('[data-s]',b=>{const s=+b.dataset.s;init(K,s,s-1)});
  on('[data-h]',b=>{S.cur={h:+b.dataset.h};S.msg=null;draw()});
  on('[data-l]',b=>{S.cur={l:+b.dataset.l};S.msg=null;draw()});
  on('[data-r]',b=>{S.cur={r:+b.dataset.r,c:+b.dataset.c};S.msg=null;S.res=null;draw()});
  on('[data-k]',b=>{if(!S.cur||S.cur.h===undefined)return;const k=b.dataset.k,i=S.cur.h;S.hd[i]=k==='⌫'?S.hd[i].slice(0,-1):S.hd[i]+k;S.msg=null;draw()});
- on('[data-b]',b=>{if(!S.cur||S.cur.l===undefined)return;S.labs[S.cur.l]=b.dataset.b;S.msg=null;draw()});
+ on('[data-t]',b=>{if(!S.cur||S.cur.l===undefined)return;const k=b.dataset.t,i=S.cur.l;S.labs[i]=k==='⌫'?S.labs[i].slice(0,-1):S.labs[i]+k;S.msg=null;draw()});
  on('[data-p]',b=>{if(!S.cur||S.cur.r===undefined)return;S.st[S.cur.r][S.cur.c]=b.dataset.p==='⌫'?'':b.dataset.p;S.res=null;S.msg=null;draw()});
  on('[data-go]',check);
 }
@@ -204,9 +209,14 @@ function check(){
  if(S.step===1){const ok=sp.roots.every((v,i)=>S.hd[i]===v);const swapped=!ok&&sp.roots.length===2&&S.hd[0]===sp.roots[1]&&S.hd[1]===sp.roots[0];
   S.ok=ok;S.msg=ok?sp.good[0]:(S.hd.some(v=>v==='')?'Remplis toutes les cases de la 1re ligne.':sp.m1({order:swapped}));
   if(ok){S.done[0]=true}}
- if(S.step===2){const want=sp.factors.slice().sort();const got=S.labs.slice(0,sp.factors.length).slice().sort();
-  const ok=S.labs.every(x=>x!=='')&&JSON.stringify(want)===JSON.stringify(got)&&(!sp.whole||S.labs[S.labs.length-1]===sp.whole);
-  S.ok=ok;S.msg=ok?sp.good[1]:(S.labs.some(x=>x==='')?'Remplis toutes les lignes.':sp.m2);if(ok)S.done[1]=true;}
+ if(S.step===2){const nz=t=>t.replace(/[\s×·*]/g,'').replace(/−/g,'-');
+  const fs=sp.factors.map(nz),got=S.labs.slice(0,sp.factors.length).map(nz);
+  const okF=S.labs.every(x=>x!=='')&&fs.slice().sort().join('|')===got.slice().sort().join('|');
+  let okW=true;if(sp.whole){const w=nz(S.labs[S.labs.length-1]);
+   if(sp.whole.includes('÷')){const[a,b]=sp.whole.split(' ÷ ').map(nz);okW=w===a+'÷'+b}
+   else{okW=w===fs.map(f=>'('+f+')').join('')||w===fs.slice().reverse().map(f=>'('+f+')').join('')}}
+  const ok=okF&&okW;
+  S.ok=ok;S.msg=ok?sp.good[1]:(S.labs.some(x=>x==='')?'Remplis toutes les lignes.':!okF?'Les lignes du haut sont les facteurs, un par ligne : '+sp.m2:'La dernière ligne est l’expression en entier'+(sp.whole&&sp.whole.includes('÷')?', avec ÷ entre le haut et le bas.':', avec des parenthèses autour de chaque facteur.'));if(ok){S.done[1]=true;S.labs=sp.factors.concat(sp.whole?[sp.whole]:[])}}
  if(S.step===3){let first=null,empty=false;
   S.res=sp.signs.map((r,ri)=>r.map((e,ci)=>{const v=S.st[ri][ci];if(v===''){empty=true;return ''}const ok=v===e;if(!ok&&!first)first={ri,ci,exp:e};return ok?'ok':'ko'}));
   S.ok=!first&&!empty;S.msg=first?sp.bad3(first):empty?'Remplis toutes les cases, puis vérifie.':sp.good[2];if(S.ok)S.done[2]=true;}
@@ -230,5 +240,8 @@ function lire(){
 }
 const items=[['signe','1 · Cours 9'],['produit','2 · Cours 10'],['quotient','3 · Cours 11'],['lire','4 · Lire S'],['erreur','5 · Une erreur']];
 items.forEach(([k,t])=>{const b=document.createElement('button');b.textContent=t;b.dataset.k=k;b.onclick=()=>show(k);nav.appendChild(b)});
+const modes=document.getElementById('modes');
+function drawModes(){modes.innerHTML='<span>Ce qu’on demande :</span>'+[['signes','Les signes'],['valeurs','Valeurs + signes'],['tout','Tout']].map(([m,t])=>`<button class="${MODE===m?'on':''}" data-m="${m}">${t}</button>`).join('');modes.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{MODE=b.dataset.m;drawModes();if(K&&['signe','produit','quotient'].includes(K))init(K)})}
+drawModes();
 show('produit');
 </script></body></html>
