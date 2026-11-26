@@ -11,10 +11,10 @@ Tous les helpers s'importent de `./shared`. Toujours `M` (−) dans les textes, 
 | Accroche + question pour deviner | `texted(decouverte(choix(ex, consigne, options3([libellé, message]…), indiceJuste, calcLatex)), { title, intro: [phrases], mention: NOT_COUNTED_GUESS })` | ne compte pas, ne repasse pas |
 | Explication pas à pas | `etapes(titre, [step(phrase, { scene, after, action, rule })…])` | 3 étapes (5 au plus) ; la dernière : `step(undefined, { scene, rule: { n, text } })` |
 | Petite question (comptée) | `lecon(small(ex, calcLatex, consigne, [[libellé, message]…], indiceJuste))` | 2 sur un écran : `texted(lecon(…), { joinPrevious: true })` |
-| Comparer deux cas | `texted(decouverte(choix(…)), { title, intro, mention: NOT_COUNTED_UNDERSTAND, compare: { a, b, note, highlight, after } })` | B vient du cours précédent |
-| Autres façons de faire | `autres({ title, recap, intro, techniques: [{ name, quand, example, how, essai }], outro })` | `essai.kind` : `'saisie'` (valeurs → message) ou `'choix'` |
-| Série de pratique | `pratique(titre, [{ question, texts: { consigne, intro, above } } ×4], phraseDeTransition)` | notée ; une question du cours précédent |
-| Exemple guidé | `etapes('Exemple 1 sur 2', …)` puis `texted(exemple(trou(ex, '= \\square', valeurCachée)), { consigne, above: [lignes LaTeX], help })` | aide qui s'efface : exemple 1 presque résolu, exemple 2 : 2 cases |
+| Comparer deux cas | `texted(decouverte(choix(…)), { title, intro, mention: NOT_COUNTED_UNDERSTAND, compare: { a, b, note, highlight, after } })` | **Déroulé guidé** : seulement si deux cas se confondent vraiment ; `compare: { a, b, note: '', highlight, after (2 lignes), inPlace: true }` (surlignage sur place, pas de seconde copie ni de message en double). Ancien déroulé (Relatifs) : B vient du cours précédent, sans `inPlace` |
+| Autres façons de faire | `autres({ title, recap, intro, techniques: [{ name, quand, example, how, essai }], outro })` | `essai.kind` : `'saisie'` (valeurs → message) ou `'choix'`. **Ancien déroulé** (Relatifs) : plus utilisé dans le déroulé guidé |
+| Série de pratique | `pratique(titre, [{ question, texts: { consigne, intro, above } } ×4], phraseDeTransition)` | notée ; une question du cours précédent. **Ancien déroulé** (Relatifs) : plus utilisée dans le déroulé guidé, les exercices de fin la remplacent |
+| Exemple guidé | `etapes('Exemple 1 sur 2', …)` puis `texted(exemple(trou(ex, '= \\square', valeurCachée)), { consigne, above: [lignes LaTeX], help })` | **Ancien déroulé** : aide qui s'efface (exemple 1 presque résolu, exemple 2 : 2 cases). **Déroulé guidé** : un seul exemple, `texted(exemple({ kind: 'resoudre', ex, start, guided: true }), { title, subtitle })` : l'écran des exercices avec l'aide du cours affichée d'office, non noté |
 | Annonce de la fin | `annonceFin()` | texte fixe, jamais réécrit |
 
 ## Scènes (le haut de l'écran, `scene` / `after` d'un `step`)
