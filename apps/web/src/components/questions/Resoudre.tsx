@@ -155,7 +155,8 @@ export function Resoudre({ q, course, locked, onAnswer, header, footer, texts }:
     setHinted(true);
     setHintOpen(true);
   };
-  const hint = hintOpen && !finished ? hintFor(cur) : null;
+  // exemple guidé : l'aide est affichée d'office, sans bouton ni « avec aide »
+  const hint = (hintOpen || q.guided === true) && !finished ? hintFor(cur) : null;
   const method = finished ? courseMethod(q.start) : [];
   const sameAsCourse =
     method.length === lines.length - 1 && method.every((m, i) => m.latex === equationLatex(lines[i + 1]!.eq) && (m.opLatex ?? null) === lines[i + 1]!.opBefore);

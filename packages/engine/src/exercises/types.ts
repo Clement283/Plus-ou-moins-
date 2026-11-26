@@ -67,6 +67,8 @@ export type Question =
       kind: 'resoudre';
       ex: Exercise;
       start: Equation;
+      /** Exemple guidé : l'aide (l'étape du cours) est affichée d'office à chaque ligne. */
+      guided?: true;
     }
   | CalculerQuestion
   | {

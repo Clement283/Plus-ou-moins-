@@ -65,9 +65,14 @@ describe.each(COURSES.map((c) => [c.id, c] as [string, CourseDef]))('contrat de 
     expect(lessonStep(c, len - 1)).toEqual({ n: total, total });
     expect(lessonStep(c, len)).toBeNull();
     const pratique = c.parts.findIndex((p) => p.type === 'pratique');
-    expect(pratique, 'une série de pratique').toBeGreaterThanOrEqual(len - 1);
-    const p = c.parts[pratique];
-    expect(p?.type === 'pratique' && p.questions.length).toBe(4);
+    if (pratique >= 0) {
+      expect(pratique, 'une série de pratique').toBeGreaterThanOrEqual(len - 1);
+      const p = c.parts[pratique];
+      expect(p?.type === 'pratique' && p.questions.length).toBe(4);
+    } else {
+      // version guidée du module Équations : pas de série, un exemple guidé juste après la leçon
+      expect(c.parts[len], 'un exemple guidé').toMatchObject({ type: 'question', activity: 'exemple' });
+    }
   });
 
   it('exercices de fin : 5, niveau 1, sur la méthode de ce cours seulement', () => {

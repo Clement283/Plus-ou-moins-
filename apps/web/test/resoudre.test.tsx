@@ -80,6 +80,18 @@ describe('« À toi de résoudre »', () => {
     expect(t.text()).not.toContain('Voir la méthode du cours'); // même méthode que le cours
   });
 
+  it('guided example: the hint is shown at every line, without a hint button', () => {
+    const q = { ...question(), guided: true } as Question;
+    const t = setup(q);
+    expect(t.text()).toContain('Méthode du cours');
+    expect(t.$$('button').some((b) => b.textContent === 'Un indice')).toBe(false);
+    t.line('3x-3=9');
+    expect(t.text()).toContain('Méthode du cours');
+    t.line('3x=12');
+    t.line('x=4');
+    expect(t.calls[0]![1]).toMatchObject({ correct: true });
+  });
+
   it('an inequality has <, >, ⩽, ⩾ and catches a direction kept wrong', () => {
     const t = setup(question(equation([xt(-2)], [cst(-6)], '>')));
     for (const k of ['<', '>', '⩽', '⩾']) expect(t.$$('.keypad button').some((b) => b.textContent === k)).toBe(true);
