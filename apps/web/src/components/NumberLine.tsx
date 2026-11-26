@@ -69,6 +69,8 @@ export function NumberLine({ from, to, jumps }: { from: number; to: number; jump
 }
 
 const MAX_TOUCH_TICKS = 8;
+/** Largeur minimale d'une pastille touchable : 44 px dès que la place le permet, jamais moins de 36 px (8 × 36 = 288 px tient dans la scène d'un écran de 360 px). */
+const TOUCH_MIN_PX = 36;
 
 /** Hauteur d'un arc par défaut, et ce qu'on ajoute par arc plus court qui tient dedans. */
 const ARC_H = 28;
@@ -115,7 +117,7 @@ function handPoint(line: LineScene): number | null {
 }
 
 /**
- * Droite graduée de la scène : une colonne par graduation (au moins 44 px), pastille touchable, nombres SOUS les
+ * Droite graduée de la scène : une colonne par graduation (largeur partagée, au moins 36 px si touchable), pastille touchable, nombres SOUS les
  * pastilles, arcs orange (négatif) / bleu (positif) ou gris (`tone: 'neutral'`). `revealed` dessine les bonds `after`.
  */
 export function LineView({
@@ -149,7 +151,7 @@ export function LineView({
           <strong>{touch.consigne}</strong>
         </p>
       )}
-      <div className="line-view__grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(44px, 1fr))` }}>
+      <div className="line-view__grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(${touchable ? TOUCH_MIN_PX : 0}px, 1fr))` }}>
         <span className="line-view__track" />
         {ticks.map((v) => (
           <span key={v} className="line-view__col">
@@ -157,7 +159,7 @@ export function LineView({
               <button
                 type="button"
                 className={`line-view__dot${reduced ? '' : ' is-breathing'}${touch.picked === v ? ' is-picked' : ''}`}
-                style={{ minWidth: '44px' }}
+                style={{ minWidth: `${TOUCH_MIN_PX}px` }}
                 aria-label={`Graduation ${fmt(v)}`}
                 onClick={() => touch.onPick(v)}
               >

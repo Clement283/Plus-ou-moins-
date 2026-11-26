@@ -440,6 +440,11 @@ export async function expectNoOverflow(page: Page, where: string): Promise<void>
       await page.setViewportSize({ width, height: original.height });
       const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(wide, `${where} : la page déborde à ${width} px`).toBeLessThanOrEqual(0);
+      // la scène coupe ce qui dépasse (overflow: hidden) : un débordement y est invisible pour la page, on le mesure à part
+      const sceneWide = await page.evaluate(() =>
+        Math.max(0, ...[...document.querySelectorAll<HTMLElement>('[data-scene]')].map((s) => s.scrollWidth - s.clientWidth)),
+      );
+      expect(sceneWide, `${where} : la scène déborde à ${width} px`).toBeLessThanOrEqual(1);
     }
   } finally {
     await page.setViewportSize(original);

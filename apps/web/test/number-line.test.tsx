@@ -22,12 +22,12 @@ const line = (over: Partial<LineScene> = {}): LineScene => ({
 const touch = (extra = {}) => ({ onPick: vi.fn(), consigne: 'Touche la graduation.', ...extra });
 
 describe('LineView', () => {
-  it('avec touch : 8 graduations donnent 8 boutons de 44 px minimum', () => {
+  it('avec touch : 8 graduations donnent 8 boutons de 36 px minimum (44 px quand la place le permet)', () => {
     const { container } = render(<LineView line={line()} touch={touch()} />);
     const btns = [...container.querySelectorAll<HTMLElement>('button')];
     expect(btns).toHaveLength(8);
-    for (const b of btns) expect(b.style.minWidth).toBe('44px');
-    expect(container.querySelector<HTMLElement>('.line-view__grid')!.style.gridTemplateColumns).toContain('minmax(44px');
+    for (const b of btns) expect(b.style.minWidth).toBe('36px');
+    expect(container.querySelector<HTMLElement>('.line-view__grid')!.style.gridTemplateColumns).toContain('minmax(36px');
   });
 
   it('un clic sur −3 appelle onPick(-3)', () => {
