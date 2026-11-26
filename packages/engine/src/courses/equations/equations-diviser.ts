@@ -1,14 +1,13 @@
-// Cours 3 — Diviser des deux côtés (ax = c). Fiche : docs/modules/02-equations-inequations/equations-diviser.md.
+// Cours 3 — Diviser des deux côtés (ax = c), déroulé guidé (2026-11-26). Fiche : docs/modules/02-equations-inequations/equations-diviser.md.
 import { rat } from '../../math/rational';
 import type { Rng } from '../../rng';
 import type { Outcome, Question } from '../../exercises/types';
 import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
 import {
-  M, NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, autres, buildErrors, choix, decouverte, draw,
-  etapes, exemple, explanation, hl, intOf, is, lecon, linesScene, options3, pratique, redraw, signBox, signs, small, step,
-  texted, toks, trou, trouOf,
+  M, NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, buildErrors, choix, decouverte, draw, etapes, exemple,
+  explanation, hl, intOf, is, lecon, linesScene, options3, redraw, signs, small, step, texted, toks, trouOf,
 } from '../calculs/shared';
-import { EQ_MODULE_ID, coefText, lin, lineQuestions, paramsOf, paren, parenL, saisieX, sgn, textOfEx, latexOfEx } from './lineaire';
+import { EQ_MODULE_ID, coefText, lin, lineQuestions, paramsOf, paren, parenL, resoudreQ, sgn, textOfEx, latexOfEx } from './lineaire';
 
 const ID = 'equations-diviser';
 const RULE = 'ax veut dire a × x. Pour trouver x, je divise les deux membres par a, avec son signe.';
@@ -92,7 +91,7 @@ function feedbackText(q: Question, o: Outcome): string | null {
   return e ? e.explain(q.ex).rule : OTHER(q.ex);
 }
 
-// ——— Leçon ———
+// ——— Leçon : 8 écrans avant l'annonce de la fin (déroulé guidé, 2026-11-26) ———
 const REGLE1 = '**ax veut dire a × x. Pour trouver x, je divise les deux membres par a.**';
 const REGLE2 = '**Je divise par a avec son signe : même signe, x est positif ; signes contraires, x est négatif.**';
 const REGLE3 = '**Je vérifie : je remplace x par ma réponse, et je dois retrouver le membre de droite.**';
@@ -110,7 +109,7 @@ const guess = choix(
   '3x = 12',
 );
 
-// 1 — L'idée de départ : la balance, on partage les deux côtés (règle 1)
+// 1 — Règle 1 : la balance, on partage les deux côtés
 const idee: EtapeStep[] = [
   step('Une équation est comme une **balance en équilibre** : les deux côtés pèsent pareil. Ici, 3x veut dire **3 paquets de x**, et ils pèsent 12.', {
     scene: linesScene([hl('3x'), ' = 12']),
@@ -119,7 +118,7 @@ const idee: EtapeStep[] = [
     scene: linesScene(['3x = 12']),
     after: linesScene(['3x = 12'], [hl('3x ÷ 3 = 12 ÷ 3')]),
     action: trouOf('On partage les deux côtés en 3 : on [ ? ] les deux membres par 3.', ['divise', 'soustrait', 'multiplie'], 0, {
-      1: "Soustraire 3 enlèverait 3 à chaque côté, sans rien partager. 3x veut dire 3 × x : pour partager en 3, on divise.",
+      1: 'Soustraire 3 enlèverait 3 à chaque côté, sans rien partager. 3x veut dire 3 × x : pour partager en 3, on divise.',
       2: 'Multiplier par 3 ferait 9x = 36 : les paquets seraient plus gros, pas partagés. Pour partager en 3, on divise.',
     }),
   }),
@@ -129,7 +128,7 @@ const idee: EtapeStep[] = [
   }),
 ];
 
-// 2 — Règle 2 : le signe de a
+// 4 — Règle 2 : le signe de a
 const regle2: EtapeStep[] = [
   step('Quand le nombre devant x est **négatif**, on divise par ce nombre négatif : on garde son signe.', {
     scene: linesScene([hl(`${M}2x`), ' = 6']),
@@ -147,9 +146,9 @@ const regle2: EtapeStep[] = [
   }),
 ];
 
-// 3 — Règle 3 : vérifier en remplaçant
+// 6 — Règle 3 : vérifier en remplaçant (reprise du cours « Tester si un nombre est solution »)
 const verifier: EtapeStep[] = [
-  step("Pour être sûr de sa réponse, on **remplace x** par le nombre trouvé, dans l'équation de départ.", {
+  step("Pour être sûr de sa réponse, on **remplace x** par le nombre trouvé, dans l'équation de départ, comme dans le cours « Tester si un nombre est solution ».", {
     scene: linesScene([`5x = ${M}35`], [`x = ${M}7`]),
   }),
   step(`Avec x = ${M}7, on calcule 5 × (${M}7) : on doit retrouver ${M}35.`, {
@@ -166,118 +165,19 @@ const verifier: EtapeStep[] = [
   }),
 ];
 
+// Comparer deux cas : le 3 multiplie x, ou s'ajoute à x (cours précédent) : retirer ou diviser
 const compareQ = choix(
   eq3(3, 4),
-  "Quelle opération fait-on des deux côtés, dans chaque équation ?",
+  'Dans quelle équation divise-t-on par 3 ?',
   options3(
-    ['A : diviser par 3, B : retirer 3', 'Oui. Dans A, 3 multiplie x : on divise par 3. Dans B, 3 est ajouté à x : on le retire des deux côtés.'],
-    ['A : retirer 3, B : diviser par 3', "C'est l'inverse. Dans A, 3x veut dire 3 × x : on divise par 3. Dans B, 3 est ajouté : on le retire."],
-    ['Les deux : retirer 3', 'Pour B, oui. Mais dans A, retirer 3 ne laisse pas x seul : 3x veut dire 3 × x, il faut diviser.'],
+    ['Dans A, 3x = 12', 'Oui : dans A, 3 multiplie x, on le défait en divisant.'],
+    ['Dans B, x + 3 = 12', 'Dans B, 3 est ajouté à x : on le retire, on ne divise pas.'],
+    ['Dans les deux', 'Non : une addition se défait en retirant, une multiplication en divisant.'],
   ),
   0,
 );
 
-const exemple1: EtapeStep[] = [
-  step(`Voici la résolution de ${M}4x = 20. Lis la première ligne, puis touche « Je comprends ».`, {
-    scene: linesScene([`${M}4x = 20`]),
-  }),
-  step(`On divise les deux membres par ${M}4. Les signes sont contraires : x sera **négatif**.`, {
-    scene: linesScene([`${M}4x = 20`], [hl(`${M}4x ÷ (${M}4) = 20 ÷ (${M}4)`)]),
-    action: { type: 'comprends' },
-  }),
-];
-
-// ——— Autres façons de faire ———
-const AUTRES: LessonPart = autres({
-  title: 'Autres façons de faire',
-  recap: {
-    title: 'Les 3 règles à retenir',
-    rules: [
-      { title: '1. Je divise les deux membres par a.', ok: '3x = 12, donc x = 12 ÷ 3 = 4', ko: '3x = 12, donc x = 12 − 3 = 9' },
-      { title: '2. Je garde le signe de a.', ok: `${M}2x = 6, donc x = ${M}3`, ko: `${M}2x = 6, donc x = 3` },
-      { title: '3. Je vérifie en remplaçant x.', ok: `5 × (${M}7) = ${M}35`, ko: `5 × 7 = 35, donc x = ${M}7 est faux` },
-    ],
-    sentence: 'ax veut dire a × x : je divise les deux membres par a, avec son signe, et je vérifie en remplaçant x.',
-  },
-  intro: 'La méthode marche toujours. Voici deux autres façons de faire : **choisis celle que tu veux essayer**.',
-  techniques: [
-    {
-      name: 'Se demander « a fois combien ? »',
-      quand: 'Quand ta table de multiplication te donne la réponse.',
-      example: '3x = 12 : 3 fois combien font 12 ? Réponse : 4.',
-      how: '3x veut dire 3 × x. Tu cherches le nombre qui, multiplié par 3, donne 12. C’est la même chose que 12 ÷ 3, calculée de tête.',
-      essai: {
-        kind: 'saisie',
-        consigne: 'Dans 6x = 42, **6 fois combien font 42 ? Tape la valeur de x.**',
-        calc: '6x = 42',
-        answer: 7,
-        yes: '6 × 7 = 42 : x = 7. Même résultat que 42 ÷ 6.',
-        errors: [
-          { values: [36], message: '36, c’est 42 − 6 : tu as soustrait. 6x veut dire 6 × x : cherche 6 fois combien font 42.' },
-          { values: [252], message: '252, c’est 42 × 6 : tu as multiplié. Cherche le nombre qui, multiplié par 6, donne 42.' },
-        ],
-        fallback: 'Cherche le nombre qui, multiplié par 6, donne 42. Tu peux aussi calculer 42 ÷ 6.',
-      },
-    },
-    {
-      name: 'Vérifier sa réponse',
-      quand: 'Une fois x trouvé, ou quand tu hésites entre deux réponses.',
-      example: '4x = 20 et x = 5 : 4 × 5 = 20, c’est juste.',
-      how: 'Tu remplaces x par ton nombre, tu calcules le membre de gauche, et tu regardes si tu retrouves le membre de droite.',
-      essai: {
-        kind: 'choix',
-        consigne: 'Un élève a trouvé x = 6 pour 4x = 20. **Touche ce qu’on obtient en remplaçant x par 6.**',
-        calc: '4x = 20',
-        options: ['4 × 6 = 24, donc x = 6 est faux', '4 × 6 = 20, donc x = 6 est juste', '4 × 6 = 10, donc x = 6 est faux'],
-        correct: 0,
-        yes: '4 × 6 = 24, et 24 n’est pas 20 : x = 6 est faux. Le bon résultat est x = 5.',
-        no: '4 × 6 = 24. On ne retrouve pas 20, donc x = 6 est faux. Le bon résultat est x = 5.',
-      },
-    },
-  ],
-  outro: "Ensuite, tu t'entraînes avec quatre questions.",
-});
-
-// ——— Série de pratique : l'aide diminue ; la 1re question vient du cours précédent ———
-const PRATIQUE = pratique(
-  'Pratique',
-  [
-    {
-      question: choix(
-        eq3(2, 2),
-        'Pour résoudre x + 4 = 11, quelle opération fait-on des deux côtés ?',
-        options3(
-          ['Retirer 4', 'Oui : on retire 4 des deux côtés, 11 − 4 = 7. C’est la méthode du cours « Ajouter ou retirer le même nombre ».'],
-          ['Diviser par 4', 'Diviser par 4 sert quand 4 multiplie x, comme dans 4x. Ici, 4 est ajouté à x : on le retire.'],
-          ['Ajouter 4', 'Ajouter 4 donnerait x + 8 = 15 : x ne serait pas seul. On retire 4.'],
-        ),
-        0,
-        'x + 4 = 11',
-      ),
-      texts: { consigne: 'Cette équation vient du cours précédent. **Touche la bonne opération.**' },
-    },
-    {
-      question: trou(eq3(5, 7), 'x = \\square', 7),
-      texts: { consigne: 'La ligne « ÷ 5 » est déjà écrite. **Tape la valeur de x dans la case.**', above: ['5x \\div 5 = 35 \\div 5'] },
-    },
-    {
-      question: choix(
-        eq3(-4, -6),
-        'Quelle est la valeur de x ?',
-        options3(
-          [`x = ${M}6`, `${M}4x = 24 : on divise 24 par ${M}4. Les signes sont contraires, donc x est négatif : ${M}6.`],
-          ['x = 6', `6 a le bon chiffre, mais 24 ÷ (${M}4) est négatif : les signes sont contraires. Le bon résultat est ${M}6.`],
-          ['x = 28', `28, c'est 24 − (${M}4) : tu as soustrait. ${M}4x veut dire (${M}4) × x : on divise les deux membres par ${M}4.`],
-        ),
-        0,
-        `-4x = 24`,
-      ),
-      texts: { consigne: "Regarde bien le signe de a, puis touche la valeur de x." },
-    },
-    { question: saisieX(eq3(7, -8)), texts: { consigne: "Résous l'équation. **Tape la valeur de x.**" } },
-  ],
-  "Maintenant, deux exemples pour t'aider à les résoudre en entier.",
-);
+const exGuide = eq3(-6, 7); // −6x = −42, x = 7
 
 const parts: LessonPart[] = [
   texted(decouverte(guess), {
@@ -286,64 +186,39 @@ const parts: LessonPart[] = [
     mention: NOT_COUNTED_GUESS,
   }),
   etapes(R1, idee),
-  lecon(small(eq3(5, 7), '5x = 35', 'Pour trouver x dans 5x = 35, que fait-on des deux côtés ?', [
-    ['On divise par 5', 'Oui : 5x veut dire 5 × x, on le défait en divisant les deux membres par 5. 35 ÷ 5 = 7.'],
-    ['On retire 5', 'Retirer 5 donnerait 5x − 5 = 30 : x ne serait pas seul. 5x veut dire 5 × x, on divise.'],
-    ['On multiplie par 5', 'Multiplier par 5 donnerait 25x = 175 : x serait encore plus loin d’être seul. On divise.'],
-  ], 0)),
-  texted(lecon(small(eq3(4, 7), '4x = 28', 'Dans 4x = 28, que vaut x ?', [
-    ['x = 7', '4x = 28 : on divise les deux membres par 4, 28 ÷ 4 = 7. Et 4 × 7 = 28.'],
-    ['x = 24', '24, c’est 28 − 4 : tu as soustrait. On divise les deux membres par 4.'],
-    ['x = 112', '112, c’est 28 × 4 : tu as multiplié. On divise les deux membres par 4.'],
-  ], 0)), { joinPrevious: true }),
-  etapes(R2, regle2),
-  lecon(small(eq3(-3, -5), `${M}3x = 15`, `Dans ${M}3x = 15, que vaut x ?`, [
-    [`x = ${M}5`, `15 ÷ (${M}3) : les signes sont contraires, donc x est négatif : ${M}5.`],
-    ['x = 5', `5 a le bon chiffre, mais on divise par ${M}3 : les signes sont contraires, donc x est négatif.`],
-    ['x = 18', `18, c'est 15 − (${M}3) : tu as soustrait. On divise les deux membres par ${M}3.`],
-  ], 0)),
-  texted(lecon(small(eq3(4, -5), `4x = ${M}20`, `Dans 4x = ${M}20, que vaut x ?`, [
-    [`x = ${M}5`, `${M}20 ÷ 4 : les signes sont contraires, donc x est négatif : ${M}5.`],
-    ['x = 5', `${M}20 est négatif et 4 est positif : les signes sont contraires, donc x est négatif.`],
-    [`x = ${M}24`, `${M}24, c'est ${M}20 − 4 : tu as soustrait. On divise les deux membres par 4.`],
-  ], 0)), { joinPrevious: true }),
-  etapes(R3, verifier),
-  lecon(small(eq3(3, 4), '3x = 12', 'Un élève a trouvé x = 9. On remplace : 3 × 9 = 27. Que conclut-on ?', [
-    ['x = 9 est faux, car 27 n’est pas 12', 'Oui : en remplaçant, on devrait retrouver 12. Or 3 × 9 = 27. Le bon résultat est x = 4.'],
-    ['x = 9 est juste', '3 × 9 = 27, et le membre de droite est 12. On ne retrouve pas le même nombre : x = 9 est faux.'],
-    ['On ne peut pas savoir', 'Si : on remplace x, on calcule, et on compare avec le membre de droite. Ici 27 n’est pas 12.'],
-  ], 0)),
-  // Comparer deux cas : A de ce cours, B du cours « Ajouter ou retirer le même nombre »
+  lecon(
+    small(eq3(5, 7), '5x = 35', 'Pour trouver x dans 5x = 35, que fait-on des deux côtés ?', [
+      ['On divise par 5', 'Oui : 5x veut dire 5 × x, on le défait en divisant les deux membres par 5. 35 ÷ 5 = 7.'],
+      ['On retire 5', 'Retirer 5 donnerait 5x − 5 = 30 : x ne serait pas seul. 5x veut dire 5 × x, on divise.'],
+      ['On multiplie par 5', 'Multiplier par 5 donnerait 25x = 175 : x serait encore plus loin d’être seul. On divise.'],
+    ], 0),
+  ),
   texted(decouverte(compareQ), {
     title: 'Comparer deux cas',
-    intro: ['Voici deux équations qui se ressemblent. Regarde bien comment 3 est écrit à côté de x.'],
+    intro: ['Ces deux équations se ressemblent : regarde comment 3 est écrit à côté de x.'],
     mention: NOT_COUNTED_UNDERSTAND,
     compare: {
       a: { label: 'Équation A', latex: '3x = 12' },
       b: { label: 'Équation B', latex: 'x + 3 = 12' },
-      note: 'L’équation B vient du cours précédent : tu sais déjà la résoudre. Ici, tu observes seulement ce qui change.',
+      note: '',
+      inPlace: true,
       highlight: { a: toks(hl('3x'), ' = 12'), b: toks('x ', hl('+ 3'), ' = 12') },
-      after: [
-        'A : 3 multiplie x. On divise les deux membres par 3 : x = 4.',
-        'B : 3 est ajouté à x. On retire 3 des deux côtés : x = 9.',
-        'Ce qui change : une multiplication se défait en divisant, une addition en retirant.',
-      ],
+      after: ['Dans A, 3 multiplie x : on divise par 3, x = 12 ÷ 3 = 4.', 'Dans B, 3 est ajouté à x : on retire 3, x = 12 − 3 = 9.'],
     },
   }),
-  AUTRES,
-  PRATIQUE,
-  etapes('Exemple 1 sur 2', exemple1),
-  texted(exemple(trou(eq3(-4, -5), 'x = \\square', -5)), {
-    consigne: 'Tape ce qui manque dans la case, avec les touches du clavier.',
-    above: ['-4x \\div (-4) = 20 \\div (-4)'],
-    help: `Calcule 20 ÷ (${M}4) : les signes sont contraires, donc le résultat est négatif.`,
+  etapes(R2, regle2),
+  lecon(
+    small(eq3(4, -5), `4x = ${M}20`, `Dans 4x = ${M}20, que vaut x ?`, [
+      [`x = ${M}5`, `${M}20 ÷ 4 : les signes sont contraires, donc x est négatif : ${M}5.`],
+      ['x = 5', `${M}20 est négatif et 4 est positif : les signes sont contraires, donc x est négatif.`],
+      [`x = ${M}24`, `${M}24, c'est ${M}20 − 4 : tu as soustrait. On divise les deux membres par 4.`],
+    ], 0),
+  ),
+  etapes(R3, verifier),
+  texted(exemple({ ...resoudreQ(exGuide), guided: true } as Question), {
+    title: 'On le fait ensemble',
+    subtitle: `Résous ${M}6x = ${M}42. À chaque ligne, une aide te dit quoi faire.`,
   }),
-  texted(decouverte(signBox(eq3(6, -7), false, 'signe-oublie')), {
-    consigne: 'Touche le signe du résultat.',
-    intro: [`Cette fois, deux cases sont à toi. Pour 6x = ${M}42, x vaut ${M}42 ÷ 6. Trouve d'abord le signe du résultat, puis sa valeur.`],
-    mention: '',
-  }),
-  texted(exemple(trou(eq3(6, -7), 'x = \\square', -7)), { above: ['6x \\div 6 = -42 \\div 6'], mention: '' }),
   annonceFin(),
 ];
 
@@ -355,9 +230,11 @@ export const equationsDiviser: CourseDef = {
   shortTitle: 'Diviser',
   rule: RULE,
   parts,
-  lessonLength: parts.findIndex((p) => p.type === 'pratique'),
+  // pas de série de pratique : la pastille s'arrête avant l'exemple guidé
+  lessonLength: parts.findIndex((p) => p.type === 'question' && p.activity === 'exemple'),
   unePhrase: true,
-  endExercises: { count: 5, kind: 'saisie' },
+  // « resoudre » : l'élève écrit ses lignes (décision du 2026-11-26)
+  endExercises: { count: 5, kind: 'saisie', mix: ['resoudre', 'resoudre', 'resoudre', 'resoudre', 'resoudre'] },
   generate,
   errors,
   generalExplanation: (ex) => explanation(RULE, resolution(ex)),

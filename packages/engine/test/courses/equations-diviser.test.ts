@@ -72,8 +72,8 @@ describe('Cours 3 — Diviser des deux côtés (ax = c)', () => {
     expect(checkAnswer(c, r, { lines, hinted: false })).toMatchObject({ correct: true });
   });
 
-  it('exercices de fin : x = ▢ seulement (pas de résolution complète avant le cours suivant)', () => {
+  it('exercices de fin : 5 « À toi de résoudre » (décision du 2026-11-26)', () => {
     const fins = courseRunItems(c, seededRng(2)).filter((i) => i.type === 'question' && i.activity === 'fin');
-    expect(fins.map((f) => (f.type === 'question' ? f.question.kind : ''))).toEqual(Array(5).fill('saisie'));
+    expect(fins.map((f) => (f.type === 'question' ? f.question.kind : ''))).toEqual(Array(5).fill('resoudre'));
   });
 });
