@@ -178,3 +178,9 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Aucun cours ne l'utilise encore : cours 7 `inequations-intervalles` et 8 `inequations-resoudre-premier-degre` à écrire (fiches d'abord). Lecture d'un intervalle sur la droite (cours 7) : question `choix` existante, à tester avec `IntervalLine` dans la leçon.
 - Tests : moteur 1 212, api 35, web 468 (verts).
 - Reste : maquette du tableau de signes (cours 9 à 11), écran « deux solutions » du cours 6, programme de 1re spécialité 2026.
+
+## Module 2 : tableau de signes, réunion ∪ et « deux solutions » codés (2026-11-26)
+- Maquette `docs/design/ecrans/equations-tableau-signes.html` validée (l'élève construit les valeurs, la 1re colonne et les signes ; ce qu'on demande dépend de l'exercice ; quotient en fraction ; double barre). Codé : questions `tableau` (`exercises/tableau.ts`, `math/tableau.ts`, `questions/Tableau.tsx`, `SignTable.tsx`, `TableKeypad.tsx`) et `solutions` (cours 6 : `exercises/solutions.ts`, `questions/Solutions.tsx`) ; `intervalle` étendu : réunion ∪ (`expected2`, bouton « Relier un autre intervalle ») et tableau à lire (`intervalleFromTable`).
+- Pas encore regardé rendu dans un navigateur : seuls les tests l'ont exercé.
+- Tests : moteur 1 224, api 35, web 474 (verts).
+- Reste : écrire les cours 7 à 11 et brancher `solutions` dans le cours 6 (écran « deux solutions »).

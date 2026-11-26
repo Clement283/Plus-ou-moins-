@@ -101,7 +101,9 @@ export type IntervalErrorId =
   | 'signe-borne'
   | 'borne'
   /** Mauvaise lecture du sens après une division par un négatif. */
-  | 'sens';
+  | 'sens'
+  /** Deux morceaux à relier par ∪, ou un seul : le nombre de morceaux n'est pas bon. */
+  | 'reunion';
 
 export type IntervalVerdict = { ok: true } | { ok: false; errorId: IntervalErrorId };
 
@@ -141,5 +143,6 @@ export const INTERVAL_ERROR_TEXT: Record<IntervalErrorId, { title: string; messa
   },
   'signe-borne': { title: 'Regarde le signe de la borne.', message: 'C’est le même nombre, mais pas du même signe.' },
   borne: { title: 'La borne n’est pas la bonne.', message: 'Relis l’inégalité : la borne est le nombre qui est dedans.' },
+  reunion: { title: 'Le nombre d’intervalles n’est pas bon.', message: 'Regarde les colonnes qui conviennent : chaque morceau séparé est un intervalle, et ∪ les relie.' },
   sens: { title: 'Le sens a changé.', message: 'Quand on multiplie ou qu’on divise par un nombre négatif, le sens de l’inégalité se retourne.' },
 };

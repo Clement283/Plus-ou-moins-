@@ -7,6 +7,8 @@ import type { Exercise, Level } from '../courses/types';
 import type { Equation } from '../math/equation';
 import type { CalculerQuestion } from './calculer';
 import type { IntervalleQuestion } from './intervalle';
+import type { TableauQuestion } from './tableau';
+import type { SolutionsQuestion } from './solutions';
 import type { IntervalInput } from '../math/intervalle';
 
 export type { QuestionKind } from '../events';
@@ -74,6 +76,8 @@ export type Question =
     }
   | CalculerQuestion
   | IntervalleQuestion
+  | TableauQuestion
+  | SolutionsQuestion
   | {
       kind: 'droite';
       ex: Exercise;
@@ -110,7 +114,11 @@ export type Answer =
   /** « calculer » : les lignes de calcul validées (fausses comprises), le 1er verdict « solution ou pas » et l'indice. */
   | { calcLines: string[]; firstPick: boolean; hinted: boolean }
   /** « intervalle » : l'intervalle écrit, le symbole choisi (cours 8, après une division par un négatif) et l'indice. */
-  | { interval: IntervalInput; symbol: string | null; hinted: boolean };
+  | { interval: IntervalInput; interval2?: IntervalInput | null; symbol: string | null; hinted: boolean }
+  /** « tableau » : l'erreur de chaque vérification ratée, dans l'ordre (vide : tout juste du premier coup), et l'indice. */
+  | { tableau: import('../math/tableau').TableErrorId[]; hinted: boolean }
+  /** « solutions » : les valeurs écrites (une par solution) et l'indice. */
+  | { values: string[]; hinted: boolean };
 
 export interface Outcome {
   correct: boolean;

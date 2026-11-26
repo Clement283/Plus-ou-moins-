@@ -94,6 +94,10 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
       return { title: 'Tu as fini, mais avec une erreur en route.', rightLatex: text(o.expected) };
     case 'intervalle':
       return { title: 'Pas tout à fait.', rightLatex: intervalleExpectedLatex(q) };
+    case 'solutions':
+      return { title: 'Pas tout à fait.', rightLatex: text(`S = ${o.expected}`) };
+    case 'tableau':
+      return { title: 'Tu as fini, mais avec une erreur en route.', rightLatex: text(`Dernière ligne : ${o.expected}`) };
     case 'droite':
       return { title: `La bonne réponse est ${plain(`${q.answer}`)}.`, rightLatex: `${q.answer}` };
     case 'vraifaux':
@@ -167,6 +171,18 @@ function engineFeedback(course: CourseDef, q: Question, a: Answer, o: Outcome, o
       },
       steps: [],
     };
+  }
+
+  if (q.kind === 'solutions') {
+    if (o.correct) return { tone: 'juste', title: 'Juste !', note: o.helped ? 'Écrit avec l’indice : c’est noté « avec aide ».' : null };
+    const right = wrongParts(q, a, o);
+    return { tone: 'faux', title: right.title, message: o.message ?? '', rightLatex: right.rightLatex, explanation: null, steps: [] };
+  }
+
+  if (q.kind === 'tableau') {
+    if (o.correct) return { tone: 'juste', title: 'Juste !', note: o.helped ? 'Fait avec l’indice : c’est noté « avec aide ».' : null };
+    const right = wrongParts(q, a, o);
+    return { tone: 'faux', title: right.title, message: o.message ?? '', rightLatex: right.rightLatex, explanation: null, steps: [] };
   }
 
   if (q.kind === 'intervalle') {

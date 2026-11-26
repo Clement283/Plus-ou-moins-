@@ -248,7 +248,7 @@ export interface MemoCard {
   tip: string;
 }
 
-export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre' | 'calculer' | 'intervalle';
+export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre' | 'calculer' | 'intervalle' | 'tableau' | 'solutions';
 
 export interface CourseDef {
   id: string;

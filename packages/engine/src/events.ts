@@ -1,5 +1,5 @@
 export type Activity = 'lecon' | 'exemple' | 'fin' | 'rattrapage' | 'revision' | 'entrainement' | 'decouverte' | 'echauffement';
-export type QuestionKind = 'saisie' | 'trou' | 'ordre' | 'erreur' | 'paires' | 'classer' | 'qcm' | 'vraifaux' | 'choix' | 'reecrire' | 'droite' | 'resoudre' | 'calculer' | 'intervalle';
+export type QuestionKind = 'saisie' | 'trou' | 'ordre' | 'erreur' | 'paires' | 'classer' | 'qcm' | 'vraifaux' | 'choix' | 'reecrire' | 'droite' | 'resoudre' | 'calculer' | 'intervalle' | 'tableau' | 'solutions';
 export type ErrorFamily = 'signe' | 'ecriture' | 'calcul' | 'autre';
 
 export type AppEvent = { id: string; userId: string; at: number; day: string } & (
@@ -29,7 +29,7 @@ export type AppEvent = { id: string; userId: string; at: number; day: string } &
 );
 
 const ACTIVITIES: readonly string[] = ['lecon', 'exemple', 'fin', 'rattrapage', 'revision', 'entrainement', 'decouverte', 'echauffement'];
-const QUESTION_KINDS: readonly string[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'choix', 'reecrire', 'droite', 'resoudre', 'calculer', 'intervalle'];
+const QUESTION_KINDS: readonly string[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'choix', 'reecrire', 'droite', 'resoudre', 'calculer', 'intervalle', 'tableau', 'solutions'];
 const ERROR_FAMILIES: readonly string[] = ['signe', 'ecriture', 'calcul', 'autre'];
 
 type Rec = Record<string, unknown>;

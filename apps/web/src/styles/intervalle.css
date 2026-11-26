@@ -21,3 +21,36 @@
 .keypad--interval{grid-template-columns:repeat(5,1fr)}
 .keypad--interval .key--sign{font-size:18px}
 .keypad--interval .key--wide{grid-column:1 / -1}
+
+/* Tableau de signes (maquette docs/design/ecrans/equations-tableau-signes.html) */
+.sign-steps{display:flex;gap:var(--sp-8);flex-wrap:wrap}
+.sign-steps__pill{font-size:13px;font-weight:600;border-radius:999px;padding:4px 10px;box-shadow:inset 0 0 0 1px var(--border);color:var(--muted)}
+.sign-steps__pill.is-on{background:var(--primary);color:var(--on-primary);box-shadow:none}
+.sign-steps__pill.is-done{color:var(--success);box-shadow:inset 0 0 0 1px var(--success)}
+.sign-table{display:grid;border-radius:var(--r-md);box-shadow:inset 0 0 0 2px var(--border);overflow:hidden;font-size:16px}
+.sign-table__row{display:contents}
+.sign-table__c{display:flex;align-items:center;justify-content:center;min-height:46px;padding:2px 4px;border:0;background:var(--surface);color:var(--on-surface);font:inherit;border-bottom:1px solid var(--border);position:relative}
+.sign-table__lab{justify-content:flex-start;padding-left:8px;font-weight:600;background:var(--surface-sunken);font-size:14px;line-height:1.2;text-align:left}
+.sign-table__hd{background:var(--surface-sunken);font-weight:600;min-height:44px}
+.sign-table__c.is-last{border-bottom:0}
+button.sign-table__c{cursor:pointer}
+button.sign-table__c.is-cur{box-shadow:inset 0 0 0 3px var(--primary);background:var(--primary-container)}
+.sign-table__c.is-empty::after{content:"";width:22px;height:22px;border:2px dashed var(--border);border-radius:6px}
+.sign-table__lab.is-empty::after{width:60%;height:20px}
+.sign-table__hd.is-edit{border:0;background:var(--surface-sunken)}
+.sign-plus{color:var(--primary-ink);font-weight:700;font-size:20px}
+.sign-minus{color:var(--error-ink);font-weight:700;font-size:20px}
+.sign-zero,.sign-bar{font-weight:700;font-size:18px}
+.sign-table__c.is-root:not(.sign-table__hd)::before{content:"";position:absolute;left:50%;top:0;bottom:-1px;width:3px;margin-left:-1.5px;background:var(--on-surface)}
+.sign-table__c.is-root>span{position:relative;z-index:1;background:inherit;padding:0 3px;border-radius:6px}
+.sign-table__c.sign-bar:not(.sign-table__hd)::before{width:9px;margin-left:-4.5px;background:repeating-linear-gradient(90deg,var(--on-surface) 0 3px,transparent 3px 6px)}
+.sign-table__c.sign-bar>span{display:none}
+.sign-table__c.is-ok{background:var(--success-container)}
+.sign-table__c.is-ko{background:var(--error-container);box-shadow:inset 0 0 0 2px var(--error)}
+.sign-table__c.is-ghost{background:var(--primary-container)}
+.keypad--table{grid-template-columns:repeat(5,1fr)}
+.keypad--table .key--sign{font-size:20px}
+.keypad--table .key--wide{grid-column:1 / -1}
+.keypad--table-signes{grid-template-columns:repeat(5,1fr)}
+.sol-brace{font-size:30px;font-weight:300;color:var(--muted)}
+.sol-row__item{display:inline-flex;align-items:center;gap:var(--sp-8)}
