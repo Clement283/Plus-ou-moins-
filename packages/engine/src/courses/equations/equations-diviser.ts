@@ -161,7 +161,7 @@ const verifier: EtapeStep[] = [
     }),
   }),
   step(undefined, {
-    scene: linesScene([`5 × (${M}7) = ${M}35 : c'est le membre de droite`]),
+    scene: linesScene([`5 × (${M}7) = ${M}35`], [`On retrouve ${M}35.`]),
     rule: { n: 3, text: REGLE3 },
   }),
 ];

@@ -48,7 +48,7 @@ export const textOfEx = (ex: Exercise): string => latexOfEx(ex).replace(/-/g, '�
 export const saisieX = (ex: Exercise): Question => ({
   kind: 'saisie',
   ex,
-  promptLatex: `${latexOfEx(ex)} \\quad \\text{donc} \\quad x = \\square`,
+  promptLatex: `${latexOfEx(ex)} \\Rightarrow x = \\square`,
 });
 
 /** « À toi de résoudre » : l'élève écrit chaque ligne avec sa méthode. */
