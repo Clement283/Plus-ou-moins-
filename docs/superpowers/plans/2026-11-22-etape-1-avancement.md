@@ -190,3 +190,10 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Coût mesuré (jetons ; actions du compteur système) : cours 7 : 151 514 ; 24 · cours 8 : 43 800 ; 13 · cours 9 : 26 586 ; 5 · cours 10 : 26 580 ; 4 · cours 11 : 23 243 ; 5 · total : 271 723 jetons ; 51 actions. Le 1er cours paie la lecture des documents ; les suivants coûtent environ 25 000 à 45 000.
 - Tests : moteur 1 287, api 35, web 474 (verts).
 - Pas essayés dans l'appli ni relus. Manques signalés : pas d'intervalle colorié ni de tableau de signes dans les écrans de leçon (seulement dans les questions) ; le rang de l'exercice n'est pas dans `BuildCtx` (impossible de donner plus d'aide au 1er exercice de fin qu'aux suivants) ; le cours 6 n'utilise pas encore la question `solutions`.
+
+## Module 2 : corrections après les cours 7 à 11 (2026-11-26)
+- Scènes de leçon : `Scene.interval` (intervalle(s) colorié(s)) et `Scene.table` (tableau de signes, `upTo`, `rows`, `ghost`) ; utilisées aux cours 7 à 11. Limite : l'écran « comparer deux cas » n'a pas de champ intervalle.
+- `BuildCtx.index` (rang 0 à 4 de l'exercice de fin) : cours 10 et 11 donnent les lignes au tableau de rang 2 ; cours 11 garantit une lecture de S en ≤ ou ≥ (rang 1).
+- Cours 6 : question `solutions` dans 3 exercices de fin sur 5 et dans l'exemple guidé.
+- Coût de la passe : 44 413 jetons, 16 actions (compteur système). Total des cours 7 à 11 et corrections : 316 136 jetons.
+- Tests : moteur 1 291, api 35, web 477 (verts).
