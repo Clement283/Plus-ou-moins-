@@ -151,3 +151,9 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Tests : moteur 1 148, api 35, web 452 (verts après fusion des trois branches).
 - À vérifier : reprises entre les cours 2 et 3 (le cours 3 a été écrit sans voir le cours 2) ; l'écran « Calcul passé » du cours 2 ; le cours 1 n'a pas de « solution ou pas solution » dans ses exercices de fin ; textes d'écran non relus.
 - Reste du module : cours 5 à 11 (fiches à écrire), maquettes d'intervalles et de tableau de signes.
+
+## Module 2 : écran « Calculer par lignes » et retours sur les cours 1 à 4 (2026-11-26)
+- Retours du porteur du projet après essai du cours 1 : exercices trop « de tête » (impossible d'écrire −3 × 4 + 7 puis −12 + 7), cours trop long (17 blocs) avec des répétitions (les 4 ou 5 premiers écrans du cours 2 disent la même chose). Décisions : étapes écrites dans tous les exercices de fin, cours d'environ 10 blocs, un même geste montré 2 ou 3 fois au plus (règles dans le `module.md`). Cours 1 à 4 à corriger **après son essai des cours 2 à 4**.
+- Écran « Calculer par lignes » codé : moteur `math/calcul.ts` et `exercises/calculer.ts` (question `calculer`), composant `Calculer.tsx`. Maquette validée (état 8 de `docs/design/ecrans/equations-resolution-ligne.html`). Erreurs reconnues : priorité oubliée, signe (opération au mauvais signe, signe d'un nombre oublié). Aucun cours ne l'utilise encore.
+- Tests : moteur 1 169, api 35, web 459 (verts).
+

@@ -11,6 +11,12 @@
 - **Limites volontaires** : coefficients et solutions **entiers** (le module Fractions vient après) ; parenthèses avec distributivité simple seulement (vue en 4e, cycle 4 p. 10) ; pas de valeur absolue |x − a| ⩽ r (2nde 2026 p. 7), pas d'équation quotient A(x)/B(x) = k (p. 8, après le module Fractions), pas de x² = a (module Carrés), pas de second degré, pas de système.
 - **Sert aux modules suivants** : le second degré (forme factorisée, signe, p. 7 de 1re), signe de la dérivée et variations (p. 10 de 1re), suites (seuil : résoudre uₙ > k).
 
+## Règles de rédaction des cours (retours du porteur du projet, 2026-11-26)
+- **Cours courts : environ 10 blocs de leçon.** Les 4 premiers cours en ont environ 17 : à raccourcir.
+- **Un même geste (par exemple « on retire le même nombre des deux côtés ») n'est montré que 2 ou 3 fois dans un cours** : une fois au début, une fois au milieu, au plus une fois vers la fin. Jamais 4 ou 5 écrans d'affilée qui disent la même chose.
+- **Pas plus de 2 écrans du même type d'affilée.** Une nouvelle règle ou un nouveau cas change vraiment quelque chose (nombre négatif, x à droite, ajouter au lieu de retirer), sinon on ne l'ajoute pas.
+- **Tout se fait sur l'écran** : étapes écrites dans les exercices (calcul par lignes au cours 1, résolution ligne par ligne aux cours 2 à 4) ; ce qui reste sur brouillon vient plus tard.
+
 ## Les cours dans l'ordre
 | # | Identifiant | Règle en une phrase | Pourquoi un cours à part | Source |
 |---|---|---|---|---|
