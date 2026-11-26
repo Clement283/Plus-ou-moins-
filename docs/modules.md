@@ -16,7 +16,7 @@ Ordre voulu par le porteur du projet (2026-11-25) : les modules de révision (Re
 
 ## Identifiants et numéros de cours
 - Un cours a un **identifiant sans numéro** (`equations-premier-degre`), stable, qui sert aussi de nom de fichier (fiche, code, test). Les cours du module 1 gardent leurs anciens identifiants (`c04-soustraire`…) : la progression de l'élève y est attachée.
-- Le **numéro affiché** (« Cours 5 ») est **calculé** par l'appli d'après l'ordre des modules (`packages/engine/src/courses/index.ts`), à partir de 0. Ajouter un cours ou un module décale les numéros tout seul, sans rien renommer.
+- Le **numéro affiché** (« Cours 3 ») est **calculé** par l'appli : c'est la place du cours **dans son module**, qui **repart de 1** à chaque module (le module Relatifs, lui, commence au Cours 0 : `firstNumber` dans `ModuleDef`). Insérer un cours décale les numéros de son module tout seul, sans rien renommer. Quand l'appli mêle plusieurs modules (révisions, suivi), le libellé devient « Équations · Cours 3 » (`courseNumberLabel`).
 - Dans un texte d'écran, désigner un autre cours par son **titre**, pas par son numéro.
 
 ## Qui lit quoi

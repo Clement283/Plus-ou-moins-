@@ -12,7 +12,7 @@
  * - A run is validated by its own tally: a course run (with « fin » answers) at ≥ 80 % overall and ≥ 4 of
  *   the 5 end exercises; a rattrapage at ≥ 4 of 5 (same rules as srs).
  */
-import { MODULES, getCourse, type ModuleDef } from './courses';
+import { MODULES, courseRank, getCourse, type ModuleDef } from './courses';
 import { dailyTime, type DailyTime } from './daily';
 import { streakOf } from './dashboard';
 import type { AppEvent } from './events';
@@ -177,6 +177,6 @@ export function reviewSummary(
       label: returnLabel(diffDays(today, nextReview)),
     });
   }
-  lines.sort((a, b) => a.order - b.order);
+  lines.sort((a, b) => courseRank(a.courseId) - courseRank(b.courseId));
   return { lines, firstOk, firstTotal };
 }

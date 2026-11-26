@@ -12,6 +12,8 @@ export interface ModuleDef {
   theme: string;
   colorVar: string;
   courseIds: string[];
+  /** Numéro du premier cours du module (1 par défaut ; le module Relatifs commence au Cours 0). */
+  firstNumber?: number;
 }
 
 export interface Exercise {

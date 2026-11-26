@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MODULES, diagnose, getCourse, getModule } from '../../src';
+import { MODULES, courseNumberLabel, courseRank, diagnose, getCourse, getModule } from '../../src';
 import { neg, rat } from '../../src/math/rational';
 import { seededRng } from '../../src/rng';
 import { exOf } from './helpers';
@@ -13,6 +13,7 @@ describe('Module « Calculs »', () => {
       title: 'Calculs',
       theme: 'les bases du calcul, sans lesquelles on perd des points partout (second degré, fractions, équations…).',
       colorVar: '--module-calculs',
+      firstNumber: 0,
       courseIds: [
         'c00-bien-ecrire',
         'c01-additionner-meme-signe',
@@ -79,5 +80,17 @@ describe('Noms courts des cours (bilan de séance)', () => {
       'Diviser',
       'Multiplier plusieurs',
     ]);
+  });
+});
+
+describe('Numéro affiché des cours', () => {
+  it('calculé : place dans le module, à partir de firstNumber (Relatifs commence au Cours 0)', () => {
+    const m = getModule('calculs');
+    expect(m.courseIds.map((id) => getCourse(id).order)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+  });
+
+  it('étiquette « Cours N » tant qu\'il n\'y a qu\'un module', () => {
+    expect(courseNumberLabel('c05-multiplier-deux')).toBe('Cours 5');
+    expect(courseRank('c05-multiplier-deux')).toBe(5);
   });
 });

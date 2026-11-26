@@ -1,4 +1,4 @@
-import { getCourse, type CourseStatus, type LastAttempt } from '@pom/engine';
+import { courseNumberLabel, getCourse, type CourseStatus, type LastAttempt } from '@pom/engine';
 import { Icon } from '../ui/Icon';
 
 /** Étoiles d'un cours validé (1 à 3), vides comprises : `.rating` du design system. */
@@ -17,7 +17,7 @@ const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
 /** « Cours 4, soustraire, c'est ajouter l'opposé » (libellé des listes). */
 export function courseLabel(courseId: string): string {
   const c = getCourse(courseId);
-  return `Cours ${c.order}, ${lowerFirst(c.title)}`;
+  return `${courseNumberLabel(courseId)}, ${lowerFirst(c.title)}`;
 }
 
 /** « à faire » couvre un cours disponible ou commencé (un cours quitté recommence, doc 08 n° 16). */

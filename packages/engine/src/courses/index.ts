@@ -14,14 +14,28 @@ export const MODULES: ModuleDef[] = [CALCULS];
 export { ESSAIS };
 
 /**
- * Le numéro affiché d'un cours (`order`) est **calculé** : sa place dans l'ordre des modules de `MODULES`, à partir de 0.
- * Insérer un cours ou un module décale donc les numéros tout seul ; l'identifiant (`id`) ne change jamais.
- * (Les cours « Essais », hors de MODULES, gardent le `order` écrit dans leur fichier.)
+ * Le numéro affiché d'un cours (`order`, « Cours 3 ») est **calculé** : sa place dans son module, qui repart de
+ * `firstNumber` (1 par défaut, 0 pour Relatifs). Insérer un cours décale donc les numéros de son module tout seul ;
+ * l'identifiant (`id`) ne change jamais. Les cours « Essais », hors de MODULES, gardent le `order` de leur fichier.
  */
-const RANK = new Map(MODULES.flatMap((m) => m.courseIds).map((id, i) => [id, i]));
-const COURSES = new Map<string, CourseDef>(
-  [...CALCULS_COURSES, ...ESSAIS_COURSES].map((c) => [c.id, RANK.has(c.id) ? { ...c, order: RANK.get(c.id)! } : c]),
+const NUMBER = new Map<string, number>(
+  MODULES.flatMap((m) => m.courseIds.map((id, i) => [id, (m.firstNumber ?? 1) + i] as [string, number])),
 );
+const COURSES = new Map<string, CourseDef>(
+  [...CALCULS_COURSES, ...ESSAIS_COURSES].map((c) => [c.id, NUMBER.has(c.id) ? { ...c, order: NUMBER.get(c.id)! } : c]),
+);
+
+/** Rang global d'un cours (ordre des modules puis ordre dans le module) : sert à trier des cours de modules différents. */
+const GLOBAL_RANK = new Map(MODULES.flatMap((m) => m.courseIds).map((id, i) => [id, i]));
+export const courseRank = (id: string): number => GLOBAL_RANK.get(id) ?? Number.MAX_SAFE_INTEGER;
+
+/** « Cours 3 », ou « Équations · Cours 3 » dès qu'il y a plusieurs modules (les numéros repartent dans chaque module). */
+export function courseNumberLabel(id: string): string {
+  const c = getCourse(id);
+  if (MODULES.length < 2) return `Cours ${c.order}`;
+  const m = MODULES.find((x) => x.courseIds.includes(id));
+  return m ? `${m.title} · Cours ${c.order}` : `Cours ${c.order}`;
+}
 
 export function getCourse(id: string): CourseDef {
   const c = COURSES.get(id);
