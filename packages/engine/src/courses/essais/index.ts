@@ -3,6 +3,7 @@ import { equationsTesterSolution } from './equations-tester-solution';
 import { equationsAjouterRetirer } from './equations-ajouter-retirer';
 import { equationsAjouterRetirerCourt } from './equations-ajouter-retirer-court';
 import { equationsAjouterRetirerGuide } from './equations-ajouter-retirer-guide';
+import { equationsInconnueDeuxCotes } from './equations-inconnue-deux-cotes';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
 import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
@@ -20,6 +21,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   equationsAjouterRetirerGuide,
   equationsDiviser,
   equationsResoudrePremierDegre,
+  equationsInconnueDeuxCotes,
 ];
 
 export const ESSAIS: ModuleDef = {
