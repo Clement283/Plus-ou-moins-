@@ -18,6 +18,8 @@ export { buildQuestion } from './exercises/build';
 export { normalizeCalc } from './exercises/rewrite';
 export * from './exercises/resoudre';
 export * from './exercises/calculer';
+export * from './exercises/intervalle';
+export * from './math/intervalle';
 export * from './math/calcul';
 export { checkAnswer, checkParts } from './exercises/check';
 export * from './home';

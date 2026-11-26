@@ -6,6 +6,8 @@ import type { Rng } from '../rng';
 import type { Exercise, Level } from '../courses/types';
 import type { Equation } from '../math/equation';
 import type { CalculerQuestion } from './calculer';
+import type { IntervalleQuestion } from './intervalle';
+import type { IntervalInput } from '../math/intervalle';
 
 export type { QuestionKind } from '../events';
 
@@ -71,6 +73,7 @@ export type Question =
       guided?: true;
     }
   | CalculerQuestion
+  | IntervalleQuestion
   | {
       kind: 'droite';
       ex: Exercise;
@@ -105,7 +108,9 @@ export type Answer =
   /** « résoudre » : toutes les lignes validées, dans l'ordre (fausses comprises) ; `hinted` : l'indice a été ouvert. */
   | { lines: string[]; hinted: boolean }
   /** « calculer » : les lignes de calcul validées (fausses comprises), le 1er verdict « solution ou pas » et l'indice. */
-  | { calcLines: string[]; firstPick: boolean; hinted: boolean };
+  | { calcLines: string[]; firstPick: boolean; hinted: boolean }
+  /** « intervalle » : l'intervalle écrit, le symbole choisi (cours 8, après une division par un négatif) et l'indice. */
+  | { interval: IntervalInput; symbol: string | null; hinted: boolean };
 
 export interface Outcome {
   correct: boolean;

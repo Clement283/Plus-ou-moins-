@@ -4,11 +4,13 @@ import { type RawInput, rawToString, readRaw } from '../input/raw';
 import { type Rational, eqRat, neg, rat, ratToString } from '../math/rational';
 import { diagnose } from '../courses';
 import type { CourseDef } from '../courses/types';
+import type { Relation } from '../math/equation';
 import type { Answer, Outcome, Question } from './types';
 import { normalizeCalc } from './rewrite';
 import { familyOf, signError } from '../courses/errors-util';
 import { gradeResolution, solutionText } from './resoudre';
 import { gradeCalcul, verdictText } from './calculer';
+import { gradeIntervalle } from './intervalle';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -232,6 +234,14 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
         expected,
         message: g.firstErrorText ? `${g.firstErrorText.title} ${g.firstErrorText.message}` : 'Compare les deux membres : sont-ils égaux ?',
       };
+    }
+
+    case 'intervalle': {
+      if (!('interval' in a)) return mismatch(q);
+      const g = gradeIntervalle(q, a.interval, a.symbol as Relation | null);
+      if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: '' };
+      const family: ErrorFamily = g.errorId === 'signe-borne' || g.errorId === 'sens' ? 'signe' : g.errorId === 'borne' || g.errorId === 'ordre' ? 'calcul' : 'ecriture';
+      return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
     }
 
     case 'droite': {

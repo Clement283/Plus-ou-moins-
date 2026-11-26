@@ -171,3 +171,10 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Numéro de version (date, heure, commit du build) en bas de la page de suivi : à comparer au dernier commit de `main` pour savoir si une mise en ligne est arrivée.
 - Reste : cours 7 à 11 (maquettes d'intervalles et de tableau de signes), écran « deux solutions » pour le cours 6, et décider quand les cours 1 à 6 sortent du module Essais pour être visibles des élèves.
 
+
+## Module 2 : écran « intervalle » codé (2026-11-26)
+- Maquette `docs/design/ecrans/equations-intervalles.html` validée par le porteur du projet, puis codée : question `intervalle` (`exercises/intervalle.ts`, `math/intervalle.ts`), composants `questions/Intervalle.tsx`, `IntervalLine.tsx` (droite colorée, réutilisable), `SymbolPicker.tsx` (< ≤ > ≥, réutilisable), `IntervalKeypad.tsx`, styles `styles/intervalle.css`. Cours 8 : `flip` = choix du symbole après une division par un négatif, puis S.
+- Fait en plus de la maquette : fractions a/b et décimaux dans les bornes ; une seule réponse jugée à « Valider » (pas de « Réessayer » : même fonctionnement que les autres questions, la correction s'affiche une fois verrouillée) ; l'aperçu de la droite se colore pendant la frappe sans dire si c'est juste.
+- Aucun cours ne l'utilise encore : cours 7 `inequations-intervalles` et 8 `inequations-resoudre-premier-degre` à écrire (fiches d'abord). Lecture d'un intervalle sur la droite (cours 7) : question `choix` existante, à tester avec `IntervalLine` dans la leçon.
+- Tests : moteur 1 212, api 35, web 468 (verts).
+- Reste : maquette du tableau de signes (cours 9 à 11), écran « deux solutions » du cours 6, programme de 1re spécialité 2026.

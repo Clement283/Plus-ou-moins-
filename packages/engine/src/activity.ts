@@ -334,6 +334,8 @@ export function promptOf(q: Question): string {
       return equationLatex(q.start);
     case 'calculer':
       return `${q.eqLatex} \\quad (x = ${q.xValue})`;
+    case 'intervalle':
+      return q.promptLatex;
     case 'droite':
       return q.promptLatex;
   }
@@ -344,11 +346,11 @@ export function availableKinds(course: CourseDef): QuestionKind[] {
   if (!course.customCheck) {
     // « droite », « resoudre » et « calculer » : seulement pour les cours qui les prévoient (formats de révision ou exercices de fin)
     const has = (k: QuestionKind): boolean => course.formats?.includes(k as ReviewFormat) === true || course.endExercises.mix?.includes(k) === true;
-    return [...ALL_KINDS, ...(['droite', 'resoudre', 'calculer'] as const).filter(has)];
+    return [...ALL_KINDS, ...(['droite', 'resoudre', 'calculer', 'intervalle'] as const).filter(has)];
   }
   const probe = { rng: seededRng(0), level: 1 as Level, timesSeen: 0 };
   // « choix », « reecrire » et « resoudre » n'existent que pour les cours qui les construisent.
-  return [...ALL_KINDS, 'choix', 'reecrire', 'resoudre', 'calculer'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
+  return [...ALL_KINDS, 'choix', 'reecrire', 'resoudre', 'calculer', 'intervalle'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
 }
 
 /** Doc 04 §7.2: keeps the QCM formula of the original (« début » below 5 QCM seen). */

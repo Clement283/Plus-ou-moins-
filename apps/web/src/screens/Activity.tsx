@@ -128,7 +128,7 @@ export function ActivityScreen({ kind, items, chip, record, confirmQuit, onEnd, 
     playSound(o.correct ? 'juste' : 'faux');
     // « Toucher la faute » : les cases ne sont pas des lignes, le titre du moteur (« ligne 3 ») ne convient pas
     const touch = step.question.kind === 'erreur' && step.question.accept !== undefined;
-    const ownMessage = step.question.kind === 'choix' || step.question.kind === 'reecrire' || step.question.kind === 'resoudre' || step.question.kind === 'calculer'; // le message est la réponse : pas de préfixe
+    const ownMessage = step.question.kind === 'choix' || step.question.kind === 'reecrire' || step.question.kind === 'resoudre' || step.question.kind === 'calculer' || step.question.kind === 'intervalle'; // le message est la réponse : pas de préfixe
     const shownFeedback: Feedback =
       feedback.tone !== 'faux'
         ? feedback
