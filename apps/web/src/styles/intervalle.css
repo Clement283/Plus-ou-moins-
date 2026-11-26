@@ -44,6 +44,8 @@ button.sign-table__c.is-cur{box-shadow:inset 0 0 0 3px var(--primary);background
 .sign-zero,.sign-bar{font-weight:700;font-size:18px}
 .sign-table__c.is-root:not(.sign-table__hd)::before{content:"";position:absolute;left:50%;top:0;bottom:-1px;width:3px;margin-left:-1.5px;background:var(--on-surface)}
 .sign-table__c.is-root>span{position:relative;z-index:1;background:inherit;padding:0 3px;border-radius:6px}
+/* case vide : seul le cadre en pointillés (::after) est centré sur la barre, la balise vide ne le décale pas */
+.sign-table__c.is-empty>span{display:none}
 .sign-table__c.sign-bar:not(.sign-table__hd)::before{width:9px;margin-left:-4.5px;background:repeating-linear-gradient(90deg,var(--on-surface) 0 3px,transparent 3px 6px)}
 .sign-table__c.sign-bar>span{display:none}
 .sign-table__c.is-ok{background:var(--success-container)}
