@@ -332,6 +332,8 @@ export function promptOf(q: Question): string {
       return q.givenLatex;
     case 'resoudre':
       return equationLatex(q.start);
+    case 'calculer':
+      return `${q.eqLatex} \\quad (x = ${q.xValue})`;
     case 'droite':
       return q.promptLatex;
   }
@@ -342,7 +344,7 @@ export function availableKinds(course: CourseDef): QuestionKind[] {
   if (!course.customCheck) return course.formats?.includes('droite') ? [...ALL_KINDS, 'droite'] : [...ALL_KINDS];
   const probe = { rng: seededRng(0), level: 1 as Level, timesSeen: 0 };
   // « choix », « reecrire » et « resoudre » n'existent que pour les cours qui les construisent.
-  return [...ALL_KINDS, 'choix', 'reecrire', 'resoudre'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
+  return [...ALL_KINDS, 'choix', 'reecrire', 'resoudre', 'calculer'].filter((k) => course.customQuestion?.(k as QuestionKind, probe) != null) as QuestionKind[];
 }
 
 /** Doc 04 §7.2: keeps the QCM formula of the original (« début » below 5 QCM seen). */

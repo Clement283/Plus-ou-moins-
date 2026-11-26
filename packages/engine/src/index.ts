@@ -17,6 +17,8 @@ export type { Answer, BuildCtx, Outcome, Question } from './exercises/types';
 export { buildQuestion } from './exercises/build';
 export { normalizeCalc } from './exercises/rewrite';
 export * from './exercises/resoudre';
+export * from './exercises/calculer';
+export * from './math/calcul';
 export { checkAnswer, checkParts } from './exercises/check';
 export * from './home';
 export * from './feedback';

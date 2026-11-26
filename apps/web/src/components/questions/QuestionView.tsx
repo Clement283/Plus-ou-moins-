@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Activity, Answer, CourseDef, Outcome, PartTexts, Question } from '@pom/engine';
+import { Calculer } from './Calculer';
 import { Choix } from './Choix';
 import { Classer } from './Classer';
 import { Erreur } from './Erreur';
@@ -65,5 +66,6 @@ export function QuestionView({ question: q, course, locked, onAnswer, header, fo
     case 'reecrire': return <Reecrire q={q} {...common} />;
     case 'droite': return <Droite q={q} {...common} />;
     case 'resoudre': return <Resoudre q={q} {...common} />;
+    case 'calculer': return <Calculer q={q} {...common} />;
   }
 }

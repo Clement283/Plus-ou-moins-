@@ -21,6 +21,7 @@ import { toLatex } from './math/expr';
 import type { Rational } from './math/rational';
 import type { Answer, Outcome, Question } from './exercises/types';
 import { courseMethod } from './exercises/resoudre';
+import { courseCalcLines } from './exercises/calculer';
 
 export type Feedback =
   | { tone: 'juste'; title: string; note: string | null }
@@ -88,6 +89,8 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
       return { title: 'Pas tout à fait.', rightLatex: latexOfCalc(q.expected) };
     case 'resoudre':
       return { title: 'Tu as fini, mais avec une erreur en route.', rightLatex: text(o.expected) };
+    case 'calculer':
+      return { title: 'Tu as fini, mais avec une erreur en route.', rightLatex: text(o.expected) };
     case 'droite':
       return { title: `La bonne réponse est ${plain(`${q.answer}`)}.`, rightLatex: `${q.answer}` };
     case 'vraifaux':
@@ -141,6 +144,23 @@ function engineFeedback(course: CourseDef, q: Question, a: Answer, o: Outcome, o
       explanation: {
         rule: 'La méthode du cours, ligne par ligne :',
         steps: courseMethod(q.start).map((l) => ({ t: 'math' as const, latex: l.opLatex ? `${l.latex} \\quad (${l.opLatex})` : l.latex })),
+      },
+      steps: [],
+    };
+  }
+
+  if (q.kind === 'calculer') {
+    if (o.correct) return { tone: 'juste', title: 'Juste !', note: o.helped ? 'Calculé avec l’indice : c’est noté « avec aide ».' : null };
+    if (o.unfinished) return { tone: 'pas-fini', title: 'Pas encore fini.', message: 'Continue jusqu’à obtenir un seul nombre.' };
+    const right = wrongParts(q, a, o);
+    return {
+      tone: 'faux',
+      title: right.title,
+      message: o.message ?? '',
+      rightLatex: right.rightLatex,
+      explanation: {
+        rule: 'La méthode du cours, ligne par ligne :',
+        steps: courseCalcLines(q).map((latex) => ({ t: 'math' as const, latex })),
       },
       steps: [],
     };

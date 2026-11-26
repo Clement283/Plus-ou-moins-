@@ -5,6 +5,7 @@ import type { Rational } from '../math/rational';
 import type { Rng } from '../rng';
 import type { Exercise, Level } from '../courses/types';
 import type { Equation } from '../math/equation';
+import type { CalculerQuestion } from './calculer';
 
 export type { QuestionKind } from '../events';
 
@@ -67,6 +68,7 @@ export type Question =
       ex: Exercise;
       start: Equation;
     }
+  | CalculerQuestion
   | {
       kind: 'droite';
       ex: Exercise;
@@ -99,7 +101,9 @@ export type Answer =
   | { text: string }
   | { point: number }
   /** « résoudre » : toutes les lignes validées, dans l'ordre (fausses comprises) ; `hinted` : l'indice a été ouvert. */
-  | { lines: string[]; hinted: boolean };
+  | { lines: string[]; hinted: boolean }
+  /** « calculer » : les lignes de calcul validées (fausses comprises), le 1er verdict « solution ou pas » et l'indice. */
+  | { calcLines: string[]; firstPick: boolean; hinted: boolean };
 
 export interface Outcome {
   correct: boolean;
