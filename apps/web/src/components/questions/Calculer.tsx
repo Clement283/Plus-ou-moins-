@@ -131,7 +131,7 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
             )}
             <span className="answer__caret" />
           </div>
-          {hintOpen ? (
+          {hintOpen || q.guided === true ? (
             <p className="t-body2 solve-hint">{calcHint(q, last)}</p>
           ) : (
             <button className="btn btn--text" type="button" onClick={openHint}>

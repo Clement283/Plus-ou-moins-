@@ -1,15 +1,15 @@
 // Cours 1 du module « Équations et inéquations » — Tester si un nombre est solution.
 // Fiche : docs/modules/02-equations-inequations/equations-tester-solution.md. Cours à l'essai (module « Essais »).
 import { evaluate, toLatex } from '../../math/expr';
-import { type Member, cst, equation, equationLatex, memberLatex, substitute, xt } from '../../math/equation';
+import { type Member, cst, equation, equationLatex, substitute, xt } from '../../math/equation';
+import { calculerQuestion } from '../../exercises/calculer';
 import { type Rng, randInt } from '../../rng';
 import type { BuildCtx, Outcome, Question, QuestionKind } from '../../exercises/types';
 import { errorOf } from '../errors-util';
 import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
 import {
-  M, NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, autres, buildErrors, choix, decouverte, etapes,
-  exemple, explanation, hl, is, lecon, linesScene, oneScene, options3, pratique, redraw, small, step, stepped, texted, toks,
-  toText, trou, trouOf, txt,
+  M, NOT_COUNTED_GUESS, SIGN_CLASSES, annonceFin, buildErrors, choix, decouverte, etapes, exemple, explanation, hl, is, lecon,
+  linesScene, oneScene, options3, redraw, small, step, stepped, texted, toText, trouOf, txt,
 } from '../calculs/shared';
 
 const ID = 'equations-tester-solution';
@@ -107,11 +107,43 @@ const hasNegSub = (e: Exercise): boolean => memberOf(e).some((t, i) => i > 0 && 
 const R1 = 'Je remplace x par le nombre';
 const R2 = 'Je calcule chaque membre à part';
 const R3 = 'Je compare les deux résultats';
+// partIndex : place de l'écran d'étapes de la règle dans `parts`
 const RULES: Record<string, NonNullable<ErrorDef['rule']>> = {
   'x-colle': { n: 1, label: R1, partIndex: 2 },
   'parentheses-oubliees': { n: 1, label: R1, partIndex: 2 },
-  'signe-relatif': { n: 2, label: R2, partIndex: 5 },
+  priorite: { n: 2, label: R2, partIndex: 4 },
+  signe: { n: 2, label: R2, partIndex: 4 },
+  verdict: { n: 3, label: R3, partIndex: 6 },
 };
+/**
+ * Le membre calculé de gauche à droite, sans la priorité de la multiplication : « b + ax » devient (b + a) × x.
+ * Null s'il n'y a pas de produit après le premier terme (la priorité ne change alors rien).
+ */
+const prioValue = (e: Exercise): number | null => {
+  const m = memberOf(e);
+  const x = metaOf(e).x;
+  let acc = 0;
+  let late = false;
+  m.forEach((t, i) => {
+    const v = coefOf(t);
+    const a = Math.abs(v);
+    const sub = i > 0 && v < 0;
+    if (i === 0) acc = t.k === 'x' ? v * x : v;
+    else if (t.k === 'num') acc = sub ? acc - a : acc + a;
+    else if (a === 1) acc = sub ? acc - x : acc + x;
+    else {
+      late = true;
+      acc = (sub ? acc - a : acc + a) * x;
+    }
+  });
+  return late ? acc : null;
+};
+/** La valeur de l'autre membre (celui qu'on ne demande pas). */
+const otherValue = (e: Exercise): number => {
+  const m = metaOf(e);
+  return evaluate(substitute(m.side === 'left' ? m.right : m.left, m.x)).n;
+};
+const hasPrio = (e: Exercise): boolean => prioValue(e) !== null && prioValue(e) !== e.answer.n;
 const modeFor = (e: Exercise, w: number, modes: Mode[]): Mode | undefined => modes.find((m) => valueIn(e, m) === w);
 const errors: ErrorDef[] = buildErrors(
   [
@@ -146,7 +178,15 @@ const errors: ErrorDef[] = buildErrors(
           : null,
     },
     {
-      id: 'signe-relatif',
+      id: 'priorite',
+      family: 'calcul',
+      detect: (e, given) => hasPrio(e) && is(given, prioValue(e) as number),
+      text: (e) => `Dans ${toText(e.expr)}, la multiplication passe avant l’addition : on calcule d’abord le produit, puis on additionne.`,
+      draw: (level, rng) => redraw(() => generate(level, rng), hasPrio),
+      sample: (e) => prioValue(e) as number,
+    },
+    {
+      id: 'signe',
       family: 'signe',
       detect: (e, given) => is(given, valueIn(e, 'signe')),
       text: (e) =>
@@ -155,9 +195,18 @@ const errors: ErrorDef[] = buildErrors(
       sample: (e) => valueIn(e, 'signe'),
       wrongLines: (e, w) => (w === valueIn(e, 'signe') ? stepped(e, interLatex(pieces(memberOf(e), metaOf(e).x, 'signe')), w) : null),
     },
+    {
+      id: 'verdict',
+      family: 'autre',
+      detect: (e, given) => otherValue(e) !== e.answer.n && is(given, otherValue(e)),
+      text: (e) => `Tu as donné la valeur de l’autre membre (${txt(otherValue(e))}). On calcule chaque membre à part, puis on compare les deux résultats : ${toText(e.expr)} = ${txt(e.answer.n)}.`,
+      draw: (level, rng) => redraw(() => generate(level, rng), (e) => otherValue(e) !== e.answer.n),
+      sample: (e) => otherValue(e),
+    },
   ],
   resolution,
 ).map((e): ErrorDef => ({ ...e, rule: RULES[e.id] as NonNullable<ErrorDef['rule']> }));
+
 
 // ——— Retours d’erreur des questions qui comptent ———
 function feedbackText(q: Question, o: Outcome): string | null {
@@ -173,19 +222,21 @@ const eqLatex = (e: Exercise): string => equationLatex(equation(metaOf(e).left, 
 const promptOf = (e: Exercise): string =>
   `\\begin{gathered}${eqLatex(e)}\\\\ {\\small \\text{membre de ${metaOf(e).side === 'left' ? 'gauche' : 'droite'}, pour } x = ${metaOf(e).x}}\\end{gathered}`;
 const saisieEq = (e: Exercise): Question => ({ kind: 'saisie', ex: e, promptLatex: promptOf(e) });
+/** « Calculer par lignes » : l'élève remplace x, calcule ligne par ligne, puis dit si c'est une solution. */
+const calculerEq = (e: Exercise): Question =>
+  calculerQuestion(e, equation(metaOf(e).left, metaOf(e).right), metaOf(e).x, metaOf(e).side);
 function customQuestion(kind: QuestionKind, ctx: BuildCtx): Question | null {
-  if (kind !== 'saisie') return null;
+  if (kind !== 'saisie' && kind !== 'calculer') return null;
   const trap = errorOf(course, ctx.trapErrorType);
-  return saisieEq(trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng));
+  const e = trap ? trap.trap(ctx.level, ctx.rng) : generate(ctx.level, ctx.rng);
+  return kind === 'saisie' ? saisieEq(e) : calculerEq(e);
 }
 
-// ——— Leçon : 15 écrans pour apprendre ———
-const eqText = (left: Member, right: Member): string => `${memberLatex(left)} = ${memberLatex(right)}`.replace(/-/g, M);
+// ——— Leçon : 8 écrans avant l’annonce de la fin (déroulé guidé, 2026-11-26) ———
 const A = (x: number): Exercise => build(1, [xt(2), cst(1)], [cst(7)], x);
-const E3 = (x: number, side: Side = 'left'): Exercise => build(1, [xt(3), cst(4)], [xt(1)], x, side);
 
 const REGLE1 = '**Je remplace x par le nombre, partout, entre parenthèses s’il est négatif.** Le nombre collé à x devient une multiplication.';
-const REGLE2 = '**Je calcule le membre de gauche, puis le membre de droite, chacun à part.** Je n’écris pas tout sur une seule ligne.';
+const REGLE2 = '**Je calcule le membre de gauche, puis le membre de droite, chacun à part, une opération par ligne.** Les multiplications passent avant les additions.';
 const REGLE3 =
   '**Si les deux résultats sont égaux, le nombre est une solution. Sinon, ce n’est pas une solution.** On compare la gauche et la droite, jamais la gauche et le nombre testé.';
 
@@ -206,14 +257,11 @@ const idee: EtapeStep[] = [
     scene: linesScene(['2x + 1 = 7']),
   }),
   step('Tester un nombre, c’est **essayer une réponse** : on le met à la place de x. Comme sur une balance, on regarde si elle est à l’équilibre.', {
-    scene: linesScene(['2x + 1 = 7'], [`x = 3`]),
-    after: linesScene(['2x + 1 = 7'], [`x = 3`], ['gauche = droite : ', hl('équilibre')]),
+    scene: linesScene(['2x + 1 = 7'], ['x = 3']),
+    after: linesScene(['2x + 1 = 7'], ['x = 3'], ['gauche = droite : ', hl('équilibre')]),
     action: trouOf('Si les deux côtés donnent la même chose, la balance est [ ? ].', ['à l’équilibre', 'penchée'], 0, {
       1: 'Penchée voudrait dire que les deux côtés sont différents. Ici, on cherche le cas où ils sont égaux.',
     }),
-  }),
-  step('Pour savoir si la balance est à l’équilibre, on peut **calculer chaque côté**. Voyons comment faire sans se tromper.', {
-    scene: linesScene(['2x + 1 = 7'], [`x = 3`]),
   }),
 ];
 
@@ -221,18 +269,11 @@ const regle1: EtapeStep[] = [
   step(`On teste le nombre ${M}2 dans cette équation. On enlève chaque **x** et on met le nombre à sa place.`, {
     scene: linesScene(['3', hl('x'), ' + 4 = ', hl('x')], [`x = ${M}2`]),
   }),
-  step('Regarde bien 3x : le nombre collé à x **multiplie** x. Ce n’est pas un nombre à écrire à côté.', {
+  step('Regarde bien 3x : le nombre collé à x **multiplie** x. Comme −2 est négatif, on le met **entre parenthèses**.', {
     scene: linesScene(['3x + 4']),
-    after: linesScene(['3x + 4'], ['3 ', hl('×'), ' x + 4']),
+    after: linesScene(['3x + 4'], ['3 ', hl('×'), ' ', hl(`(${M}2)`), ' + 4']),
     action: trouOf('Dans 3x, le 3 et le x sont [ ? ].', ['multipliés', 'additionnés'], 0, {
       1: '3x veut dire 3 fois x, pas 3 + x : on multiplie.',
-    }),
-  }),
-  step(`Maintenant on écrit ${M}2 à la place de x. Comme ce nombre est négatif, on le met **entre parenthèses**.`, {
-    scene: linesScene(['3 × x + 4']),
-    after: linesScene(['3 × x + 4'], ['3 × ', hl(`(${M}2)`), ' + 4']),
-    action: trouOf(`Pour x égal à ${M}2, on écrit le nombre [ ? ] dans le calcul.`, ['entre parenthèses', 'sans parenthèses'], 0, {
-      1: 'Sans parenthèses, deux signes se suivent et on risque d’en oublier un, surtout dans 5 − x. Les parenthèses les séparent.',
     }),
   }),
   step(undefined, {
@@ -242,7 +283,7 @@ const regle1: EtapeStep[] = [
 ];
 
 const regle2: EtapeStep[] = [
-  step('Un membre, c’est un côté de l’équation. On calcule **celui de gauche d’abord**, tout seul.', {
+  step('On calcule **le membre de gauche d’abord**, tout seul, une opération par ligne.', {
     scene: oneScene(hl(`3 × (${M}2) + 4`), ` = ${M}2`),
   }),
   step('On commence par le produit, comme dans le cours sur la multiplication des relatifs. Trois fois moins deux donne un résultat négatif.', {
@@ -252,24 +293,14 @@ const regle2: EtapeStep[] = [
       1: 'Un nombre positif multiplié par un nombre négatif donne un négatif : trois fois moins deux fait moins six.',
     }),
   }),
-  step(`Ensuite, on ajoute 4. Moins six plus quatre : le plus grand sans le signe, le six, gagne.`, {
-    scene: linesScene([`3 × (${M}2) + 4`], [`= ${M}6 + 4`]),
-    after: linesScene([`3 × (${M}2) + 4`], [`= ${M}6 + 4`], ['= ', hl(`${M}2`)]),
-    action: trouOf('Moins six plus quatre donne un résultat [ ? ].', ['négatif', 'positif'], 0, {
-      1: `Le six est plus grand que le quatre, et il est négatif : le résultat est négatif, ${M}2.`,
-    }),
-  }),
   step(undefined, {
-    scene: linesScene([`gauche : 3 × (${M}2) + 4 = ${M}2`], [`droite : x = ${M}2`]),
+    scene: linesScene([`gauche : 3 × (${M}2) + 4`], [`= ${M}6 + 4`], [`= ${M}2`]),
     rule: { n: 2, text: REGLE2 },
   }),
 ];
 
 const regle3: EtapeStep[] = [
-  step('Il reste à **comparer** : est-ce que les deux membres ont la même valeur ?', {
-    scene: linesScene([`gauche : ${M}2`], [`droite : ${M}2`]),
-  }),
-  step(`Ici, la gauche vaut ${M}2 et la droite vaut ${M}2. Les deux résultats sont égaux.`, {
+  step(`Ici, la gauche vaut ${M}2 et la droite, x, vaut aussi ${M}2. Les deux résultats sont égaux.`, {
     scene: linesScene([`gauche : ${M}2`], [`droite : ${M}2`]),
     after: linesScene([`gauche : ${M}2`], [`droite : ${M}2`], ['x = ', hl(M + '2'), ' : ', hl('solution')]),
     action: trouOf(`Les deux résultats sont égaux : ${M}2 [ ? ] de l’équation.`, ['est une solution', 'n’est pas une solution'], 0, {
@@ -289,62 +320,10 @@ const regle3: EtapeStep[] = [
   }),
 ];
 
-const exemple1: EtapeStep[] = [
-  step('Voici la résolution. Lis la première ligne, puis touche « Je comprends ».', {
-    scene: linesScene(['3x + 4 = x'], [`x = ${M}2`]),
-  }),
-  step(`On remplace x par ${M}2, entre parenthèses, et on écrit le calcul du membre de gauche.`, {
-    scene: linesScene(['3x + 4 = x'], [`x = ${M}2`], [hl(`gauche : 3 × (${M}2) + 4`)]),
-    action: { type: 'comprends' },
-  }),
-];
-
-const PRATIQUE = pratique(
-  'Cours 1 · Pratique',
-  [
-    {
-      question: trou(build(1, [xt(2), cst(5)], [cst(1)], -2), '= \\square', 1),
-      texts: {
-        consigne: 'Le produit est déjà fait. **Tape le résultat dans la case.**',
-        intro: [`On teste x = ${M}2 dans 2x + 5 = 1. On calcule le membre de gauche.`],
-        above: ['= -4 + 5'],
-      },
-    },
-    {
-      question: choix(
-        build(1, [xt(4), cst(-5)], [xt(2), cst(1)], 3),
-        'Le nombre 3 est-il une solution de cette équation ?',
-        options3(
-          ['Oui : les deux membres valent 7', 'Oui : 4 × 3 − 5 fait 7, et 2 × 3 + 1 fait 7. Les deux résultats sont égaux.'],
-          ['Non : la gauche vaut 7 et la droite vaut 1', 'La droite n’est pas 1 : c’est 2x + 1, donc 2 × 3 + 1, qui fait 7.'],
-          ['Non : la gauche vaut 12', 'Après 4 × 3, il faut encore retirer 5 : la gauche vaut 7, comme la droite.'],
-        ),
-        0,
-        `4x ${M} 5 = 2x + 1`,
-      ),
-      texts: { consigne: 'Calcule les deux membres dans ta tête, puis touche ta réponse.' },
-    },
-    {
-      question: choix(
-        { courseId: 'c04-soustraire', level: 1, expr: substitute([cst(5), xt(-1)], -3), answer: evaluate(substitute([cst(5), xt(-1)], -3)) },
-        'Ce calcul vient du cours sur la soustraction. Quel est le résultat ?',
-        options3(
-          ['8', 'Oui : soustraire −3, c’est ajouter son opposé, 3. Donc 5 + 3 fait 8.'],
-          ['2', 'Tu as retiré 3 au lieu de retirer −3. Soustraire un négatif, c’est ajouter son opposé.'],
-          [`${M}8`, 'Cinq moins moins trois : on ajoute 3, le résultat est positif, 8.'],
-        ),
-        0,
-        '5 - (-3)',
-      ),
-      texts: { consigne: 'Regarde bien les signes, puis touche le résultat.', intro: [`C’est le calcul de 5 − x quand x vaut ${M}3.`] },
-    },
-    {
-      question: saisieEq(build(1, [cst(7), xt(-2)], [xt(1), cst(-8)], 5)),
-      texts: { consigne: 'Calcule le membre de gauche. **Tape le résultat.**' },
-    },
-  ],
-  "Maintenant, deux exemples pour t'aider à les résoudre en entier.",
-);
+/** L'exemple guidé : 7 − 2x = x − 8 pour x = 5 (gauche 7 − 10 = −3, droite 5 − 8 = −3). */
+const EX_LEFT: Member = [cst(7), xt(-2)];
+const EX_RIGHT: Member = [xt(1), cst(-8)];
+const exGuide = build(1, EX_LEFT, EX_RIGHT, 5);
 
 const parts: LessonPart[] = [
   texted(decouverte(guess), {
@@ -361,137 +340,18 @@ const parts: LessonPart[] = [
       [`5 + (${M}3)`, 'Devant x, il y avait un moins : il reste. On écrit 5 − (−3).'],
     ], 0),
   ),
-  texted(
-    lecon(
-      small(build(1, [xt(2), cst(1)], [cst(7)], 3), '2x \\quad (x = 3)', 'Quel calcul obtient-on pour 2x quand x vaut 3 ?', [
-        ['2 × 3', 'Oui : 2x veut dire 2 fois x, donc 2 × 3.'],
-        ['23', 'On ne colle pas les chiffres : 2x veut dire 2 × x, donc 2 × 3.'],
-        ['2 + 3', '2x veut dire 2 fois x : on multiplie, on n’additionne pas.'],
-      ], 0),
-    ),
-    { joinPrevious: true },
-  ),
   etapes(R2, regle2),
   lecon(
-    small(build(1, [xt(2), cst(3)], [xt(1), cst(-4)], -2, 'right'), `x - 4 \\quad (x = -2)`, 'Que vaut le membre de droite, x − 4, quand x vaut −2 ?', [
-      [`${M}6`, 'Oui : x vaut −2, puis −2 − 4 fait −6.'],
-      [`${M}2`, 'Tu as oublié de retrancher 4 : il reste −2 − 4.'],
-      ['2', 'Le signe de x a disparu : x vaut −2, pas 2.'],
+    small(build(1, [cst(6), xt(2)], [cst(12)], 3), `6 + 2x \\quad (x = 3)`, 'Dans 6 + 2x avec x = 3, quelle opération fait-on en premier ?', [
+      ['2 × 3', 'Oui : la multiplication passe avant l’addition. 2 × 3 fait 6, puis 6 + 6 fait 12.'],
+      ['6 + 2', 'Si on additionne d’abord 6 et 2, on obtient 8, puis 8 × 3 fait 24 : c’est faux. La multiplication passe avant.'],
+      ['6 + 3', 'Le 3 est la valeur de x : il est multiplié par 2, il ne s’additionne pas à 6.'],
     ], 0),
   ),
   etapes(R3, regle3),
-  lecon(
-    choix(
-      build(1, [xt(3), cst(-2)], [xt(2), cst(4)], 4),
-      'Le nombre 4 est-il une solution de cette équation ?',
-      options3(
-        ['Non : la gauche vaut 10 et la droite vaut 12', 'Oui, c’est ça : 3 × 4 − 2 fait 10, 2 × 4 + 4 fait 12. Les résultats sont différents.'],
-        ['Oui : la gauche et la droite valent 10', 'La droite vaut 2 × 4 + 4, donc 12, pas 10. Calcule bien le membre de droite.'],
-        ['Oui : le nombre testé est 4', 'Le nombre testé ne se compare à rien : on compare le membre de gauche et le membre de droite.'],
-      ),
-      0,
-      `3x ${M} 2 = 2x + 4 \\quad (x = 4)`,
-    ),
-  ),
-  texted(
-    decouverte(
-      choix(
-        build(1, [xt(2), cst(1)], [cst(7)], -3),
-        'Que vaut chaque calcul ?',
-        options3(
-          [`A fait ${M}6 et B fait ${M}1`, 'Oui : A est une multiplication, 2 × (−3) fait −6. B est une addition, 2 + (−3) fait −1.'],
-          [`A fait ${M}1 et B fait ${M}1`, 'A est une multiplication : 2x veut dire 2 × x, donc 2 × (−3), qui fait −6.'],
-          [`A fait ${M}6 et B fait ${M}6`, 'B est une addition : 2 + (−3) fait −1.'],
-        ),
-        0,
-      ),
-    ),
-    {
-      title: 'Comparer deux cas',
-      intro: ['Voici deux calculs qui se ressemblent beaucoup. Regarde bien l’opération.'],
-      mention: NOT_COUNTED_UNDERSTAND,
-      compare: {
-        a: { label: 'Calcul A : 2x avec x = −3', latex: '2 \\times (-3)' },
-        b: { label: 'Calcul B', latex: '2 + (-3)' },
-        note: 'Le calcul B vient du cours « Additionner deux nombres de signes contraires » : tu sais déjà le faire. Ici, tu observes seulement ce qui change.',
-        highlight: { a: toks('2 ', hl('×'), ` (${M}3)`), b: toks('2 ', hl('+'), ` (${M}3)`) },
-        after: [
-          `A : 2x veut dire 2 × x. Avec x = ${M}3, on multiplie : ${M}6.`,
-          `B : on additionne 2 et ${M}3 : ${M}1.`,
-          'Ce qui change : à côté d’une lettre, un nombre veut dire « fois ». Entre deux nombres, c’est le signe qui décide.',
-        ],
-      },
-    },
-  ),
-  autres({
-    title: 'Autres façons de faire',
-    recap: {
-      title: 'Les règles à retenir',
-      rules: [
-        { title: '1. Je remplace x par le nombre', ok: `2x pour x = 3 : 2 × 3`, ko: '2x pour x = 3 : 23' },
-        { title: '2. Je calcule chaque membre à part', ok: `3 × (${M}2) + 4 = ${M}6 + 4 = ${M}2`, ko: `3 × (${M}2) + 4 = 10` },
-        { title: '3. Je compare les deux résultats', ok: `gauche ${M}2, droite ${M}2 : solution`, ko: `gauche ${M}2, nombre testé ${M}2 : solution` },
-      ],
-      sentence: 'Je remplace x, je calcule chaque membre, puis je compare.',
-    },
-    intro: 'La méthode marche toujours. Voici d’autres façons de faire : **choisis celle que tu veux essayer**.',
-    techniques: [
-      {
-        name: 'Essayer pour trouver',
-        quand: 'Quand tu ne sais pas encore résoudre l’équation.',
-        example: `x + 2 = 5 : pour x = 1 on trouve 3, pour x = 2 on trouve 4, pour x = 3 on trouve 5. La solution est 3.`,
-        how: 'On essaie des nombres, un par un, et on s’arrête quand les deux membres sont égaux.',
-        essai: {
-          kind: 'saisie',
-          consigne: 'Essaie x = 1, puis x = 2, et ainsi de suite. **Tape la solution.**',
-          calc: '2x + 1 = 7',
-          answer: 3,
-          yes: 'Oui : pour x = 3, 2 × 3 + 1 fait 7, comme à droite.',
-          errors: [
-            { values: [7], message: 'Sept est ce que doit valoir le côté gauche. On cherche x : le nombre à mettre à la place de x.' },
-            { values: [4], message: 'Pour x = 4, 2 × 4 + 1 fait 9, pas 7.' },
-          ],
-          fallback: 'Pour chaque nombre essayé, calcule 2 × x + 1 et regarde si tu trouves 7.',
-        },
-      },
-      {
-        name: 'Vérifier sa réponse',
-        quand: 'Quand tu as trouvé une valeur de x et que tu veux être sûr.',
-        example: `2x + 1 = 7 avec x = 3 : la gauche vaut 2 × 3 + 1 = 7, la droite vaut 7. C’est juste.`,
-        how: 'On remplace x par la valeur trouvée et on compare les deux membres : c’est la même méthode.',
-        essai: {
-          kind: 'choix',
-          consigne: 'Un élève a trouvé x = 4. Vérifie sa réponse. **Touche ce que vaut le côté gauche.**',
-          calc: `3x ${M} 2 = 10`,
-          options: ['10', '12', '14'],
-          correct: 0,
-          yes: 'Oui : 3 × 4 fait 12, moins 2 fait 10, comme à droite. Sa réponse est juste.',
-          no: 'Remplace x par 4 : 3 × 4 fait 12, puis on retire 2.',
-        },
-      },
-    ],
-    outro: "Ensuite, tu t'entraînes avec quatre questions.",
-  }),
-  PRATIQUE,
-  etapes('Exemple 1 sur 2', exemple1),
-  texted(exemple(trou(E3(-2), '= \\square', -2)), {
-    consigne: 'Tape ce qui manque dans la case, avec les touches du clavier.',
-    intro: [`On teste x = ${M}2 dans 3x + 4 = x. Calcul du membre de gauche :`],
-    above: ['= -6 + 4'],
-    help: 'Moins six plus quatre : le six est le plus grand sans le signe, donc le résultat est négatif, moins deux. La droite vaut aussi moins deux : c’est une solution.',
-  }),
-  texted(exemple(trou(build(2, [cst(5), xt(-1)], [xt(2), cst(14)], -3), '= \\square', 8)), {
-    consigne: 'Cette fois, deux cases sont à toi. Commence par le membre de gauche.',
-    intro: [`On teste x = ${M}3 dans ${eqText([cst(5), xt(-1)], [xt(2), cst(14)])}.`],
-    above: [`\\text{avec } x = -3`],
-    help: `Moins trois est un nombre négatif : soustraire ${M}3, c’est ajouter 3. Cinq plus trois fait huit.`,
-  }),
-  texted(exemple(trou(build(2, [cst(5), xt(-1)], [xt(2), cst(14)], -3, 'right'), '= \\square', 8)), {
-    consigne: 'Maintenant le membre de droite.',
-    intro: [`Le membre de gauche vaut 8. Calcule le membre de droite : 2x + 14.`],
-    above: [`\\text{avec } x = -3`],
-    help: `Deux fois moins trois fait moins six, puis moins six plus quatorze fait huit. Les deux membres valent 8 : ${M}3 est une solution.`,
-    mention: '',
+  texted(exemple({ ...calculerQuestion(exGuide, equation(EX_LEFT, EX_RIGHT), 5, 'left'), guided: true }), {
+    title: 'On le fait ensemble',
+    subtitle: 'Teste x = 5 dans 7 − 2x = x − 8. À chaque ligne, une aide te dit quoi faire.',
   }),
   annonceFin(),
 ];
@@ -504,9 +364,11 @@ const course: CourseDef = {
   shortTitle: 'Tester une solution',
   rule: RULE,
   parts,
-  lessonLength: parts.findIndex((p) => p.type === 'pratique'),
+  // pas de série de pratique : la pastille s'arrête avant l'exemple guidé
+  lessonLength: parts.findIndex((p) => p.type === 'question' && p.activity === 'exemple'),
   unePhrase: true,
-  endExercises: { count: 5, kind: 'saisie' },
+  // « calculer » : l'élève remplace x et calcule ligne par ligne (décision du 2026-11-26)
+  endExercises: { count: 5, kind: 'saisie', mix: ['calculer', 'calculer', 'calculer', 'calculer', 'calculer'] },
   generate,
   errors,
   generalExplanation: (e) => explanation(RULE, resolution(e)),
@@ -519,7 +381,7 @@ const course: CourseDef = {
     rule: RULE,
     ruleBullets: [
       'Je remplace x par le nombre, entre parenthèses s’il est négatif.',
-      'Je calcule le membre de gauche, puis le membre de droite, séparément.',
+      'Je calcule le membre de gauche, puis le membre de droite, une opération par ligne, les produits d’abord.',
       'Même résultat des deux côtés : c’est une solution. Sinon, ce n’est pas une solution.',
     ],
     examples: [

@@ -118,4 +118,12 @@ describe('« Calculer par lignes »', () => {
     t.choose('Oui');
     expect(t.calls[0]![1]).toMatchObject({ correct: true, helped: true });
   });
+
+  it('guided example: the hint is shown at every line, without a hint button', () => {
+    const t = setup({ ...question(), guided: true } as Question);
+    expect(t.text()).toContain('Remplace x par 4');
+    expect(t.$$('button').some((b) => b.textContent === 'Un indice')).toBe(false);
+    t.line('-3*4+7');
+    expect(t.text()).toContain('multiplication');
+  });
 });

@@ -32,6 +32,8 @@ export interface CalculerQuestion {
   other: Rational;
   /** Les deux membres sont égaux : x est solution. */
   isSolution: boolean;
+  /** Exemple guidé : l'indice du cours est affiché d'office à chaque ligne, sans bouton. */
+  guided?: true;
 }
 
 /** La question « calcule le membre de gauche (ou de droite) pour x = … » d'une équation. */
