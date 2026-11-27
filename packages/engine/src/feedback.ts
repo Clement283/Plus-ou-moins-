@@ -96,6 +96,8 @@ function wrongParts(q: Question, a: Answer, o: Outcome): { title: string; rightL
       return { title: 'Pas tout à fait.', rightLatex: intervalleExpectedLatex(q) };
     case 'solutions':
       return { title: 'Pas tout à fait.', rightLatex: text(`S = ${o.expected}`) };
+    case 'ecrire':
+      return { title: 'Pas tout à fait.', rightLatex: text(o.expected) };
     case 'tableau':
       return { title: 'Tu as fini, mais avec une erreur en route.', rightLatex: text(`Dernière ligne : ${o.expected}`) };
     case 'droite':
@@ -171,6 +173,13 @@ function engineFeedback(course: CourseDef, q: Question, a: Answer, o: Outcome, o
       },
       steps: [],
     };
+  }
+
+  if (q.kind === 'ecrire') {
+    if (o.correct) return { tone: 'juste', title: 'Juste !', note: [o.message, o.helped ? 'Écrit avec l’indice : c’est noté « avec aide ».' : ''].filter(Boolean).join(' ') || null };
+    if (o.unfinished) return { tone: 'pas-fini', title: 'Pas encore fini.', message: 'Écris le calcul en entier, puis calcule-le.' };
+    const right = wrongParts(q, a, o);
+    return { tone: 'faux', title: right.title, message: o.message ?? '', rightLatex: right.rightLatex, explanation: null, steps: [] };
   }
 
   if (q.kind === 'solutions') {

@@ -13,6 +13,7 @@ import { gradeCalcul, verdictText } from './calculer';
 import { gradeIntervalle } from './intervalle';
 import { gradeTableau } from './tableau';
 import { gradeSolutions } from './solutions';
+import { gradeEcrire } from './ecrire';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -244,6 +245,15 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const g = gradeIntervalle(q, a.interval, a.symbol as Relation | null, a.interval2 ?? null);
       if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: '' };
       const family: ErrorFamily = g.errorId === 'signe-borne' || g.errorId === 'sens' ? 'signe' : g.errorId === 'borne' || g.errorId === 'ordre' ? 'calcul' : 'ecriture';
+      return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
+    }
+
+    case 'ecrire': {
+      if (!('written' in a)) return mismatch(q);
+      const g = gradeEcrire(q, a.written, a.calcul);
+      if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given: g.given, expected: g.expected };
+      if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: g.message };
+      const family: ErrorFamily = g.errorId === 'un-seul-signe' || g.errorId === 'moins-oublie' || g.errorId === 'signe' ? 'signe' : g.errorId === 'parentheses-oubliees' || g.errorId === 'ordre' ? 'ecriture' : 'calcul';
       return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
     }
 

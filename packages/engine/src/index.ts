@@ -22,6 +22,7 @@ export * from './exercises/intervalle';
 export * from './math/intervalle';
 export * from './exercises/tableau';
 export * from './exercises/solutions';
+export * from './exercises/ecrire';
 export * from './math/tableau';
 export * from './math/calcul';
 export { checkAnswer, checkParts } from './exercises/check';

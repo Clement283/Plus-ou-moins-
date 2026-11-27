@@ -13,6 +13,7 @@ import './styles/memo.css';
 import './styles/warmup.css';
 import './styles/questions.css';
 import './styles/intervalle.css';
+import './styles/ecrire.css';
 import './styles/listen.css';
 import { startSync } from './store/sync';
 import { followSystemTheme } from './theme';
