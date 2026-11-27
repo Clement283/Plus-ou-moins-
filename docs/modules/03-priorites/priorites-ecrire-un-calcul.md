@@ -5,8 +5,8 @@ Module : Priorités (`docs/modules/03-priorites/module.md`) · Précédent : cou
 - À retenir : (1) une phrase se traduit mot à mot, dans l'ordre ; (2) « la somme de 2 et 7 », « la différence », « le produit », « le quotient » sont des blocs : on les met entre parenthèses quand on les retranche, qu'on les multiplie ou qu'on les divise ; (3) un petit problème en mots : j'écris le calcul d'un seul coup, puis je le calcule ligne par ligne.
 - Pièges : 30 − 2 + 7 pour « 30 moins la somme de 2 et 7 » (il faut 30 − (2 + 7)) ; 30 − 2 − 7 est un calcul juste en valeur mais n'est pas la phrase ; 2 + 3 × 4 pour « le produit de la somme de 2 et 3 par 4 ».
 - Vu dans ce cours : « la somme / la différence / le produit / le quotient de … et … », « de … par … », écrire un calcul entier, vérifier par le calcul ligne par ligne.
-- Écarts et choix : problèmes en mots courts (une ou deux phrases, entiers, décidé le 2026-11-27) ; calcul jugé sur sa **structure** (30 − 2 − 7 et 30 − (2 + 7) ont la même valeur mais pas la même structure) ; pas de lettres.
-- Dans l'appli : **cours non codé** : il demande un petit écran nouveau (saisie d'un calcul avec parenthèses, jugé sur sa structure), maquette `docs/design/ecrans/priorites-ecrire-un-calcul.html` faite par la session principale, à valider avant tout code.
+- Écarts et choix : problèmes en mots courts (une ou deux phrases, entiers, décidé le 2026-11-27) ; calcul jugé sur sa **structure** (30 − 2 − 7 et 30 − (2 + 7) ont la même valeur mais pas la même structure : message gris, l'élève recommence) ; pas de lettres ; on ne calcule après avoir écrit que pour les **problèmes** ; programmes de calcul pas à pas (« Pars du nombre 4 et ajoute-lui 3. », jamais « Choisis 4 ») ; la comparaison porte sur 30 − (2 + 7) contre 30 − 2 + 7 (la vraie confusion), l'exemple guidé sur « le produit de la somme de 3 et de 4 par 2 » (phrase, sans calcul ensuite).
+- Dans l'appli : 8 écrans avant l'annonce de la fin (exemple guidé compris) ; `essais/priorites-ecrire-un-calcul.ts` ; exercices de fin = question `ecrire` (rangs 0 à 4 : phrase, programme, phrase, problème, programme) ; les phrases viennent d'un arbre de calcul (phrase et écritures justes déduites, somme et produit dans les deux ordres) ; erreurs `parentheses-oubliees` (règle 2) et `ordre` (règle 1) ; pas encore relu ni essayé dans l'appli.
 
 ## Fiche
 ### Règles
@@ -31,4 +31,4 @@ Module : Priorités (`docs/modules/03-priorites/module.md`) · Précédent : cou
 ### Niveaux
 1 : une phrase, deux nombres et un bloc · 2 : deux blocs, problème en mots · 3 : trois opérations, quotients, relatifs · calcul-piège : « moins la somme de ».
 ### Hors catalogue
-**Nouvelle brique d'écran nécessaire** : saisie d'un calcul tapé avec parenthèses, jugé sur sa structure (→ maquette `docs/design/ecrans/priorites-ecrire-un-calcul.html`, session principale). Rien n'est codé tant qu'elle n'est pas validée.
+Question `ecrire` (mode calcul), codée et validée (maquette `docs/design/ecrans/priorites-ecrire-un-calcul.html`, 2026-11-27) : ligne du catalogue des écrans.

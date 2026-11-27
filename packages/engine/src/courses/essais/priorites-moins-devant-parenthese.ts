@@ -1,11 +1,16 @@
-// Cours 7 du module Priorités (déroulé guidé), partie nombres : un moins devant une parenthèse change le signe de chaque terme.
+// Cours 7 du module Priorités (déroulé guidé) : un moins devant une parenthèse change le signe de chaque terme.
 // Fiche : docs/modules/03-priorites/priorites-moins-devant-parenthese.md
-// PARTIE LETTRES (−(x − 3) = −x + 3) : pas encore codée ; à insérer dans `parts` juste avant l'exemple guidé (les partIndex des règles ne bougent pas).
+// Partie nombres : calculs par lignes. Partie lettres (fin de cours, décidée le 2026-11-27) : −(x − 3) = −x + 3, un seul x, rien à réduire en x ;
+// un écran de leçon (règle 4) puis 2 exercices de fin sur 5 avec la question `ecrire` (mode `reecrire`). Les partIndex 1, 3 et 5 n'ont pas bougé.
 import type { Rng } from '../../rng';
-import type { CourseDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
+import type { BuildCtx, Question } from '../../exercises/types';
+import type { QuestionKind } from '../../events';
+import { type EcrireQuestion, linearText } from '../../exercises/ecrire';
+import { num } from '../../math/expr';
+import type { CourseDef, ErrorDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, choix, decouverte, etapes, exemple, hl, lecon, linesScene,
-  options3, redraw, small, step, texted, toks, trouOf,
+  options3, redraw, small, step, texted, toks, trouOf, makeExercise, explanation,
 } from '../calculs/shared';
 import {
   type ErrDef, calculerGuided, coin, customOf, explainOf, feedbackOf, makeErrors, mkEx, positiveSteps, readable, resolutionOf, rnd, sgn,
@@ -64,7 +69,70 @@ const defs: ErrDef[] = [
     text: (ex) => `Dans ${readable(textOf(ex))}, regarde le signe devant la parenthèse : un + ne change aucun signe, et un résultat négatif de la parenthèse reste négatif.`,
   },
 ];
-const errors = makeErrors(defs, generate);
+const RULE_4 = { n: 4, label: 'Avec une lettre', partIndex: 7 };
+/** Erreurs de la partie lettres : jugées par la question `ecrire` (pas de valeur numérique), elles renvoient à la règle 4. */
+const lettreErr = (id: string, text: string): ErrorDef => ({
+  id,
+  family: 'signe',
+  detect: () => false,
+  explain: (e) => explanation(text, resolutionOfAny(e)),
+  trap: (level, rng) => lettresQuestion({ rng, level, timesSeen: 0 }).ex,
+  wrongValues: () => [],
+  rule: RULE_4,
+});
+const errors = [
+  ...makeErrors(defs, generate),
+  lettreErr('un-seul-signe', 'Le − devant la parenthèse change le signe de chaque terme : le terme en x, mais aussi le nombre.'),
+  lettreErr('moins-oublie', 'Un − devant la parenthèse change le signe de chaque terme qui est dedans : x devient −x et le nombre change de signe.'),
+];
+
+// ——— Partie lettres : écrire sans parenthèses (question `ecrire`, mode `reecrire`) ———
+interface Lettres { k: number; op: '+' | '-'; p: number; q: number }
+const px = (p: number): string => (p === 1 ? 'x' : `${p}x`);
+const startLatex = ({ k, op, p, q }: Lettres): string => `${k === 0 ? '-' : `${k} ${op} `}(${px(p)} ${q < 0 ? '-' : '+'} ${Math.abs(q)})`;
+/** Les signes changés (ou recopiés après un +) : 5 − x + 3. */
+const distributed = ({ k, op, p, q }: Lettres): string => {
+  const flip = op === '-';
+  const t1 = `${flip ? '-' : '+'} ${px(p)}`;
+  const q2 = flip ? -q : q;
+  const body = `${t1} ${q2 < 0 ? '-' : '+'} ${Math.abs(q2)}`;
+  return k === 0 ? body.replace(/^- /, '-') : `${k} ${body}`;
+};
+const linearOf = ({ k, op, p, q }: Lettres): { a: number; b: number } => (op === '-' ? { a: -p, b: k - q } : { a: p, b: k + q });
+/** La résolution d'un exercice à lettres : le départ, les signes changés, la forme réduite. */
+function resolutionOfAny(ex: Exercise): string[] {
+  const L = (ex.meta as { lettres?: Lettres }).lettres;
+  if (!L) return resolutionOf(ex);
+  const { a, b } = linearOf(L);
+  return [startLatex(L), `= ${distributed(L)}`, `= ${linearText(a, b).replace(/−/g, '-')}`];
+}
+function lettresQuestion(ctx: BuildCtx): EcrireQuestion {
+  const { rng: g, level } = ctx;
+  const hi = level === 1 ? 9 : 15;
+  const minus = ctx.trapErrorType !== undefined || level < 3 || !coin(g, 0.25);
+  const index = ctx.index;
+  const kind = index === 3 ? 'simple' : index === 4 ? 'coef' : coin(g) ? 'simple' : 'coef';
+  const p = kind === 'simple' ? 1 : rnd(g, [2, level === 1 ? 4 : 5]);
+  const q = rnd(g, [2, hi]) * (coin(g) ? -1 : 1);
+  const k = minus && kind === 'simple' && index !== 4 && coin(g, 0.4) ? 0 : rnd(g, [2, level === 1 ? 9 : 20]);
+  const L: Lettres = { k, op: minus ? '-' : '+', p, q };
+  const { a, b } = linearOf(L);
+  const hint =
+    L.op === '-'
+      ? `Le − change le signe de chaque terme : ${px(p)} devient −${px(p)}, ${q < 0 ? '− ' : '+ '}${Math.abs(q)} devient ${q < 0 ? '+ ' : '− '}${Math.abs(q)}.`
+      : 'Un + devant la parenthèse ne change aucun signe : recopie les termes tels quels.';
+  return {
+    kind: 'ecrire',
+    ex: { ...makeExercise(ID, level, num(b)), meta: { text: String(b), lettres: L } },
+    mode: 'reecrire',
+    context: { kind: 'latex', latex: startLatex(L) },
+    name: null,
+    steps: [{ instr: null, accepted: [] }],
+    linear: { a, b, k, op: L.op, p, q },
+    hint,
+  };
+}
+
 
 // ——— Leçon ———
 const REGLE1 = '**Un + devant une parenthèse ne change rien :** j’enlève la parenthèse et je recopie les signes tels quels.';
@@ -127,6 +195,24 @@ const regle3: EtapeStep[] = [
   step(undefined, { scene: linesScene(['D = 15 − (4 − 9)'], ['D = 15 − 4 + 9'], ['D = ', hl('20')]), rule: { n: 3, text: REGLE3 } }),
 ];
 
+const REGLE4 = '**Avec une lettre, c’est la même règle : le − devant la parenthèse change le signe de chaque terme, le terme en x compris.**';
+const lettres: EtapeStep[] = [
+  step('Les lettres suivent la même règle. Dans **−(x − 3)**, le − change le signe de chaque terme : x devient −x et − 3 devient + 3.', {
+    scene: linesScene(['A = −(x − 3)']),
+  }),
+  step('On enlève la parenthèse : on retire un « moins 3 », donc on le rend.', {
+    scene: linesScene(['A = −(x − 3)']),
+    after: linesScene(['A = −(x − 3)'], ['A = −x ', hl('+ 3')]),
+    action: trouOf('Dans −(x − 3), le − 3 devient [ ? ].', ['+ 3', '− 3'], 0, {
+      1: 'Retirer un « moins 3 », c’est rendre 3 : le signe change, on écrit + 3. Garder − 3 serait oublier le moins devant la parenthèse.',
+    }),
+  }),
+  step('Avec un nombre devant, **5 − (x − 3)** donne 5 − x + 3. On peut encore réduire : 5 + 3 = 8, donc 8 − x.', {
+    scene: linesScene(['B = 5 − (x − 3)'], ['B = 5 − x + 3'], ['B = ', hl('8 − x')]),
+  }),
+  step(undefined, { scene: linesScene(['C = 5 − (2x − 4)'], ['C = 5 − 2x + 4'], ['C = ', hl('9 − 2x')]), rule: { n: 4, text: REGLE4 } }),
+];
+
 const exGuide = ex('15 - (4 - 9)');
 
 const parts: LessonPart[] = [
@@ -179,13 +265,15 @@ const parts: LessonPart[] = [
       },
     },
   ),
-  // ICI, avant l'exemple guidé : la partie lettres (−(x − 3) = −x + 3), à brancher.
+  etapes(RULE_4.label, lettres),
   texted(exemple(calculerGuided(exGuide)), {
     title: 'On le fait ensemble',
     subtitle: 'Calcule 15 − (4 − 9), une opération par ligne. À chaque ligne, une aide te dit quoi faire.',
   }),
   annonceFin(),
 ];
+
+const numeric = customOf(() => course);
 
 const course: CourseDef = {
   id: ID,
@@ -197,15 +285,16 @@ const course: CourseDef = {
   parts,
   lessonLength: parts.findIndex((p) => p.type === 'question' && p.activity === 'exemple'),
   unePhrase: true,
-  endExercises: { count: 5, kind: 'saisie', mix: ['calculer', 'calculer', 'calculer', 'calculer', 'calculer'] },
-  formats: ['saisie', 'calculer', 'calculer'],
+  // 3 calculs par lignes, puis 2 écritures sans parenthèses avec des lettres (rangs 3 et 4)
+  endExercises: { count: 5, kind: 'saisie', mix: ['calculer', 'calculer', 'calculer', 'ecrire', 'ecrire'] },
+  formats: ['saisie', 'calculer', 'ecrire'],
   generate,
   errors,
-  generalExplanation: explainOf(RULE),
-  resolution: resolutionOf,
+  generalExplanation: (e) => explanation(RULE, resolutionOfAny(e)),
+  resolution: resolutionOfAny,
   classes: SIGN_CLASSES,
   expectInteger: true,
-  customQuestion: customOf(() => course),
+  customQuestion: (kind: QuestionKind, ctx: BuildCtx): Question | null => (kind === 'ecrire' ? lettresQuestion(ctx) : numeric(kind, ctx)),
   feedbackText: feedbackOf(
     () => course.errors,
     (e) => `Calcule la parenthèse d’abord, ou enlève-la en changeant les signes si elle est précédée d’un − : ${readable(textOf(e))}.`,
@@ -216,8 +305,9 @@ const course: CourseDef = {
       'Un + devant une parenthèse : je l’enlève, rien ne change.',
       'Un − devant une parenthèse : je l’enlève et je change le signe de chaque terme.',
       'Je peux aussi calculer la parenthèse d’abord : même résultat.',
+      'Avec une lettre, même règle : −(x − 3) = −x + 3.',
     ],
-    examples: ['8 − (3 + 2) = 8 − 3 − 2 = 3', '8 − (3 − 2) = 8 − 3 + 2 = 7'],
+    examples: ['8 − (3 + 2) = 8 − 3 − 2 = 3', '8 − (3 − 2) = 8 − 3 + 2 = 7', '5 − (x − 3) = 5 − x + 3 = 8 − x'],
     mistake: { wrong: '8 − (3 − 2) = 8 − 3 − 2', why: 'Le − devant la parenthèse change le signe de **chaque** terme : le − 2 devient + 2. 8 − 3 + 2 = 7.' },
     tip: 'Avant un −, je change tous les signes dans la parenthèse.',
   },

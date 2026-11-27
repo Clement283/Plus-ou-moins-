@@ -13,6 +13,7 @@ import { priorites2 } from './priorites-fois-avant-plus';
 import { priorites3 } from './priorites-parentheses';
 import { priorites4 } from './priorites-parentheses-imbriquees';
 import { priorites5 } from './priorites-nature-calcul';
+import { priorites6 } from './priorites-ecrire-un-calcul';
 import { priorites7 } from './priorites-moins-devant-parenthese';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
@@ -41,6 +42,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   priorites3,
   priorites4,
   priorites5,
+  priorites6,
   priorites7,
 ];
 

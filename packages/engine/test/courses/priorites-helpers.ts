@@ -9,7 +9,7 @@ import type { CourseDef, Exercise, Level } from '../../src/courses/types';
 
 export const LEVELS: Level[] = [1, 2, 3];
 
-export function generatorChecks(course: CourseDef, fits: (ex: Exercise, level: Level) => boolean, seed = 7, draws = 300): void {
+export function generatorChecks(course: CourseDef, fits: (ex: Exercise, level: Level) => boolean, seed = 7, draws = 300, skipErrors: string[] = []): void {
   const rng = seededRng(seed);
   for (const level of LEVELS) {
     for (let i = 0; i < draws; i++) {
@@ -28,7 +28,7 @@ export function generatorChecks(course: CourseDef, fits: (ex: Exercise, level: L
       expect(fits(ex, level), `${text} (niveau ${level})`).toBe(true);
       void treeOf;
     }
-    for (const err of course.errors)
+    for (const err of course.errors.filter((e) => !skipErrors.includes(e.id)))
       for (let i = 0; i < 100; i++) {
         const ex = err.trap(level, rng);
         const wrong = err.wrongValues(ex);
