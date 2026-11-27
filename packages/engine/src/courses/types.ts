@@ -266,7 +266,7 @@ export interface MemoCard {
   tip: string;
 }
 
-export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre' | 'calculer' | 'intervalle' | 'tableau' | 'solutions';
+export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre' | 'calculer' | 'intervalle' | 'tableau' | 'solutions' | 'ecrire';
 
 export interface CourseDef {
   id: string;

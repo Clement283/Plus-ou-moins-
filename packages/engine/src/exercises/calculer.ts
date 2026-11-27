@@ -12,8 +12,11 @@ import {
   calcTokensLatex,
   exprTokens,
   judgeCalcLine,
+  nextStepInfo,
   parseCalc,
+  textTokens,
   tokensKey,
+  type CalcToken,
 } from '../math/calcul';
 import { type Rational, eqRat, rat, ratToString } from '../math/rational';
 
@@ -22,9 +25,16 @@ export interface CalculerQuestion {
   ex: Exercise;
   /** L'équation, en LaTeX (−3x + 7 = −5). */
   eqLatex: string;
-  xValue: number;
+  /** null : calcul seul, sans équation ni x (module Priorités). */
+  xValue: number | null;
   /** Le membre à calculer, avec x remplacé : −3 × 4 + 7. */
   start: ReturnType<typeof substitute>;
+  /** Le calcul de départ en jetons (parenthèses comprises). */
+  tokens: CalcToken[];
+  /** Le calcul de départ tel qu'on le tape (calcul seul : c'est la 1re ligne, déjà posée). */
+  startText?: string;
+  /** Le calcul contient des crochets : le clavier les propose. */
+  brackets?: true;
   /** Les écritures acceptées pour la 1re ligne (clés, voir `parseCalc`). */
   first: string[];
   /** La valeur du membre à calculer et celle de l'autre membre. */
@@ -49,10 +59,37 @@ export function calculerQuestion(ex: Exercise, eq: Equation, xValue: number, sid
     eqLatex: `${memberLatex(eq.left)} = ${memberLatex(eq.right)}`,
     xValue,
     start,
+    tokens: exprTokens(start),
     first: [tokensKey(exprTokens(start))],
     value,
     other,
     isSolution: eqRat(value, other),
+  };
+}
+
+/**
+ * « Calculer par lignes » à partir d'un calcul seul (A = 10 − 3 + 2) : pas de x à remplacer, pas de verdict « solution ».
+ * `text` s'écrit comme au clavier (`10 - 3 + 2`, `2 * (3 - 5)`, `3 * [10 - (4 + 2)]`) ; `name` est la lettre devant le signe =.
+ * Le calcul affiché est la ligne de départ : la 1re ligne de l'élève est déjà un pas.
+ */
+export function calculerCalcul(ex: Exercise, text: string, name = 'A'): CalculerQuestion {
+  const p = parseCalc(text);
+  const tokens = textTokens(text);
+  if (!p.ok || !tokens) throw new Error(`Calcul illisible : ${text}`);
+  const latex = calcTokensLatex(tokens);
+  return {
+    kind: 'calculer',
+    ex,
+    eqLatex: `${name} = ${latex}`,
+    xValue: null,
+    start: ex.expr,
+    tokens,
+    startText: text,
+    ...(/[[\]]/.test(text) ? { brackets: true as const } : {}),
+    first: [p.key],
+    value: p.value,
+    other: p.value,
+    isSolution: true,
   };
 }
 
@@ -69,6 +106,22 @@ export const CALC_PARSE_TEXT: Record<CalcErrorKind, string> = {
 
 export const CALC_ERROR_TEXT: Record<CalcErrorId, { title: string; message: string }> = {
   priorite: { title: 'On fait d’abord les × et les ÷.', message: 'Les multiplications et les divisions passent avant les additions et les soustractions.' },
+  'gauche-droite': {
+    title: 'Même priorité : on va de gauche à droite.',
+    message: 'Quand il n’y a que des additions et des soustractions (ou que des multiplications et des divisions), on calcule dans l’ordre de lecture, de gauche à droite.',
+  },
+  'moins-parenthese': {
+    title: 'Le − change le signe de chaque terme.',
+    message: 'Tu as enlevé la parenthèse sans changer tous les signes. Calcule plutôt la parenthèse d’abord, ou change le signe de chaque terme.',
+  },
+  parenthese: {
+    title: 'Les parenthèses passent en premier.',
+    message: 'Calcule d’abord ce qui est entre parenthèses, puis reprends les priorités.',
+  },
+  'ordre-parentheses': {
+    title: 'Commence par la parenthèse la plus intérieure.',
+    message: 'Quand des parenthèses sont dans d’autres parenthèses ou des crochets, on part de l’intérieur et on sort peu à peu.',
+  },
   signe: {
     title: 'Erreur de signe.',
     message: 'Reprends la règle des signes : même signe, résultat positif ; signes différents, résultat négatif.',
@@ -84,7 +137,7 @@ export type CalcLineResult =
 
 /** Le retour d'une ligne tapée après `prevText` (null : la 1re ligne). */
 export function judgeTypedCalcLine(q: CalculerQuestion, prevText: string | null, typed: string): CalcLineResult {
-  const v = judgeCalcLine(prevText, typed, q.first);
+  const v = judgeCalcLine(prevText ?? q.startText ?? null, typed, q.first);
   switch (v.kind) {
     case 'illisible':
       return { kind: 'illisible', title: 'Je ne peux pas lire cette ligne.', message: CALC_PARSE_TEXT[v.error] };
@@ -107,15 +160,21 @@ export function judgeTypedCalcLine(q: CalculerQuestion, prevText: string | null,
 
 /** L'indice : l'étape suivante de la méthode du cours. */
 export function calcHint(q: CalculerQuestion, prevText: string | null): string {
-  if (prevText === null) return `Remplace x par ${q.xValue < 0 ? `(${valueText(rat(q.xValue))})` : q.xValue} dans le membre de gauche.`;
-  const p = parseCalc(prevText);
+  const from = prevText ?? q.startText ?? null;
+  if (from === null) return `Remplace x par ${(q.xValue as number) < 0 ? `(${valueText(rat(q.xValue as number))})` : q.xValue} dans le membre de gauche.`;
+  const p = parseCalc(from);
   if (!p.ok) return 'Corrige d’abord ta ligne.';
-  if (/[*/]/.test(p.key)) return 'Commence par la multiplication ou la division : elle passe avant l’addition.';
+  const info = nextStepInfo(p.tree);
+  if (info.inGroup) return info.depth > 1 ? 'Commence par les parenthèses les plus intérieures.' : 'Commence par le calcul entre parenthèses.';
+  const hasMul = info.ops.some((o) => o === '*' || o === '/');
+  const hasAdd = info.ops.some((o) => o === '+' || o === '-');
+  if (hasMul && hasAdd) return 'Commence par la multiplication ou la division : elle passe avant l’addition.';
+  if (hasMul) return 'Multiplie ou divise de gauche à droite.';
   return 'Additionne ou soustrais de gauche à droite.';
 }
 
 /** La méthode du cours, ligne par ligne, en LaTeX. */
-export const courseCalcLines = (q: CalculerQuestion): string[] => calcSteps(exprTokens(q.start)).map(calcTokensLatex);
+export const courseCalcLines = (q: CalculerQuestion): string[] => calcSteps(q.tokens).map(calcTokensLatex);
 
 /**
  * La note de la question : on rejoue toutes les lignes validées (fausses comprises, dans l'ordre). Une ligne illisible,

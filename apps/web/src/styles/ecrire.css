@@ -1,0 +1,9 @@
+/* « Écris le calcul » (module Priorités, maquette docs/design/ecrans/priorites-ecrire-un-calcul.html) */
+.ecrire-ctx{display:grid;gap:var(--sp-4);padding:var(--sp-12) var(--sp-16);border-radius:var(--r-md);background:var(--surface-container,var(--surface));box-shadow:inset 0 0 0 1px var(--border)}
+.ecrire-ctx p{margin:0}
+.ecrire-ctx .t-math-md{text-align:center}
+.ecrire-prog{margin:0;padding-left:1.3rem;display:grid;gap:var(--sp-8)}
+.ecrire-prog li.is-done,.ecrire-prog li.is-later{color:var(--muted)}
+.ecrire-prog mark{background:var(--highlight);color:var(--on-highlight);border-radius:4px;padding:0 2px}
+.ecrire-prog__res{display:block;color:var(--success);font-weight:600}
+.ecrire-label{color:var(--muted);margin-right:var(--sp-8);white-space:nowrap}

@@ -99,7 +99,7 @@ export const exemple = (question: Question): LessonPart => ({
 export const etapes = (title: string, steps: EtapeStep[]): LessonPart => ({ type: 'etapes', title, steps });
 
 /** Une petite question à un toucher : le calcul (LaTeX, ou rien), la question, des options avec leur explication. */
-export const choix = (ex: Exercise, prompt: string, options: { label: string; why: string }[], correctIndex: number, calcLatex: string | null = null): Question => ({
+export const choix = (ex: Exercise, prompt: string, options: { label: string; why: string; errorType?: string }[], correctIndex: number, calcLatex: string | null = null): Question => ({
   kind: 'choix',
   ex,
   calcLatex,

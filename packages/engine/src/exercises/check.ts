@@ -13,6 +13,7 @@ import { gradeCalcul, verdictText } from './calculer';
 import { gradeIntervalle } from './intervalle';
 import { gradeTableau } from './tableau';
 import { gradeSolutions } from './solutions';
+import { gradeEcrire } from './ecrire';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -178,6 +179,7 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const chosen = q.options[a.choice];
       const answer = q.options[q.correctIndex];
       if (!chosen || !answer) throw new Error('Choix inconnu');
+      if (a.choice !== q.correctIndex && chosen.errorType) return { ...wrong(chosen.errorType, 'calcul', chosen.label, answer.label), message: chosen.why };
       return { ...(a.choice === q.correctIndex ? right(chosen.label, answer.label) : wrong('autre', 'autre', chosen.label, answer.label)), errorType: null, errorFamily: null, message: chosen.why };
     }
 
@@ -223,10 +225,10 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const given = a.calcLines.at(-1) ?? '';
       const expected = verdictText(q.isSolution);
       if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given, expected };
-      const verdictRight = a.firstPick === q.isSolution;
+      const verdictRight = q.xValue === null || a.firstPick === q.isSolution;
       if (g.firstError === null && verdictRight) return { ...right(given, expected), helped: a.hinted, message: '' };
       const errorType = g.firstError ?? 'verdict';
-      const family: ErrorFamily = g.firstError === 'signe' ? 'signe' : g.firstError === 'priorite' ? 'calcul' : 'autre';
+      const family: ErrorFamily = g.firstError === 'signe' || g.firstError === 'moins-parenthese' ? 'signe' : g.firstError === 'autre' || g.firstError === null ? 'autre' : 'calcul';
       return {
         correct: false,
         unfinished: false,
@@ -243,6 +245,15 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const g = gradeIntervalle(q, a.interval, a.symbol as Relation | null, a.interval2 ?? null);
       if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: '' };
       const family: ErrorFamily = g.errorId === 'signe-borne' || g.errorId === 'sens' ? 'signe' : g.errorId === 'borne' || g.errorId === 'ordre' ? 'calcul' : 'ecriture';
+      return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
+    }
+
+    case 'ecrire': {
+      if (!('written' in a)) return mismatch(q);
+      const g = gradeEcrire(q, a.written, a.calcul);
+      if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given: g.given, expected: g.expected };
+      if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: g.message };
+      const family: ErrorFamily = g.errorId === 'un-seul-signe' || g.errorId === 'moins-oublie' || g.errorId === 'expression-fausse' ? 'signe' : g.errorId === 'parentheses-oubliees' || g.errorId === 'ordre' ? 'ecriture' : 'calcul';
       return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
     }
 

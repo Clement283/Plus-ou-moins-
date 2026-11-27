@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Écrire un calcul</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style>
+/* Maquette du module Priorités : un écran « écrire une expression », pour le cours 6 (écrire un calcul) et la fin du cours 7 (−(x − 3) sans parenthèses). Mêmes jetons que equations-tableau-signes.html. */
+:root{
+  --bg:#F2F3F8; --surface:#FFFFFF; --sunken:#E9EBF3; --line:#DDE0EA;
+  --ink:#1A1D2E; --muted:#565C73; --primary:#3B39D4; --on-primary:#FFFFFF;
+  --ok:#137F57; --ok-bg:#DDF3E9; --ko:#C42D47; --ko-bg:#FCE4E8;
+  --hl:#FFE27A; --hl-ink:#5C4100; --grey-bg:#ECEDF2;
+  --neg:#C25400; --pos:#1565C0;
+  --op-bg:#E6E6FF; --op-ink:#2422A6;
+  --font:'Lexend','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px}
+.intro h1{font-size:1.6rem;margin:0 0 4px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:70ch}
+.layout{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.nav button.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.nav button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;min-height:720px;display:flex;flex-direction:column;overflow:hidden}
+.ph-top{display:flex;align-items:center;gap:12px;padding:16px 18px 6px}
+.ph-x{font-size:1.4rem;color:var(--muted);line-height:1}
+.bar{flex:1;display:flex;gap:3px}
+.bar i{flex:1;height:5px;border-radius:3px;background:var(--sunken)}
+.bar i.d{background:var(--primary)}
+.chip{margin:8px 18px 0;align-self:flex-start;font-size:.8rem;font-weight:600;color:var(--muted);background:var(--sunken);border-radius:999px;padding:5px 12px}
+.ph-body{flex:1;padding:14px 20px 20px;display:flex;flex-direction:column;gap:14px}
+h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:0}
+.btn{font:inherit;font-weight:600;font-size:1.05rem;border-radius:16px;padding:15px;border:0;cursor:pointer;width:100%}
+.btn-main{background:var(--primary);color:var(--on-primary)}
+.btn-main:disabled{opacity:.4;cursor:default}
+.btn-line{background:transparent;border:2px solid var(--line);color:var(--ink);font-size:.9rem;padding:9px}
+.btn:focus-visible,.key:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.zone{margin-top:auto;display:grid;gap:10px;padding-top:6px}
+.fb{border-radius:14px;padding:12px 14px;display:grid;gap:4px}
+.fb.ok{background:var(--ok-bg)} .fb.ko{background:var(--ko-bg)} .fb.grey{background:var(--grey-bg)}
+.fb strong{color:var(--ok)} .fb.ko strong{color:var(--ko)} .fb.grey strong{color:var(--ink)}
+.fb p{margin:0}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.key{font:inherit;font-size:1.25rem;font-weight:500;border:0;border-radius:12px;padding:10px 0;background:var(--sunken);color:var(--ink);cursor:pointer}
+.key.op{background:color-mix(in srgb,var(--primary) 16%,var(--sunken))}
+.key.x{background:var(--op-bg);color:var(--op-ink);font-style:italic;font-weight:600}
+.new{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.new{animation:none}}
+/* Nouveau : la phrase (ou les étapes) à traduire, et la ligne tapée */
+.ctx{background:var(--sunken);border-radius:16px;padding:12px 14px;display:grid;gap:4px}
+.ctx p{margin:0}
+.ctx .steps{font-variant-numeric:tabular-nums;font-size:1.05rem;display:grid;gap:2px}
+mark{background:var(--hl);color:var(--hl-ink);border-radius:4px;padding:0 2px}
+.typed{min-height:58px;border:2px solid var(--primary);border-radius:14px;padding:10px 14px;font-size:1.35rem;font-weight:500;display:flex;align-items:center;flex-wrap:wrap;gap:0 2px;font-variant-numeric:tabular-nums}
+.typed .lab{color:var(--muted);margin-right:6px}
+.typed .cur{display:inline-block;width:2px;height:1.3em;background:var(--primary);margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.typed.ok{border-color:var(--ok);background:var(--ok-bg)} .typed.ko{border-color:var(--ko);background:var(--ko-bg)} .typed.grey{border-color:var(--line);background:var(--grey-bg)}
+.typed .miss{color:var(--ko);font-weight:700}
+.t{border-bottom:3px solid var(--primary);padding:0 2px;margin:0 2px}
+.prog{margin:0;padding-left:1.3rem;display:grid;gap:6px}.prog li{padding-left:2px}.prog li.later{color:var(--muted)}.prog li.done{color:var(--muted)}.prog .res{display:block;color:var(--ok);font-weight:600;font-size:1.1rem}
+.ph{color:var(--muted);font-size:1rem;font-weight:400}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px;display:grid;gap:8px;align-content:start}
+.note h3{margin:0;font-size:1rem}.note ul{margin:0;padding-left:1.1rem;display:grid;gap:6px}.note li{color:var(--muted)}.note li b{color:var(--ink)}
+.note p{margin:0;color:var(--muted)} .note p b{color:var(--ink)}
+.pager{display:flex;gap:8px;flex-wrap:wrap}.pager button{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}.pager button:disabled{opacity:.4;cursor:default}
+.notes{display:grid;gap:16px}
+.ask{border-color:var(--primary)}
+.theme{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--muted)}
+.theme button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.theme button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+</style>
+<body>
+<div class="wrap">
+  <div class="intro">
+    <h1>Écrire un calcul</h1>
+    <p>Module Priorités. Un seul écran, « écris l'expression », sert à deux cours : le cours 6 (traduire une phrase, une suite d'opérations ou un petit problème en un seul calcul) et la fin du cours 7 (enlever une parenthèse précédée d'un − avec une lettre). L'élève tape au clavier ; seul ce qu'on vérifie change. Les écrans se jouent : tape sur le clavier puis « Valider ». Version 2 : consigne sur chaque écran ; l’écran « suite d’opérations » est remplacé par un programme de calcul pas à pas.</p>
+  </div>
+  <div class="theme">Thème <button data-th="light">Clair</button><button data-th="dark">Sombre</button><button data-th="" class="on">Système</button></div>
+  <div class="nav" id="nav"></div>
+  <div class="layout">
+    <div class="phone" id="phone"></div>
+    <div class="notes" id="notes"></div>
+  </div>
+</div>
+<script>
+const M='−';
+// Clé de comparaison : sans espaces, signes unifiés.
+const norm=s=>s.replace(/\s+/g,'').replace(/-/g,M).replace(/\*/g,'×').replace(/\//g,'÷');
+// Affichage : espaces autour des opérations (pas autour d'un − en tête ou après « ( »).
+function pretty(s){let o='';for(let i=0;i<s.length;i++){const c=s[i],p=s[i-1];
+  if('+×÷'.includes(c)||(c===M&&i>0&&p!=='('))o+=` ${c} `;else o+=c;}return o.replace(/\s+/g,' ').trim();}
+
+const KEYS_CALC=['7','8','9','(',')','4','5','6','×','÷','1','2','3','+',M,'0','⌫'];
+const KEYS_X=['7','8','9','x','(','4','5','6',')','+','1','2','3',M,'⌫','0'];
+
+const S=[
+ {name:'Phrase', course:'Cours 6', chip:'Cours 6, exercice 1 sur 5', title:'Écris le calcul', lab:'D =', lead:'Traduis la phrase en un seul calcul. Tu n’as pas à le calculer.',
+  ctx:'<p>D est la différence de 30 et de la somme de 2 et de 7.</p>',
+  keys:KEYS_CALC, ok:['30−(2+7)'],
+  okMsg:['C’est le calcul de la phrase.','« La somme de 2 et de 7 » est un seul nombre : il est entre parenthèses.'],
+  grey:{'30−2−7':['Même résultat, mais pas le calcul de la phrase.','La phrase retire <b>la somme</b> de 2 et de 7 : écris cette somme entre parenthèses.']},
+  ko:{'30−2+7':['Ce calcul retire 2 puis ajoute 7.','« La somme de 2 et de 7 » est un seul nombre : mets 2 + 7 entre parenthèses.'],
+      '(2+7)−30':['Ordre inversé.','« La différence de 30 et de … » : 30 vient en premier.']},
+  koDefault:['Ce n’est pas le calcul de la phrase.','Repère la dernière opération : une différence, donc 30 − (…).'],
+  next:'Calculer D', pre:'', what:'Une phrase avec le vocabulaire du cours 5 (somme, différence, produit, quotient). L’élève tape le calcul ; la ligne se met en forme pendant la frappe.', why:'C’est l’exemple du document de Monka (partie 3 b). Le geste est l’inverse du cours 5 : on part de la phrase, la dernière opération est le premier mot.', engine:'Nouvelle question <code>ecrire</code> : la réponse est comparée à l’arbre attendu (opérations et ordre des nombres), pas seulement à sa valeur. Parenthèses inutiles acceptées : (30) − (2 + 7) est juste.'},
+ {name:'Même valeur', course:'Cours 6', chip:'Cours 6, exercice 1 sur 5', title:'Écris le calcul', lab:'D =', lead:'Traduis la phrase en un seul calcul. Tu n’as pas à le calculer.',
+  ctx:'<p>D est la différence de 30 et de <mark>la somme de 2 et de 7</mark>.</p>',
+  keys:KEYS_CALC, ok:['30−(2+7)'], okMsg:['C’est le calcul de la phrase.',''], grey:{'30−2−7':['Même résultat, mais pas le calcul de la phrase.','La phrase retire <b>la somme</b> de 2 et de 7 : écris cette somme entre parenthèses.']}, ko:{}, koDefault:['Ce n’est pas le calcul de la phrase.',''],
+  pre:'30−2−7', validated:true,
+  what:'L’élève a tapé 30 − 2 − 7 : la valeur (21) est juste mais le calcul n’est pas celui de la phrase.', why:'Le message est gris (« pas faux mais pas ce qu’on demande », code du design system), pas rouge. La phrase surligne le morceau à mettre entre parenthèses. L’élève corrige et revalide.', engine:'Valeur égale et arbre différent : verdict « gris », non compté faux ; voir question 1.'},
+ {name:'Faux', course:'Cours 6', chip:'Cours 6, exercice 1 sur 5', title:'Écris le calcul', lab:'D =', lead:'Traduis la phrase en un seul calcul. Tu n’as pas à le calculer.',
+  ctx:'<p>D est la différence de 30 et de <mark>la somme de 2 et de 7</mark>.</p>',
+  keys:KEYS_CALC, ok:['30−(2+7)'], okMsg:['',''], grey:{}, ko:{'30−2+7':['Ce calcul retire 2 puis ajoute 7.','« La somme de 2 et de 7 » est un seul nombre : mets 2 + 7 entre parenthèses.']}, koDefault:['',''],
+  pre:'30−2+7', validated:true, showMiss:true,
+  what:'Erreur type : 30 − 2 + 7 (les parenthèses oubliées). La ligne montre en rouge où elles manquent.', why:'C’est l’erreur citée dans le plan du module. Comme partout dans l’appli : une seule réponse jugée, puis « Continuer » (la correction reste affichée).', engine:'Erreur reconnue <code>parentheses-oubliees</code> : même suite de nombres et d’opérations que la bonne réponse, sans les parenthèses. Autres : ordre inversé, mauvaise opération.'},
+ {name:'Programme de calcul', course:'Cours 6', chip:'Cours 6, exercice 2 sur 5', title:'Un programme de calcul', lab:'',
+  lead:'Suis le programme une étape à la fois. Écris le calcul, sans le calculer.',
+  keys:KEYS_CALC,
+  prog:[
+   {instr:'Pars du nombre 4 et ajoute-lui 3.', ok:['4+3'], okMsg:['Juste : 4 + 3.','Étape suivante : on va multiplier ce résultat.'], grey:{'7':['C’est le résultat, pas le calcul.','Ici on écrit le calcul : 4 + 3.']}, ko:{}, koDefault:['Ce n’est pas le calcul de l’étape.','On part de 4, puis on fait + 3.']},
+   {instr:'Multiplie le résultat par 5.', ok:['(4+3)×5','5×(4+3)'], okMsg:['Juste : (4 + 3) × 5.','« Le résultat » est 4 + 3 tout entier : il est entre parenthèses, sinon seul le 3 serait multiplié.'], grey:{'7×5':['C’est juste, mais on veut garder le calcul de départ.','Remplace 7 par le calcul qui l’a donné : (4 + 3).']},
+    ko:{'4+3×5':['Ici, seul le 3 est multiplié par 5.','On multiplie tout le résultat 4 + 3 : mets-le entre parenthèses, puis × 5.']}, koDefault:['Ce n’est pas le calcul de l’étape.','Le résultat d’avant, c’est 4 + 3 : écris (4 + 3) × 5.']}
+  ],
+  pre:'', what:'Un programme de calcul (« traduire un programme de calcul en une seule expression », programme de 5e p. 7). L’élève avance une instruction à la fois ; à chaque étape, il tape le calcul en entier. Les étapes faites restent affichées avec leur calcul.', why:'Remplace l’écran « suite d’opérations » (trois calculs déjà faits à regrouper), jugé incompréhensible. Ici, chaque étape ne demande qu’une chose, et la seule difficulté arrive à l’étape 2 : « le résultat » = tout le calcul d’avant, donc des parenthèses. Au niveau 1, deux étapes ; trois aux niveaux 2 et 3.', engine:'Question <code>ecrire</code> en plusieurs étapes (une réponse jugée par étape). Erreur reconnue <code>parentheses-oubliees</code> (4 + 3 × 5). Taper le résultat (7, ou 7 × 5) : message gris, on recommence.'},
+ {name:'Problème', course:'Cours 6', chip:'Cours 6, exercice 4 sur 5', title:'Écris le calcul, puis calcule', lab:'A =', lead:'Écris un seul calcul qui donne la réponse. Tu le calculeras ensuite.',
+  ctx:'<p>Léo achète un livre à 7 € et 3 stylos à 2 € chacun. Il paie avec un billet de 20 €. Combien lui rend-on ?</p>',
+  keys:KEYS_CALC, ok:['20−(7+3×2)','20−(3×2+7)','20−7−3×2'],
+  okMsg:['C’est le bon calcul.','Maintenant, calcule A ligne par ligne.'], grey:{}, ko:{'20−7+3×2':['On ajouterait le prix des stylos.','On retire tout ce qu’il a payé : 20 − (7 + 3 × 2).']},
+  koDefault:['Ce n’est pas le calcul du problème.','Ce qu’il paie en tout : 7 + 3 × 2. On le retire de 20.'],
+  next:'Calculer A', pre:'', what:'Un problème court en mots (question 5 du module : oui). Plusieurs écritures justes acceptées. Après « Valider », l’écran « calculer par lignes » s’ouvre avec A = 20 − (7 + 3 × 2) en tête, puis la phrase réponse se choisit (« On lui rend 7 € »).', why:'Exemple du rendu de monnaie de Fonteniaud, avec des entiers (décimaux renvoyés au module Fractions).', engine:'Pour un problème, l’arbre attendu est une liste de formes justes (somme dans les deux ordres, retrait en deux fois). Enchaînement : <code>ecrire</code> puis <code>calculer</code> à partir d’un calcul seul.'},
+ {name:'Lettres : juste', course:'Cours 7', chip:'Cours 7, exercice 4 sur 5', title:'Écris sans parenthèses', lab:'', lead:'Écris la même expression, sans les parenthèses.',
+  ctx:'<p style="font-size:1.35rem;font-weight:500;text-align:center">5 − (x − 3)</p>',
+  keys:KEYS_X, ok:['5−x+3','8−x','−x+8','−x+5+3'], okMsg:['Le − a changé le signe de chaque terme, et tu as réduit.','x devient −x et −3 devient +3 ; puis 5 + 3 = 8.'],
+  okBy:{'5−x+3':['Juste : chaque signe a changé.','Tu peux encore réduire : 5 + 3 = 8, donc 5 − x + 3 = <b>8 − x</b>.'],'−x+5+3':['Juste : chaque signe a changé.','Tu peux encore réduire : 5 + 3 = 8, donc <b>−x + 8</b>.']}, grey:{},
+  ko:{'5−x−3':['Seul le signe de x a changé.','Le − change le signe de <b>chaque</b> terme : −3 devient +3.'],'5+x−3':['Les signes n’ont pas changé.','Un − devant la parenthèse : x devient −x et −3 devient +3.']},
+  koDefault:['Ce n’est pas la même expression.','Change le signe de chaque terme de la parenthèse.'],
+  pre:'', terms:true, what:'Fin du cours 7 (question 3 : lettres oui). Même écran, clavier avec x à la place de ÷ et ×. On écrit l’expression sans parenthèses.', why:'Préparation directe de la dérivée de f − g et des soustractions du second degré. Un seul x, aucun terme en x à réduire.', engine:'Même question <code>ecrire</code>, mode « réécrire » : juste si l’expression tapée n’a plus de parenthèse et a les mêmes coefficients (a x + b) que l’attendue. Sans réduire (5 − x + 3) : juste, et le message montre la forme réduite 8 − x (décidé le 2026-11-27).'},
+ {name:'Lettres : faux', course:'Cours 7', chip:'Cours 7, exercice 4 sur 5', title:'Écris sans parenthèses', lab:'', lead:'Écris la même expression, sans les parenthèses.',
+  ctx:'<p style="font-size:1.35rem;font-weight:500;text-align:center">5 − (<span class="t">x</span> <span class="t">− 3</span>)</p>',
+  keys:KEYS_X, ok:['5−x+3'], okMsg:['',''], grey:{}, ko:{'5−x−3':['Seul le signe de x a changé.','Le − change le signe de <b>chaque</b> terme : −3 devient +3.']}, koDefault:['',''],
+  pre:'5−x−3', validated:true,
+  what:'L’erreur n° 1 : 5 − x − 3, seul le premier terme a changé de signe. Les termes de la parenthèse sont soulignés un par un.', why:'Méthode « souligner chaque terme » de l’ancien plan. Message précis sur le terme oublié.', engine:'Erreur reconnue <code>un-seul-signe-change</code> (coefficient de x juste, nombre faux) ; <code>moins-oublie</code> (aucun signe changé).'}
+];
+const QUESTIONS=[];
+const DECIDED=['Cours 6 : 30 − 2 − 7 (même valeur, autre calcul) ne compte pas faux : message gris, l’élève recommence (2026-11-27).','Cours 6 : on calcule après avoir écrit le calcul pour les problèmes seulement ; pour les phrases et les programmes, écrire suffit.','Cours 7 : 5 − x + 3 est juste, mais l’écran montre qu’on peut réduire en 8 − x.','Clavier : parenthèses seulement, pas de crochets.','Cours 6 avec de petits problèmes en mots, entiers seulement (2026-11-27).','Cours 7 : lettres en fin de cours, un seul x, pas de termes en x à réduire (2026-11-27).','Une seule réponse jugée à « Valider », comme les autres questions de l’appli.'];
+
+let idx=0, st={};
+const $=id=>document.getElementById(id);
+function reset(){const s=S[idx];st={typed:s.pre||'',done:!!s.validated,k:0};}
+const cur=s=>s.prog?s.prog[st.k]:s;
+function verdict(s0,t){const s=cur(s0),k=norm(t);
+  if(s.ok.includes(k))return{c:'ok',m:(s.okBy&&s.okBy[k])||s.okMsg};
+  if(s.grey[k])return{c:'grey',m:s.grey[k]};
+  if(s.ko[k])return{c:'ko',m:s.ko[k]};
+  return{c:'ko',m:s.koDefault};}
+function lineHTML(s){
+  let body=st.typed?pretty(st.typed):'<span class="ph">Tape ton calcul</span>';
+  if(s.showMiss&&st.done)body='30 − <span class="miss">(</span>2 + 7<span class="miss">)</span>';
+  const v=st.done?verdict(s,st.typed).c:'';
+  return `<div class="typed ${v}">${s.lab?`<span class="lab">${s.lab}</span>`:''}<span>${body}</span>${st.done?'':'<span class="cur"></span>'}</div>`;}
+function progHTML(s){return '<ol class="prog">'+s.prog.map((p,i)=>{
+  if(i<st.k)return `<li class="done">${p.instr}<span class="res">${pretty(s.prog[i].ok[0])}</span></li>`;
+  if(i===st.k)return `<li class="now"><mark>${p.instr}</mark></li>`;
+  return `<li class="later">${p.instr}</li>`;}).join('')+'</ol>';}
+function render(){
+  const s=S[idx];
+  $('nav').innerHTML=S.map((x,i)=>`<button class="${i===idx?'on':''}" data-i="${i}">${i+1}. ${x.course}, ${x.name}</button>`).join('');
+  let zone;
+  if(!st.done){
+    zone=`<div class="keys">${s.keys.map(k=>`<button class="key ${'+×÷−()'.includes(k)?'op':''} ${k==='x'?'x':''}" data-k="${k}" aria-label="${k==='⌫'?'Effacer':k}">${k}</button>`).join('')}</div>
+      <button class="btn btn-main" id="val" ${st.typed?'':'disabled'}>Valider</button>`;
+  }else{
+    const v=verdict(s,st.typed);
+    const again=v.c==='grey'||(s.prog&&v.c==='ko');
+    const step=s.prog&&v.c==='ok'&&st.k<s.prog.length-1;
+    zone=`<div class="fb ${v.c} new"><strong>${v.m[0]}</strong>${v.m[1]?`<p>${v.m[1]}</p>`:''}</div>
+      ${step?'<button class="btn btn-main" id="step">Étape suivante</button>':again?'<button class="btn btn-main" id="again">Corriger</button>':`<button class="btn btn-main" id="cont">${v.c==='ok'&&s.next?s.next:'Continuer'}</button>`}
+      <button class="btn btn-line" id="rst">Recommencer cet écran</button>`;
+  }
+  const n=Number(s.chip.match(/exercice (\d)/)[1]);
+  $('phone').innerHTML=`<div class="ph-top"><span class="ph-x" aria-hidden="true">×</span><div class="bar">${[1,2,3,4,5].map(i=>`<i class="${i<n?'d':''}"></i>`).join('')}</div></div>
+    <span class="chip">${s.chip}</span>
+    <div class="ph-body"><h2 class="t">${s.title}</h2>${s.lead?`<p class="lead">${s.lead}</p>`:''}<div class="ctx">${s.prog?progHTML(s):s.ctx}</div>${lineHTML(s)}<div class="zone">${zone}</div></div>`;
+  $('notes').innerHTML=`<section class="note"><h3>Écran ${idx+1} sur ${S.length} : ${s.course}, ${s.name.toLowerCase()}</h3><p><b>Ce que fait l’écran.</b> ${s.what}</p><p><b>Pourquoi.</b> ${s.why}</p><p><b>Dans le moteur.</b> ${s.engine}</p>
+      <div class="pager"><button data-p="-1" ${idx===0?'disabled':''}>Écran précédent</button><button data-p="1" ${idx===S.length-1?'disabled':''}>Écran suivant</button></div></section>
+    <section class="note"><h3>Déjà décidé</h3><ul>${DECIDED.map(d=>`<li>${d}</li>`).join('')}</ul></section>
+    ${QUESTIONS.length?`<section class="note ask"><h3>Questions pour toi</h3><ul>${QUESTIONS.map((d,i)=>`<li><b>${i+1}. ${d.q}</b><br>Recommandation : ${d.r}</li>`).join('')}</ul></section>`:''}
+    <section class="note"><h3>Couleurs de cet écran</h3><ul><li>Indigo : la ligne qu’on tape, les touches d’opération.</li><li>Jaune : le morceau de la phrase ou le nombre réutilisé dont parle le message.</li><li>Vert : juste. Rouge : faux. Gris : même valeur, mais pas le calcul demandé.</li></ul></section>`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.i){idx=+b.dataset.i;reset();}
+  else if(b.dataset.p){idx=Math.max(0,Math.min(S.length-1,idx+ +b.dataset.p));reset();}
+  else if(b.dataset.k){st.typed=b.dataset.k==='⌫'?st.typed.slice(0,-1):st.typed+b.dataset.k;}
+  else if(b.id==='val'){st.done=true;}
+  else if(b.id==='again'){st.done=false;}
+  else if(b.id==='step'){st.k++;st.typed='';st.done=false;}
+  else if(b.id==='rst'){st={typed:'',done:false,k:0};}
+  else if(b.id==='cont'){if(idx<S.length-1){idx++;reset();}}
+  else if(b.dataset.th!==undefined){document.documentElement.dataset.theme=b.dataset.th;if(!b.dataset.th)delete document.documentElement.dataset.theme;
+    document.querySelectorAll('.theme button').forEach(x=>x.classList.toggle('on',x===b));return;}
+  else return;
+  render();
+});
+reset();render();
+</script>
+</body>
+</html>

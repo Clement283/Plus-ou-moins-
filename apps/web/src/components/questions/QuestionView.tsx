@@ -5,6 +5,7 @@ import { Choix } from './Choix';
 import { Classer } from './Classer';
 import { Intervalle } from './Intervalle';
 import { Solutions } from './Solutions';
+import { Ecrire } from './Ecrire';
 import { Tableau } from './Tableau';
 import { Erreur } from './Erreur';
 import { ErreurEcriture } from './ErreurEcriture';
@@ -73,5 +74,6 @@ export function QuestionView({ question: q, course, locked, onAnswer, header, fo
     case 'intervalle': return <Intervalle q={q} {...common} />;
     case 'tableau': return <Tableau q={q} {...common} />;
     case 'solutions': return <Solutions q={q} {...common} />;
+    case 'ecrire': return <Ecrire q={q} {...common} />;
   }
 }

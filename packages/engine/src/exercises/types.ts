@@ -9,6 +9,7 @@ import type { CalculerQuestion } from './calculer';
 import type { IntervalleQuestion } from './intervalle';
 import type { TableauQuestion } from './tableau';
 import type { SolutionsQuestion } from './solutions';
+import type { EcrireQuestion } from './ecrire';
 import type { IntervalInput } from '../math/intervalle';
 
 export type { QuestionKind } from '../events';
@@ -49,7 +50,8 @@ export type Question =
       ex: Exercise;
       calcLatex: string | null;
       prompt: string;
-      options: { label: string; why: string }[];
+      /** `errorType` : l'erreur que trahit ce mauvais choix (relie la réponse à une règle du cours). */
+      options: { label: string; why: string; errorType?: string }[];
       correctIndex: number;
       /** Petite question de leçon : repasse 2 étapes plus loin, options remélangées (doc 08 n° 21). Absent : repassage habituel. */
       small?: true;
@@ -78,6 +80,7 @@ export type Question =
   | IntervalleQuestion
   | TableauQuestion
   | SolutionsQuestion
+  | EcrireQuestion
   | {
       kind: 'droite';
       ex: Exercise;
@@ -120,7 +123,9 @@ export type Answer =
   /** « tableau » : l'erreur de chaque vérification ratée, dans l'ordre (vide : tout juste du premier coup), et l'indice. */
   | { tableau: import('../math/tableau').TableErrorId[]; hinted: boolean }
   /** « solutions » : les valeurs écrites (une par solution) et l'indice. */
-  | { values: string[]; hinted: boolean };
+  | { values: string[]; hinted: boolean }
+  /** « ecrire » : les écritures comptées (justes ou fausses, sans les messages gris), le calcul par lignes (problème) et l'indice. */
+  | { written: string[]; calcul: string[]; hinted: boolean };
 
 export interface Outcome {
   correct: boolean;

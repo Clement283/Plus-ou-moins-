@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { cst, equation, xt } from '../src/math/equation';
 import { num } from '../src/math/expr';
 import { rat } from '../src/math/rational';
-import { calcSteps, calcTextLatex, calcTokensLatex, evalFlat, exprTokens, judgeCalcLine, parseCalc } from '../src/math/calcul';
-import { calcHint, calculerQuestion, courseCalcLines, gradeCalcul, judgeTypedCalcLine } from '../src/exercises/calculer';
+import { calcSteps, calcTextLatex, calcTokensLatex, evalFlat, exprTokens, judgeCalcLine, parseCalc, textTokens } from '../src/math/calcul';
+import { calcHint, calculerCalcul, calculerQuestion, courseCalcLines, gradeCalcul, judgeTypedCalcLine } from '../src/exercises/calculer';
 import { checkAnswer, feedbackFor, getCourse, isAppEvent } from '../src';
 
 const ex = { courseId: 'c05-multiplier-deux', level: 1 as const, expr: num(0), answer: rat(0) };
@@ -146,4 +146,66 @@ describe('checkAnswer and feedback for « calculer »', () => {
         errorType: null, errorFamily: null, attempt: 1, skipped: false, durationMs: 10, helped: true,
       }),
     ).toBe(true));
+});
+
+// ——— Priorités : calcul seul, parenthèses et crochets ———
+describe('parenthèses de calcul et crochets', () => {
+  const lines = (text: string): string[] => calcSteps(textTokens(text)!).map(calcTokensLatex);
+  it('lit les groupes, les crochets et garde la clé des négatifs', () => {
+    expect(parseCalc('2 × (3 − 5)')).toMatchObject({ ok: true, value: rat(-4), ops: 2, key: '2*(3-5)' });
+    expect(parseCalc('3 × [10 − (4 + 2)]')).toMatchObject({ ok: true, value: rat(12), key: '3*(10-(4+2))' });
+    expect(parseCalc('(7)+1')).toMatchObject({ ok: true, key: '7+1' });
+    expect(parseCalc('(−3 + 5) × 2')).toMatchObject({ ok: true, value: rat(4) });
+    expect(parseCalc('[3 + 4)')).toEqual({ ok: false, error: 'mal-ecrit' });
+    expect(parseCalc('(3 + 4')).toEqual({ ok: false, error: 'mal-ecrit' });
+    expect(parseCalc('4 ÷ (2 − 2)')).toEqual({ ok: false, error: 'zero' });
+  });
+  it('la méthode : intérieur d’abord, une opération par ligne', () => {
+    expect(lines('2 × (3 − 5)')).toEqual(['2 \\times (3 - 5)', '2 \\times (-2)', '-4']);
+    expect(lines('10 − 3 + 2')).toEqual(['10 - 3 + 2', '7 + 2', '9']);
+    expect(lines('3 × [10 − (4 + 2)]')).toEqual(['3 \\times [10 - (4 + 2)]', '3 \\times [10 - 6]', '3 \\times 4', '12']);
+    expect(lines('(2 + 3) × (8 − 5)')).toEqual(['(2 + 3) \\times (8 - 5)', '5 \\times (8 - 5)', '5 \\times 3', '15']);
+    expect(lines('8 − (3 − 5)')).toEqual(['8 - (3 - 5)', '8 - (-2)', '8 + 2', '10']);
+  });
+  it('lignes justes de l’élève, à sa façon', () => {
+    const f = ['2*(3-5)'];
+    expect(judgeCalcLine('2 × (3 − 5)', '2 × (−2)', f)).toMatchObject({ kind: 'juste', final: false });
+    expect(judgeCalcLine('2 × (3 − 5)', '−4', f)).toMatchObject({ kind: 'juste', final: true });
+    expect(judgeCalcLine('2 × (3 − 5)', '2 × [3 − 5]', f)).toEqual({ kind: 'recopiee' });
+  });
+  it('erreurs : gauche à droite, parenthèse ignorée, intérieure oubliée, signe, priorité', () => {
+    expect(judgeCalcLine('10 − 3 + 2', '10 − 5', ['10-3+2'])).toEqual({ kind: 'fausse', errorId: 'gauche-droite' });
+    expect(judgeCalcLine('12 ÷ 3 × 2', '12 ÷ 6', ['x'])).toEqual({ kind: 'fausse', errorId: 'gauche-droite' });
+    expect(judgeCalcLine('12 ÷ 3 × 2', '4 × 2', ['x'])).toMatchObject({ kind: 'juste' });
+    expect(judgeCalcLine('2 × (3 + 4)', '2 × 3 + 4', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' });
+    expect(judgeCalcLine('2 × (3 + 4)', '10', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' });
+    expect(judgeCalcLine('8 − (3 − 2)', '3', ['x'])).toEqual({ kind: 'fausse', errorId: 'moins-parenthese' }); // 8 − 3 − 2
+    expect(judgeCalcLine('13 − (5 + 7)', '13 − 5 + 7', ['x'])).toEqual({ kind: 'fausse', errorId: 'moins-parenthese' });
+    expect(judgeCalcLine('2 + (3 − 5) × 4', '2 + 3 − 5 × 4', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' }); // pas de − devant
+    expect(judgeCalcLine('2 × (3 − 5)', '2 × 2', ['x'])).toEqual({ kind: 'fausse', errorId: 'signe' });
+    expect(judgeCalcLine('[10 − (4 + 2)] × 3', '[10 − 4 + 2] × 3', ['x'])).toEqual({ kind: 'fausse', errorId: 'ordre-parentheses' });
+    expect(judgeCalcLine('3 + 4 × 2', '7 × 2', ['x'])).toEqual({ kind: 'fausse', errorId: 'priorite' });
+    expect(judgeCalcLine('(3 + 4) × 2 − 1', '7 × 1', ['x'])).toEqual({ kind: 'fausse', errorId: 'priorite' }); // 2 − 1 d'abord
+  });
+});
+
+describe('calcul seul (sans x)', () => {
+  const ex = { courseId: 'essais', level: 1 as const, expr: num(0), answer: rat(9) };
+  const q = calculerCalcul(ex, '10 - 3 + 2');
+  it('la 1re ligne est déjà un pas ; pas de verdict', () => {
+    expect(q).toMatchObject({ xValue: null, eqLatex: 'A = 10 - 3 + 2', startText: '10 - 3 + 2' });
+    expect(judgeTypedCalcLine(q, null, '7 + 2')).toMatchObject({ kind: 'juste', final: false });
+    expect(judgeTypedCalcLine(q, null, '10 − 3 + 2')).toMatchObject({ kind: 'recopiee' });
+    expect(judgeTypedCalcLine(q, null, '10 − 5')).toMatchObject({ kind: 'fausse', errorId: 'gauche-droite' });
+    expect(calcHint(q, null)).toContain('de gauche à droite');
+    expect(courseCalcLines(q)).toEqual(['10 - 3 + 2', '7 + 2', '9']);
+  });
+  it('juste sans verdict, erreurs classées', () => {
+    expect(checkAnswer(course, q, { calcLines: ['7+2', '9'], firstPick: true, hinted: false })).toMatchObject({ correct: true });
+    expect(checkAnswer(course, q, { calcLines: ['10−5', '7+2', '9'], firstPick: true, hinted: false })).toMatchObject({ correct: false, errorType: 'gauche-droite', errorFamily: 'calcul' });
+  });
+  it('crochets signalés au clavier', () => {
+    expect(calculerCalcul(ex, '3 * [10 - (4 + 2)]').brackets).toBe(true);
+    expect(q.brackets).toBeUndefined();
+  });
 });
