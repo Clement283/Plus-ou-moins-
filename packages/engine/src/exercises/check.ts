@@ -223,10 +223,10 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const given = a.calcLines.at(-1) ?? '';
       const expected = verdictText(q.isSolution);
       if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given, expected };
-      const verdictRight = a.firstPick === q.isSolution;
+      const verdictRight = q.xValue === null || a.firstPick === q.isSolution;
       if (g.firstError === null && verdictRight) return { ...right(given, expected), helped: a.hinted, message: '' };
       const errorType = g.firstError ?? 'verdict';
-      const family: ErrorFamily = g.firstError === 'signe' ? 'signe' : g.firstError === 'priorite' ? 'calcul' : 'autre';
+      const family: ErrorFamily = g.firstError === 'signe' ? 'signe' : g.firstError === 'autre' || g.firstError === null ? 'autre' : 'calcul';
       return {
         correct: false,
         unfinished: false,

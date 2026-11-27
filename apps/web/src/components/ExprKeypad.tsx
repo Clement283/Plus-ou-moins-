@@ -9,7 +9,7 @@ const ROWS: { k: string; sign?: boolean }[] = [
 ];
 
 /** Clavier d'un calcul entier : le clavier du téléphone ne s'ouvre jamais. Aucune logique de saisie ici. */
-export function ExprKeypad({ onKey, onDelete, onSubmit, canSubmit }: { onKey: (k: string) => void; onDelete: () => void; onSubmit: () => void; canSubmit: boolean }) {
+export function ExprKeypad({ onKey, onDelete, onSubmit, canSubmit, brackets }: { onKey: (k: string) => void; onDelete: () => void; onSubmit: () => void; canSubmit: boolean; brackets?: boolean }) {
   return (
     <div className="keypad keypad--expr" aria-label="Clavier du calcul">
       {ROWS.map(({ k, sign }) => (
@@ -17,6 +17,12 @@ export function ExprKeypad({ onKey, onDelete, onSubmit, canSubmit }: { onKey: (k
           {k}
         </button>
       ))}
+      {brackets &&
+        ['[', ']'].map((k) => (
+          <button key={k} className="key" type="button" onClick={() => onKey(k)}>
+            {k}
+          </button>
+        ))}
       <button className="key key--fn key--wide" type="button" aria-label="effacer" onClick={onDelete}>
         <Icon name="backspace" />
       </button>

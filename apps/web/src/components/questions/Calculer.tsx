@@ -48,6 +48,7 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
   const [hintOpen, setHintOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [picks, setPicks] = useState<boolean[]>([]);
+  const noX = q.xValue === null;
   const last = lines.length ? lines[lines.length - 1]! : null;
   const lastParse = last === null ? null : parseCalc(last);
   const reachedNumber = lastParse !== null && lastParse.ok && lastParse.ops === 0;
@@ -72,6 +73,12 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
     setTyped('');
     setHintOpen(false);
     if (r.final) setFb(null);
+    if (r.final && noX) {
+      // calcul seul : pas de verdict, la question est répondue dès qu'il reste un seul nombre
+      setDone(true);
+      const a = { calcLines: [...sent, typed], firstPick: true, hinted };
+      onAnswer(a, checkAnswer(course, q, a));
+    }
   };
   const pick = (yes: boolean) => {
     if (finished || !verdict) return;
@@ -99,16 +106,18 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
       header={header}
       footer={footer}
       locked={locked}
-      foot={writing ? <ExprKeypad onKey={press} onDelete={del} onSubmit={submit} canSubmit={typed !== ''} /> : undefined}
+      foot={writing ? <ExprKeypad onKey={press} onDelete={del} onSubmit={submit} canSubmit={typed !== ''} brackets={q.brackets === true} /> : undefined}
     >
       <Prompt texts={texts} fallback="Calcule le membre de gauche, ligne par ligne." cls="q-ask" />
       <div className="calc-head" data-copie>
         <span className="t-math-md">
           <MathView latex={q.eqLatex} />
         </span>
-        <span className="t-body2">
-          pour <MathView latex={`x = ${q.xValue}`} />
-        </span>
+        {!noX && (
+          <span className="t-body2">
+            pour <MathView latex={`x = ${q.xValue}`} />
+          </span>
+        )}
       </div>
       <div className="solve-sheet" data-copie>
         {lines.length === 0 && <p className="t-body2 calc-empty">Tes lignes s’écrivent ici.</p>}
@@ -125,7 +134,7 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
         <>
           <div className="answer answer--text" aria-live="polite" aria-label="La ligne que tu écris">
             {typed === '' ? (
-              <span className="answer__placeholder">{lines.length ? 'Écris la ligne suivante' : 'Remplace x, écris la 1re ligne'}</span>
+              <span className="answer__placeholder">{lines.length || noX ? 'Écris la ligne suivante' : 'Remplace x, écris la 1re ligne'}</span>
             ) : (
               <MathView latex={typedLatex(typed)} />
             )}
@@ -140,11 +149,11 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
           )}
         </>
       )}
-      {verdict && (
+      {verdict && !noX && (
         <div className="stack">
           <p className="q-ask">
             Le membre de gauche vaut <b>{valueText(q.value)}</b>, celui de droite <b>{valueText(q.other)}</b>.{' '}
-            {q.xValue < 0 ? `−${-q.xValue}` : q.xValue} est-il solution ?
+            {(q.xValue as number) < 0 ? `−${-(q.xValue as number)}` : q.xValue} est-il solution ?
           </p>
           <div className="choice-grid" data-copie>
             {[true, false].map((yes) => (

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
-import { calculerQuestion, cst, equation, getCourse, num, rat, xt, type Answer, type Outcome, type Question } from '@pom/engine';
+import { calculerCalcul, calculerQuestion, cst, equation, getCourse, num, rat, xt, type Answer, type Outcome, type Question } from '@pom/engine';
 import { QuestionView } from '../src/components/questions/QuestionView';
 
 afterEach(cleanup);
@@ -125,5 +125,32 @@ describe('« Calculer par lignes »', () => {
     expect(t.$$('button').some((b) => b.textContent === 'Un indice')).toBe(false);
     t.line('-3*4+7');
     expect(t.text()).toContain('multiplication');
+  });
+});
+
+describe('« Calculer par lignes » à partir d’un calcul seul', () => {
+  it('pas de x, pas de verdict : répondu dès qu’il reste un nombre', () => {
+    const t = setup(calculerCalcul(ex, '10 - 3 + 2'));
+    expect(t.text()).toContain('A = 10 - 3 + 2');
+    expect(t.text()).not.toContain('pour');
+    expect(t.$$('.keypad button').some((b) => b.textContent === '[')).toBe(false);
+    t.line('7+2');
+    t.line('9');
+    expect(t.calls).toHaveLength(1);
+    expect(t.calls[0]![1]).toMatchObject({ correct: true });
+    expect(t.text()).not.toContain('est-il solution');
+  });
+  it('touches crochets seulement pour un calcul à crochets', () => {
+    const t = setup(calculerCalcul(ex, '3 * [10 - (4 + 2)]'));
+    expect(t.$$('.keypad button').filter((b) => b.textContent === '[' || b.textContent === ']')).toHaveLength(2);
+    t.line('3*[10-6]');
+    t.line('3*4');
+    t.line('12');
+    expect(t.calls[0]![1]).toMatchObject({ correct: true });
+  });
+  it('erreur de parenthèse expliquée', () => {
+    const t = setup(calculerCalcul(ex, '2 * (3 + 4)'));
+    t.line('2*3+4');
+    expect(t.text()).toContain('Les parenthèses passent en premier.');
   });
 });

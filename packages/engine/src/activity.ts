@@ -333,7 +333,7 @@ export function promptOf(q: Question): string {
     case 'resoudre':
       return equationLatex(q.start);
     case 'calculer':
-      return `${q.eqLatex} \\quad (x = ${q.xValue})`;
+      return q.xValue === null ? q.eqLatex : `${q.eqLatex} \\quad (x = ${q.xValue})`;
     case 'intervalle':
       return q.promptLatex;
     case 'tableau':
