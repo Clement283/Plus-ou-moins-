@@ -11,6 +11,7 @@ import { inequationsQuotient } from './inequations-quotient';
 import { priorites1 } from './priorites-gauche-droite';
 import { priorites2 } from './priorites-fois-avant-plus';
 import { priorites3 } from './priorites-parentheses';
+import { priorites4 } from './priorites-parentheses-imbriquees';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
 import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
@@ -36,6 +37,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   priorites1,
   priorites2,
   priorites3,
+  priorites4,
 ];
 
 export const ESSAIS: ModuleDef = {
