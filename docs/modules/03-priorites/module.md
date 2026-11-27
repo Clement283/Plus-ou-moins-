@@ -1,6 +1,6 @@
 # Module 3 — Priorités
 
-*Statut : ébauche du 2026-11-27 ; réponses du porteur du projet le même jour : les 5 questions sont tranchées (voir en bas) ; à valider dans son ensemble avant la 1re fiche. Révision du collège (5e), placée entre Équations et Suites. Bâti sur deux documents trouvés sur Internet par le porteur du projet (cours de 5e de J. Fonteniaud, diabolomaths.fr, et d'Y. Monka, maths-et-tiques.fr : on reprend leur ordre et leurs règles, pas leur texte), le programme et l'ancien plan `docs/validation/10-calculs/B-priorites.md`.*
+*Statut : ébauche du 2026-11-27 ; réponses du porteur du projet le même jour : les 5 questions sont tranchées (voir en bas) ; **module.md validé par le porteur du projet le 2026-11-27**. Révision du collège (5e), placée entre Équations et Suites. Bâti sur deux documents trouvés sur Internet par le porteur du projet (cours de 5e de J. Fonteniaud, diabolomaths.fr, et d'Y. Monka, maths-et-tiques.fr : on reprend leur ordre et leurs règles, pas leur texte), le programme et l'ancien plan `docs/validation/10-calculs/B-priorites.md`.*
 
 ## Points importants du module
 - **À la fin, l'élève sait** : calculer sans calculatrice un enchaînement d'opérations avec des relatifs, des parenthèses et des crochets, en écrivant une ligne par étape ; dire si un calcul est une somme, une différence, un produit ou un quotient ; écrire en un seul calcul une phrase ou une suite d'opérations ; enlever une parenthèse précédée d'un −.
