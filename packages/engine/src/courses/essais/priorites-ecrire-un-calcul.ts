@@ -32,17 +32,19 @@ function value(n: N): number | null {
   const a = value(n.a);
   const b = value(n.b);
   if (a === null || b === null) return null;
-  const v = n.o === '+' ? a + b : n.o === '-' ? a - b : n.o === '*' ? a * b : a % b === 0 ? a / b : -1;
-  return Number.isInteger(v) && v >= 1 && v <= 200 ? v : null;
+  if (n.o === '/' && (b === 0 || a % b !== 0)) return null;
+  const v = n.o === '+' ? a + b : n.o === '-' ? a - b : n.o === '*' ? a * b : a / b;
+  return Number.isInteger(v) && v !== 0 && Math.abs(v) <= 200 ? v : null;
 }
 /** Un fils a besoin de parenthèses (priorité plus faible, ou même priorité à droite). */
 const needsParens = (c: N, parent: Op, side: 'a' | 'b'): boolean => c.t === 'b' && (PREC[c.o] < PREC[parent] || (PREC[c.o] === PREC[parent] && side === 'b'));
-/** Le calcul au clavier, parenthèses seulement quand il le faut : « 30 - (2 + 7) ». */
-function ascii(n: N): string {
-  if (n.t === 'n') return String(n.v);
-  const side = (c: N, s: 'a' | 'b'): string => (needsParens(c, n.o, s) ? `(${ascii(c)})` : ascii(c));
+/** Le calcul au clavier, parenthèses seulement quand il le faut : « 30 - (2 + 7) » ; un négatif entre parenthèses sauf en tête. */
+function asciiIn(n: N): string {
+  if (n.t === 'n') return n.v < 0 ? `(${n.v})` : String(n.v);
+  const side = (c: N, s: 'a' | 'b'): string => (needsParens(c, n.o, s) ? `(${asciiIn(c)})` : asciiIn(c));
   return `${side(n.a, 'a')} ${n.o} ${side(n.b, 'b')}`;
 }
+const ascii = (n: N): string => asciiIn(n).replace(/^\((-\d+)\)/, '$1');
 /** Toutes les écritures justes : somme et produit dans les deux ordres, à chaque niveau. */
 function variants(n: N): N[] {
   if (n.t === 'n') return [n];
@@ -69,7 +71,7 @@ function de(n: N): string {
 }
 /** « la somme de 2 et de 7 », « le produit de la somme de 3 et de 4 par 2 ». */
 function phrase(n: N): string {
-  if (n.t === 'n') return String(n.v);
+  if (n.t === 'n') return n.v < 0 ? `−${-n.v}` : String(n.v);
   switch (n.o) {
     case '+': return `la somme de ${phrase(n.a)} et ${de(n.b)}`;
     case '-': return `la différence de ${phrase(n.a)} et ${de(n.b)}`;
@@ -155,9 +157,31 @@ const POOLS: Record<Level, Draw[]> = {
   3: [diffProduit, sommeProduit, produitDeux, quotientDeux, diffSommeProduit, diffProduitSomme, sommeQuotient],
 };
 const fits = (n: N): boolean => value(n) !== null && ascii(n).length <= 26;
+/** Niveaux 2 et 3 : un nombre (deux au niveau 3) devient négatif, jamais un diviseur (décidé le 2026-11-27 : des négatifs dans les exercices). */
+function withNegatives(g: Rng, level: Level, n: N): N {
+  if (level === 1 || g() < 0.35) return n;
+  const leaves: number[] = [];
+  let i = 0;
+  const walk = (m: N, divisor: boolean): void => {
+    if (m.t === 'n') {
+      if (!divisor) leaves.push(i);
+      i++;
+      return;
+    }
+    walk(m.a, false);
+    walk(m.b, m.o === '/');
+  };
+  walk(n, false);
+  const flip = new Set<number>();
+  const count = level === 3 && leaves.length > 2 && g() < 0.5 ? 2 : 1;
+  while (flip.size < Math.min(count, leaves.length)) flip.add(pick(g, leaves));
+  let j = 0;
+  const rebuild = (m: N): N => (m.t === 'n' ? (flip.has(j++) ? num(-m.v) : m) : bin(m.o, rebuild(m.a), rebuild(m.b)));
+  return rebuild(n);
+}
 /** Un arbre de phrase : `from` restreint les modèles, `want` impose une propriété (calcul-piège). */
 function drawTree(g: Rng, level: Level, from: Draw[] = POOLS[level], want: (n: N) => boolean = () => true): N {
-  return redraw(() => pick(g, from)(g), (n) => fits(n) && want(n));
+  return redraw(() => withNegatives(g, level, pick(g, from)(g)), (n) => fits(n) && want(n) && (level > 1 || (value(n) ?? 0) > 0));
 }
 const hasBlock = (n: N): boolean => blockOf(n) !== null;
 const ordreSensible = (n: N): boolean => n.t === 'b' && (n.o === '-' || n.o === '/');
@@ -322,9 +346,76 @@ const PROBLEMS: ((g: Rng) => Probleme)[] = [
     };
   },
 ];
+/** Niveaux 2 et 3 : deux blocs, partage après une dépense ; au niveau 3, des nombres négatifs (température, compte). */
+const HARD: ((g: Rng) => Probleme)[] = [
+  // cinéma : deux produits retirés d'un billet
+  (g) => {
+    const a = R(g, 2, 4);
+    const pa = R(g, 7, 11);
+    const e = R(g, 2, 4);
+    const pe = R(g, 4, 6);
+    const M = a * pa + e * pe <= 50 ? 50 : 100;
+    const dep = bin('+', bin('*', num(a), num(pa)), bin('*', num(e), num(pe)));
+    return {
+      text: `Une famille va au cinéma : ${a} places adulte à ${pa} € et ${e} places enfant à ${pe} €. Elle paie avec ${M} €. Combien lui rend-on ?`,
+      node: bin('-', num(M), dep),
+      also: [bin('-', bin('-', num(M), bin('*', num(a), num(pa))), bin('*', num(e), num(pe))), bin('-', bin('-', num(M), bin('*', num(e), num(pe))), bin('*', num(a), num(pa)))],
+    };
+  },
+  // partage de ce qui reste
+  (g) => {
+    const n = R(g, 3, 5);
+    const k = R(g, 2, 3);
+    const p = R(g, 8, 14);
+    const reste = n * R(g, 3, 9);
+    const M = reste + k * p;
+    return {
+      text: `${n} amis ont ${M} € en tout. Ils achètent ${k} pizzas à ${p} € chacune, puis se partagent à parts égales l’argent qui reste. Combien reçoit chacun ?`,
+      node: bin('/', bin('-', num(M), bin('*', num(k), num(p))), num(n)),
+    };
+  },
+  // trois boîtes moins des objets donnés, à deux personnes
+  (g) => {
+    const b = R(g, 3, 5);
+    const c = R(g, 6, 12);
+    const d = R(g, 2, 8);
+    const n = 2;
+    const tot = b * c - d;
+    const dd = tot % 2 === 0 ? d : d + 1;
+    return {
+      text: `Lina a ${b} boîtes de ${c} feutres. Elle en donne ${dd}, puis partage le reste en ${n} trousses égales. Combien de feutres par trousse ?`,
+      node: bin('/', bin('-', bin('*', num(b), num(c)), num(dd)), num(n)),
+    };
+  },
+];
+const NEGATIVE: ((g: Rng) => Probleme)[] = [
+  // température
+  (g) => {
+    const t = R(g, 2, 8);
+    const up = R(g, 5, 12);
+    const down = R(g, 6, 15);
+    return {
+      text: `Le matin, il fait −${t} °C. À midi, la température a monté de ${up} °C, puis le soir elle baisse de ${down} °C. Quelle température fait-il le soir ?`,
+      node: bin('-', bin('+', num(-t), num(up)), num(down)),
+      also: [bin('+', num(-t), bin('-', num(up), num(down)))],
+    };
+  },
+  // compte en banque
+  (g) => {
+    const dette = R(g, 10, 30);
+    const k = R(g, 2, 4);
+    const v = R(g, 10, 20);
+    const p = R(g, 15, 40);
+    return {
+      text: `Le compte de Sam est à −${dette} €. Il reçoit ${k} virements de ${v} €, puis paie un achat de ${p} €. Combien y a-t-il sur son compte ?`,
+      node: bin('-', bin('+', num(-dette), bin('*', num(k), num(v))), num(p)),
+    };
+  },
+];
 function problemeQ(level: Level, g: Rng): EcrireQuestion {
-  const drawP = (): Probleme => pick(g, PROBLEMS)(g);
-  const pb = redraw(drawP, (p) => fits(p.node) && (value(p.node) ?? 0) >= 1 && (p.also ?? []).every(fits));
+  const from = level === 1 ? PROBLEMS : level === 2 ? [...PROBLEMS, ...HARD, ...HARD] : [...HARD, ...NEGATIVE];
+  const drawP = (): Probleme => pick(g, from)(g);
+  const pb = redraw(drawP, (p) => fits(p.node) && (level === 3 || (value(p.node) ?? 0) >= 1) && (p.also ?? []).every(fits));
   const blk = blockOf(pb.node);
   return {
     kind: 'ecrire',

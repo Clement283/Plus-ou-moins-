@@ -75,6 +75,18 @@ describe('Priorités, cours 6 — Écrire un calcul d’un seul coup', () => {
       }
   });
 
+  it('niveaux 2 et 3 : des nombres négatifs et des problèmes plus compliqués ; niveau 1 sans négatif', () => {
+    const neg = (t: string) => /(^-|\(-)/.test(t);
+    const texts = (level: 1 | 2 | 3, index: number) => Array.from({ length: 120 }, (_, i) => question(level, i + 1, index));
+    expect(texts(1, 0).some((q) => neg(textOf(q.ex)))).toBe(false);
+    expect(texts(2, 0).some((q) => neg(textOf(q.ex)))).toBe(true);
+    expect(texts(3, 0).some((q) => neg(textOf(q.ex)))).toBe(true);
+    const pb = (level: 1 | 2 | 3) => texts(level, 3).map((q) => (q.context.kind === 'phrase' ? q.context.text : ''));
+    expect(pb(1).some((t) => /cinéma|°C|compte/.test(t))).toBe(false);
+    expect(pb(2).some((t) => /cinéma|parts égales l’argent|trousses/.test(t))).toBe(true);
+    expect(pb(3).some((t) => /°C|compte de Sam/.test(t))).toBe(true);
+  });
+
   it('ordre inversé : calcul-piège sur une différence ou un quotient', () => {
     for (let seed = 1; seed <= 60; seed++) {
       const q = question(1, seed, undefined, 'ordre');
