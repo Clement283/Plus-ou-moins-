@@ -2,13 +2,13 @@
 // Fiche : docs/modules/03-priorites/priorites-gauche-droite.md
 // L'exercice est un calcul écrit comme au clavier (meta.text) ; les exercices de fin sont « Calculer par lignes » sans x.
 import type { Rng } from '../../rng';
-import { calcSteps, textTokens } from '../../math/calcul';
+import { textTokens } from '../../math/calcul';
 import type { CourseDef, EtapeStep, Exercise, LessonPart, Level } from '../types';
 import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, choix, decouverte, etapes, exemple, hl, lecon, linesScene,
   options3, redraw, small, step, texted, toks, trouOf,
 } from '../calculs/shared';
-import { type ErrDef, calculerGuided, coin, customOf, explainOf, feedbackOf, fmt, makeErrors, mkEx, mulBlock, readable, resolutionOf, rnd, sgn, textOf, wrongOf } from './priorites-commun';
+import { type ErrDef, calculerGuided, positiveSteps, coin, customOf, explainOf, feedbackOf, fmt, makeErrors, mkEx, mulBlock, readable, resolutionOf, rnd, sgn, textOf, wrongOf } from './priorites-commun';
 
 const ID = 'priorites-gauche-droite';
 const RULE = 'Avec seulement des + et des − (ou seulement des × et des ÷), je calcule de gauche à droite, une opération par ligne.';
@@ -16,11 +16,6 @@ const RULE = 'Avec seulement des + et des − (ou seulement des × et des ÷), j
 // ——— Exercice ———
 const NUMS: Record<Level, [number, number]> = { 1: [1, 9], 2: [10, 40], 3: [10, 60] };
 const COUNT: Record<Level, number> = { 1: 3, 2: 4, 3: 5 };
-/** Tous les nombres de toutes les lignes de la méthode sont positifs ou nuls (niveau 1). */
-const positive = (text: string): boolean => {
-  const t = textTokens(text);
-  return t !== null && calcSteps(t).every((line) => line.every((x) => x.k !== 'n' || x.v.n >= 0));
-};
 function drawText(level: Level, rng: Rng): string {
   if (coin(rng, 0.4)) {
     const len = level === 1 ? 3 : 4;
@@ -34,7 +29,7 @@ function drawText(level: Level, rng: Rng): string {
 const fits = (text: string, level: Level): boolean => {
   const tokens = textTokens(text);
   if (!tokens || text.length > 30) return false;
-  return level > 1 || positive(text);
+  return level > 1 || positiveSteps(text);
 };
 function generate(level: Level, rng: Rng): Exercise {
   return redraw(

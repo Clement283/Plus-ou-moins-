@@ -55,6 +55,12 @@ export function clean(text: string, maxLen = 28, maxAbs = 200): boolean {
   }
 }
 
+/** Tous les nombres de toutes les lignes de la méthode sont positifs ou nuls (niveau 1). */
+export const positiveSteps = (text: string): boolean => {
+  const t = textTokens(text);
+  return t !== null && calcSteps(t).every((line) => line.every((x) => x.k !== 'n' || x.v.n >= 0));
+};
+
 export function mkEx(courseId: string, level: Level, text: string, extra: Record<string, unknown> = {}): Exercise {
   const p = parseCalc(text);
   if (!p.ok) throw new Error(`Calcul illisible : ${text}`);
@@ -111,6 +117,8 @@ export interface ErrDef {
   rule: NonNullable<ErrorDef['rule']>;
   /** Le message de cette erreur sur ce calcul (une phrase). */
   text: (ex: Exercise) => string;
+  /** Un calcul-piège sur mesure quand le générateur du cours en donne trop rarement. */
+  draw?: (level: Level, rng: Rng) => Exercise;
 }
 
 /** Les valeurs fausses de l'erreur `id` sur ce calcul, entières et différentes de la bonne réponse. */
@@ -131,7 +139,7 @@ export function makeErrors(defs: ErrDef[], gen: (level: Level, rng: Rng) => Exer
     family: d.family,
     detect: (ex, given) => hits(ex, d.id, given),
     text: d.text,
-    draw: (level, rng) => redraw(() => gen(level, rng), (ex) => wrongOf(ex, d.id).length > 0),
+    draw: (level, rng) => redraw(() => (d.draw ?? gen)(level, rng), (ex) => wrongOf(ex, d.id).length > 0),
     sample: (ex) => wrongOf(ex, d.id)[0] as number,
     alsoWrong: (ex) => wrongOf(ex, d.id).slice(1),
   }));

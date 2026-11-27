@@ -9,6 +9,7 @@ import { inequationsSigneAffine } from './inequations-signe-affine';
 import { inequationsTableauSignesProduit } from './inequations-tableau-signes-produit';
 import { inequationsQuotient } from './inequations-quotient';
 import { priorites1 } from './priorites-gauche-droite';
+import { priorites2 } from './priorites-fois-avant-plus';
 import { c07b } from '../calculs/c07b-multiplier-plusieurs';
 import { equationsDiviser } from '../equations/equations-diviser';
 import { equationsResoudrePremierDegre } from '../equations/equations-resoudre-premier-degre';
@@ -32,6 +33,7 @@ export const ESSAIS_COURSES: CourseDef[] = [
   inequationsTableauSignesProduit,
   inequationsQuotient,
   priorites1,
+  priorites2,
 ];
 
 export const ESSAIS: ModuleDef = {
