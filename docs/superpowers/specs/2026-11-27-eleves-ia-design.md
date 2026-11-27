@@ -30,7 +30,7 @@ Ce n'est **pas** un test « le cours est-il cassé » : ce rôle reviendra plus 
 ## Ce qu'on teste (5 points)
 
 1. **Phrases et mots difficiles** : phrase trop longue, deux idées dans une phrase, mot inconnu ou trop compliqué, consigne ambiguë.
-2. **Trop lourd** : trop d'écrans, trop de texte, répétitions, l'élève décroche.
+2. **Dosage : trop lourd ou trop léger** (précisé par Clément) : trop de choses nouvelles apprises dans un seul cours ou trop d'écrans (l'élève décroche) — ou à l'inverse, presque rien appris, cours trop maigre. Chaque élève liste à la fin de chaque cours **ce qu'il a appris de nouveau** ; le prof compte les notions nouvelles d'après la fiche.
 3. **Trous dans l'explication** : un exercice demande une chose que la leçon n'a pas montrée.
 4. **Messages d'erreur inutiles** : l'élève s'est trompé, lit le message, et ne sait toujours pas quoi corriger.
 5. **Incohérences** : mot ou notation qui change d'un cours à l'autre, mot utilisé avant d'être expliqué.
@@ -62,7 +62,7 @@ Les bonnes réponses ne sont **jamais** dans le fichier donné à l'élève : l'
 
 **Correction par le moteur (décision de Claude)** : un second script, `corriger`, reçoit le cours, la question (n° d'écran) et la réponse de l'élève en texte, la convertit au format `Answer` du moteur et appelle la correction de l'application (`checkAnswer`, `feedbackText`, explications des erreurs). L'élève reçoit donc **le vrai message** qu'il verrait dans l'appli, même pour une erreur non prévue. Tous les formats de question des cours testés doivent être couverts (nombre, choix, `resoudre`, `intervalle`, `tableau`, `solutions`…) ; si une réponse ne peut pas être convertie, le script le dit, l'élève reçoit le message général et le rapport le signale.
 
-Le script calcule aussi les **repères « trop lourd » (décision de Claude)** : deux moyennes (écrans, mots, questions par cours) — les cours **Relatifs en ligne** (`MODULES`, ancien format plus court) et les **cours Équations déjà validés par Clément** (liste dans `docs/superpowers/plans/2026-11-22-etape-1-avancement.md`). Le rapport compare aux deux.
+Le script calcule aussi le **repère de dosage** (décision de Clément) : la moyenne (écrans, mots, questions par cours) de **tous les cours existants** — en ligne et « Essais » — **recalculée à chaque lancement**, car les cours actuels pourront eux-mêmes changer après ces tests. Ce n'est pas une référence figée : le rapport dit si un cours s'écarte nettement de la moyenne, vers le haut ou vers le bas. Pour les notions nouvelles, le repère est la moyenne des notions nouvelles par cours du lancement (ou des cours du module).
 
 ### 2. Les personnages
 
@@ -98,7 +98,7 @@ Un seul rapport par lancement (un cours ou un module), en Markdown, enregistré 
 `docs/modules/NN-nom/tests/<cours-ou-module>-AAAA-MM-JJ.md`, commité sur la branche.
 
 Dans cet ordre :
-1. **Résumé en 5 lignes** : chaque élève est-il allé au bout, où a-t-il décroché ; chiffres du cours comparés à la moyenne des cours publiés (« 28 écrans et 900 mots, presque deux fois plus que d'habitude »).
+1. **Résumé en 5 lignes** : chaque élève est-il allé au bout, où a-t-il décroché ; dosage : chiffres du cours et nombre de notions nouvelles comparés à la moyenne de tous les cours (« 28 écrans, 900 mots et 5 notions nouvelles : presque deux fois plus que la moyenne » ou « 1 seule notion nouvelle : cours léger »).
 2. **Problèmes, du plus grave au moins grave** — pour chacun : écran (n° et titre), phrase exacte citée, type (l'un des 5 points), élèves qui l'ont rencontré, pourquoi c'est un problème, proposition de réécriture. Pour un module : regroupés par cours, plus une partie « à travers le module » (notion mal comprise qui gêne plus loin).
 3. **Avis du prof**, à part.
 4. **Annexe** : parcours de chaque élève, une ligne par écran ; la liste des points oubliés par l'élève moyen.
