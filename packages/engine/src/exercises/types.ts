@@ -49,7 +49,8 @@ export type Question =
       ex: Exercise;
       calcLatex: string | null;
       prompt: string;
-      options: { label: string; why: string }[];
+      /** `errorType` : l'erreur que trahit ce mauvais choix (relie la réponse à une règle du cours). */
+      options: { label: string; why: string; errorType?: string }[];
       correctIndex: number;
       /** Petite question de leçon : repasse 2 étapes plus loin, options remélangées (doc 08 n° 21). Absent : repassage habituel. */
       small?: true;

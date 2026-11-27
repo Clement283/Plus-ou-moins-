@@ -15,8 +15,8 @@ describe('Priorités, cours 7 — Un moins devant une parenthèse (partie nombre
   });
 
   it('erreurs reconnues', () => {
-    expect(diag(c, ex('8 - (3 - 2)'), 3)).toBe('parenthese'); // 8 − 3 − 2
-    expect(diag(c, ex('8 - (3 + 2)'), 7)).toBe('parenthese'); // 8 − 3 + 2
+    expect(diag(c, ex('8 - (3 - 2)'), 3)).toBe('moins-parenthese'); // 8 − 3 − 2
+    expect(diag(c, ex('8 - (3 + 2)'), 7)).toBe('moins-parenthese'); // 8 − 3 + 2
     expect(diag(c, ex('8 - (3 - 2)'), 7)).toBeUndefined();
     expect(diag(c, ex('8 + (3 - 2)'), 13)).toBe('signe'); // 8 + (3 + 2)
   });
@@ -26,6 +26,6 @@ describe('Priorités, cours 7 — Un moins devant une parenthèse (partie nombre
     expect(courseCalcLines(q)).toEqual(['15 - (4 - 9)', '15 - (-5)', '15 + 5', '20']);
     expect(judgeTypedCalcLine(q, null, '15 − (−5)')).toMatchObject({ kind: 'juste' });
     expect(judgeTypedCalcLine(q, null, '15 − 4 + 9')).toMatchObject({ kind: 'juste' }); // parenthèse enlevée, signes changés
-    expect(judgeTypedCalcLine(q, null, '15 − 4 − 9')).toMatchObject({ kind: 'fausse', errorId: 'parenthese' });
+    expect(judgeTypedCalcLine(q, null, '15 − 4 − 9')).toMatchObject({ kind: 'fausse', errorId: 'moins-parenthese', title: 'Le − change le signe de chaque terme.' });
   });
 });

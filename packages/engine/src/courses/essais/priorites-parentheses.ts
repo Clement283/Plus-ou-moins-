@@ -80,6 +80,13 @@ const defs: ErrDef[] = [
     text: (ex) => `Dans ${readable(textOf(ex))}, on calcule d’abord ce qui est entre parenthèses, puis on fait l’opération qui l’entoure.`,
   },
   {
+    id: 'moins-parenthese',
+    family: 'signe',
+    draw: (level, rng) => mkEx(ID, level, `${rnd(rng, [10, 30])} - (${rnd(rng, [2, 9])} ${sgn(rng)} ${rnd(rng, [2, 9])})`),
+    rule: RULE_1,
+    text: (ex) => `Dans ${readable(textOf(ex))}, on calcule d’abord la parenthèse. Si on l’enlève, le − devant change le signe de chaque terme qui est dedans.`,
+  },
+  {
     id: 'signe',
     family: 'signe',
     rule: RULE_2,

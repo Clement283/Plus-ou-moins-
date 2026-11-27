@@ -273,6 +273,16 @@ function wrongOrder(n: CNode): Wrong[] {
   return out;
 }
 
+/** Les parenthèses de 1er niveau précédées d'un − (le b de « a − (…) »). */
+function minusGroups(n: CNode, out: CNode[] = []): CNode[] {
+  if (n.t === 'b') {
+    if (n.o === '-' && n.b.t === 'g') out.push(n.b);
+    minusGroups(n.a, out);
+    if (n.b.t !== 'g') minusGroups(n.b, out);
+  } else if (n.t === 'm') minusGroups(n.e, out);
+  return out;
+}
+
 function groupsOf(n: CNode, d = 0, out: { g: CNode; d: number }[] = []): { g: CNode; d: number }[] {
   if (n.t === 'b') {
     groupsOf(n.a, d, out);
@@ -322,11 +332,15 @@ export function errorCandidates(prev: CNode): { id: Exclude<CalcErrorId, 'autre'
   wo.filter((x) => x.kind === 'gauche-droite').forEach((x) => add('gauche-droite', x.node));
   add('gauche-droite', prev, { rtl: true });
   const gs = groupsOf(prev);
+  // « a − (b + c) » lu « a − b + c » : la parenthèse enlevée sans changer les signes (avant « parenthèse ignorée »).
+  minusGroups(prev).forEach((g) => add('moins-parenthese', prev, { dissolve: (x) => x === g }));
   gs.filter((x) => x.d === 0).forEach((x) => add('parenthese', prev, { dissolve: (g) => g === x.g }));
   if (gs.length > 0) add('parenthese', prev, { dissolve: () => true });
   gs.filter((x) => x.d > 0).forEach((x) => add('ordre-parentheses', prev, { dissolve: (g) => g === x.g }));
   slipVariants(prev).forEach((n) => add('signe', n));
-  return out;
+  // Une valeur « − devant la parenthèse » n'est pas aussi une « parenthèse ignorée » : on garde l'erreur précise.
+  const minus = out.filter((c) => c.id === 'moins-parenthese').map((c) => c.value);
+  return out.filter((c) => c.id !== 'parenthese' || !minus.some((m) => eqv(m, c.value)));
 }
 
 /** Pourquoi la valeur `v` est fausse : la 1re erreur reconnue dans le calcul `prev`. */
@@ -529,7 +543,7 @@ export function exprTokens(e: Expr): CalcToken[] {
 /** La clé d'écriture (voir `CalcParse.key`) d'un calcul en jetons. */
 export const tokensKey = (t: CalcToken[]): string => keyOf(treeOfTokens(t));
 
-export type CalcErrorId = 'priorite' | 'gauche-droite' | 'parenthese' | 'ordre-parentheses' | 'signe' | 'autre';
+export type CalcErrorId = 'priorite' | 'gauche-droite' | 'moins-parenthese' | 'parenthese' | 'ordre-parentheses' | 'signe' | 'autre';
 
 export type CalcLineVerdict =
   | { kind: 'illisible'; error: CalcErrorKind }

@@ -110,6 +110,10 @@ export const CALC_ERROR_TEXT: Record<CalcErrorId, { title: string; message: stri
     title: 'Même priorité : on va de gauche à droite.',
     message: 'Quand il n’y a que des additions et des soustractions (ou que des multiplications et des divisions), on calcule dans l’ordre de lecture, de gauche à droite.',
   },
+  'moins-parenthese': {
+    title: 'Le − change le signe de chaque terme.',
+    message: 'Tu as enlevé la parenthèse sans changer tous les signes. Calcule plutôt la parenthèse d’abord, ou change le signe de chaque terme.',
+  },
   parenthese: {
     title: 'Les parenthèses passent en premier.',
     message: 'Calcule d’abord ce qui est entre parenthèses, puis reprends les priorités.',

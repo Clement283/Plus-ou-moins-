@@ -35,7 +35,7 @@ function drawText(level: Level, rng: Rng): string {
 }
 const fits = (ex: Exercise): boolean => textOf(ex).length <= 28 && Math.abs(ex.answer.n) <= 150 && (ex.level > 1 || positiveSteps(textOf(ex)));
 function generate(level: Level, rng: Rng): Exercise {
-  return redraw(() => mkEx(ID, level, drawText(level, rng)), (ex) => fits(ex) && wrongOf(ex, 'parenthese').length > 0);
+  return redraw(() => mkEx(ID, level, drawText(level, rng)), (ex) => fits(ex) && wrongOf(ex, 'moins-parenthese').length > 0);
 }
 /** Piège « signe » : un + devant la parenthèse, dont on change des signes à tort (8 + (3 − 2) lu 8 + 3 + 2). */
 function signeTrap(level: Level, rng: Rng): Exercise {
@@ -51,7 +51,7 @@ const RULE_2 = { n: 2, label: 'Un moins devant la parenthèse', partIndex: 3 };
 const RULE_3 = { n: 3, label: 'Deux chemins, même résultat', partIndex: 5 };
 const defs: ErrDef[] = [
   {
-    id: 'parenthese',
+    id: 'moins-parenthese',
     family: 'signe',
     rule: RULE_2,
     text: (ex) => `Dans ${readable(textOf(ex))}, le − devant la parenthèse change le signe de chaque terme qui est dedans : un + devient −, un − devient +.`,

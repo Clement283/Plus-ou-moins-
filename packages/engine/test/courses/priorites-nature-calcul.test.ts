@@ -25,6 +25,20 @@ describe('Priorités, cours 5 — La nature d’un calcul', () => {
     expect(answerOf('12 / 3 * 2')).toBe('Produit'); // de gauche à droite : le × est le dernier
   });
 
+  it('un mauvais choix est relié à une erreur du cours (et donc à une règle)', () => {
+    const typeOf = (text: string, label: string): string | null => {
+      const q = natureQuestion(text);
+      if (q.kind !== 'choix') throw new Error('choix');
+      const i = q.options.findIndex((o) => o.label === label);
+      return checkAnswer(c, q, { choice: i }).errorType;
+    };
+    expect(typeOf('3 + 4 * 2', 'Produit')).toBe('premiere-operation');
+    expect(typeOf('(3 + 4) * 2', 'Somme')).toBe('parenthese-nature');
+    expect(typeOf('3 + 4 * 2', 'Quotient')).toBe('terme-facteur');
+    expect(typeOf('3 + 4 * 2', 'Somme')).toBeNull();
+    for (const id of ['premiere-operation', 'parenthese-nature', 'terme-facteur']) expect(c.errors.map((e) => e.id)).toContain(id);
+  });
+
   it('générateur : les quatre natures arrivent, calculs propres, un message par choix', () => {
     const rng = seededRng(5);
     const seen = new Set<string>();

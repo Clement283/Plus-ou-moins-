@@ -104,6 +104,13 @@ const defs: ErrDef[] = [
     text: (ex) => `Dans ${readable(textOf(ex))}, les parenthèses et les crochets passent en premier : on ne les ignore pas.`,
   },
   {
+    id: 'moins-parenthese',
+    family: 'signe',
+    draw: (level, rng) => mkEx(ID, level, `${rnd(rng, [10, 30])} - (${rnd(rng, [2, 9])} ${sgn(rng)} ${rnd(rng, [2, 9])})`),
+    rule: RULE_2,
+    text: (ex) => `Dans ${readable(textOf(ex))}, on calcule d’abord la parenthèse. Si on l’enlève, le − devant change le signe de chaque terme qui est dedans.`,
+  },
+  {
     id: 'ordre-parentheses',
     family: 'calcul',
     rule: RULE_1,

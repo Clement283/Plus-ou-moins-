@@ -179,7 +179,9 @@ describe('parenthèses de calcul et crochets', () => {
     expect(judgeCalcLine('12 ÷ 3 × 2', '4 × 2', ['x'])).toMatchObject({ kind: 'juste' });
     expect(judgeCalcLine('2 × (3 + 4)', '2 × 3 + 4', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' });
     expect(judgeCalcLine('2 × (3 + 4)', '10', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' });
-    expect(judgeCalcLine('8 − (3 − 2)', '3', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' }); // 8 − 3 − 2
+    expect(judgeCalcLine('8 − (3 − 2)', '3', ['x'])).toEqual({ kind: 'fausse', errorId: 'moins-parenthese' }); // 8 − 3 − 2
+    expect(judgeCalcLine('13 − (5 + 7)', '13 − 5 + 7', ['x'])).toEqual({ kind: 'fausse', errorId: 'moins-parenthese' });
+    expect(judgeCalcLine('2 + (3 − 5) × 4', '2 + 3 − 5 × 4', ['x'])).toEqual({ kind: 'fausse', errorId: 'parenthese' }); // pas de − devant
     expect(judgeCalcLine('2 × (3 − 5)', '2 × 2', ['x'])).toEqual({ kind: 'fausse', errorId: 'signe' });
     expect(judgeCalcLine('[10 − (4 + 2)] × 3', '[10 − 4 + 2] × 3', ['x'])).toEqual({ kind: 'fausse', errorId: 'ordre-parentheses' });
     expect(judgeCalcLine('3 + 4 × 2', '7 × 2', ['x'])).toEqual({ kind: 'fausse', errorId: 'priorite' });

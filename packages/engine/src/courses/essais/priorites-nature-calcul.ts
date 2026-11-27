@@ -10,7 +10,7 @@ import {
   NOT_COUNTED_GUESS, NOT_COUNTED_UNDERSTAND, SIGN_CLASSES, annonceFin, choix, decouverte, etapes, exemple, explanation, hl, lecon, oneScene,
   options3, redraw, small, step, texted, toks, trouOf,
 } from '../calculs/shared';
-import { type CalcOp, parseCalc } from '../../math/calcul';
+import { type CalcOp, type CNode, parseCalc } from '../../math/calcul';
 import { clean, fmt, latexOfText, mkEx, mulBlock, readable, resolutionOf, rnd, sgn, sumText, textOf, coin } from './priorites-commun';
 
 const ID = 'priorites-nature-calcul';
@@ -79,8 +79,32 @@ function why(ex: Exercise, picked: Nature): string {
   if (picked === n) return `Oui : dans ${calc}, la dernière opération faite est ${SYMBOL[n]}, c’est ${ARTICLE[n]}.`;
   return `Pas ${ARTICLE[picked]} : dans ${calc}, la dernière opération faite est ${SYMBOL[n]}. C’est ${ARTICLE[n]}.`;
 }
+/** L'erreur que trahit un mauvais choix : une opération entre parenthèses, une autre opération du calcul, ou le mauvais mot. */
+function errorOfPick(ex: Exercise, picked: Nature): string | undefined {
+  const p = parseCalc(textOf(ex));
+  if (!p.ok || p.tree.t !== 'b' || NATURE[p.tree.o] === picked) return undefined;
+  const inside = new Set<Nature>();
+  const outside = new Set<Nature>();
+  const walk = (n: CNode, inG: boolean, root = false): void => {
+    if (n.t === 'b') {
+      if (!root) (inG ? inside : outside).add(NATURE[n.o]);
+      walk(n.a, inG);
+      walk(n.b, inG);
+    } else if (n.t === 'g') walk(n.e, true);
+    else if (n.t === 'm') walk(n.e, inG);
+  };
+  walk(p.tree, false, true);
+  if (inside.has(picked)) return 'parenthese-nature';
+  if (outside.has(picked)) return 'premiere-operation';
+  return 'terme-facteur';
+}
+const optionsOf = (ex: Exercise) =>
+  NAMES.map((n) => {
+    const errorType = errorOfPick(ex, n);
+    return { label: n[0]!.toUpperCase() + n.slice(1), why: why(ex, n), ...(errorType ? { errorType } : {}) };
+  });
 const natureQ = (ex: Exercise): Question =>
-  choix(ex, 'Quelle est la nature de ce calcul ? Touche la réponse.', NAMES.map((n) => ({ label: n[0]!.toUpperCase() + n.slice(1), why: why(ex, n) })), NAMES.indexOf(natureOfEx(ex)), latexOfText(textOf(ex)));
+  choix(ex, 'Quelle est la nature de ce calcul ? Touche la réponse.', optionsOf(ex), NAMES.indexOf(natureOfEx(ex)), latexOfText(textOf(ex)));
 function customQuestion(kind: QuestionKind, ctx: BuildCtx): Question | null {
   if (kind !== 'choix' && kind !== 'saisie') return null;
   return natureQ(generate(ctx.level, ctx.rng));

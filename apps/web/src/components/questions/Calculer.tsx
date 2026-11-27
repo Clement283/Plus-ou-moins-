@@ -108,7 +108,7 @@ export function Calculer({ q, course, locked, onAnswer, header, footer, texts }:
       locked={locked}
       foot={writing ? <ExprKeypad onKey={press} onDelete={del} onSubmit={submit} canSubmit={typed !== ''} brackets={q.brackets === true} /> : undefined}
     >
-      <Prompt texts={texts} fallback="Calcule le membre de gauche, ligne par ligne." cls="q-ask" />
+      <Prompt texts={texts} fallback={noX ? `Calcule ${q.eqLatex.split(' = ')[0]}, ligne par ligne.` : 'Calcule le membre de gauche, ligne par ligne.'} cls="q-ask" />
       <div className="calc-head" data-copie>
         <span className="t-math-md">
           <MathView latex={q.eqLatex} />
