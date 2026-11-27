@@ -8,50 +8,54 @@ import { writingLatex } from './calc';
  * « Comparer deux cas » (doc 06, maquette `compareScreen`) : deux calculs côte à côte, une note, la question à choix (posée par
  * `Choix`). Après la réponse : « Juste. » ou « Pas tout à fait, et c'est normal. » avec le message de l'option, la droite des
  * deux trajets (ou, sans droite, les deux calculs avec leurs morceaux surlignés), puis les phrases `after`. Rien n'est noté : aucune couleur de réussite sur les calculs.
+ * `compare.inPlace` (cours récents) : les morceaux surlignés remplacent les deux calculs d'en haut, sans seconde copie.
  */
 export function Comparer({ compare, answered, choice, q }: { compare: Compare; answered: boolean; choice: number | null; q: Extract<Question, { kind: 'choix' }> }) {
   const right = choice === q.correctIndex;
   const why = choice !== null ? q.options[choice]?.why : undefined;
+  const done = answered && choice !== null;
+  const inPlace = done && compare.inPlace === true && compare.highlight !== undefined;
+  const highlighted = (c: Compare['a'], i: number) =>
+    (i === 0 ? compare.highlight!.a : compare.highlight!.b).map((t, k) =>
+      t.hl ? (
+        <span key={k} className="scene-hl">
+          {t.t}
+        </span>
+      ) : (
+        <span key={k}>{t.t}</span>
+      ),
+    );
   return (
     <div className="compare">
       <div className="compare__pair" data-copie>
-        {[compare.a, compare.b].map((c) => (
+        {[compare.a, compare.b].map((c, i) => (
           <div key={c.label} className="compare__case">
             <span className="compare__tag">{c.label}</span>
-            <p className="t-math-xl">
-              <MathView latex={writingLatex(c.latex)} />
-            </p>
+            <p className="t-math-xl">{inPlace ? highlighted(c, i) : <MathView latex={writingLatex(c.latex)} />}</p>
           </div>
         ))}
       </div>
-      <p className="t-caption compare__note">{compare.note}</p>
-      {answered && choice !== null && (
+      {compare.note && <p className="t-caption compare__note">{compare.note}</p>}
+      {done && (
         <div className="compare-feedback">
-          <div className={`alert ${right ? 'alert--success' : 'alert--info'}`} role="status">
-            <div className="alert__title">{right ? 'Juste.' : "Pas tout à fait, et c'est normal."}</div>
-            {why && (
-              <div>
-                <Bold text={why} />
-              </div>
-            )}
-          </div>
+          {/* inPlace : le message de l'option est déjà dans le retour en bas de l'écran, on ne le répète pas ici */}
+          {!inPlace && (
+            <div className={`alert ${right ? 'alert--success' : 'alert--info'}`} role="status">
+              <div className="alert__title">{right ? 'Juste.' : "Pas tout à fait, et c'est normal."}</div>
+              {why && (
+                <div>
+                  <Bold text={why} />
+                </div>
+              )}
+            </div>
+          )}
           {compare.line && <LineView line={compare.line} mode="lesson" revealed />}
-          {compare.highlight && (
+          {compare.highlight && !inPlace && (
             <div className="compare__pair compare__highlight" data-copie>
               {([compare.a, compare.b] as const).map((c, i) => (
                 <div key={c.label} className="compare__case">
                   <span className="compare__tag">{c.label}</span>
-                  <p className="t-math-xl">
-                    {(i === 0 ? compare.highlight!.a : compare.highlight!.b).map((t, k) =>
-                      t.hl ? (
-                        <span key={k} className="scene-hl">
-                          {t.t}
-                        </span>
-                      ) : (
-                        <span key={k}>{t.t}</span>
-                      ),
-                    )}
-                  </p>
+                  <p className="t-math-xl">{highlighted(c, i)}</p>
                 </div>
               ))}
             </div>

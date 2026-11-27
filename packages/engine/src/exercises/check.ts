@@ -4,9 +4,15 @@ import { type RawInput, rawToString, readRaw } from '../input/raw';
 import { type Rational, eqRat, neg, rat, ratToString } from '../math/rational';
 import { diagnose } from '../courses';
 import type { CourseDef } from '../courses/types';
+import type { Relation } from '../math/equation';
 import type { Answer, Outcome, Question } from './types';
 import { normalizeCalc } from './rewrite';
 import { familyOf, signError } from '../courses/errors-util';
+import { gradeResolution, solutionText } from './resoudre';
+import { gradeCalcul, verdictText } from './calculer';
+import { gradeIntervalle } from './intervalle';
+import { gradeTableau } from './tableau';
+import { gradeSolutions } from './solutions';
 
 const ALL_RIGHT = 'Tout est juste';
 const SEP = ' · ';
@@ -191,6 +197,70 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
         expected: q.expected,
         message: hit ? hit.message : q.fallback,
       };
+    }
+
+    case 'resoudre': {
+      if (!('lines' in a)) return mismatch(q);
+      const g = gradeResolution(q.start, a.lines);
+      const given = a.lines.at(-1) ?? '';
+      const expected = solutionText(q.start);
+      if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given, expected };
+      if (g.firstError === null) return { ...right(given, expected), helped: a.hinted, message: '' };
+      return {
+        correct: false,
+        unfinished: false,
+        errorType: g.firstError,
+        errorFamily: familyOf(course, g.firstError),
+        given,
+        expected,
+        message: g.firstErrorText ? `${g.firstErrorText.title} ${g.firstErrorText.message}` : '',
+      };
+    }
+
+    case 'calculer': {
+      if (!('calcLines' in a)) return mismatch(q);
+      const g = gradeCalcul(q, a.calcLines);
+      const given = a.calcLines.at(-1) ?? '';
+      const expected = verdictText(q.isSolution);
+      if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given, expected };
+      const verdictRight = a.firstPick === q.isSolution;
+      if (g.firstError === null && verdictRight) return { ...right(given, expected), helped: a.hinted, message: '' };
+      const errorType = g.firstError ?? 'verdict';
+      const family: ErrorFamily = g.firstError === 'signe' ? 'signe' : g.firstError === 'priorite' ? 'calcul' : 'autre';
+      return {
+        correct: false,
+        unfinished: false,
+        errorType,
+        errorFamily: family,
+        given,
+        expected,
+        message: g.firstErrorText ? `${g.firstErrorText.title} ${g.firstErrorText.message}` : 'Compare les deux membres : sont-ils égaux ?',
+      };
+    }
+
+    case 'intervalle': {
+      if (!('interval' in a)) return mismatch(q);
+      const g = gradeIntervalle(q, a.interval, a.symbol as Relation | null, a.interval2 ?? null);
+      if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: '' };
+      const family: ErrorFamily = g.errorId === 'signe-borne' || g.errorId === 'sens' ? 'signe' : g.errorId === 'borne' || g.errorId === 'ordre' ? 'calcul' : 'ecriture';
+      return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
+    }
+
+    case 'solutions': {
+      if (!('values' in a)) return mismatch(q);
+      const g = gradeSolutions(q, a.values);
+      if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: '' };
+      const family: ErrorFamily = g.errorId === 'signe' ? 'signe' : g.errorId === 'illisible' ? 'ecriture' : 'calcul';
+      return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
+    }
+
+    case 'tableau': {
+      if (!('tableau' in a)) return mismatch(q);
+      const g = gradeTableau(q, a.tableau);
+      if (g.correct) return { ...right('tableau juste', g.expected), helped: a.hinted, message: '' };
+      const e = g.errorId!;
+      const family: ErrorFamily = e === 'signe-facteur' || e === 'regle-signes' ? 'signe' : e === 'valeurs' || e === 'valeurs-ordre' ? 'calcul' : e === 'zero-oublie' || e === 'zero-en-trop' || e === 'barre-oubliee' || e === 'barre-en-trop' ? 'ecriture' : 'autre';
+      return { ...wrong(e, family, e, g.expected), message: g.message };
     }
 
     case 'droite': {

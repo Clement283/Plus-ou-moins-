@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intervalles : lire et écrire</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap">
+<style>
+/* Mise en page : un téléphone qui montre le nouvel écran « résolution ligne par ligne », à côté les notes de conception de l'état affiché. Mêmes jetons que cours-4-v2.html. */
+:root{
+  --bg:#F2F3F8; --surface:#FFFFFF; --sunken:#E9EBF3; --line:#DDE0EA;
+  --ink:#1A1D2E; --muted:#565C73; --primary:#3B39D4; --on-primary:#FFFFFF;
+  --ok:#137F57; --ok-bg:#DDF3E9; --ko:#C42D47; --ko-bg:#FCE4E8;
+  --hl:#FFE27A; --hl-ink:#5C4100; --grey-bg:#ECEDF2;
+  --neg:#C25400; --pos:#1565C0; --chg:#D97A00; --chg-bg:#FFF0D2;
+  --op-bg:#E6E6FF; --op-ink:#2422A6;
+  --font:'Lexend','Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10121A; --surface:#1B1E2B; --sunken:#252839; --line:#2E3247;
+  --ink:#ECEDF5; --muted:#A5AAC2; --primary:#8D8CF7; --on-primary:#12132A;
+  --ok:#62D6A5; --ok-bg:#15392B; --ko:#FF8296; --ko-bg:#45202A;
+  --hl:#5A4A12; --hl-ink:#FFE38C; --grey-bg:#262A3A; --neg:#FFA04D; --pos:#6DB6FF; --chg:#FFB347; --chg-bg:#4A3510;
+  --op-bg:#2A2A57; --op-ink:#D9D8FF; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:24px}
+.intro h1{font-size:1.6rem;margin:0 0 4px;text-wrap:balance}
+.intro p{margin:0;color:var(--muted);max-width:70ch}
+.layout{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:minmax(0,1fr)}}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 10px;cursor:pointer}
+.nav button.on{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.nav button:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+/* Téléphone */
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:28px;min-height:720px;display:flex;flex-direction:column;overflow:hidden}
+.ph-top{display:flex;align-items:center;gap:12px;padding:16px 18px 6px}
+.ph-x{font-size:1.4rem;color:var(--muted);line-height:1}
+.bar{flex:1;display:flex;gap:3px}
+.bar i{flex:1;height:5px;border-radius:3px;background:var(--sunken)}
+.bar i.d{background:var(--primary)}
+.chip{margin:8px 18px 0;align-self:flex-start;font-size:.8rem;font-weight:600;color:var(--muted);background:var(--sunken);border-radius:999px;padding:5px 12px}
+.ph-body{flex:1;padding:14px 20px 20px;display:flex;flex-direction:column;gap:14px}
+h2.t{font-size:1.4rem;line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:0}
+.q{font-weight:600;margin:0}
+.btn{font:inherit;font-weight:600;font-size:1.05rem;border-radius:16px;padding:15px;border:0;cursor:pointer;width:100%}
+.btn-main{background:var(--primary);color:var(--on-primary)}
+.btn-line{background:transparent;border:2px solid var(--line);color:var(--ink);font-size:.9rem;padding:9px}
+.btn:focus-visible,.opt:focus-visible,.key:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.zone{margin-top:auto;display:grid;gap:10px;padding-top:6px}
+.rule{border:2px solid var(--primary);border-radius:16px;padding:12px 14px}
+.rule b{display:block;color:var(--primary);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.opts{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.opt{font:inherit;font-size:1.3rem;font-weight:500;text-align:center;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.opt.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.opt:disabled{cursor:default}
+.fb{border-radius:14px;padding:12px 14px;display:grid;gap:4px}
+.fb.ok{background:var(--ok-bg)} .fb.ko{background:var(--ko-bg)}
+.fb strong{color:var(--ok)} .fb.ko strong{color:var(--ko)}
+.fb p{margin:0}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.key{font:inherit;font-size:1.3rem;font-weight:500;border:0;border-radius:12px;padding:11px 0;background:var(--sunken);color:var(--ink);cursor:pointer}
+.key.op{background:color-mix(in srgb,var(--primary) 16%,var(--sunken))}
+.new{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.new{animation:none}}
+
+
+/* ——— Nouveau : intervalle (lire, écrire) ——— */
+.line-svg{width:100%;height:auto;display:block}
+.line-svg text{font-family:var(--font);font-size:13px;fill:var(--muted)}
+.sol{display:flex;align-items:center;justify-content:center;gap:6px;font-size:1.6rem;font-weight:600;padding:14px 8px;border:2px solid var(--line);border-radius:16px;flex-wrap:wrap}
+.sol .lbl{color:var(--muted);font-weight:500;margin-right:4px}
+.slot{min-width:3.2rem;min-height:3rem;border:2px dashed var(--line);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;background:var(--surface);font:inherit;color:var(--ink);cursor:pointer}
+.slot.cur{border:2px solid var(--primary);border-style:solid;background:color-mix(in srgb,var(--primary) 8%,var(--surface))}
+.slot.br{min-width:2.6rem;font-size:1.7rem;font-weight:700;color:var(--primary);border-style:solid;border-color:var(--op-bg);background:var(--op-bg)}
+.slot.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.slot.ko{border-color:var(--ko);background:var(--ko-bg);color:var(--ko)}
+.hint{font-size:.85rem;color:var(--muted);margin:0;text-align:center}
+.sym{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ineq{font-size:1.4rem;font-weight:600;text-align:center;padding:10px;border-radius:14px;background:var(--sunken)}
+.keys5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.key.inf{font-size:1.05rem;background:color-mix(in srgb,var(--primary) 16%,var(--sunken))}
+.key.go{grid-column:span 2;background:var(--primary);color:var(--on-primary);font-weight:600}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 20px;display:grid;gap:8px;align-content:start}
+.note h3{margin:0;font-size:1rem} .note ul{margin:0;padding-left:1.1rem;display:grid;gap:6px} .note li{color:var(--muted)} .note li b{color:var(--ink)}
+.note .q2{border-left:4px solid var(--chg);padding-left:10px;color:var(--ink)}
+
+</style>
+<body><div class="wrap">
+<header class="intro"><h1>Intervalles : lire et écrire</h1>
+<p>Maquette pour les cours 7 et 8 du module Équations et inéquations. Appuie sur les boutons, les crochets et les touches : l'écran réagit. À valider : la droite graduée, la saisie de S, le choix du symbole.</p></header>
+<div class="layout"><div style="display:grid;gap:12px"><div class="nav" id="nav"></div><div class="phone" id="phone"></div></div><aside class="note" id="note"></aside></div>
+</div>
+<script>
+const N=[-5,5];
+function line(iv,opts={}){ // iv:{a,b,ca,cb} a,b nombres ou null pour ∞ ; ca/cb vrai = crochet fermé
+  const W=340,x0=20,x1=320,u=(x1-x0)/10,X=v=>x0+(v-N[0])*u,y=46;
+  let s=`<svg class="line-svg" viewBox="0 0 ${W} 90" role="img" aria-label="${opts.label||'Droite graduée'}">`;
+  if(iv){const L=iv.a===null?x0-8:X(iv.a),R=iv.b===null?x1+8:X(iv.b);
+    s+=`<rect x="${L}" y="${y-9}" width="${R-L}" height="18" rx="4" fill="var(--primary)" opacity=".28"/>`;
+    s+=`<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="var(--primary)" stroke-width="5"/>`;}
+  s+=`<line x1="${x0-8}" x2="${x1+8}" y1="${y}" y2="${y}" stroke="var(--muted)" stroke-width="2"/>`;
+  s+=`<path d="M${x1+8} ${y} l-7 -5 m7 5 l-7 5" stroke="var(--muted)" stroke-width="2" fill="none"/>`;
+  for(let v=N[0];v<=N[1];v++){s+=`<line x1="${X(v)}" x2="${X(v)}" y1="${y-5}" y2="${y+5}" stroke="var(--muted)" stroke-width="2"/><text x="${X(v)}" y="${y+24}" text-anchor="middle">${v<0?'−'+(-v):v}</text>`;}
+  if(iv){[['a','ca',iv.a,-1],['b','cb',iv.b,1]].forEach(([k,c,v,d])=>{ if(v===null)return; const cx=X(v);
+    s+=`<circle cx="${cx}" cy="${y}" r="7" fill="${iv[c]?'var(--primary)':'var(--surface)'}" stroke="var(--primary)" stroke-width="3"/>`;
+    s+=`<text x="${cx+d*14}" y="${y-16}" text-anchor="middle" style="font-size:22px;font-weight:700;fill:var(--primary)">${d<0?(iv[c]?'[':']'):(iv[c]?']':'[')}</text>`;});}
+  return s+'</svg>';
+}
+const bar=n=>`<div class="ph-top"><span class="ph-x">×</span><div class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<n?'d':''}"></i>`).join('')}</div></div>`;
+const fmt=v=>v===null?'':(v<0?'−'+(-v):''+v);
+const keys=(extra='')=>`<div class="keys5">${[7,8,9].map(k=>`<button class="key">${k}</button>`).join('')}<button class="key inf">−∞</button><button class="key inf">+∞</button>${[4,5,6].map(k=>`<button class="key">${k}</button>`).join('')}<button class="key">−</button><button class="key">⌫</button>${[1,2,3].map(k=>`<button class="key">${k}</button>`).join('')}<button class="key">0</button><button class="key go">${extra||'Valider'}</button></div>`;
+const solRow=(l,a,b,r,st={})=>`<div class="sol"><span class="lbl">S =</span><button class="slot br ${st.l||''}">${l}</button><button class="slot ${st.a||''}">${a}</button><span>,</span><button class="slot ${st.b||''}">${b}</button><button class="slot br ${st.r||''}">${r}</button></div>`;
+const S={
+lire:{n:'1 · Lire',phone:()=>`${bar(2)}<div class="chip">Cours 7 · Intervalles</div><div class="ph-body">
+<h2 class="t">Quel intervalle est colorié ?</h2>${line({a:-2,b:null,ca:true,cb:false})}
+<p class="hint">Le rond plein veut dire : −2 est compris.</p>
+<div class="opts" id="o">${['[−2 , +∞[',']−2 , +∞[',']−∞ , −2]','[−∞ , −2]'].map((t,i)=>`<button class="opt" data-i="${i}">${t}</button>`).join('')}</div><div id="fbx" class="zone"></div></div>`,
+ note:[`Écran 1 : lire`,`Cours 7, leçon et petites questions. Même droite que pour écrire : le rond plein pour « compris », le rond vide pour « exclu ».`,`Le crochet est dessiné sur la droite, du côté de la borne, tourné vers l'intervalle : l'élève voit d'où vient le crochet.`,`Piège du dernier choix : [−∞ , …] (crochet fermé devant ∞).`],
+ after:()=>{document.querySelectorAll('#o .opt').forEach(b=>b.onclick=()=>{const ok=b.dataset.i==0;document.querySelectorAll('#o .opt').forEach(x=>x.disabled=true);b.classList.add(ok?'ok':'ko');document.querySelector('#o .opt[data-i="0"]').classList.add('ok');document.getElementById('fbx').innerHTML=ok?'<div class="fb ok"><strong>Juste</strong><p>−2 est compris : crochet fermé. Vers +∞ : crochet ouvert.</p></div>':'<div class="fb ko"><strong>Pas tout à fait</strong><p>'+(b.dataset.i==1?'Le rond est plein : −2 est compris, le crochet est fermé.':b.dataset.i==2?'La partie coloriée va vers la droite, vers +∞.':'On ne ferme jamais le crochet contre ∞ : on ne peut pas atteindre ∞.')+'</p></div>';});}},
+vide:{n:'2 · Écrire (vide)',phone:()=>`${bar(3)}<div class="chip">Cours 7 · Intervalles</div><div class="ph-body">
+<h2 class="t">Écris l'ensemble des solutions de x &lt; 3</h2>${line({a:null,b:3,ca:false,cb:false})}
+${solRow('[','','',']',{a:'cur'})}<p class="hint">Touche un crochet pour le retourner.</p>
+<div class="zone">${keys()}</div></div>`,
+ note:[`Écran 2 : écrire, au départ`,`Les crochets sont des boutons : un appui les retourne ([ ou ]). Les deux bornes sont des cases, la case active est entourée. La droite se colorie **au fur et à mesure** de la saisie (aperçu), sans dire si c'est juste.`,`Clavier : chiffres, −, ⌫ et deux touches −∞ et +∞ (elles remplissent la case).`,`Question ouverte : l'aperçu pendant la saisie aide ou donne la réponse ? Je propose qu'il aide : l'élève voit ce qu'il écrit, la correction vient au clic sur Valider.`]},
+juste:{n:'3 · Écrire (juste)',phone:()=>`${bar(3)}<div class="chip">Cours 7 · Intervalles</div><div class="ph-body">
+<h2 class="t">Écris l'ensemble des solutions de x &lt; 3</h2>${line({a:null,b:3,ca:false,cb:false})}
+${solRow(']','−∞','3','[',{l:'ok',a:'ok',b:'ok',r:'ok'})}
+<div class="zone"><div class="fb ok"><strong>Juste</strong><p>x &lt; 3 : 3 n'est pas compris, donc crochet ouvert. ∞ : toujours ouvert.</p></div><button class="btn btn-main">Continuer</button></div></div>`,
+ note:[`Écran 3 : bonne réponse`,`Les cases passent au vert. On rappelle la règle en une phrase, sans refaire la leçon.`]},
+faux:{n:'4 · Écrire (faux)',phone:()=>`${bar(3)}<div class="chip">Cours 7 · Intervalles</div><div class="ph-body">
+<h2 class="t">Écris l'ensemble des solutions de x ≥ 3</h2>${line({a:3,b:null,ca:true,cb:false})}
+${solRow('[','3','+∞',']',{r:'ko'})}
+<div class="zone"><div class="fb ko"><strong>Pas tout à fait</strong><p>Contre +∞, le crochet est toujours ouvert : on n'atteint jamais l'infini. Retourne le crochet de droite.</p></div><button class="btn btn-main">Réessayer</button></div></div>`,
+ note:[`Écran 4 : une seule case fausse`,`Seule la case fautive est en rouge. Le message nomme l'erreur la plus fréquente : un crochet fermé contre ∞.`,`Les autres erreurs reconnues : crochets inversés pour un ≥ ou un >, bornes dans le mauvais ordre, un seul nombre au lieu d'un intervalle, signe de la borne oublié.`]},
+signe:{n:'5 · Cours 8 : réponse',phone:()=>`${bar(4)}<div class="chip">Cours 8 · Inéquations</div><div class="ph-body">
+<h2 class="t">Résous −2x + 1 ≥ 7</h2>
+<div class="ineq">−2x ≥ 6</div><div class="ineq" style="outline:2px solid var(--chg);background:var(--chg-bg)">On divise par −2 : ≥ devient ?</div>
+<div class="sym">${['<','≤','>','≥'].map((t,i)=>`<button class="opt" data-s="${i}">${t}</button>`).join('')}</div>
+<div class="ineq">x ≤ −3</div>${solRow(']','−∞','−3',']',{})}
+<div class="zone"><button class="btn btn-main">Valider</button></div></div>`,
+ note:[`Écran 5 : inéquation, puis intervalle`,`Deux briques nouvelles : **le choix du symbole** (4 boutons < ≤ > ≥, bloc orange pour la ligne où le sens change) et **la saisie de S**, la même qu'au cours 7.`,`La ligne de résolution reste celle de la maquette « ligne par ligne » : seul le symbole du milieu devient un choix quand on multiplie ou divise par un négatif.`,`Notation : virgule, comme le programme 2nde 2026 p. 7. Le « ; » se change en un seul endroit si tu préfères.`]}
+};
+const nav=document.getElementById('nav'),ph=document.getElementById('phone'),nt=document.getElementById('note');
+function show(k){nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));const s=S[k];ph.innerHTML=s.phone();nt.innerHTML='<h3>'+s.note[0]+'</h3><ul>'+s.note.slice(1).map(t=>'<li>'+t.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')+'</li>').join('')+'</ul>';s.after&&s.after();}
+Object.keys(S).forEach(k=>{const b=document.createElement('button');b.textContent=S[k].n;b.dataset.k=k;b.onclick=()=>show(k);nav.appendChild(b);});
+show('lire');
+</script></body></html>

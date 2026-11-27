@@ -2,6 +2,8 @@ import type { ErrorFamily, QuestionKind } from '../events';
 import type { Answer, BuildCtx, Outcome, Question } from '../exercises/types';
 import type { Expr } from '../math/expr';
 import type { Rational } from '../math/rational';
+import type { Interval } from '../math/intervalle';
+import type { Factor, TableOp } from '../math/tableau';
 import type { Rng } from '../rng';
 
 export type Level = 1 | 2 | 3;
@@ -120,6 +122,11 @@ export interface Compare {
   /** Après la réponse, sans droite : les deux calculs avec leurs morceaux surlignés. */
   highlight?: { a: SceneToken[]; b: SceneToken[] };
   after: string[];
+  /**
+   * Option des cours récents : après la réponse, les morceaux surlignés (`highlight`) remplacent les deux calculs d'en haut
+   * au lieu d'en ajouter une seconde copie en dessous. Les cours déjà en ligne gardent l'écran d'origine.
+   */
+  inPlace?: true;
 }
 
 /** Indices touchés → message. */
@@ -162,6 +169,22 @@ export interface Scene {
   caption?: string;
   /** 'line' : calcs[0] = le calcul au-dessus de la droite ; 'lines' : résolution ligne à ligne, la dernière calc est surlignée. */
   line?: LineScene;
+  /** Un ou deux intervalles coloriés sur une droite graduée (cours 7, 8, 10, 11), sous les calculs. */
+  interval?: { intervals: Interval[] };
+  /** Un tableau de signes (cours 9 à 11), construit par le moteur : `upTo` = jusqu'où il est dessiné, `rows` = nombre de lignes de signes remplies. */
+  table?: SceneTable;
+}
+
+/** Le tableau de signes d'une scène de leçon : mêmes données que la question `tableau`, affiché sans saisie. */
+export interface SceneTable {
+  op: TableOp;
+  factors: Factor[];
+  /** 'valeurs' : la 1re ligne seule ; 'lignes' : + la 1re colonne ; 'signes' (défaut) : tout. */
+  upTo?: 'valeurs' | 'lignes' | 'signes';
+  /** Avec `upTo: 'signes'` : seules les `rows` premières lignes (de haut en bas) ont leurs signes. */
+  rows?: number;
+  /** Colonnes qui conviennent pour cette relation, surlignées (lecture de S). */
+  ghost?: '<' | '<=' | '>' | '>=';
 }
 
 /** Une étape d'un écran « pas à pas » (doc 08 n° 20). */
@@ -243,7 +266,7 @@ export interface MemoCard {
   tip: string;
 }
 
-export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur';
+export type ReviewFormat = 'saisie' | 'droite' | 'signe' | 'vraifaux' | 'erreur' | 'resoudre' | 'calculer' | 'intervalle' | 'tableau' | 'solutions';
 
 export interface CourseDef {
   id: string;
@@ -264,7 +287,7 @@ export interface CourseDef {
    */
   unePhrase?: boolean;
   /** 'erreur' = the Cours 0 exception. */
-  endExercises: { count: 5; kind: 'saisie' | 'trou' | 'erreur' };
+  endExercises: { count: 5; kind: 'saisie' | 'trou' | 'erreur'; /** Type de chaque exercice de fin, dans l'ordre (sinon `kind` partout) : « resoudre » à partir du cours 4 du module Équations. */ mix?: QuestionKind[] };
   generate(level: Level, rng: Rng): Exercise;
   /** In detection order. */
   errors: ErrorDef[];

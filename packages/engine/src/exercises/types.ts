@@ -4,6 +4,12 @@ import type { RawInput } from '../input/raw';
 import type { Rational } from '../math/rational';
 import type { Rng } from '../rng';
 import type { Exercise, Level } from '../courses/types';
+import type { Equation } from '../math/equation';
+import type { CalculerQuestion } from './calculer';
+import type { IntervalleQuestion } from './intervalle';
+import type { TableauQuestion } from './tableau';
+import type { SolutionsQuestion } from './solutions';
+import type { IntervalInput } from '../math/intervalle';
 
 export type { QuestionKind } from '../events';
 
@@ -61,6 +67,18 @@ export type Question =
       steps: string[];
     }
   | {
+      /** « À toi de résoudre » : l'élève écrit chaque ligne, avec sa méthode, jusqu'à x = … */
+      kind: 'resoudre';
+      ex: Exercise;
+      start: Equation;
+      /** Exemple guidé : l'aide (l'étape du cours) est affichée d'office à chaque ligne. */
+      guided?: true;
+    }
+  | CalculerQuestion
+  | IntervalleQuestion
+  | TableauQuestion
+  | SolutionsQuestion
+  | {
       kind: 'droite';
       ex: Exercise;
       promptLatex: string;
@@ -74,6 +92,8 @@ export interface BuildCtx {
   level: Level;
   timesSeen: number;
   trapErrorType?: string;
+  /** Rang de l'exercice dans les 5 exercices de fin (0 à 4) : un cours peut varier ce qu'il demande ou garantir un cas. Absent ailleurs (révision, entraînement). */
+  index?: number;
 }
 
 /**
@@ -90,7 +110,17 @@ export type Answer =
   | { classes: string[] }
   | { bool: boolean }
   | { text: string }
-  | { point: number };
+  | { point: number }
+  /** « résoudre » : toutes les lignes validées, dans l'ordre (fausses comprises) ; `hinted` : l'indice a été ouvert. */
+  | { lines: string[]; hinted: boolean }
+  /** « calculer » : les lignes de calcul validées (fausses comprises), le 1er verdict « solution ou pas » et l'indice. */
+  | { calcLines: string[]; firstPick: boolean; hinted: boolean }
+  /** « intervalle » : l'intervalle écrit, le symbole choisi (cours 8, après une division par un négatif) et l'indice. */
+  | { interval: IntervalInput; interval2?: IntervalInput | null; symbol: string | null; hinted: boolean }
+  /** « tableau » : l'erreur de chaque vérification ratée, dans l'ordre (vide : tout juste du premier coup), et l'indice. */
+  | { tableau: import('../math/tableau').TableErrorId[]; hinted: boolean }
+  /** « solutions » : les valeurs écrites (une par solution) et l'indice. */
+  | { values: string[]; hinted: boolean };
 
 export interface Outcome {
   correct: boolean;
@@ -99,6 +129,8 @@ export interface Outcome {
   errorFamily: ErrorFamily | null;
   given: string;
   expected: string;
-  /** Texte propre à la réponse (« choix », « Réécris »). */
+  /** Texte propre à la réponse (« choix », « Réécris », « résoudre »). */
   message?: string;
+  /** Juste avec l'indice (« résoudre ») : « avec aide » dans le suivi. */
+  helped?: boolean;
 }

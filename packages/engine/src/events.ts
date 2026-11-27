@@ -1,5 +1,5 @@
 export type Activity = 'lecon' | 'exemple' | 'fin' | 'rattrapage' | 'revision' | 'entrainement' | 'decouverte' | 'echauffement';
-export type QuestionKind = 'saisie' | 'trou' | 'ordre' | 'erreur' | 'paires' | 'classer' | 'qcm' | 'vraifaux' | 'choix' | 'reecrire' | 'droite';
+export type QuestionKind = 'saisie' | 'trou' | 'ordre' | 'erreur' | 'paires' | 'classer' | 'qcm' | 'vraifaux' | 'choix' | 'reecrire' | 'droite' | 'resoudre' | 'calculer' | 'intervalle' | 'tableau' | 'solutions';
 export type ErrorFamily = 'signe' | 'ecriture' | 'calcul' | 'autre';
 
 export type AppEvent = { id: string; userId: string; at: number; day: string } & (
@@ -21,13 +21,15 @@ export type AppEvent = { id: string; userId: string; at: number; day: string } &
       attempt: number; // 1 = première réponse
       skipped: boolean;
       durationMs: number;
+      /** Juste avec l'indice (« À toi de résoudre ») : marqué « avec aide » dans le suivi. Absent = sans aide. */
+      helped?: boolean;
     }
   | { kind: 'lesson_part_done'; activityId: string; moduleId: string; courseId: string; partIndex: number; durationMs: number }
   | { kind: 'activity_end'; activityId: string; activity: Activity; moduleId: string; courseId: string | null; completed: boolean }
 );
 
 const ACTIVITIES: readonly string[] = ['lecon', 'exemple', 'fin', 'rattrapage', 'revision', 'entrainement', 'decouverte', 'echauffement'];
-const QUESTION_KINDS: readonly string[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'choix', 'reecrire', 'droite'];
+const QUESTION_KINDS: readonly string[] = ['saisie', 'trou', 'ordre', 'erreur', 'paires', 'classer', 'qcm', 'vraifaux', 'choix', 'reecrire', 'droite', 'resoudre', 'calculer', 'intervalle', 'tableau', 'solutions'];
 const ERROR_FAMILIES: readonly string[] = ['signe', 'ecriture', 'calcul', 'autre'];
 
 type Rec = Record<string, unknown>;
@@ -54,7 +56,8 @@ export function isAppEvent(x: unknown): x is AppEvent {
         (e.errorType === null || isStr(e.errorType)) &&
         (e.errorFamily === null || isEnum(ERROR_FAMILIES, e.errorFamily)) &&
         typeof e.attempt === 'number' && Number.isInteger(e.attempt) && e.attempt >= 1 &&
-        isBool(e.skipped) && isNonNegNum(e.durationMs)
+        isBool(e.skipped) && isNonNegNum(e.durationMs) &&
+        (e.helped === undefined || isBool(e.helped))
       );
     case 'lesson_part_done':
       return (

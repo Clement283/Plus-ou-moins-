@@ -141,3 +141,59 @@ Voir la liste « minor (deferred) » relevée par les relectures : applyEvent en
 - Tests : moteur 986, api 35, web 439, scripts 7 (tous verts).
 - Mise en ligne bloquée : le proxy de la session refuse api.cloudflare.com (403) ; l'autorisation de l'hôte a été refusée. À refaire une fois le domaine autorisé : `npm run deploy` (construit), puis `cd apps/api && CLOUDFLARE_API_TOKEN=x CLOUDFLARE_ACCOUNT_ID=7aeceb03afcfd29a243fabb675907335 npx wrangler deploy`.
 - Ensuite : modules B, C, D (documents de classe attendus).
+
+## Module 2 « Équations et inéquations » : cours 1 à 4 (2026-11-26), pull request #7, pas encore fusionnée
+- Plan validé : `docs/modules/02-equations-inequations/module.md` (11 cours). Programmes téléchargés dans `docs/sources/` : seconde 2026 et cycle 4 2026. **Manque : le programme de 1re spécialité 2026** (celui de 2019 est cité pour le second degré) ; pas de cours du prof reçu.
+- Moteur : `packages/engine/src/math/equation.ts`, `solve.ts`, `parse-equation.ts` (équations et inéquations du 1er degré, fractions écrites, jugement d'une ligne quelle que soit la méthode de l'élève) ; question `resoudre` (`exercises/resoudre.ts`, `Resoudre.tsx`) ; champ `helped` (indice, « avec aide » dans le suivi). Maquette validée : `docs/design/ecrans/equations-resolution-ligne.html`.
+- Cours 1 à 4 écrits par des assistants Sonnet, dans le module « Essais » (comptes aperçu seulement), fiches dans le dossier du module :
+  - cours 1 `equations-tester-solution` : 190 000 jetons, 32 actions ; cours 2 `equations-ajouter-retirer` : 197 000 et 43 (fiche comprise) ; cours 3 `equations-diviser` et 4 `equations-resoudre-premier-degre` par un seul assistant : 266 000 et 59, soit environ 133 000 par cours.
+  - Le 2e cours d'un même assistant coûte moins cher (les documents ne sont lus qu'une fois).
+- Tests : moteur 1 148, api 35, web 452 (verts après fusion des trois branches).
+- À vérifier : reprises entre les cours 2 et 3 (le cours 3 a été écrit sans voir le cours 2) ; l'écran « Calcul passé » du cours 2 ; le cours 1 n'a pas de « solution ou pas solution » dans ses exercices de fin ; textes d'écran non relus.
+- Reste du module : cours 5 à 11 (fiches à écrire), maquettes d'intervalles et de tableau de signes.
+
+## Module 2 : écran « Calculer par lignes » et retours sur les cours 1 à 4 (2026-11-26)
+- Retours du porteur du projet après essai du cours 1 : exercices trop « de tête » (impossible d'écrire −3 × 4 + 7 puis −12 + 7), cours trop long (17 blocs) avec des répétitions (les 4 ou 5 premiers écrans du cours 2 disent la même chose). Décisions : étapes écrites dans tous les exercices de fin, cours d'environ 10 blocs, un même geste montré 2 ou 3 fois au plus (règles dans le `module.md`). Cours 1 à 4 à corriger **après son essai des cours 2 à 4**.
+- Écran « Calculer par lignes » codé : moteur `math/calcul.ts` et `exercises/calculer.ts` (question `calculer`), composant `Calculer.tsx`. Maquette validée (état 8 de `docs/design/ecrans/equations-resolution-ligne.html`). Erreurs reconnues : priorité oubliée, signe (opération au mauvais signe, signe d'un nombre oublié). Aucun cours ne l'utilise encore.
+- Tests : moteur 1 169, api 35, web 459 (verts).
+- Version courte du cours 2 (`equations-ajouter-retirer-court`, module Essais, à côté de l'actuel) écrite d'après les règles du `module.md` : 20 écrans au lieu de 25 (leçon 15 au lieu de 20), 1 petite question au lieu de 4, 1 exemple guidé au lieu de 2, exercices de fin en « résolution ligne par ligne ». Comparaison en captures du vrai cours (45 captures). Le test de contrat de forme (`contract.test.ts`) accepte maintenant 8 à 15 écrans pour apprendre (avant : 12 à 15).
+- Version guidée du cours 2 (`equations-ajouter-retirer-guide`, module Essais) : 14 écrans (leçon 9) : découverte, balance, opération contraire, petite question, résultat négatif, petite question, comparaison utile (x + 3 = 7 contre x − 3 = 7), exemple guidé (l'écran « À toi de résoudre » avec l'aide du cours affichée d'office : champ `guided` de la question `resoudre`), puis 5 exercices ligne par ligne. Pas de pratique de 4 questions ni d'« autres façons de faire ». Le contrat de forme accepte les cours sans série de pratique s'ils ont un exemple guidé après la leçon. Comparaison des trois versions en captures. À trancher par le porteur du projet : laquelle devient le modèle des cours 1, 3, 4 et suivants.
+
+## Module 2 : cours 1 à 6 au déroulé guidé (2026-11-26), pull request #8 (la #7 a été fusionnée avant ; tout ce qui précède a été poussé sans pull request)
+- Décision du porteur du projet : la **version guidée** devient le modèle (cours de 8 écrans pour apprendre, exemple guidé = écran des exercices avec l'aide d'office, 5 exercices ligne par ligne, « Comparer deux cas » seulement si deux cas se confondent, plus de pratique de 4 questions ni d'« Autres façons de faire »). Skills mis à jour (`plus-ou-moins-ecrire-un-cours` : déroulé guidé, répétition limitée ; modèle `gabarit-cours-guide.ts.txt` ; catalogue ; fiche modèle).
+- Cours 1 à 4 corrigés par un assistant Sonnet (236 000 jetons, 65 actions, 13 min) ; cours 5 `equations-inconnue-deux-cotes` et 6 `equations-produit-nul` écrits par un autre (193 000 jetons, 40 actions, 12 min, soit environ 97 000 par cours, fiche comprise). L'ancien cours 2 et les versions « court » et « guidé » sont supprimés (cours 2 = la version guidée, identifiant `equations-ajouter-retirer`).
+- Corrigé à la fusion : `availableKinds` liste maintenant `resoudre` et `calculer` pour les cours qui les prévoient (le calcul « du même genre » après une erreur et les révisions retombaient sur une saisie) ; `ReviewFormat` accepte `calculer`.
+- **Reste du module : cours 7 à 11, bloqués** : il manque la saisie d'un intervalle avec sa droite colorée (cours 7 et 8) et le tableau de signes (cours 9 à 11), deux maquettes à valider. Cours 6 : il manque un écran qui lit un produit (x + 2)(x − 3) = 0 et une saisie de deux solutions (l'exercice demande « la plus petite » ou « la plus grande »).
+- Tests : moteur 1 206, api 35, web 462.
+
+## Module 2 : cours 1 à 6 validés, skills à jour, version sur le suivi (2026-11-26)
+- Le porteur du projet a validé les cours 1 à 6 (module Essais). La pull request #8 a été fusionnée à 14 h 00 ; le commit « version sur le suivi » est arrivé juste après et part dans la pull request suivante, avec la mise à jour des skills (modèle de cours = le cours 2 définitif, `formats` et `mix` des exercices, coût mesuré 97 000 jetons par cours, vérifier l'état de la pull request avant de dire qu'elle est à jour).
+- Numéro de version (date, heure, commit du build) en bas de la page de suivi : à comparer au dernier commit de `main` pour savoir si une mise en ligne est arrivée.
+- Reste : cours 7 à 11 (maquettes d'intervalles et de tableau de signes), écran « deux solutions » pour le cours 6, et décider quand les cours 1 à 6 sortent du module Essais pour être visibles des élèves.
+
+
+## Module 2 : écran « intervalle » codé (2026-11-26)
+- Maquette `docs/design/ecrans/equations-intervalles.html` validée par le porteur du projet, puis codée : question `intervalle` (`exercises/intervalle.ts`, `math/intervalle.ts`), composants `questions/Intervalle.tsx`, `IntervalLine.tsx` (droite colorée, réutilisable), `SymbolPicker.tsx` (< ≤ > ≥, réutilisable), `IntervalKeypad.tsx`, styles `styles/intervalle.css`. Cours 8 : `flip` = choix du symbole après une division par un négatif, puis S.
+- Fait en plus de la maquette : fractions a/b et décimaux dans les bornes ; une seule réponse jugée à « Valider » (pas de « Réessayer » : même fonctionnement que les autres questions, la correction s'affiche une fois verrouillée) ; l'aperçu de la droite se colore pendant la frappe sans dire si c'est juste.
+- Aucun cours ne l'utilise encore : cours 7 `inequations-intervalles` et 8 `inequations-resoudre-premier-degre` à écrire (fiches d'abord). Lecture d'un intervalle sur la droite (cours 7) : question `choix` existante, à tester avec `IntervalLine` dans la leçon.
+- Tests : moteur 1 212, api 35, web 468 (verts).
+- Reste : maquette du tableau de signes (cours 9 à 11), écran « deux solutions » du cours 6, programme de 1re spécialité 2026.
+
+## Module 2 : tableau de signes, réunion ∪ et « deux solutions » codés (2026-11-26)
+- Maquette `docs/design/ecrans/equations-tableau-signes.html` validée (l'élève construit les valeurs, la 1re colonne et les signes ; ce qu'on demande dépend de l'exercice ; quotient en fraction ; double barre). Codé : questions `tableau` (`exercises/tableau.ts`, `math/tableau.ts`, `questions/Tableau.tsx`, `SignTable.tsx`, `TableKeypad.tsx`) et `solutions` (cours 6 : `exercises/solutions.ts`, `questions/Solutions.tsx`) ; `intervalle` étendu : réunion ∪ (`expected2`, bouton « Relier un autre intervalle ») et tableau à lire (`intervalleFromTable`).
+- Pas encore regardé rendu dans un navigateur : seuls les tests l'ont exercé.
+- Tests : moteur 1 224, api 35, web 474 (verts).
+- Reste : écrire les cours 7 à 11 et brancher `solutions` dans le cours 6 (écran « deux solutions »).
+
+## Module 2 : cours 7 à 11 écrits (2026-11-26)
+- Cours 7 `inequations-intervalles`, 8 `inequations-resoudre-premier-degre`, 9 `inequations-signe-affine`, 10 `inequations-tableau-signes-produit`, 11 `inequations-quotient` : fiches dans `docs/modules/02-equations-inequations/`, code dans `packages/engine/src/courses/essais/` (module Essais, comptes aperçu seulement). Écrits par un seul assistant Sonnet, un cours à la fois.
+- Coût mesuré (jetons ; actions du compteur système) : cours 7 : 151 514 ; 24 · cours 8 : 43 800 ; 13 · cours 9 : 26 586 ; 5 · cours 10 : 26 580 ; 4 · cours 11 : 23 243 ; 5 · total : 271 723 jetons ; 51 actions. Le 1er cours paie la lecture des documents ; les suivants coûtent environ 25 000 à 45 000.
+- Tests : moteur 1 287, api 35, web 474 (verts).
+- Pas essayés dans l'appli ni relus. Manques signalés : pas d'intervalle colorié ni de tableau de signes dans les écrans de leçon (seulement dans les questions) ; le rang de l'exercice n'est pas dans `BuildCtx` (impossible de donner plus d'aide au 1er exercice de fin qu'aux suivants) ; le cours 6 n'utilise pas encore la question `solutions`.
+
+## Module 2 : corrections après les cours 7 à 11 (2026-11-26)
+- Scènes de leçon : `Scene.interval` (intervalle(s) colorié(s)) et `Scene.table` (tableau de signes, `upTo`, `rows`, `ghost`) ; utilisées aux cours 7 à 11. Limite : l'écran « comparer deux cas » n'a pas de champ intervalle.
+- `BuildCtx.index` (rang 0 à 4 de l'exercice de fin) : cours 10 et 11 donnent les lignes au tableau de rang 2 ; cours 11 garantit une lecture de S en ≤ ou ≥ (rang 1).
+- Cours 6 : question `solutions` dans 3 exercices de fin sur 5 et dans l'exemple guidé.
+- Coût de la passe : 44 413 jetons, 16 actions (compteur système). Total des cours 7 à 11 et corrections : 316 136 jetons.
+- Tests : moteur 1 291, api 35, web 477 (verts).

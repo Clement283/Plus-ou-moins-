@@ -6,8 +6,8 @@
 .line-view__consigne{margin:0 0 var(--sp-12);text-align:center}
 .line-view__grid{position:relative;display:grid;width:100%}
 .line-view__track{position:absolute;left:0;right:0;top:20px;height:4px;border-radius:2px;background:var(--surface-sunken)}
-.line-view__col{position:relative;display:flex;flex-direction:column;align-items:center;min-width:44px}
-.line-view__dot{position:relative;display:grid;place-items:center;height:44px;width:100%;min-width:44px;background:none;border:0;padding:0;margin:0}
+.line-view__col{position:relative;display:flex;flex-direction:column;align-items:center;min-width:0}
+.line-view__dot{position:relative;display:grid;place-items:center;height:44px;width:100%;min-width:0;background:none;border:0;padding:0;margin:0}
 button.line-view__dot{cursor:pointer}
 .line-view__pastille{display:block;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 0 0 3px var(--line-neutral)}
 .line-view__dot.is-picked .line-view__pastille{background:var(--line-neutral)}
