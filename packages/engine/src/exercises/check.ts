@@ -253,7 +253,7 @@ export function checkAnswer(course: CourseDef, q: Question, a: Answer): Outcome 
       const g = gradeEcrire(q, a.written, a.calcul);
       if (!g.finished) return { correct: false, unfinished: true, errorType: null, errorFamily: null, given: g.given, expected: g.expected };
       if (g.correct) return { ...right(g.given, g.expected), helped: a.hinted, message: g.message };
-      const family: ErrorFamily = g.errorId === 'un-seul-signe' || g.errorId === 'moins-oublie' || g.errorId === 'signe' ? 'signe' : g.errorId === 'parentheses-oubliees' || g.errorId === 'ordre' ? 'ecriture' : 'calcul';
+      const family: ErrorFamily = g.errorId === 'un-seul-signe' || g.errorId === 'moins-oublie' || g.errorId === 'expression-fausse' ? 'signe' : g.errorId === 'parentheses-oubliees' || g.errorId === 'ordre' ? 'ecriture' : 'calcul';
       return { ...wrong(g.errorId ?? 'autre', family, g.given, g.expected), message: g.message };
     }
 

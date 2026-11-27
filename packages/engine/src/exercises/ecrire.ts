@@ -45,7 +45,7 @@ export type EcrireVerdict =
   | { kind: 'gris'; title: string; message: string }
   | { kind: 'faux'; errorId: EcrireErrorId; title: string; message: string };
 
-export type EcrireErrorId = 'parentheses-oubliees' | 'ordre' | 'un-seul-signe' | 'moins-oublie' | 'signe' | 'autre';
+export type EcrireErrorId = 'parentheses-oubliees' | 'ordre' | 'un-seul-signe' | 'moins-oublie' | 'expression-fausse' | 'autre';
 
 // ——— Structure d'un calcul ———
 
@@ -127,7 +127,7 @@ function judgeReecrire(q: EcrireQuestion, typed: string): EcrireVerdict {
     if (is(a, -L.p) && is(b, L.k + L.q)) return { kind: 'faux', errorId: 'un-seul-signe', title: 'Seul le premier terme a changé de signe.', message: `Le − change le signe de chaque terme : ${L.q < 0 ? '−' : '+'} ${n} devient ${L.q < 0 ? '+' : '−'} ${n}.` };
     if (is(a, L.p) && is(b, L.k + L.q)) return { kind: 'faux', errorId: 'moins-oublie', title: 'Les signes n’ont pas changé.', message: 'Un − devant la parenthèse change le signe de chaque terme qui est dedans.' };
   }
-  return { kind: 'faux', errorId: 'signe', title: 'Ce n’est pas la même expression.', message: q.hint };
+  return { kind: 'faux', errorId: 'expression-fausse', title: 'Ce n’est pas la même expression.', message: q.hint };
 }
 
 /** Le verdict d'une réponse tapée à l'étape `k`. */

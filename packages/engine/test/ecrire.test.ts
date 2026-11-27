@@ -75,7 +75,7 @@ describe('« ecrire », mode réécrire (lettres)', () => {
     expect(v('5−x−3')).toMatchObject({ kind: 'faux', errorId: 'un-seul-signe' });
     expect(v('5+x−3')).toMatchObject({ kind: 'faux', errorId: 'moins-oublie' });
     expect(v('5−(x−3)').kind).toBe('gris');
-    expect(v('5+x+3')).toMatchObject({ kind: 'faux', errorId: 'signe' });
+    expect(v('5+x+3')).toMatchObject({ kind: 'faux', errorId: 'expression-fausse' });
   });
   it('linearText', () => {
     expect(linearText(-1, 8)).toBe('8 − x');

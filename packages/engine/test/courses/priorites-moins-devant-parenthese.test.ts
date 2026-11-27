@@ -10,7 +10,7 @@ import { parseEquation } from '../../src/math/parse-equation';
 import { seededRng } from '../../src/rng';
 import { diag, generatorChecks, LEVELS } from './priorites-helpers';
 
-const LETTRES_ERRORS = ['un-seul-signe', 'moins-oublie'];
+const LETTRES_ERRORS = ['un-seul-signe', 'moins-oublie', 'expression-fausse'];
 
 const ex = (text: string) => mkEx(c.id, 1, text);
 

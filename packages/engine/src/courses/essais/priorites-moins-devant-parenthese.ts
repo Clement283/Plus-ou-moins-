@@ -84,6 +84,7 @@ const errors = [
   ...makeErrors(defs, generate),
   lettreErr('un-seul-signe', 'Le − devant la parenthèse change le signe de chaque terme : le terme en x, mais aussi le nombre.'),
   lettreErr('moins-oublie', 'Un − devant la parenthèse change le signe de chaque terme qui est dedans : x devient −x et le nombre change de signe.'),
+  lettreErr('expression-fausse', 'Enlève la parenthèse terme par terme : un − devant change chaque signe, un + n’en change aucun ; puis vérifie le terme en x et le nombre.'),
 ];
 
 // ——— Partie lettres : écrire sans parenthèses (question `ecrire`, mode `reecrire`) ———
