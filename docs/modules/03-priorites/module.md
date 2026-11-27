@@ -23,6 +23,8 @@ Celles du skill `plus-ou-moins-ecrire-un-cours` (déroulé guidé, environ 10 bl
 | 6 | `priorites-ecrire-un-calcul` | Une phrase ou une suite d'opérations s'écrit en un seul calcul, avec des parenthèses quand une somme est multipliée ou retranchée. | Geste inverse (écrire, pas calculer) ; erreur type : 30 − 2 + 7 pour « 30 moins la somme de 2 et 7 ». | cycle 4 p. 7 et p. 9 ; Fonteniaud V, Monka partie 3 b |
 | 7 | `priorites-moins-devant-parenthese` | Un − devant une parenthèse change le signe de chaque terme ; un + ne change rien. | Absent des documents de 5e mais au programme de 2nde ; erreur 8 − (3 − 2) = 8 − 3 − 2. | 2nde 2026 p. 5 ; ancien plan, cours 11 |
 
+**Mélange des 4 opérations** : jamais au cours 1 (que + et −, ou que × et ÷, à tous les niveaux) ; c'est le cours 2 : niveau 1 = un + ou − et un × ou ÷ (3 + 4 × 2) ; niveaux 2 et 3 = plusieurs blocs et × ÷ à la suite (15 − 8 ÷ 2 × 3, −6 ÷ 3 + 4 × (−2) − 5), qui reprennent naturellement la règle du cours 1. Les cours 3 à 7 contiennent ce mélange.
+
 **Comparer deux cas** : cours 2 (3 + 4 × 2 contre (3 + 4) × 2, si on le garde là ou au cours 3) ; cours 7 (8 − (3 + 2) contre 8 − (3 − 2)) ; ailleurs aucun.
 
 ## Ce qui manque dans l'appli
