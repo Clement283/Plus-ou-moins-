@@ -68,9 +68,11 @@ Chaque personnage est un sous-agent lancé par la session (outil Agent), avec un
 
 **Ce que l'élève sait déjà** vient des documents existants (`docs/modules.md`, `module.md`, les « points importants » en haut des fichiers de cours) pour **tout ce qui précède** les cours testés :
 
-- **Élève fort** : connaît tous les points importants précédents. Lit vite, comprend bien, repère les ambiguïtés. S'il bloque, c'est le cours.
-- **Élève moyen et distrait** : a oublié environ un tiers des points importants précédents (tirés au hasard, liste notée dans le rapport). Saute les longs textes, répond vite. Connaît le vocabulaire courant, pas les mots techniques vus une seule fois.
-- **Élève en difficulté** : bases du collège seulement, se trompe sur les signes des relatifs, priorités floues. Décroche dès qu'une phrase dépasse ~15 mots ou porte deux idées. Ne connaît pas les mots comme « membre », « inconnue », « intervalle » tant que le cours ne les a pas expliqués.
+Chaque élève retient une part des points importants de **tous les cours précédents** (modules d'avant et cours d'avant dans le même module), tirés au hasard avec une graine notée dans le rapport, qui liste aussi les points oubliés (décision de Clément) :
+
+- **Élève fort** : retient **90 %** des points précédents. Lit vite, comprend bien, repère les ambiguïtés. S'il bloque, c'est le cours.
+- **Élève moyen et distrait** : retient **50 %** des points précédents. Saute les longs textes, répond vite. Connaît le vocabulaire courant, pas les mots techniques vus une seule fois.
+- **Élève en difficulté** : retient **25 %** des points précédents, en plus des bases du collège ; se trompe sur les signes des relatifs, priorités floues. Décroche dès qu'une phrase dépasse ~15 mots ou porte deux idées. Un mot technique (« membre », « inconnue », « intervalle ») qu'il n'a pas retenu, il ne le connaît pas tant que le cours testé ne l'a pas réexpliqué.
 
 **Règle stricte pour les trois** : tout mot ou notion qui n'est ni dans sa liste ni expliqué plus tôt dans ce qu'il a lu, il ne le connaît pas et doit le signaler en citant la phrase. Dans les cours testés, il n'apprend **que par ce qu'il lit**. Il ne lit jamais les fiches.
 
