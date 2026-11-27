@@ -62,7 +62,7 @@ Les bonnes réponses ne sont **jamais** dans le fichier donné à l'élève : l'
 
 **Correction par le moteur (décision de Claude)** : un second script, `corriger`, reçoit le cours, la question (n° d'écran) et la réponse de l'élève en texte, la convertit au format `Answer` du moteur et appelle la correction de l'application (`checkAnswer`, `feedbackText`, explications des erreurs). L'élève reçoit donc **le vrai message** qu'il verrait dans l'appli, même pour une erreur non prévue. Tous les formats de question des cours testés doivent être couverts (nombre, choix, `resoudre`, `intervalle`, `tableau`, `solutions`…) ; si une réponse ne peut pas être convertie, le script le dit, l'élève reçoit le message général et le rapport le signale.
 
-Le script calcule aussi le **repère de dosage** (décision de Clément) : la moyenne (écrans, mots, questions par cours) de **tous les cours existants** — en ligne et « Essais » — **recalculée à chaque lancement**, car les cours actuels pourront eux-mêmes changer après ces tests. Ce n'est pas une référence figée : le rapport dit si un cours s'écarte nettement de la moyenne, vers le haut ou vers le bas. Pour les notions nouvelles, le repère est la moyenne des notions nouvelles par cours du lancement (ou des cours du module).
+Le script calcule aussi le **repère de dosage** (décision de Clément) : la moyenne (écrans, mots, questions par cours) de **tous les cours existants** — en ligne et « Essais » — **recalculée à chaque lancement**, car les cours actuels pourront eux-mêmes changer après ces tests. Ce n'est pas une référence figée : le rapport dit si un cours s'écarte nettement de la moyenne, vers le haut ou vers le bas. Pour les notions nouvelles, le script compte les « points importants » en haut du fichier de chaque cours (`docs/modules/NN-nom/<cours>.md`) et en fait la moyenne. Ce repère ne demande **aucun** élève IA : les anciens cours ne sont jamais retestés pour le calculer.
 
 ### 2. Les personnages
 
@@ -94,14 +94,16 @@ Chaque élève passe **une seule fois**. Les 3 élèves et le prof travaillent e
 
 ### 4. Le rapport
 
-Un seul rapport par lancement (un cours ou un module), en Markdown, enregistré à côté des fiches :
-`docs/modules/NN-nom/tests/<cours-ou-module>-AAAA-MM-JJ.md`, commité sur la branche.
+**Un rapport par cours**, en Markdown, enregistré à côté des fiches et commité sur la branche :
+`docs/modules/NN-nom/tests/<cours>-AAAA-MM-JJ.md`. Quand on lance un module entier, on écrit un rapport par cours **plus** une synthèse `docs/modules/NN-nom/tests/module-AAAA-MM-JJ.md` (problèmes qui traversent plusieurs cours, résumé de chaque cours). Chaque cours garde ainsi son historique.
 
-Dans cet ordre :
+**Relancer un test** : les élèves refont entièrement le cours demandé (il a changé). Avant, la méthode lit le **dernier rapport de ce cours** s'il existe, et le nouveau rapport commence par une partie **« Depuis le dernier test »** : problèmes corrigés, problèmes encore là, nouveaux problèmes. Les autres cours ne sont pas retestés.
+
+Contenu d'un rapport de cours, dans cet ordre (après « Depuis le dernier test » s'il y a lieu) :
 1. **Résumé en 5 lignes** : chaque élève est-il allé au bout, où a-t-il décroché ; dosage : chiffres du cours et nombre de notions nouvelles comparés à la moyenne de tous les cours (« 28 écrans, 900 mots et 5 notions nouvelles : presque deux fois plus que la moyenne » ou « 1 seule notion nouvelle : cours léger »).
-2. **Problèmes, du plus grave au moins grave** — pour chacun : écran (n° et titre), phrase exacte citée, type (l'un des 5 points), élèves qui l'ont rencontré, pourquoi c'est un problème, proposition de réécriture. Pour un module : regroupés par cours, plus une partie « à travers le module » (notion mal comprise qui gêne plus loin).
+2. **Problèmes, du plus grave au moins grave** — pour chacun : écran (n° et titre), phrase exacte citée, type (l'un des 5 points), élèves qui l'ont rencontré, pourquoi c'est un problème, proposition de réécriture.
 3. **Avis du prof**, à part.
-4. **Annexe** : parcours de chaque élève, une ligne par écran ; la liste des points oubliés par l'élève moyen.
+4. **Annexe** : parcours de chaque élève, une ligne par écran ; la liste des points des cours précédents oubliés par chaque élève.
 5. **Coût réel** : tokens et actions de chaque sous-agent (donnés par le résultat de l'outil Agent).
 
 ### 5. La méthode enregistrée
