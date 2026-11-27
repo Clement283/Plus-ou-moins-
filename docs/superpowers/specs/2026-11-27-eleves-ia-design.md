@@ -58,13 +58,15 @@ Un script (TypeScript, lancé avec `tsx`, dans `scripts/`) prend un identifiant 
 - la fiche mémo du cours si elle existe ;
 - en tête, les **chiffres du cours** : nombre d'écrans, de mots, de questions.
 
-Les bonnes réponses et les messages sont dans une partie séparée du fichier (ou un second fichier) que **l'orchestrateur** garde : l'élève ne reçoit un message qu'après avoir donné sa réponse (voir 3).
+Les bonnes réponses ne sont **jamais** dans le fichier donné à l'élève : l'orchestrateur les garde (voir 3).
 
-Le script calcule aussi, une fois, la **moyenne des cours publiés** (ceux de `MODULES`) : écrans, mots, questions. Elle sert de repère « trop lourd ».
+**Correction par le moteur (décision de Claude)** : un second script, `corriger`, reçoit le cours, la question (n° d'écran) et la réponse de l'élève en texte, la convertit au format `Answer` du moteur et appelle la correction de l'application (`checkAnswer`, `feedbackText`, explications des erreurs). L'élève reçoit donc **le vrai message** qu'il verrait dans l'appli, même pour une erreur non prévue. Tous les formats de question des cours testés doivent être couverts (nombre, choix, `resoudre`, `intervalle`, `tableau`, `solutions`…) ; si une réponse ne peut pas être convertie, le script le dit, l'élève reçoit le message général et le rapport le signale.
+
+Le script calcule aussi les **repères « trop lourd » (décision de Claude)** : deux moyennes (écrans, mots, questions par cours) — les cours **Relatifs en ligne** (`MODULES`, ancien format plus court) et les **cours Équations déjà validés par Clément** (liste dans `docs/superpowers/plans/2026-11-22-etape-1-avancement.md`). Le rapport compare aux deux.
 
 ### 2. Les personnages
 
-Chaque personnage est un sous-agent lancé par la session (outil Agent), avec une consigne de rôle écrite dans la méthode.
+Chaque personnage est un sous-agent lancé par la session (outil Agent, modèle **Sonnet**, comme pour l'écriture des cours — décision de Claude : un modèle moins cher jouerait moins bien l'élève faible), avec une consigne de rôle écrite dans la méthode.
 
 **Ce que l'élève sait déjà** vient des documents existants (`docs/modules.md`, `module.md`, les « points importants » en haut des fichiers de cours) pour **tout ce qui précède** les cours testés :
 
@@ -78,13 +80,17 @@ Chaque élève retient une part des points importants de **tous les cours préc�
 
 **Prof de maths** : lit le cours (ou le module) en texte **avec** les fiches et le `module.md`, sans le jouer, sans voir les rapports des élèves. Donne son avis sur : (1) le cours enseigne-t-il ce que la fiche prévoit, ni plus ni moins ; (2) mots et notations justes et conformes au programme de seconde ; (3) ordre des explications logique.
 
-### 3. Le déroulé d'un élève
+### 3. Le déroulé d'un élève (option B, choix de Clément)
 
-L'élève lit les écrans **dans l'ordre, par paquets** (un cours à la fois pour un module) et, à chaque question, écrit sa réponse et une ligne sur ce qu'il pense de l'écran. L'orchestrateur compare ses réponses aux bonnes réponses et lui renvoie le message d'erreur correspondant quand il s'est trompé (message de l'erreur typique reconnue, sinon le message général), puis l'élève dit si le message l'a aidé. Pour un module, l'élève enchaîne les cours dans l'ordre : ce qu'il a appris (ou pas compris) au cours 1 le suit au cours 2.
+Pour chaque cours, dans l'ordre :
+1. L'élève reçoit **tout le cours en texte** (écrans dans l'ordre). Il lit, répond à chaque question sans connaître la bonne réponse et écrit une ligne sur chaque écran (compris, pas compris, phrase citée, envie de sauter…).
+2. L'orchestrateur corrige chaque réponse avec le script `corriger`.
+3. L'élève reçoit **ses erreurs avec le vrai message** de l'application. Pour chacune, il dit si le message l'aide à corriger, et **réessaie** ; la nouvelle réponse est corrigée aussi.
+4. Cours suivant (pour un module) : l'élève garde ce qu'il a appris — ou mal compris — au cours précédent.
+
+Le continuer d'un même sous-agent se fait avec SendMessage. Limite assumée : le message de la question 1 ne peut pas aider l'élève à la question 2 du même cours. Coût visé : ~100 000 tokens par cours.
 
 Chaque élève passe **une seule fois**. Les 3 élèves et le prof travaillent en parallèle.
-
-Détail laissé au constructeur : la taille exacte des paquets (un cours par tour est le point de départ), tant que l'élève ne voit jamais la bonne réponse avant d'avoir répondu.
 
 ### 4. Le rapport
 
