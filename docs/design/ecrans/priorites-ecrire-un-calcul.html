@@ -140,7 +140,7 @@ const S=[
   lead:'Suis le programme une étape à la fois. Écris le calcul, sans le calculer.',
   keys:KEYS_CALC,
   prog:[
-   {instr:'Choisis 4, puis ajoute 3.', ok:['4+3'], okMsg:['Juste : 4 + 3.','Étape suivante : on va multiplier ce résultat.'], grey:{'7':['C’est le résultat, pas le calcul.','Ici on écrit le calcul : 4 + 3.']}, ko:{}, koDefault:['Ce n’est pas le calcul de l’étape.','Choisis 4, puis + 3.']},
+   {instr:'Pars du nombre 4 et ajoute-lui 3.', ok:['4+3'], okMsg:['Juste : 4 + 3.','Étape suivante : on va multiplier ce résultat.'], grey:{'7':['C’est le résultat, pas le calcul.','Ici on écrit le calcul : 4 + 3.']}, ko:{}, koDefault:['Ce n’est pas le calcul de l’étape.','On part de 4, puis on fait + 3.']},
    {instr:'Multiplie le résultat par 5.', ok:['(4+3)×5','5×(4+3)'], okMsg:['Juste : (4 + 3) × 5.','« Le résultat » est 4 + 3 tout entier : il est entre parenthèses, sinon seul le 3 serait multiplié.'], grey:{'7×5':['C’est juste, mais on veut garder le calcul de départ.','Remplace 7 par le calcul qui l’a donné : (4 + 3).']},
     ko:{'4+3×5':['Ici, seul le 3 est multiplié par 5.','On multiplie tout le résultat 4 + 3 : mets-le entre parenthèses, puis × 5.']}, koDefault:['Ce n’est pas le calcul de l’étape.','Le résultat d’avant, c’est 4 + 3 : écris (4 + 3) × 5.']}
   ],

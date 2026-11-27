@@ -86,8 +86,8 @@ export function sumText(rng: Rng, s: number, max = 9): string {
     const a = rnd(rng, [Math.max(1, s - max), Math.min(max, s - 1)]);
     return `${a} + ${s - a}`;
   }
-  const c = rnd(rng, [1, max]);
-  return s + c >= 1 ? `${s + c} - ${c}` : `${c + s} + ${-c}`;
+  const c = rnd(rng, [Math.max(1, 1 - s), Math.max(max, 1 - s)]);
+  return `${s + c} - ${c}`;
 }
 
 /** Un produit à facteurs et diviseurs qui tombent juste : liste de facteurs et opérations ; renvoie le texte et la valeur. */
