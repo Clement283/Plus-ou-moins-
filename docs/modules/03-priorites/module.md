@@ -1,6 +1,6 @@
 # Module 3 — Priorités
 
-*Statut : ébauche du 2026-11-27 ; réponses du porteur du projet le même jour : les 5 questions sont tranchées (voir en bas) ; **module.md validé par le porteur du projet le 2026-11-27**. Révision du collège (5e), placée entre Équations et Suites. Bâti sur deux documents trouvés sur Internet par le porteur du projet (cours de 5e de J. Fonteniaud, diabolomaths.fr, et d'Y. Monka, maths-et-tiques.fr : on reprend leur ordre et leurs règles, pas leur texte), le programme et l'ancien plan `docs/validation/10-calculs/B-priorites.md`.*
+*Statut (2026-11-27, fin de session) : **cours 1 à 5 écrits** (fiches et code, module Essais, pas encore relus ni essayés dans l'appli) ; **cours 6 : fiche écrite, non codé** (écran nouveau, maquette `docs/design/ecrans/priorites-ecrire-un-calcul.html` en attente de validation) ; **cours 7 : fiche écrite, partie nombres codée, partie lettres à brancher**. Historique : ébauche du 2026-11-27 ; réponses du porteur du projet le même jour : les 5 questions sont tranchées (voir en bas) ; **module.md validé par le porteur du projet le 2026-11-27**. Révision du collège (5e), placée entre Équations et Suites. Bâti sur deux documents trouvés sur Internet par le porteur du projet (cours de 5e de J. Fonteniaud, diabolomaths.fr, et d'Y. Monka, maths-et-tiques.fr : on reprend leur ordre et leurs règles, pas leur texte), le programme et l'ancien plan `docs/validation/10-calculs/B-priorites.md`.*
 
 ## Points importants du module
 - **À la fin, l'élève sait** : calculer sans calculatrice un enchaînement d'opérations avec des relatifs, des parenthèses et des crochets, en écrivant une ligne par étape ; dire si un calcul est une somme, une différence, un produit ou un quotient ; écrire en un seul calcul une phrase ou une suite d'opérations ; enlever une parenthèse précédée d'un −.
@@ -28,10 +28,12 @@ Celles du skill `plus-ou-moins-ecrire-un-cours` (déroulé guidé, environ 10 bl
 **Comparer deux cas** : cours 2 (3 + 4 × 2 contre (3 + 4) × 2, si on le garde là ou au cours 3) ; cours 7 (8 − (3 + 2) contre 8 − (3 − 2)) ; ailleurs aucun.
 
 ## Ce qui manque dans l'appli
-- **Calculer par lignes avec parenthèses** : l'écran existe (`calculer`, module 2) et reconnaît déjà l'erreur « priorité oubliée », mais le moteur ne juge que des calculs **sans parenthèse de calcul** (`flatten` dans `packages/engine/src/math/calcul.ts` refuse « ( » ; pas de crochets). À étendre (moteur, pas de nouvel écran) avant le cours 3 ; ajouter les crochets au clavier pour le cours 4. Erreurs à reconnaître en plus : gauche à droite non respecté, parenthèse ignorée, mauvaise parenthèse en premier, signe perdu.
-- **Calcul « à lancer » sans x** : `calculerQuestion` part d'une équation et d'une valeur de x ; il faut une variante qui part d'un calcul seul (A = …).
-- **Écrire un calcul** (cours 6) : saisie d'un calcul tapé avec parenthèses, jugé sur sa **structure** (pas seulement sa valeur : 30 − 2 − 7 vaut 30 − (2 + 7)). Petit écran nouveau → maquette.
-- **Nature d'un calcul** (cours 5) : question `choix` existante (4 réponses) ; toucher la dernière opération : action `morceau` existante.
+- **Fait (2026-11-27)** : calcul par lignes **à partir d'un calcul seul** (`calculerCalcul`, sans x ni verdict, même écran `Calculer.tsx`) ; **parenthèses de calcul et crochets** dans le jugement des lignes (arbre de calcul dans `math/calcul.ts` : valeur, clé, méthode du cours « intérieur d'abord », erreurs reconnues *gauche à droite non respecté*, *priorité oubliée*, *parenthèse ignorée*, *parenthèse intérieure oubliée*, *signe perdu*) ; touches [ ] au clavier du calcul (seulement quand le calcul contient des crochets).
+- **Écrire un calcul** (cours 6) : saisie d'un calcul tapé avec parenthèses, jugé sur sa **structure** (30 − 2 − 7 vaut 30 − (2 + 7)). Petit écran nouveau → maquette faite par la session principale ; **cours 6 non codé** tant qu'elle n'est pas validée.
+- **Lettres au cours 7** : −(x − 3) = −x + 3 : aucune question existante ne juge cette réécriture (`reecrire` juge la forme d'un calcul numérique ; `resoudre` juge des équations) ; écran traité par la session principale, à insérer avant l'exemple guidé du cours 7.
+- **Erreurs d'une question à choix** (cours 5) : la question `choix` n'a pas de type d'erreur ; les erreurs du cours 5 (dernière opération, termes et facteurs, parenthèse) ne sont pas reliées à « Relire la règle N » en fin ratée.
+- **Largeur du téléphone** : calculs de 28 à 30 caractères au plus, mais la ligne « A = … » de l'écran n'a pas été regardée dans un navigateur.
+- **Nature d'un calcul** (cours 5) : question `choix` et action `morceau` existantes : suffisant.
 
 ## Questions pour toi
 1. **Ordre des 2 premiers cours** : *réponse : gauche à droite d'abord, comme les documents.*
