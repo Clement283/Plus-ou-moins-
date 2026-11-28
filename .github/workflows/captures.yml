@@ -1,0 +1,47 @@
+name: Captures d'un cours
+
+# Bouton « Run workflow » de l'onglet Actions : photographie chaque écran d'un ou plusieurs cours, à la demande.
+on:
+  workflow_dispatch:
+    inputs:
+      cours:
+        description: "Cours à photographier, séparés par des virgules : numéro (2), morceau du titre (soustraire), identifiant, ou tous"
+        required: true
+        default: "2"
+
+jobs:
+  captures:
+    name: Captures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Navigateur des tests
+        run: npx playwright install --with-deps chromium
+      - name: Photographier les cours
+        env:
+          CAPTURE_COURSES: ${{ inputs.cours }}
+        run: npx playwright test captures --trace off
+      - name: Envoyer les captures
+        id: upload
+        if: ${{ !cancelled() && hashFiles('captures/**') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-des-cours
+          path: captures/
+          retention-days: 30
+      - name: Lien des captures
+        if: ${{ !cancelled() && steps.upload.outputs.artifact-url != '' }}
+        env:
+          URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          {
+            echo "### Captures"
+            for d in captures/*/; do echo "- \`$(basename "$d")\` : $(ls "$d" | wc -l) écrans"; done
+            echo
+            echo "[Télécharger les captures]($URL) (fichier .zip, gardé 30 jours)."
+          } >> "$GITHUB_STEP_SUMMARY"

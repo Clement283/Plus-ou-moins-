@@ -7,3 +7,4 @@ shots/
 test-results
 playwright-report
 apps/api/src/assets.generated.ts
+captures/

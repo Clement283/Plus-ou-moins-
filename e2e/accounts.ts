@@ -18,6 +18,8 @@ export type Accounts = {
   paul: Account; // suiveur de Lou
   sam: Account; // fonctions.spec : échauffement répondu (Cours 0 déjà validé)
   tess: Account; // fonctions.spec : échauffement passé
+  apercu: Account; // tous-les-cours.spec : compte « aperçu », tous les cours ouverts
+  capture: Account; // captures.spec : compte « aperçu », captures des cours d'une pull request
 };
 
 export const accounts = (): Accounts => JSON.parse(readFileSync(ACCOUNTS_FILE, 'utf8')) as Accounts;

@@ -32,6 +32,19 @@ Pourquoi les fichiers sont intégrés au Worker : dans l'environnement cloud de 
 cd apps/api && npx wrangler d1 migrations apply plus-ou-moins --remote
 ```
 
+## Revenir en arrière sur la base (Time Travel)
+Cloudflare garde l'historique de la base D1 tout seul (7 jours avec l'offre gratuite, 30 avec l'offre payante) : rien à installer, aucune sauvegarde à faire. Pour remettre la base dans l'état d'une minute donnée (ex. juste avant une erreur) :
+
+```bash
+cd apps/api && npx wrangler d1 time-travel info plus-ou-moins --timestamp=2026-11-26T08:00:00Z
+```
+
+```bash
+cd apps/api && npx wrangler d1 time-travel restore plus-ou-moins --timestamp=2026-11-26T08:00:00Z
+```
+
+`info` montre l'état à cette heure sans rien changer ; `restore` remplace toute la base par cet état (ce qui a été fait depuis est perdu, mais `restore` affiche un repère pour annuler : `--bookmark=<repère>`). L'heure est en UTC (Paris − 1 h en hiver, − 2 h en été). À lancer depuis un ordinateur avec le jeton Cloudflare (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) : pas depuis une session Claude (réseau Cloudflare bloqué).
+
 ## Créer un compte
 
 ```bash
@@ -54,7 +67,10 @@ Fichier : `.github/workflows/deploy.yml`.
 - Sur chaque pull request : les tests seulement (`npm test`).
 - Sur chaque push sur `main` : les tests, puis, **seulement s'ils passent**, les migrations D1 en attente (`wrangler d1 migrations apply`) et `npm run deploy`. Tests rouges = rien n'est mis en ligne.
 - À faire une fois sur GitHub : *Settings → Secrets and variables → Actions → New repository secret* : `CLOUDFLARE_API_TOKEN` (mêmes droits que ci-dessus). L'identifiant de compte est dans le fichier.
-- Les tests e2e (Playwright) ne sont pas lancés par cette automatisation.
+- Sur chaque pull request qui touche à l'appli, aux cours ou aux tests (`apps/`, `packages/`, `e2e/`, `scripts/`…) : travail **« Parcours des cours et captures »** (environ 5 min). Il lance tous les tests e2e (Playwright), dont `e2e/tous-les-cours.spec.ts`, qui joue **chaque cours de chaque module** (et des Essais) du début à la fin avec un compte « aperçu ». Un cours ajouté au registre est testé sans rien écrire ; un **nouveau type d'exercice** doit être appris une fois au parcours (`runCourse` dans `e2e/driver.ts`).
+- Dans le même travail, `e2e/captures.spec.ts` prend une capture de chaque écran des cours **ajoutés ou modifiés** par la PR (fichier `packages/engine/src/courses/<module>/<id>.ts` = cours `<id>`). Un commentaire sur la PR donne le lien du .zip (gardé 30 jours), mis à jour à chaque envoi. En local : `CAPTURE_COURSES="c02-additionner-signes-contraires" npm run e2e -- captures` (images dans `captures/`).
+- **Bouton « Captures d'un cours »** : onglet *Actions* → *Captures d'un cours* → *Run workflow* → taper les cours (séparés par des virgules : numéro `2`, morceau du titre `soustraire`, identifiant, ou `tous`) → *Run workflow*. Lien du .zip en bas de la page du lancement (gardé 30 jours). Fichier `.github/workflows/captures.yml`.
+- Après chaque mise en ligne : vérification que la page s'affiche et que l'API répond (401 sans connexion) ; sinon l'étape **« Vérifier que le site répond »** devient rouge.
 
 ## Module « Essais » (2026-11-25)
 Cours à l'essai, **visibles seulement des comptes « aperçu »** (carte « Essais » en bas de Mes cours). Hors de `MODULES` : l'élève ne le voit jamais, il ne compte ni dans sa progression ni dans le suivi. Tous les cours y sont ouverts. Déclaré dans `packages/engine/src/courses/essais/index.ts` (y ajouter les cours à essayer). Contient pour l'instant le Cours 7 (version 2), `c07b-multiplier-plusieurs`.
